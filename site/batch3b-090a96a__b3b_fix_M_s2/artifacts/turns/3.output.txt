@@ -1,0 +1,110 @@
+rc=0
+{
+ "tasks": [
+  {
+   "name": "lift",
+   "eval": "CaP-X Robosuite Cube Lift (lift s4:paper), single-turn code, success = the task's own check"
+  },
+  {
+   "name": "stack",
+   "eval": "CaP-X Robosuite Cube Stack (stack s4:paper), single-turn code, success = the task's own check"
+  },
+  {
+   "name": "nut",
+   "eval": "CaP-X Robosuite Nut Assembly / peg (nut s4:paper), single-turn code, success = the task's own check"
+  },
+  {
+   "name": "wipe",
+   "eval": "CaP-X Robosuite Spill Wipe (wipe s4:paper), single-turn code, success = the task's own check"
+  },
+  {
+   "name": "restack",
+   "eval": "CaP-X Robosuite Cube Re-stack (restack s4:paper), single-turn code, success = the task's own check"
+  },
+  {
+   "name": "twolift",
+   "eval": "CaP-X Robosuite Two-arm Lift (twolift s4:paper), single-turn code, success = the task's own check"
+  },
+  {
+   "name": "handover",
+   "eval": "CaP-X Robosuite Two-arm Handover (handover s4:paper), single-turn code, success = the task's own check"
+  },
+  {
+   "name": "revstack",
+   "eval": "CaP-X Robosuite Reverse-colour Cube Stack, scene shift (stack s4shift:fix), single-turn code, success = the task's own check"
+  },
+  {
+   "name": "stackv2",
+   "eval": "CaP-X Robosuite Cube Stack, API v2 (stack s4v2:fix), single-turn code, success = the task's own check"
+  }
+ ]
+}---TRAIN---
+"""python3 train.py SPEC  -- train an adapter from your spec file (JSON or YAML; any keys). The environment reads
+`name` (adapter name, default a<job id>), `init` (an adapter name to start from) and `steps`; the site's trainer reads the rest."""
+import sys
+from _submit import submit
+
+if len(sys.argv) != 2 or sys.argv[1] in ("-h", "--help"):
+    import os
+    doc = os.path.join(os.path.dirname(os.path.abspath(__file__)), "skills", "trainer", "SKILL.md")   # the site's trainer contract
+    sys.exit(open(doc).read() if os.path.isfile(doc) else __doc__)
+submit("train", {"spec": sys.argv[1]})
+---EVAL---
+"""python3 eval.py --adapter A[,B...]|base|loaded --task T --seeds N  -- success count of that adapter stack on N fresh dev seeds."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("--adapter", required=True)
+p.add_argument("--task", required=True)
+p.add_argument("--seeds", type=int, required=True)
+a = p.parse_args()
+submit("eval", {"adapter": a.adapter, "task": a.task, "seeds": a.seeds})
+---LOAD---
+"""python3 load.py load A [B...] | stack A [B...] | unload [A...]  -- set, extend or shrink the adapter stack on your own
+serving endpoint (unload with no names = base). Free; always allowed. The loaded stack is what the final score evaluates."""
+import sys
+from _submit import submit
+
+if len(sys.argv) < 2 or sys.argv[1] not in ("load", "stack", "unload"):
+    sys.exit(__doc__)
+submit("load", {"verb": sys.argv[1], "names": sys.argv[2:]})
+---WAIT---
+"""python3 wait.py all | ID [ID...]  -- after this command, block until those jobs finish before your next turn."""
+import sys
+from _submit import submit
+
+if len(sys.argv) < 2 or {"-h", "--help"} & set(sys.argv[1:]):
+    sys.exit(__doc__)
+submit("wait", {"ids": sys.argv[1:]})
+---STATUS---
+"""python3 status.py [ID...]  -- print the state and result of jobs (all jobs if no ID)."""
+import glob, json, os, sys
+
+if {"-h", "--help"} & set(sys.argv[1:]):
+    sys.exit(__doc__)
+jobs = os.path.join(os.path.dirname(os.path.abspath(__file__)), "jobs")
+ids = sys.argv[1:] or sorted((os.path.basename(p)[:-5] for p in glob.glob(f"{jobs}/*.json") if ".request" not in p), key=int)
+for i in ids:
+    path = os.path.join(jobs, f"{i}.json")
+    print(open(path).read().strip() if os.path.exists(path) else json.dumps({"id": i, "state": "requested"}))
+---SUBMIT---
+"""Shared by train.py, eval.py, load.py, wait.py: write one request file to jobs/; the environment picks it up when
+the current shell command finishes, and writes jobs/<id>.json with its state and result."""
+import json, os
+
+JOBS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "jobs")
+
+
+def submit(kind, args):
+    os.makedirs(JOBS, exist_ok=True)
+    n = 1
+    while True:
+        try:
+            f = open(os.path.join(JOBS, f"{n}.request.json"), "x")
+            break
+        except FileExistsError:
+            n += 1
+    with f:
+        json.dump({"id": n, "kind": kind, "args": args}, f)
+    print(f"job {n}: {kind} requested; it is picked up when this command finishes (see python3 status.py {n})")

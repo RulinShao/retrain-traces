@@ -1,0 +1,10 @@
+{
+  "task": "stack",
+  "name": "stack1",
+  "steps": 30,
+  "batch": 8,
+  "lr": 0.00002,
+  "seed_start": 900000,
+  "reward": "task_completed",
+  "time": "08:00:00"
+}

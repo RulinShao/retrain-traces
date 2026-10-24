@@ -1,0 +1,11 @@
+{
+ "task": "stack",
+ "name": "stack1",
+ "steps": 20,
+ "batch": 8,
+ "lr": 2e-05,
+ "reward": "task_completed",
+ "note": "For exact placement use place_z = green_center_z + green_extent[2]/2 + red_extent[2]/2, reuse the grasp quaternion from sample_grasp_pose, lift the red cube at least 0.2 m above the table before any lateral move, and lower it slowly from z_approach=0.1 without dropping.",
+ "seed_start": 820001,
+ "time": "06:30:00"
+}

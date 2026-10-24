@@ -1,0 +1,5 @@
+task: stack
+steps: 15
+batch: 8
+lr: 2.0e-5
+reward: task_completed

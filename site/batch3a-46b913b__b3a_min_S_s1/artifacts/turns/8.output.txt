@@ -1,0 +1,82 @@
+rc=0
+===== lift =====
+7:Goal: pick up the red cube and lift it.
+-- functions defined (-> lines) --
+13:get_observation() -> dict[str, typing.Any]
+25:point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+74:plan_grasp(depth: numpy.ndarray, intrinsics: numpy.ndarray, segmentation: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+117:solve_ik(position: numpy.ndarray, quaternion_wxyz: numpy.ndarray) -> numpy.ndarray
+134:move_to_joints(joints: numpy.ndarray) -> None
+146:open_gripper() -> None
+153:close_gripper() -> None
+===== stack =====
+7:Goal: Pick up the red cube and gently stack it on top of the green cube, then release it.
+-- functions defined (-> lines) --
+21:get_observation() -> dict[str, typing.Any]
+33:point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+82:plan_grasp(depth: numpy.ndarray, intrinsics: numpy.ndarray, segmentation: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+125:solve_ik(position: numpy.ndarray, quaternion_wxyz: numpy.ndarray) -> numpy.ndarray
+142:move_to_joints(joints: numpy.ndarray) -> None
+154:open_gripper() -> None
+161:close_gripper() -> None
+===== nut =====
+7:Goal: grasp and insert the `brown square nut` onto the `brown square block`.
+-- functions defined (-> lines) --
+18:get_observation() -> dict[str, typing.Any]
+30:point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+93:solve_ik(position: numpy.ndarray, quaternion_wxyz: numpy.ndarray) -> numpy.ndarray
+110:move_to_joints(joints: numpy.ndarray) -> None
+122:open_gripper() -> None
+129:close_gripper() -> None
+===== wipe =====
+7:Goal: wipe up the 'brown spill'.
+-- functions defined (-> lines) --
+18:get_observation() -> dict[str, typing.Any]
+30:point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+79:solve_ik(position: numpy.ndarray, quaternion_wxyz: numpy.ndarray) -> numpy.ndarray
+96:move_to_joints(joints: numpy.ndarray) -> None
+===== restack =====
+7:Goal: Gently place the red cube on top of the green cube and then open the gripper. Nothing should be dropped from a height.
+-- functions defined (-> lines) --
+14:get_observation() -> dict[str, typing.Any]
+26:point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+75:plan_grasp(depth: numpy.ndarray, intrinsics: numpy.ndarray, segmentation: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+118:solve_ik(position: numpy.ndarray, quaternion_wxyz: numpy.ndarray) -> numpy.ndarray
+135:move_to_joints(joints: numpy.ndarray) -> None
+147:open_gripper() -> None
+154:close_gripper() -> None
+===== twolift =====
+6:Goal: The two arms should coordinate to lift a pot. Arm 0 should grasp handle 0, and Arm 1 should grasp handle 1. Then both arms should lift the pot up at the same height.
+-- functions defined (-> lines) --
+21:get_observation() -> dict[str, typing.Any]
+33:point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+45:detect_object_owlvit(rgb: numpy.ndarray, text: str) -> list[dict[str, typing.Any]]
+83:plan_grasp(depth: numpy.ndarray, intrinsics: numpy.ndarray, segmentation: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+134:move_to_joints_both(joints0: numpy.ndarray, joints1: numpy.ndarray) -> None
+===== handover =====
+7:Goal: Arm 0 should pick up the hammer, lift it, and hand it over to Arm 1. Arm 1 should then grasp the hammer handle (not hammer head). The z-value of hammer must be between 0.15 and 0.20 during the handover to count as a success.
+-- functions defined (-> lines) --
+42:get_observation() -> dict[str, typing.Any]
+54:point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+103:plan_grasp(depth: numpy.ndarray, intrinsics: numpy.ndarray, segmentation: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+154:move_to_joints_both(joints0: numpy.ndarray, joints1: numpy.ndarray) -> None
+===== revstack =====
+7:Goal: Pick up the green cube and gently stack it on top of the red cube, then release it.
+-- functions defined (-> lines) --
+19:get_observation() -> dict[str, typing.Any]
+31:point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+80:plan_grasp(depth: numpy.ndarray, intrinsics: numpy.ndarray, segmentation: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+123:solve_ik(position: numpy.ndarray, quaternion_wxyz: numpy.ndarray) -> numpy.ndarray
+140:move_to_joints(joints: numpy.ndarray) -> None
+152:open_gripper() -> None
+159:close_gripper() -> None
+===== stackv2 =====
+7:Goal: Pick up the red cube and gently stack it on top of the green cube, then release it.
+-- functions defined (-> lines) --
+19:get_observation() -> dict[str, typing.Any]
+31:point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+80:plan_grasp(depth: numpy.ndarray, intrinsics: numpy.ndarray, segmentation: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+123:solve_ik(position: numpy.ndarray, quaternion_wxyz: numpy.ndarray) -> numpy.ndarray
+140:move_to_joints(joints: numpy.ndarray) -> None
+152:open_gripper() -> None
+159:close_gripper() -> None

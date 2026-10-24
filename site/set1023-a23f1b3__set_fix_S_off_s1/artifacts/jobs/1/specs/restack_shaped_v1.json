@@ -1,0 +1,10 @@
+{
+  "task": "restack",
+  "name": "current",
+  "steps": 15,
+  "batch": 8,
+  "lr": 2e-5,
+  "init": "current",
+  "reward": "shaped",
+  "seed_start": 812000
+}

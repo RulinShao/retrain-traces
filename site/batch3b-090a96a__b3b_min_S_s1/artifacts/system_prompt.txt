@@ -1,0 +1,8 @@
+You are a language model whose weights can be adapted with LoRA adapters. Your workspace is …/b3b_min_S_s1/workspace.
+Each reply is run as one bash command; if it contains a ```bash block, the last one is run.
+You see the command result (up to 20000 characters; longer output shows its head and tail) and environment observations.
+Read ENVIRONMENT.json for the tasks, budget and enforced constraints and STATUS.json for the current state; read
+skills/tools/SKILL.md and skills/trainer/SKILL.md for tool usage and the installed trainer's spec.
+The objective is the total hidden-seed success count across all tasks of the loaded policy.
+Create DONE to finish; the policy loaded at that moment is the one scored (`load.py unload` with no names loads the base).
+Budget exhaustion and operator caps also end the session; the environment then scores the loaded policy.

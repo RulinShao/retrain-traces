@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trajectory Viewer</title>
+<link rel="stylesheet" href="vendor/uPlot.min.css">
+<style>
+:root {
+  --bg: #fbfbfa; --panel: #ffffff; --ink: #1d1d1f; --muted: #6b6b70; --line: #e3e3e0; --accent: #2f5fd0;
+  --ok: #1f8a4c; --bad: #c0392b; --warn: #b7791f; --code: #f3f3f0; --chip: #eef1f8;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #151517; --panel: #1d1d20; --ink: #e8e8ea; --muted: #9a9aa2; --line: #2e2e33; --accent: #7aa2ff;
+    --ok: #4cc287; --bad: #ff7b6b; --warn: #e3b341; --code: #26262a; --chip: #262a36;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #151517; --panel: #1d1d20; --ink: #e8e8ea; --muted: #9a9aa2; --line: #2e2e33; --accent: #7aa2ff;
+  --ok: #4cc287; --bad: #ff7b6b; --warn: #e3b341; --code: #26262a; --chip: #262a36;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+a { color: var(--accent); text-decoration: none; } a:hover { text-decoration: underline; }
+header { position: sticky; top: 0; z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line); padding: 8px 16px; }
+header .row { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+nav { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+nav a { padding: 3px 10px; border-radius: 6px; color: var(--muted); }
+nav a.on { background: var(--chip); color: var(--ink); }
+main { padding: 12px 16px 48px; max-width: 1280px; margin: 0 auto; }
+.muted { color: var(--muted); } .ok { color: var(--ok); } .bad { color: var(--bad); } .warn { color: var(--warn); }
+.chip { display: inline-block; background: var(--chip); border-radius: 10px; padding: 0 8px; font-size: 12px; margin: 1px 2px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin: 8px 0; overflow-wrap: anywhere; min-width: 0; }
+.turn h3 { margin: 0 0 6px; font-size: 14px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.kind { font: 11px ui-monospace, monospace; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+pre, code { font: 12.5px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
+pre { background: var(--code); padding: 8px 10px; border-radius: 6px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; margin: 6px 0; max-height: 480px; overflow-y: auto; }
+code { background: var(--code); padding: 0 3px; border-radius: 3px; }
+pre code { background: none; padding: 0; }
+.md p { margin: 4px 0; } .md h1, .md h2, .md h3, .md h4 { font-size: 14px; margin: 8px 0 4px; }
+.md ul { margin: 4px 0; padding-left: 20px; }
+details > summary { cursor: pointer; color: var(--muted); }
+details.think { border-left: 3px solid var(--line); padding-left: 8px; margin: 4px 0; }
+.event { margin: 4px 0; } .note { border-left: 3px solid var(--warn); padding: 2px 8px; margin: 4px 0; }
+.note.error { border-color: var(--bad); } .note.info { border-color: var(--line); }
+.jobline { border-left: 3px solid var(--accent); padding: 2px 8px; margin: 4px 0; }
+table { border-collapse: collapse; width: 100%; } th, td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 500; font-size: 12px; } td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.tablewrap { overflow-x: auto; }
+.bar { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; width: 180px; display: inline-block; vertical-align: middle; }
+.bar > span { display: block; height: 100%; background: var(--accent); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+.plot { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px; min-width: 0; }
+.plot .t { font: 12px ui-monospace, monospace; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.gallery .item { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px; }
+.gallery video, .gallery img { width: 100%; border-radius: 4px; background: #000; }
+.stack { display: flex; align-items: flex-end; gap: 2px; height: 160px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.stack .col { display: flex; flex-direction: column-reverse; min-width: 8px; flex: 1; max-width: 28px; }
+.stack .col span, .gantt span, .legend i { display: block; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin: 0 4px 0 10px; vertical-align: -1px; }
+.gantt { position: relative; height: 18px; background: var(--code); border-radius: 3px; margin: 3px 0; }
+.gantt span { position: absolute; top: 0; height: 100%; border-radius: 2px; }
+.seeds { display: flex; flex-wrap: wrap; gap: 2px; } .seeds span { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.seeds .s1 { background: var(--ok); } .seeds .s0 { background: var(--line); }
+input[type=search], input[type=text], select { background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; font: inherit; }
+button { background: var(--chip); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 2px 10px; cursor: pointer; font: inherit; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+mark { background: #ffe58a; color: #000; }
+.flash { outline: 2px solid var(--accent); }
+#modal { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; z-index: 10; padding: 24px 16px; }
+#modal .box { background: var(--panel); max-width: 1100px; margin: 0 auto; height: 100%; border-radius: 8px; display: flex; flex-direction: column; }
+#modal .head { padding: 8px 12px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 8px; }
+#modal .body { overflow: auto; padding: 8px 12px; flex: 1; }
+.msg { border-left: 3px solid var(--line); padding-left: 8px; margin: 8px 0; }
+.msg.system { border-color: var(--warn); } .msg.assistant { border-color: var(--accent); }
+@media (max-width: 640px) { main { padding: 8px 16px 48px; } .bar { width: 100px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="row"><h1 id="title">Trajectory Viewer</h1><span id="headinfo" class="muted"></span><span id="live" class="muted"></span></div>
+  <nav id="nav"></nav>
+</header>
+<main id="main"><p class="muted">Loading…</p></main>
+<div id="modal"><div class="box"><div class="head"><b id="mtitle"></b><button id="mclose">Close</button></div><div class="body" id="mbody"></div></div></div>
+<script src="vendor/uPlot.iife.min.js"></script>
+<script>window.TRAJ_SITE = "index.json";</script>
+<script>
+"use strict";
+// Data: live (served by trajectory.view: /api/*, /f?p= with Range) or embedded (trajectory.export: window.TRAJ_EMBED).
+const EMBED = window.TRAJ_EMBED || null;
+const SITE = window.TRAJ_SITE || null;   // static site mode (trajectory.publish): index.json + site/<id>/, no server API
+const POLL_MS = SITE ? 30000 : 3000;
+const S = { root: null, kind: null, traj: {}, current: null, batch: null, expanded: new Set(), timers: [] };
+
+// ---------------------------------------------------------------- utilities
+const $ = (sel, el = document) => el.querySelector(sel);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+function norm(p) {
+  const out = [];
+  for (const part of p.split("/")) {
+    if (part === "" || part === ".") continue;
+    if (part === "..") out.pop(); else out.push(part);
+  }
+  return "/" + out.join("/");
+}
+const join = (dir, rel) => rel.startsWith("/") ? norm(rel) : norm(dir + "/" + rel);
+const furl = p => EMBED ? (EMBED.files[p] && EMBED.files[p].url) || null : SITE ? p.replace(/^\//, "") : "f?p=" + encodeURIComponent(p);
+const fresh = u => u + (u.includes("?") ? "&" : "?") + "v=" + Date.now();   // past CDN caches for files that grow
+const fmtT = t => t ? t.replace("T", " ").replace(/\.\d+Z$|Z$/, "") : "";
+const num = (x, d = 3) => (x === null || x === undefined || x === "") ? "–" : (typeof x === "number" ? +x.toFixed(d) : esc(x));
+function hashParams() { const h = new URLSearchParams(location.hash.slice(1)); return Object.fromEntries(h.entries()); }
+function setHash(obj) { const h = new URLSearchParams(obj); location.hash = h.toString(); }
+const qs = new URLSearchParams(location.search);
+
+async function getJSON(url) { const r = await fetch(url); if (!r.ok) throw new Error(url + ": " + r.status); return r.json(); }
+async function getText(p, maxBytes) {
+  if (EMBED) { const f = EMBED.files[p]; return f && f.text !== undefined ? f.text : null; }
+  const r = await fetch(SITE ? fresh(furl(p)) : furl(p), maxBytes ? { headers: { Range: "bytes=0-" + (maxBytes - 1) } } : {});
+  if (!r.ok) return null;
+  return r.text();
+}
+
+// minimal markdown (escaped first: model output is never trusted HTML)
+function md(src) {
+  let html = "", inCode = false, code = [], list = false, para = [];
+  const inline = s => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
+  const flushPara = () => { if (para.length) { html += "<p>" + para.map(inline).join("<br>") + "</p>"; para = []; } };
+  const flushList = () => { if (list) { html += "</ul>"; list = false; } };
+  for (const line of String(src).split("\n")) {
+    if (/^\s*```/.test(line)) {
+      if (inCode) { html += "<pre><code>" + esc(code.join("\n")) + "</code></pre>"; code = []; inCode = false; }
+      else { flushPara(); flushList(); inCode = true; }
+      continue;
+    }
+    if (inCode) { code.push(line); continue; }
+    const h = line.match(/^(#{1,4})\s+(.*)$/), li = line.match(/^\s*[-*]\s+(.*)$/);
+    if (h) { flushPara(); flushList(); html += `<h4>${inline(h[2])}</h4>`; }
+    else if (li) { flushPara(); if (!list) { html += "<ul>"; list = true; } html += "<li>" + inline(li[1]) + "</li>"; }
+    else if (!line.trim()) { flushPara(); flushList(); }
+    else { flushList(); para.push(line); }
+  }
+  if (inCode) html += "<pre><code>" + esc(code.join("\n")) + "</code></pre>";
+  flushPara(); flushList();
+  return html;
+}
+function reply(text) {   // <think>…</think> as a collapsed block, the rest as markdown
+  const m = String(text).match(/^([\s\S]*?)<think>([\s\S]*?)(<\/think>|$)([\s\S]*)$/);
+  if (!m) { const c = String(text).split("</think>"); if (c.length === 2) return `<details class="think"><summary>thinking</summary><div class="md">${md(c[0])}</div></details><div class="md">${md(c[1])}</div>`; return `<div class="md">${md(text)}</div>`; }
+  return `<div class="md">${md(m[1])}</div><details class="think"><summary>thinking (${m[2].length} chars)</summary><div class="md">${md(m[2])}</div></details><div class="md">${md(m[4])}</div>`;
+}
+function modal(title, html) { $("#mtitle").textContent = title; $("#mbody").innerHTML = html; $("#modal").style.display = "block"; }
+$("#mclose").onclick = () => { $("#modal").style.display = "none"; $("#mbody").innerHTML = ""; };
+document.addEventListener("keydown", e => { if (e.key === "Escape") $("#mclose").onclick(); });
+
+// ---------------------------------------------------------------- trajectories (live tail)
+async function openTraj(path) {
+  if (S.traj[path]) return S.traj[path];
+  const t = { path, manifest: null, events: [], offset: 0, buf: "", ctx: null, missing: false };
+  S.traj[path] = t;
+  if (EMBED) {
+    const d = EMBED.trajs[path];
+    if (!d) { t.missing = true; return t; }
+    t.manifest = d.manifest; t.events = d.events; return t;
+  }
+  try { t.manifest = SITE ? await getJSON(fresh(furl(path + "/manifest.json"))) : (await getJSON("api/open?p=" + encodeURIComponent(path))).manifest; }
+  catch (e) { t.missing = true; return t; }
+  await tail(t);
+  return t;
+}
+async function tail(t) {   // complete lines appended since the last read (HTTP Range); -> number of new events
+  if (EMBED || t.missing) return 0;
+  const u = furl(t.path + "/events.jsonl");
+  const r = await fetch(SITE ? fresh(u) : u, { headers: { Range: "bytes=" + t.offset + "-" } });
+  if (r.status === 204 || r.status === 416 || !r.ok) return 0;
+  let buf = new Uint8Array(await r.arrayBuffer());
+  if (r.status === 200 && t.offset) buf = buf.subarray(t.offset);   // a host that ignores Range: skip what was read
+  let end = buf.lastIndexOf(10);
+  if (end < 0) return 0;
+  const text = new TextDecoder().decode(buf.subarray(0, end + 1));
+  t.offset += end + 1;
+  let n = 0;
+  for (const line of text.split("\n")) {
+    if (!line.trim()) continue;
+    try { const e = JSON.parse(line); e.payload = e.payload || {}; e.files = e.files || []; t.events.push(e); n++; } catch (_) { /* torn line */ }
+  }
+  if (n) t.ctx = null;
+  return n;
+}
+async function context(t) {
+  if (t.ctx) return t.ctx;
+  t.ctx = {};
+  const text = await getText(t.path + "/artifacts/context.jsonl");
+  for (const line of (text || "").split("\n")) { try { const r = JSON.parse(line); t.ctx[r.ref] = r.content; } catch (_) {} }
+  return t.ctx;
+}
+
+// ---------------------------------------------------------------- model of one session trajectory
+function build(t) {
+  const m = { start: null, end: null, pre: [], turns: new Map(), jobs: new Map(), states: [], evals: [], stages: [] };
+  let cur = null;
+  const job = id => { if (!m.jobs.has(id)) m.jobs.set(id, { id, submit: null, updates: [], done: null, evals: [], child: null }); return m.jobs.get(id); };
+  for (const e of t.events) {
+    const p = e.payload, k = e.kind;
+    if (k === "session.start") { m.start = e; continue; }
+    if (k === "session.end") { m.end = e; }
+    if (k === "turn.start") { cur = { n: p.turn, start: e, input: null, output: null, action: null, obs: null, other: [] }; m.turns.set(p.turn, cur); continue; }
+    const slot = { "model.input": "input", "model.output": "output", "action": "action", "observation": "obs" }[k];
+    if (slot && cur && (p.turn === undefined || p.turn === cur.n)) { cur[slot] = e; continue; }
+    if (k.startsWith("job.")) {
+      const j = job(String(p.job_id));
+      if (k === "job.submit") { j.submit = e; j.turn = cur ? cur.n : null; }
+      else if (k === "job.done") j.done = e; else j.updates.push(e);
+      if (p.child && !j.child) j.child = join(t.path, p.child);
+    }
+    if (k === "eval") { m.evals.push(e); if (p.job_id !== undefined) job(String(p.job_id)).evals.push(e); }
+    if (k === "state") m.states.push({ e, turn: cur ? cur.n : null });
+    (cur ? cur.other : m.pre).push(e);
+  }
+  return m;
+}
+const lastState = (m, key) => { for (let i = m.states.length - 1; i >= 0; i--) { const v = m.states[i].e.payload[key]; if (v !== undefined && v !== null) return v; } return null; };
+
+// ---------------------------------------------------------------- rendering helpers
+function fileLinks(t, e) {
+  return (e.files || []).map(f => {
+    const p = join(t.path, f), u = furl(p), name = esc(f.split("/").pop());
+    if (!u) return `<span class="chip muted" title="${esc(p)}">${name} (not embedded)</span>`;
+    if (/\.(mp4|webm)$/i.test(f)) return `<video controls preload="metadata" src="${u}#t=0.1" style="max-width:320px"${e.payload && e.payload.playback_rate ? ` data-rate="${+e.payload.playback_rate}"` : ""}></video>`;
+    if (/\.(png|jpe?g|gif|webp)$/i.test(f)) return `<img loading="lazy" src="${u}" style="max-width:320px">`;
+    if (!/\.[A-Za-z0-9]{1,6}$/.test(f)) return `<span class="chip" title="${esc(p)}">${name}/</span>`;
+    return `<a href="#" class="chip" data-file="${esc(p)}">${name}</a>`;
+  }).join(" ");
+}
+document.addEventListener("click", async ev => {
+  const a = ev.target.closest("[data-file]");
+  if (!a) return;
+  ev.preventDefault();
+  const p = a.dataset.file;
+  modal(p, "<p class=muted>loading…</p>");
+  const text = await getText(p, 4 * 1024 * 1024);
+  if (text === null) { $("#mbody").innerHTML = `<p class="bad">missing or not readable: ${esc(p)}</p>`; return; }
+  if (/\.jsonl$/.test(p) && /rollout_data/.test(p)) { $("#mbody").innerHTML = rollouts(text); return; }
+  $("#mbody").innerHTML = `<pre>${esc(text)}</pre>` + (text.length >= 4 * 1024 * 1024 - 1 ? "<p class=muted>first 4 MB shown</p>" : "");
+});
+function rollouts(text) {
+  const rows = text.split("\n").filter(l => l.trim()).map(l => { try { return JSON.parse(l); } catch (_) { return null; } }).filter(Boolean);
+  const pos = rows.filter(r => +r.score > 0).length;
+  return `<p>${rows.length} rollouts, ${pos} with reward &gt; 0.</p>` + rows.map((r, i) =>
+    `<details><summary>#${i} score <b class="${+r.score > 0 ? "ok" : ""}">${esc(r.score)}</b> ${esc(r.uid || "")}</summary>
+     <details><summary>prompt</summary><pre>${esc(r.input)}</pre></details><pre>${esc(r.output)}</pre></details>`).join("");
+}
+function payloadBlock(e) {
+  return `<details><summary><span class="kind">${esc(e.kind)}</span> ${esc(fmtT(e.t))}</summary><pre>${esc(JSON.stringify(e.payload, null, 1))}</pre></details>`;
+}
+function eventLine(t, e) {
+  const p = e.payload, k = e.kind;
+  if (k === "note") return `<div class="note ${esc(p.level)}"><span class="kind">${esc(p.source)} ${esc(p.level)}</span> ${esc(p.text)}</div>`;
+  if (k === "job.submit") return `<div class="jobline"><span class="kind">job submit</span> <a href="#job=${esc(p.job_id)}">job ${esc(p.job_id)}</a> ${esc(p.type)} ${esc(jobWhat(p))} ${fileLinks(t, e)}</div>`;
+  if (k === "job.update") return p.child ? `<div class="jobline"><span class="kind">job update</span> <a href="#job=${esc(p.job_id)}">job ${esc(p.job_id)}</a> ${esc(p.state)} (record linked)</div>` : "";
+  if (k === "job.done") return `<div class="jobline"><span class="kind">job done</span> <a href="#job=${esc(p.job_id)}">job ${esc(p.job_id)}</a> <b class="${p.state === "done" ? "ok" : "bad"}">${esc(p.state)}</b> ${esc(short(p.summary))}</div>`;
+  if (k === "eval") return `<div class="jobline"><span class="kind">eval</span> ${evalLine(p)}</div>`;
+  if (k === "state") return p.submission ? `<div class="jobline"><span class="kind">submission ${esc(p.submission.event || "")}</span> ${esc(submissionText(p.submission))}</div>` : "";
+  return `<div class="event">${payloadBlock(e)} ${fileLinks(t, e)}</div>`;
+}
+// finish.py's two-step submission (state events, payload.submission): what would be scored, and the token
+const submissionText = row => { const sub = row.submission || {};
+  const what = (sub.adapters || []).map(a => a.name + (a.version ? "@v" + a.version : "")).join("+") || (sub.adapters ? "base" : "");
+  return [what && "policy " + what, sub.token && "token " + sub.token, row.job !== undefined && row.job !== null && "job " + row.job].filter(Boolean).join(", "); };
+const short = x => { const s = typeof x === "string" ? x : JSON.stringify(x); return s && s.length > 160 ? s.slice(0, 160) + "…" : (s || ""); };
+const jobWhat = p => p.type === "train" ? `${(p.spec || {}).task || ""} ${(p.spec || {}).name || ""} ${(p.spec || {}).steps ? (p.spec.steps + " steps") : ""}`
+  : p.type === "eval" ? `${(p.args || {}).adapter || p.adapter || ""} on ${(p.args || {}).task || p.task || ""} (${(p.args || {}).seeds || p.n || "?"} seeds)` : short(p.args || "");
+function evalLine(p) {
+  const b = p.baseline, d = b && b.n ? (p.score / p.n - b.score / b.n) : null;
+  return `<b>${esc(p.task)}</b> ${esc(p.label || (p.adapters || []).join("+") || "base")}: <b>${esc(p.score)}/${esc(p.n)}</b>` +
+    (b ? ` <span class="muted">vs base ${esc(b.score)}/${esc(b.n)}</span> <span class="${d > 0 ? "ok" : d < 0 ? "bad" : "muted"}">${d === null ? "" : (d > 0 ? "+" : "") + (100 * d).toFixed(0) + " pp"}</span>` : "") +
+    (p.cached ? ` <span class="chip">cached</span>` : "") + (p.estimated ? ` <span class="chip">estimated</span>` : "");
+}
+function budgetBar(b) {
+  if (!b || !b.total) return "";
+  const used = +(b.used || 0), res = +(b.reserved || 0), pct = Math.min(100, 100 * used / b.total), pr = Math.min(100 - pct, 100 * res / b.total);
+  return `<span class="bar" title="used ${used} + reserved ${res} of ${b.total} GPU-h"><span style="width:${pct}%;float:left"></span><span style="width:${pr}%;float:left;opacity:.35"></span></span> <span class="muted">${num(used, 2)} / ${b.total} GPU-h</span>`;
+}
+
+// ---------------------------------------------------------------- views
+function nav(tabs, on) {
+  $("#nav").innerHTML = tabs.map(([id, label]) => `<a href="#tab=${id}" class="${id === on ? "on" : ""}">${label}</a>`).join("") +
+    ((S.kind === "batch" && !EMBED) || SITE ? ` <a href="./">↑ ${SITE ? "index" : "batch"}</a>` : "");
+}
+const TABS = [["timeline", "Timeline"], ["jobs", "Jobs"], ["state", "State"], ["resources", "Resources"], ["gallery", "Gallery"], ["search", "Search"], ["raw", "Events"]];
+
+async function renderSession() {
+  const t = S.traj[S.current], m = build(t), h = hashParams();
+  const tab = h.job ? "jobs" : (h.turn !== undefined ? "timeline" : (h.tab || "timeline"));
+  const man = t.manifest || {}, tags = man.tags || {};
+  $("#title").textContent = man.trajectory_id || t.path;
+  const status = m.end ? m.end.payload.status : "running";
+  const fs = m.end && m.end.payload.final_score;
+  $("#headinfo").innerHTML = `<span class="chip">${esc(status)}</span>` + (fs ? ` final <b>${esc(fs.total ?? short(fs))}</b>` : "") +
+    ` ${m.turns.size} turns ` + budgetBar(lastState(m, "budget")) + " " +
+    Object.entries(tags).filter(([k]) => !["converted_from", "kind"].includes(k)).map(([k, v]) => `<span class="chip">${esc(k)}: ${esc(v)}</span>`).join("") +
+    (man.agent ? ` <span class="chip">agent ${esc(man.agent.model)}</span>` : "");
+  nav(TABS, tab);
+  const main = $("#main");
+  const y = window.scrollY;
+  if (tab === "timeline") main.innerHTML = timeline(t, m);
+  else if (tab === "jobs") main.innerHTML = h.job ? await jobPage(t, m, h.job) : jobsTable(m);
+  else if (tab === "state") main.innerHTML = statePage(m);
+  else if (tab === "gallery") main.innerHTML = await galleryPage(t, m);
+  else if (tab === "search") main.innerHTML = searchPage(t, m);
+  else if (tab === "resources") main.innerHTML = await resourcesPage(t, m);
+  else main.innerHTML = rawPage(t);
+  afterRender(t, m, tab, h);
+  if (S.rendered === location.hash) window.scrollTo(0, y);
+  else if (h.turn !== undefined) { const el = document.getElementById("turn-" + h.turn); if (el) { el.scrollIntoView(); el.classList.add("flash"); } }
+  else window.scrollTo(0, 0);
+  S.rendered = location.hash;
+}
+
+function timeline(t, m) {
+  const s = m.start ? m.start.payload : {};
+  let html = `<div class="card"><div class="kind">session start ${esc(fmtT(m.start && m.start.t))}</div>
+    <p>tasks: ${(s.tasks || []).map(x => `<span class="chip">${esc(x)}</span>`).join("")}</p>
+    <details><summary>system prompt</summary><pre>${esc(s.system_prompt || "")}</pre>${m.start ? fileLinks(t, m.start) : ""}</details>
+    ${s.first_observation ? `<details><summary>first observation</summary><pre>${esc(s.first_observation)}</pre></details>` : ""}
+    ${m.pre.map(e => eventLine(t, e)).join("")}</div>`;
+  for (const [n, tr] of m.turns) {
+    const out = tr.output ? tr.output.payload : null, act = tr.action ? tr.action.payload : null, obs = tr.obs ? tr.obs.payload : null;
+    const inp = tr.input ? tr.input.payload : null;
+    const st = tr.other.filter(e => e.kind === "state" && e.payload.budget).pop();
+    html += `<div class="card turn" id="turn-${n}"><h3><a href="#turn=${n}">turn ${n}</a> <span class="muted">${esc(fmtT(tr.start.t))}</span>
+      ${tr.start.payload.estimated ? '<span class="chip">times estimated</span>' : ""}
+      ${out && out.usage ? `<span class="chip">${esc(out.usage.prompt_tokens)}→${esc(out.usage.completion_tokens)} tok</span>` : ""}
+      ${out && out.stop_reason === "length" ? '<span class="chip warn">cut at length</span>' : ""}
+      ${inp ? `<button data-ctx="${n}">context: ${esc(inp.n_messages ?? (inp.messages || []).length)} msgs, ~${esc(inp.est_tokens ?? "?")} tok</button>` : ""}
+      ${st ? budgetBar(st.payload.budget) : ""}</h3>
+      ${out ? reply(out.text) + fileLinks(t, tr.output) : '<p class="muted">no model output recorded</p>'}
+      ${act && act.command ? (out && act.parsed_from === "bash_block" && String(out.text).includes(act.command) ? '<div class="kind">ran the bash block above</div>'
+        : `<div class="kind">ran (${esc(act.parsed_from || act.type)})</div><pre>${esc(act.command)}</pre>`) : act ? '<div class="kind bad">no command ran</div>' : ""}
+      ${obs ? `<details ${S.expanded.has("o" + n) ? "open" : ""} data-key="o${n}"><summary>output: ${obs.exit_code !== null && obs.exit_code !== undefined ? "rc=" + esc(obs.exit_code) : ""} ${obs.timed_out ? '<b class="bad">timed out</b>' : ""} ${esc(obs.output_chars ?? "")} chars ${obs.duration_s ? esc(obs.duration_s) + " s" : ""}</summary>
+        <pre>${esc(obs.head || "")}</pre>${fileLinks(t, tr.obs)}
+        ${obs.sent ? `<details><summary>full user message sent to the model</summary><pre>${esc(obs.sent)}</pre></details>` : ""}</details>` : ""}
+      ${tr.other.map(e => eventLine(t, e)).join("")}</div>`;
+  }
+  if (m.end) html += `<div class="card"><div class="kind">session end ${esc(fmtT(m.end.t))}</div>${payloadBlock(m.end)} ${fileLinks(t, m.end)}</div>`;
+  return html;
+}
+
+// A job's state as recorded, never invented: its job.done; else, if the session has ended, "no end recorded" with the
+// session's end time and the Slurm final state its job record holds (child job.done summary.state); else its last update.
+function jobStatus(j, m, child) {
+  if (j.done) return { text: `ended ${fmtT(j.done.t)}: ${j.done.payload.state}`, state: j.done.payload.state };
+  if (m.end) {
+    const cd = child && !child.missing ? child.events.filter(e => e.kind === "job.done").pop() : null;
+    const slurm = cd ? ((cd.payload.summary || {}).state || cd.payload.state) : null;
+    return { text: `no end recorded; session ended ${fmtT(m.end.t)}${slurm ? `; Slurm final state ${slurm}` : ""}`, state: "no end recorded" };
+  }
+  const up = j.updates[j.updates.length - 1];
+  const st = up ? up.payload.state : "submitted";
+  return { text: st, state: st };
+}
+
+function jobsTable(m) {
+  const rows = [...m.jobs.values()].filter(j => j.submit || j.done);
+  if (!rows.length) return "<p class=muted>no jobs yet</p>";
+  return `<div class="tablewrap"><table><tr><th>job</th><th>type</th><th>what</th><th>turn</th><th>state</th><th>result</th><th class="num">GPU-h</th><th>record</th></tr>` +
+    rows.map(j => {
+      const p = j.submit ? j.submit.payload : {}, d = j.done ? j.done.payload : null, up = j.updates[j.updates.length - 1];
+      const state = jobStatus(j, m, j.child ? S.traj[j.child] : null).state;
+      const ev = j.evals[0];
+      return `<tr><td><a href="#job=${esc(j.id)}">${esc(j.id)}</a></td><td>${esc(p.type)}</td><td>${esc(jobWhat(p))}</td><td>${j.turn ?? ""}</td>
+        <td class="${state === "done" ? "ok" : state === "failed" || state === "refused" ? "bad" : ""}">${esc(state)}</td>
+        <td>${ev ? evalLine(ev.payload) : esc(short(d && d.summary))}</td><td class="num">${d && d.gpu_hours ? num(d.gpu_hours.canonical ?? d.gpu_hours.actual, 3) : ""}</td>
+        <td>${j.child ? "linked" : ""}</td></tr>`;
+    }).join("") + "</table></div>";
+}
+
+async function jobPage(t, m, id) {
+  const j = m.jobs.get(String(id));
+  if (!j) return `<p>no job ${esc(id)}</p>`;
+  const p = j.submit ? j.submit.payload : {};
+  const d = j.done ? j.done.payload : null;
+  const child = j.child ? await openTraj(j.child) : null;
+  const st = jobStatus(j, m, child);
+  let html = `<p><a href="#tab=jobs">← all jobs</a></p><div class="card"><h3>job ${esc(id)} · ${esc(p.type)} ${esc(jobWhat(p))}</h3>
+    <p class="muted">${j.submit ? `submitted ${esc(fmtT(j.submit.t))}${j.turn !== null && j.turn !== undefined ? ` at <a href="#turn=${j.turn}">turn ${j.turn}</a>` : ""}` : ""}
+ · <b class="${st.state === "done" ? "ok" : ["failed", "refused", "no end recorded"].includes(st.state) ? "bad" : ""}">${esc(st.text)}</b>
+    ${d && d.gpu_hours ? ` · ${num(d.gpu_hours.canonical ?? d.gpu_hours.actual, 3)} GPU-h` : ""}</p>
+    ${j.evals.map(e => `<p>${evalLine(e.payload)}</p>`).join("")}
+    ${j.submit && j.submit.files.length ? `<div class="kind">captured at submit (task, spec, reward code)</div><div>${fileLinks(t, j.submit)}</div>` : ""}
+    <details><summary>spec and result</summary>
+    ${p.spec ? `<div class="kind">spec (as submitted)</div><pre>${esc(JSON.stringify(p.spec, null, 1))}</pre>` : p.args ? `<pre>${esc(JSON.stringify(p.args))}</pre>` : ""}
+    ${d ? `<div class="kind">result</div><pre>${esc(JSON.stringify(d.summary, null, 1))}</pre>` : ""}</details></div>`;
+  if (child) {
+    const c = child;
+    if (c.missing) html += `<p class="muted">job record ${esc(j.child)} not readable (not written yet, or not embedded)</p>`;
+    else html += childView(c);
+  }
+  return html;
+}
+
+function childView(c) {
+  const metrics = c.events.filter(e => e.kind === "metric"), arts = c.events.filter(e => e.kind === "artifact");
+  const evs = c.events.filter(e => e.kind === "eval");
+  let html = `<div class="card"><div class="kind">job record ${esc(c.manifest.trajectory_id || "")} · ${c.events.length} events · ${esc(c.path)}</div>`;
+  for (const e of c.events.filter(e => e.kind === "job.update" && e.payload.resources))
+    html += `<div class="muted">${esc(fmtT(e.t))} ${esc(e.payload.state)} ${esc(JSON.stringify(e.payload.resources))}</div>`;
+  for (const e of evs) {
+    const p = e.payload;
+    html += `<h4>${evalLine(p)}</h4>`;
+    if (p.per_seed) {
+      const seeds = Object.entries(p.per_seed).sort((a, b) => +a[0] - +b[0]);
+      html += `<div class="seeds">${seeds.map(([s, v]) => `<span class="s${+v > 0 ? 1 : 0}" title="seed ${esc(s)}: ${esc(v)}"></span>`).join("")}</div>`;
+    }
+  }
+  html += "</div>";
+  html += jobTimeView(c);
+  if (metrics.length) html += `<div class="card"><div class="toolbar"><b>metrics</b> <span class="muted">${metrics.length} steps</span>
+    <input type="search" id="mfilter" placeholder="filter series (e.g. score, entropy, timing)" value="${esc(S.mfilter || "")}">
+    <label><input type="checkbox" id="mall" ${S.mall ? "checked" : ""}> all series</label></div><div class="grid" id="plots" data-child="${esc(c.path)}"></div></div>`;
+  const renders = arts.filter(e => e.payload.role === "render");
+  if (renders.length) html += `<div class="card"><div class="toolbar"><b>renders</b> <span class="muted">${renders.length}</span>
+    <label><input type="checkbox" id="rall" ${S.rall ? "checked" : ""}> show all (default: featured)</label></div>${gallery(c, S.rall ? renders : renders.filter(e => e.payload.featured))}</div>`;
+  const other = arts.filter(e => e.payload.role !== "render" && !e.payload.content);
+  const grouped = {};   // per-step rollouts, per-seed programs: one row each
+  for (const e of arts.filter(e => e.payload.role !== "render" && e.payload.content)) (grouped[e.payload.content] = grouped[e.payload.content] || []).push(e);
+  if (other.length || Object.keys(grouped).length) html += `<div class="card"><b>files</b><div class="tablewrap"><table><tr><th>role</th><th>step / seed</th><th>what</th><th>file</th></tr>` +
+    Object.entries(grouped).map(([what, es]) => `<tr><td>${esc(es[0].payload.role)}</td><td></td><td>${esc(what)} (${es.length})</td><td>${es.map(e =>
+      (e.files || []).map(f => `<a href="#" class="chip ${e.payload.outcome === "success" ? "ok" : ""}" data-file="${esc(join(c.path, f))}">${esc(e.payload.step ?? e.payload.seed ?? "")}</a>`).join("")).join("")}</td></tr>`).join("") +
+    other.map(e => `<tr><td>${esc(e.payload.role)}</td><td>${esc(e.payload.step ?? e.payload.seed ?? "")}</td><td>${esc(e.payload.caption || "")}</td><td>${fileLinks(c, e)}</td></tr>`).join("") + "</table></div></div>";
+  const rest = c.events.filter(e => !["metric", "artifact", "eval", "job.update"].includes(e.kind));
+  if (rest.length) html += `<div class="card"><b>other events</b>${rest.map(e => eventLine(c, e)).join("")}</div>`;
+  return html;
+}
+
+// eval videos are captured at capture_fps but encoded at 30 fps: playing at playback_rate shows real time
+const speed = p => p.playback_rate ? ` <span class="chip" title="captured at ${esc(p.capture_fps)} fps, encoded at ${esc(p.encoded_fps)} fps; played at ${esc(p.playback_rate)}x">1x speed</span>` : "";
+document.addEventListener("loadedmetadata", ev => { const v = ev.target; if (v.dataset && v.dataset.rate) { v.defaultPlaybackRate = v.playbackRate = +v.dataset.rate; } }, true);
+document.addEventListener("play", ev => { const v = ev.target; if (v.dataset && v.dataset.rate) v.playbackRate = +v.dataset.rate; }, true);
+function gallery(t, arts) {
+  if (!arts.length) return "<p class=muted>none</p>";
+  return `<div class="gallery">${arts.map(e => {
+    const p = e.payload;
+    return `<div class="item">${fileLinks(t, e).replace('style="max-width:320px"', "")}<div><b class="${p.outcome === "success" ? "ok" : "bad"}">${esc(p.outcome || "")}</b>
+      ${esc(p.task || "")} seed ${esc(p.seed ?? "")} ${p.reward !== undefined ? "reward " + esc(p.reward) : ""}${speed(p)}</div></div>`;
+  }).join("")}</div>`;
+}
+
+const KEY_SERIES = ["critic/score/mean", "critic/rewards/mean", "actor/entropy", "actor/pg_loss", "actor/grad_norm", "actor/ppo_kl",
+  "response_length/mean", "response_length/clip_ratio", "timing_s/step", "timing_s/gen", "score", "reward", "loss"];
+function plotMetrics(container, child) {
+  const series = new Map();
+  for (const e of child.events) {
+    if (e.kind !== "metric") continue;
+    const p = e.payload, vals = p.values || (p.series !== undefined ? { [p.series]: p.value } : {});
+    for (const [k, v] of Object.entries(vals)) {
+      if (typeof v !== "number" || !isFinite(v)) continue;
+      if (!series.has(k)) series.set(k, new Map());
+      series.get(k).set(+p.step, v);
+    }
+  }
+  const f = (S.mfilter || "").toLowerCase();
+  let names = [...series.keys()];
+  if (f) names = names.filter(n => n.toLowerCase().includes(f));
+  else if (!S.mall) names = KEY_SERIES.filter(n => series.has(n)).concat(names.filter(n => !KEY_SERIES.includes(n))).slice(0, Math.max(6, KEY_SERIES.filter(n => series.has(n)).length));
+  container.innerHTML = names.length ? "" : "<p class=muted>no series match</p>";
+  const css = getComputedStyle(document.documentElement), ink = css.getPropertyValue("--muted").trim(), acc = css.getPropertyValue("--accent").trim(), grid = css.getPropertyValue("--line").trim();
+  for (const n of names) {
+    const pts = [...series.get(n).entries()].sort((a, b) => a[0] - b[0]);
+    const div = document.createElement("div");
+    div.className = "plot";
+    div.innerHTML = `<div class="t" title="${esc(n)}">${esc(n)} <span style="float:right">${num(pts[pts.length - 1][1], 4)}</span></div>`;
+    container.appendChild(div);
+    const w = Math.max(240, div.clientWidth - 12);
+    new uPlot({ width: w, height: 150, legend: { show: false }, cursor: { y: false },
+      scales: { x: { time: false } },
+      axes: [{ stroke: ink, grid: { stroke: grid, width: 1 }, size: 28, incrs: [1, 2, 5, 10, 20, 50, 100, 200, 500] }, { stroke: ink, grid: { stroke: grid, width: 1 }, size: 48 }],
+      series: [{ label: "step" }, { label: n, stroke: acc, width: 1.5, points: { show: pts.length < 40, size: 4, fill: acc } }] },
+      [pts.map(p => p[0]), pts.map(p => p[1])], div);
+  }
+}
+
+function statePage(m) {
+  const board = lastState(m, "scoreboard") || {};
+  const labels = [...new Set(Object.values(board).flatMap(r => Object.keys(r)))];
+  let html = `<div class="card"><b>scoreboard</b> <span class="muted">(latest; dev seeds)</span><div class="tablewrap"><table><tr><th>task</th>${labels.map(l => `<th>${esc(l)}</th>`).join("")}</tr>` +
+    Object.entries(board).map(([task, r]) => `<tr><td>${esc(task)}</td>${labels.map(l => `<td>${esc(r[l] || "–")}</td>`).join("")}</tr>`).join("") + "</table></div></div>";
+  html += `<div class="card"><b>budget over turns</b><div id="budgetplot"></div></div>`;
+  let prev = null, rows = "";
+  for (const s of m.states) {
+    const p = s.e.payload;
+    if (!p.loaded) continue;
+    const key = JSON.stringify([p.loaded, p.adapters, p.running_jobs]);
+    if (key === prev) continue;
+    prev = key;
+    rows += `<tr><td>${s.turn !== null ? `<a href="#turn=${s.turn}">${s.turn}</a>` : ""}</td><td>${esc((p.loaded || []).join("+") || "base")}</td>
+      <td>${(p.adapters || []).map(a => `<span class="chip">${esc(a)}</span>`).join("")}</td><td>${esc((p.running_jobs || []).join(", "))}</td>
+      <td class="num">${p.budget ? num(p.budget.used, 2) : ""}</td></tr>`;
+  }
+  html += `<div class="card"><b>loaded adapters and library (changes only)</b><div class="tablewrap"><table><tr><th>turn</th><th>loaded</th><th>adapters</th><th>running jobs</th><th class="num">GPU-h used</th></tr>${rows}</table></div></div>`;
+  html += `<div class="card"><b>evals</b><div class="tablewrap"><table><tr><th>time</th><th>job</th><th>result</th></tr>` +
+    m.evals.map(e => `<tr><td>${esc(fmtT(e.t))}</td><td><a href="#job=${esc(e.payload.job_id)}">${esc(e.payload.job_id)}</a></td><td>${evalLine(e.payload)}</td></tr>`).join("") + "</table></div></div>";
+  return html;
+}
+
+async function galleryPage(t, m) {
+  const items = [];
+  for (const j of m.jobs.values()) {
+    if (!j.child) continue;
+    const c = await openTraj(j.child);
+    for (const e of c.events) if (e.kind === "artifact" && e.payload.role === "render") items.push({ c, e, job: j.id });
+  }
+  const tasks = [...new Set(items.map(i => i.e.payload.task))].sort();
+  const f = S.gfilter || { task: "", outcome: "", seed: "", featured: true };
+  const shown = items.filter(i => (!f.task || i.e.payload.task === f.task) && (!f.outcome || i.e.payload.outcome === f.outcome) &&
+    (!f.seed || String(i.e.payload.seed) === f.seed) && (!f.featured || i.e.payload.featured));
+  return `<div class="toolbar"><select id="gtask"><option value="">all tasks</option>${tasks.map(x => `<option ${x === f.task ? "selected" : ""}>${esc(x)}</option>`).join("")}</select>
+    <select id="gout"><option value="">any outcome</option><option ${f.outcome === "success" ? "selected" : ""}>success</option><option ${f.outcome === "failure" ? "selected" : ""}>failure</option></select>
+    <input type="text" id="gseed" placeholder="seed" value="${esc(f.seed)}" size="8"><label><input type="checkbox" id="gfeat" ${f.featured ? "checked" : ""}> featured only</label>
+    <span class="muted">${shown.length} of ${items.length} renders</span></div>` +
+    `<div class="gallery">${shown.slice(0, 200).map(i => `<div class="item">${fileLinks(i.c, i.e).replace('style="max-width:320px"', "")}
+      <div><b class="${i.e.payload.outcome === "success" ? "ok" : "bad"}">${esc(i.e.payload.outcome)}</b> ${esc(i.e.payload.task)} seed ${esc(i.e.payload.seed)} · <a href="#job=${esc(i.job)}">job ${esc(i.job)}</a>${speed(i.e.payload)}</div></div>`).join("")}</div>` +
+    (shown.length > 200 ? "<p class=muted>first 200 shown; narrow the filter</p>" : "");
+}
+
+function searchPage(t, m) {
+  const q = S.query || "";
+  let res = "";
+  if (q.length >= 2) {
+    const ql = q.toLowerCase(), hits = [];
+    const hl = s => { const i = s.toLowerCase().indexOf(ql); if (i < 0) return null; const a = Math.max(0, i - 80); return esc(s.slice(a, i)) + "<mark>" + esc(s.slice(i, i + q.length)) + "</mark>" + esc(s.slice(i + q.length, i + q.length + 120)); };
+    for (const [n, tr] of m.turns) {
+      for (const [what, text] of [["reply", tr.output && tr.output.payload.text], ["command", tr.action && tr.action.payload.command], ["output", tr.obs && tr.obs.payload.head],
+                                  ["observation", tr.obs && tr.obs.payload.sent], ...tr.other.map(e => [e.kind, e.payload.text || JSON.stringify(e.payload)])]) {
+        const h = text ? hl(String(text)) : null;
+        if (h) hits.push(`<div class="card"><a href="#turn=${n}">turn ${n}</a> <span class="kind">${esc(what)}</span><div>…${h}…</div></div>`);
+      }
+      if (hits.length > 300) break;
+    }
+    res = `<p class="muted">${hits.length} hit(s)</p>` + hits.join("");
+  }
+  return `<div class="toolbar"><input type="search" id="q" placeholder="search replies, commands, outputs, notes" value="${esc(q)}" size="50" autofocus></div>${res}`;
+}
+
+// ---------------------------------------------------------------- resources (trajectory/producers/phases.py, trajectory/bubbles.py)
+const PHASE_COLORS = { queued: "#b9b9b9", startup: "#e0a33a", running: "#2f7d4f", teardown: "#9c6ad6", idle: "#e06b5a",
+  agent_call: "#3d6fd6", command: "#7fa7e8", gen: "#2f7d4f", reward: "#5aa875", ref: "#7cc495", old_log_prob: "#3d6fd6",
+  adv: "#9db8ee", update_actor: "#6a4fc4", update_weights: "#a98be0", save_checkpoint: "#c4569a", testing: "#d98fbd", other: "#8c8c8c" };
+const color = name => PHASE_COLORS[name] || PHASE_COLORS[name.split(".")[0]] || "#8c8c8c";
+const legend = names => `<div class="muted">${names.map(n => `<i style="background:${color(n)}"></i>${esc(n)}`).join("")}</div>`;
+const hrs = s => (s / 3600).toFixed(2);
+
+function phaseRows(c) {   // scope "phase" metrics of one job trajectory
+  return c.events.filter(e => e.kind === "metric" && e.payload.scope === "phase").map(e => {
+    const p = e.payload;
+    return { phase: p.phase, t0: p.t0, t1: p.t1, s: p.values[`phase.${p.phase}.seconds`] || 0, gpus: p.gpus || 0, cpus: p.cpus || 0, allocated: p.allocated !== false };
+  });
+}
+
+function jobTimeView(c) {
+  const steps = c.events.filter(e => e.kind === "metric" && e.payload.scope === "train" && e.payload.values);
+  const timed = steps.map(e => ({ step: e.payload.step, t: Object.entries(e.payload.values).filter(([k]) => k.startsWith("time.")).map(([k, v]) => [k.slice(5), v]) }))
+    .filter(r => r.t.length);
+  const rows = phaseRows(c);
+  if (!timed.length && !rows.length) return "";
+  let html = `<div class="card"><b>where the job's time went</b>`;
+  if (rows.length) {   // summary row: % of job wall-clock per phase, GPUs, GPU-busy vs idle
+    const gpus = Math.max(...rows.map(r => r.gpus));
+    const detail = rows.filter(r => r.phase.includes("."));
+    const top = Object.fromEntries(rows.filter(r => !r.phase.includes(".")).map(r => [r.phase, r.s]));
+    const stepSums = {};
+    for (const r of timed) for (const [k, v] of r.t) stepSums[k] = (stepSums[k] || 0) + v;
+    const inSteps = Object.values(stepSums).reduce((a, b) => a + b, 0);
+    const parts = [...(detail.filter(r => r.phase.startsWith("startup.")).map(r => [r.phase, r.s]) || [])];
+    if (!parts.length && top.startup) parts.push(["startup", top.startup]);
+    for (const [k, v] of Object.entries(stepSums)) parts.push(["step." + k, v]);
+    if (inSteps && top.running) parts.push(["between_steps", Math.max(0, top.running - inSteps)]);
+    if (!inSteps && top.running) parts.push(["running", top.running]);
+    const td = detail.filter(r => r.phase.startsWith("teardown.")).map(r => [r.phase, r.s]);
+    parts.push(...(td.length ? td : top.teardown ? [["teardown", top.teardown]] : []));
+    const wall = parts.reduce((a, [, v]) => a + v, 0) || 1, busy = parts.filter(([k]) => k.startsWith("step.") || k === "running").reduce((a, [, v]) => a + v, 0);
+    html += `<p>job wall-clock ${hrs(wall)} h on <b>${gpus} GPU(s)</b>${top.queued ? `, after ${hrs(top.queued)} h queued` : ""};
+      GPU-busy (in steps) <b>${(100 * busy / wall).toFixed(1)}%</b>, GPU-idle (startup, between steps, teardown) <b>${(100 * (wall - busy) / wall).toFixed(1)}%</b>
+      = ${hrs((wall - busy) * gpus)} GPU-hours</p>
+      <div class="gantt" title="phases in order">${(() => { let x = 0; return parts.map(([k, v]) => { const w = 100 * v / wall, el = `<span style="left:${x}%;width:${w}%;background:${color(k.replace(/^step\./, ""))}" title="${esc(k)}: ${(v / 60).toFixed(1)} min (${(100 * v / wall).toFixed(1)}%)"></span>`; x += w; return el; }).join(""); })()}</div>
+      <div class="tablewrap"><table><tr><th>phase</th><th class="num">minutes</th><th class="num">% of wall</th><th class="num">GPU-hours</th></tr>
+      ${parts.map(([k, v]) => `<tr><td><i style="display:inline-block;width:10px;height:10px;background:${color(k.replace(/^step\./, ""))}"></i> ${esc(k)}</td><td class="num">${(v / 60).toFixed(1)}</td><td class="num">${(100 * v / wall).toFixed(1)}%</td><td class="num">${(v / 3600 * gpus).toFixed(2)}</td></tr>`).join("")}</table></div>`;
+  }
+  const genParts = { decode: 0, tail: 0 };
+  for (const e of steps) { genParts.decode += e.payload.values["gen.decode_s"] || 0; genParts.tail += e.payload.values["gen.sim_tail_s"] || 0; }
+  if (genParts.decode + genParts.tail) html += `<p>inside generation: policy decoding until the last program is submitted <b>${(genParts.decode / 60).toFixed(1)} min</b>,
+    then simulator only (trainer GPUs waiting) <b>${(genParts.tail / 60).toFixed(1)} min</b> (${(100 * genParts.tail / (genParts.decode + genParts.tail)).toFixed(0)}% of generation)</p>`;
+  if (timed.length) {   // stacked per-step bars from verl's step timers
+    const names = [...new Set(timed.flatMap(r => r.t.map(([k]) => k)))];
+    const max = Math.max(...timed.map(r => r.t.reduce((a, [, v]) => a + v, 0))) || 1;
+    html += `<div class="kind">seconds per step (verl timers; gen includes the simulator running each program) · tallest ${max.toFixed(0)} s</div>
+      <div class="stack">${timed.map(r => `<div class="col" title="step ${r.step}: ${r.t.map(([k, v]) => `${k} ${v.toFixed(1)} s`).join(", ")}">${
+        names.map(n => { const v = (r.t.find(([k]) => k === n) || [0, 0])[1]; return v ? `<span style="height:${160 * v / max}px;background:${color(n)}"></span>` : ""; }).join("")}</div>`).join("")}</div>
+      ${legend(names)}`;
+  }
+  return html + "</div>";
+}
+
+async function resourcesPage(t, m) {
+  const bars = [];
+  for (const j of m.jobs.values()) {
+    if (!j.child) continue;
+    const c = await openTraj(j.child);
+    if (c.missing) continue;
+    const rows = phaseRows(c).filter(r => !r.phase.includes("."));
+    if (rows.length) bars.push({ j, rows });
+  }
+  for (const j of m.jobs.values()) {   // jobs without measured phases (running, or no job record): from the session's job events
+    if (bars.some(b => b.j === j) || !j.submit || !["train", "eval"].includes(j.submit.payload.type)) continue;
+    const ts = e => Date.parse(e.t) / 1000, end = j.done ? ts(j.done) : ts(t.events[t.events.length - 1]);
+    const started = j.updates.find(u => (u.payload.state === "running") || ((u.payload.progress || {}).state === "running"));
+    const rows = [{ phase: "queued", t0: ts(j.submit), t1: started ? ts(started) : end, s: 0, gpus: undefined }];
+    if (started) rows.push({ phase: "running", t0: ts(started), t1: end, s: 0, gpus: undefined });
+    bars.push({ j, rows, live: !j.done });
+  }
+  const agent = [];
+  const estimated = m.turns.size && [...m.turns.values()].some(tr => tr.input && tr.input.payload.estimated);
+  if (!estimated) for (const tr of m.turns.values()) {
+    if (tr.input && tr.output) agent.push({ phase: "agent_call", t0: Date.parse(tr.input.t) / 1000, t1: Date.parse(tr.output.t) / 1000 });
+    if (tr.output && tr.obs && tr.obs.payload.duration_s) agent.push({ phase: "command", t0: Date.parse(tr.output.t) / 1000, t1: Date.parse(tr.output.t) / 1000 + tr.obs.payload.duration_s });
+  }
+  const all = bars.flatMap(b => b.rows).concat(agent);
+  if (!all.length) return "<p class=muted>no job phases recorded yet (written when each train / eval job ends)</p>";
+  const T0 = Math.min(...all.map(r => r.t0)), T1 = Math.max(...all.map(r => r.t1)), span = (T1 - T0) || 1;
+  const seg = r => `<span style="left:${100 * (r.t0 - T0) / span}%;width:${Math.max(0.15, 100 * (r.t1 - r.t0) / span)}%;background:${color(r.phase)}" title="${esc(r.phase)}: ${((r.t1 - r.t0) / 60).toFixed(1)} min${r.gpus !== undefined ? `, ${r.gpus} GPU / ${r.cpus} CPU` : ""}"></span>`;
+  const byPhase = {};
+  for (const b of bars) for (const r of b.rows) {
+    if (r.gpus === undefined) continue;   // live / unmeasured bars are drawn, not counted
+    const g = byPhase[r.phase] = byPhase[r.phase] || { h: 0, gh: 0 }; g.h += r.s / 3600; g.gh += r.s / 3600 * r.gpus; }
+  const allocated = Object.entries(byPhase).filter(([k]) => k !== "queued").reduce((a, [, v]) => a + v.gh, 0) || 1;
+  const agentBusy = agent.filter(r => r.phase === "agent_call").reduce((a, r) => a + r.t1 - r.t0, 0);
+  const sessionWall = (Date.parse(t.events[t.events.length - 1].t) - Date.parse(t.events[0].t)) / 1000;
+  return `<div class="card"><b>jobs over wall-clock</b> <span class="muted">${fmtT(new Date(T0 * 1000).toISOString())} → ${fmtT(new Date(T1 * 1000).toISOString())} UTC</span>
+    ${legend(["queued", "startup", "running", "teardown", "agent_call", "command"])}
+    ${bars.map(b => `<div class="tablewrap"><a href="#job=${esc(b.j.id)}">job ${esc(b.j.id)}</a> <span class="muted">${esc((b.j.submit || {}).payload ? b.j.submit.payload.type : "")} ${b.rows[0].gpus !== undefined ? esc(b.rows[0].gpus) + " GPU" : b.live ? "live: from the session's job events (phases come when it ends)" : "no job record: from the session's job events"}</span><div class="gantt">${b.rows.map(seg).join("")}</div></div>`).join("")}
+    ${agent.length ? `<div>agent <span class="muted">model calls and commands</span><div class="gantt">${agent.map(seg).join("")}</div></div>` : `<p class="muted">agent times: not measured (turn times of a converted session are estimated)</p>`}</div>
+    <div class="card"><b>GPU-hours by phase</b> <span class="muted">(queued = requested GPUs x wait, not allocated)</span><div class="tablewrap"><table>
+    <tr><th>phase</th><th class="num">job-hours</th><th class="num">GPU-hours</th><th class="num">share of allocated</th></tr>
+    ${Object.entries(byPhase).map(([k, v]) => `<tr><td><i style="display:inline-block;width:10px;height:10px;background:${color(k)}"></i> ${esc(k)}</td><td class="num">${v.h.toFixed(2)}</td><td class="num">${v.gh.toFixed(2)}</td><td class="num">${k === "queued" ? "" : (100 * v.gh / allocated).toFixed(1) + "%"}</td></tr>`).join("")}</table></div>
+    <p>bubbles: startup ${(100 * ((byPhase.startup || {}).gh || 0) / allocated).toFixed(1)}% of allocated GPU-hours; queued ${((byPhase.queued || {}).h || 0).toFixed(2)} job-hours waiting${agent.length ? `; agent server idle ${(100 * Math.max(0, sessionWall - agentBusy) / (sessionWall || 1)).toFixed(0)}% of session wall` : ""}</p></div>`;
+}
+
+function rawPage(t) {
+  const kinds = {};
+  for (const e of t.events) kinds[e.kind] = (kinds[e.kind] || 0) + 1;
+  return `<div class="card">${Object.entries(kinds).map(([k, n]) => `<span class="chip">${esc(k)} ${n}</span>`).join("")}</div>
+    <div class="card"><div class="kind">manifest</div><pre>${esc(JSON.stringify(t.manifest, null, 1))}</pre></div>` +
+    t.events.slice(-500).map(e => `<div class="event">${e.seq} ${payloadBlock(e)} ${fileLinks(t, e)}</div>`).join("") +
+    (t.events.length > 500 ? "<p class=muted>last 500 events shown</p>" : "");
+}
+
+function afterRender(t, m, tab, h) {
+  document.querySelectorAll("details[data-key]").forEach(d => d.addEventListener("toggle", () => { d.open ? S.expanded.add(d.dataset.key) : S.expanded.delete(d.dataset.key); }));
+  document.querySelectorAll("[data-ctx]").forEach(b => b.onclick = async () => {
+    const tr = m.turns.get(+b.dataset.ctx), ctx = await context(t);
+    const msgs = (tr.input.payload.messages || []).map(x => ({ role: x.role, content: x.content !== undefined ? x.content : ctx[x.ref] }));
+    modal(`turn ${b.dataset.ctx}: what the model saw (${msgs.length} messages)`, msgs.map(x => `<div class="msg ${esc(x.role)}"><div class="kind">${esc(x.role)} · ${String(x.content || "").length} chars</div><pre>${esc(x.content ?? "(missing)")}</pre></div>`).join(""));
+  });
+  const plots = $("#plots");
+  if (plots) {
+    const c = S.traj[plots.dataset.child];
+    plotMetrics(plots, c);
+    $("#mfilter").oninput = ev => { S.mfilter = ev.target.value; plotMetrics(plots, c); };
+    $("#mall").onchange = ev => { S.mall = ev.target.checked; plotMetrics(plots, c); };
+  }
+  if ($("#rall")) $("#rall").onchange = ev => { S.rall = ev.target.checked; renderSession(); };
+  if ($("#budgetplot")) {
+    const pts = m.states.filter(s => s.e.payload.budget && s.turn !== null);
+    if (pts.length > 1) {
+      const css = getComputedStyle(document.documentElement);
+      new uPlot({ width: Math.min(1200, $("#budgetplot").clientWidth), height: 180, scales: { x: { time: false } },
+        axes: [{ stroke: css.getPropertyValue("--muted").trim(), incrs: [1, 2, 5, 10, 20, 50, 100] }, { stroke: css.getPropertyValue("--muted").trim() }],
+        series: [{ label: "turn" }, { label: "used", stroke: css.getPropertyValue("--accent").trim(), width: 1.5 },
+                 { label: "reserved", stroke: css.getPropertyValue("--warn").trim(), width: 1.5 }] },
+        [pts.map(s => s.turn), pts.map(s => +s.e.payload.budget.used || 0), pts.map(s => +s.e.payload.budget.reserved || 0)], $("#budgetplot"));
+    }
+  }
+  if ($("#q")) { const q = $("#q"); q.focus(); q.setSelectionRange(q.value.length, q.value.length); q.oninput = ev => { S.query = ev.target.value; clearTimeout(S.qt); S.qt = setTimeout(renderSession, 250); }; }
+  if ($("#gtask")) {
+    const upd = () => { S.gfilter = { task: $("#gtask").value, outcome: $("#gout").value, seed: $("#gseed").value.trim(), featured: $("#gfeat").checked }; renderSession(); };
+    ["#gtask", "#gout", "#gfeat"].forEach(s => $(s).onchange = upd); $("#gseed").onchange = upd;
+  }
+}
+
+// ---------------------------------------------------------------- batch index
+async function renderBatch() {
+  $("#title").textContent = "Batch " + S.root.split("/").pop();
+  $("#headinfo").textContent = S.root;
+  $("#nav").innerHTML = "";
+  const rows = EMBED ? EMBED.batch : await getJSON("api/batch");
+  S.batch = rows;
+  const tagKeys = [...new Set(rows.flatMap(r => Object.keys(r.tags || {})))].filter(k => !["converted_from", "kind", "session", "batch"].includes(k));
+  $("#main").innerHTML = `<div class="tablewrap"><table><tr><th>trajectory</th>${tagKeys.map(k => `<th>${esc(k)}</th>`).join("")}<th>status</th><th class="num">turns</th>
+    <th class="num">GPU-h</th><th class="num">final score</th><th>best dev eval</th><th>last event</th></tr>` +
+    rows.map(r => `<tr><td><a href="?t=${encodeURIComponent(r.path)}">${esc(r.trajectory_id)}</a></td>${tagKeys.map(k => `<td>${esc((r.tags || {})[k] ?? "")}</td>`).join("")}
+      <td class="${r.status === "running" ? "" : /FAIL/.test(r.status) ? "bad" : "ok"}">${esc(r.status)}</td><td class="num">${esc(r.turns)}</td>
+      <td class="num">${r.gpu_hours && typeof r.gpu_hours === "object" ? num(r.gpu_hours.canonical, 2) : num(r.gpu_hours, 2)}</td><td class="num">${num(r.final_score, 0)}</td>
+      <td>${esc(r.best_dev || "")}</td><td class="muted">${esc(fmtT(r.last_t))}</td></tr>`).join("") + "</table></div>";
+}
+
+// ---------------------------------------------------------------- site Resources (publish.write_resources, trajectory.bubbles)
+function resourcesSite(res) {
+  const phaseTable = Object.entries(res.phases || {}).map(([b, tab]) => {
+    const jobs = tab.jobs || {}, allocated = Object.entries(jobs).filter(([k]) => k !== "queued").reduce((a, [, v]) => a + v.gpu_hours, 0);
+    return `<tr><td>${esc(b)}</td><td class="num">${tab.sessions}</td>${["queued", "startup", "running", "teardown"].map(k => `<td class="num">${num((jobs[k] || {}).gpu_hours, 2)}</td>`).join("")}
+      <td class="num">${allocated ? (100 * (jobs.startup || {}).gpu_hours / allocated).toFixed(1) + "%" : "–"}</td></tr>`;
+  }).join("");
+  const cl = res.cluster, caps = cl && cl.cap ? `group cap ${cl.cap.gpus ?? "?"} GPU / ${cl.cap.cpus ?? "?"} CPU` : "";
+  return `<details open><summary><h3 style="display:inline">Resources</h3> <span class="muted">our allocation and where job time went</span></summary>
+    ${cl && cl.times && cl.times.length ? `<div class="card"><b>allocated GPUs over time</b> <span class="muted">(${esc(cl.since)} on; ${caps})</span><div id="allocplot"></div>
+      <div class="tablewrap"><table><tr><th>batch</th><th class="num">GPU-hours allocated</th><th class="num">peak GPUs</th></tr>
+      ${Object.entries(cl.series).map(([b, s]) => `<tr><td>${esc(b)}</td><td class="num">${num(s.gpu_hours, 1)}</td><td class="num">${Math.max(...s.gpus)}</td></tr>`).join("")}</table></div></div>` : ""}
+    <div class="card"><b>GPU-hours by job phase</b> <span class="muted">(published sessions; queued = requested GPUs x wait)</span><div class="tablewrap"><table>
+    <tr><th>batch</th><th class="num">sessions</th><th class="num">queued</th><th class="num">startup</th><th class="num">running</th><th class="num">teardown</th><th class="num">startup share</th></tr>${phaseTable}</table></div></div></details>`;
+}
+function plotAllocation(res) {
+  const cl = res && res.cluster, el = $("#allocplot");
+  if (!cl || !el || !cl.times.length) return;
+  const css = getComputedStyle(document.documentElement), names = Object.keys(cl.series);
+  const total = cl.times.map((_, i) => names.reduce((a, n) => a + cl.series[n].gpus[i], 0));
+  const cap = (cl.cap || {}).gpus || 0;
+  const palette = ["#3d6fd6", "#2f7d4f", "#e0a33a", "#9c6ad6", "#c4569a", "#5aa875", "#8c8c8c"];
+  new uPlot({ width: Math.min(1200, el.clientWidth || 800), height: 220, axes: [{ stroke: css.getPropertyValue("--muted").trim() }, { stroke: css.getPropertyValue("--muted").trim() }],
+    series: [{}, ...names.map((n, i) => ({ label: n, stroke: palette[i % palette.length], width: 1.5 })), { label: "all ours", stroke: "#000", width: 2 },
+             ...(cap ? [{ label: "group cap", stroke: "#e06b5a", dash: [6, 4], width: 1.5 }] : [])] },
+    [cl.times, ...names.map(n => cl.series[n].gpus), total, ...(cap ? [cl.times.map(() => cap)] : [])], el);
+}
+
+// ---------------------------------------------------------------- site index (trajectory.publish)
+// a running session can be quiet for hours (its agent inside a long command): say so instead of hiding it
+function liveNote(r) {
+  if (r.status !== "running") return r.cause ? `<div class="muted">${esc(r.cause)}</div>` : (r.ended_t ? `<div class="muted">ended ${esc(fmtT(r.ended_t))}</div>` : "");
+  if (r.idle_s === null || r.idle_s === undefined) return "";
+  const h = r.idle_s / 3600, ago = h >= 1 ? `${h.toFixed(1)} h` : `${Math.round(r.idle_s / 60)} min`;
+  return `<div class="muted">last event ${ago} ago${r.in_command ? ": inside a long command" : ""}${r.batch_job_state ? ` · batch job ${esc(r.batch_job_state)}` : ""}</div>`;
+}
+async function renderSite() {
+  const idx = await getJSON(fresh(SITE));
+  $("#title").textContent = "ReTrain traces";
+  $("#headinfo").textContent = "updated " + fmtT(idx.updated) + " UTC";
+  $("#nav").innerHTML = "";
+  const cells = r => Object.entries(r.cells || {}).sort((a, b) => b[1].lift_pp - a[1].lift_pp).slice(0, 4).map(([task, c]) =>
+    `<span class="chip">${esc(task)} ${esc(c.label || "")} ${c.score}/${c.n} vs ${c.base}/${c.base_n} <b class="${c.lift_pp > 0 ? "ok" : c.lift_pp < 0 ? "bad" : ""}">${c.lift_pp > 0 ? "+" : ""}${c.lift_pp} pp</b></span>`).join(" ");
+  const table = rows => rows.length ? `<div class="tablewrap"><table><tr><th>session</th><th>harness</th><th>arm</th><th>playbook</th><th>seed</th><th>status</th>
+    <th class="num">turns</th><th class="num">GPU-h</th><th>final hidden (vs base dev rows)</th><th>best dev cells vs base</th><th>ranked by</th><th>loaded</th><th>last event</th></tr>` +
+    rows.map(r => `<tr><td><a href="?t=${encodeURIComponent(r.path)}">${esc(r.session)}</a><div class="muted">${esc(r.batch)}</div></td>
+      <td>${esc(r.harness)}</td><td>${esc(r.arm || "")}</td><td>${esc(r.playbook || "none")}</td><td>${esc(r.seed ?? "")}</td>
+      <td class="${r.status === "running" ? "" : /FAIL/.test(r.status) ? "bad" : "ok"}">${esc(r.status)}${liveNote(r)}</td><td class="num">${esc(r.turns)}</td>
+      <td class="num">${r.gpu_hours && typeof r.gpu_hours === "object" ? num(r.gpu_hours.canonical, 2) : num(r.gpu_hours, 2)}</td>
+      <td>${r.final !== null && r.final !== undefined ? `<b>${esc(r.final)}</b>` + (r.final_lift_pp !== null ? ` <span class="muted">${r.final_lift_pp > 0 ? "+" : ""}${r.final_lift_pp} pp/task</span>` : "") : "–"}</td>
+      <td>${cells(r)}</td><td>${r.rank_basis ? `${r.rank_lift_pp > 0 ? "+" : ""}${esc(r.rank_lift_pp)} pp <span class="chip">${esc(r.rank_basis)}</span>` : "–"}</td>
+      <td>${esc((r.loaded || []).join("+") || "base")}</td><td class="muted">${esc(fmtT(r.last_t))}</td></tr>`).join("") + "</table></div>"
+    : "<p class=muted>none</p>";
+  const sec = idx.sections || {};
+  let res = null;
+  try { res = await getJSON(fresh("resources.json")); } catch (_) { /* no resources view published */ }
+  const reports = (idx.reports || []).map(r => `<a class="chip" href="${esc(r)}">${esc(r.split("/").pop().replace(/\.html$/, ""))}</a>`).join(" ");
+  $("#main").innerHTML = `${reports ? `<div class="card"><b>Reports</b> ${reports}</div>` : ""}${res ? resourcesSite(res) : ""}<h3>Live</h3>${table(sec.live || [])}<h3>Recently ended <span class="muted">(last ${idx.recent_hours ?? 72} h, failed ones included)</span></h3>${table(sec.recent || [])}<h3>Best past sessions</h3>${table(sec.best || [])}<h3>Pinned</h3>${table(sec.pinned || [])}
+    <p class="muted">Rows link to the full trajectory: every turn, jobs with curves, evals vs base, renders. Best: sessions not ended FAILED-INFRA; scored sessions ("final": hidden-seed score vs the base dev rows, pp per task) rank above unscored ones ("dev": best dev cell vs base, pp).</p>`;
+  plotAllocation(res);
+}
+
+// ---------------------------------------------------------------- main + live polling
+async function route() {
+  if (S.current) await renderSession(); else if (SITE) await renderSite(); else await renderBatch();
+}
+async function poll() {
+  if (EMBED) return;
+  try {
+    let changed = 0;
+    if (S.current) {
+      const t = S.traj[S.current];
+      changed += await tail(t);
+      const h = hashParams();
+      if (h.job) { const m = build(t), j = m.jobs.get(String(h.job)); if (j && j.child && S.traj[j.child]) changed += await tail(S.traj[j.child]); }
+      const el = document.activeElement;
+      const typing = el && (el.tagName === "INPUT" || el.tagName === "SELECT");
+      const playing = [...document.querySelectorAll("video")].some(v => !v.paused);
+      if (changed && !typing && !playing && $("#modal").style.display !== "block") await renderSession();
+    } else {
+      await (SITE ? renderSite() : renderBatch());
+    }
+    $("#live").textContent = "live · updated " + new Date().toLocaleTimeString();
+  } catch (e) { $("#live").textContent = "live · " + e.message; }
+}
+async function start() {
+  try {
+    const info = EMBED ? { root: EMBED.root, kind: EMBED.kind } : SITE ? { root: null, kind: "site" } : await getJSON("api/root");
+    S.root = info.root; S.kind = info.kind;
+    S.current = qs.get("t") || (info.kind === "trajectory" ? info.root : null);
+    if (S.current) {
+      const t = await openTraj(S.current);
+      if (t.missing) { $("#main").innerHTML = `<p class="bad">cannot read ${esc(S.current)}</p>`; return; }
+    }
+    await route();
+    window.addEventListener("hashchange", route);
+    if (!EMBED) setInterval(poll, S.current ? POLL_MS : SITE ? 60000 : 15000);
+    else $("#live").textContent = "snapshot · " + (EMBED.created || "");
+  } catch (e) { $("#main").innerHTML = `<p class="bad">${esc(e.message)}</p>`; }
+}
+start();
+</script>
+</body>
+</html>

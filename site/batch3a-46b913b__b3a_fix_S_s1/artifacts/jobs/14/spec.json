@@ -1,0 +1,7 @@
+{
+ "task": "wipe",
+ "steps": 10,
+ "batch": 8,
+ "lr": 2e-05,
+ "reward": "task_completed"
+}

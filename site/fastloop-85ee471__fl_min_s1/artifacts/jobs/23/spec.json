@@ -1,0 +1,10 @@
+{
+ "task": "revstack",
+ "name": "rev2",
+ "steps": 20,
+ "batch": 8,
+ "lr": 2e-05,
+ "init": "rev1",
+ "reward": "reward_mixed.py",
+ "seed_start": 826001
+}

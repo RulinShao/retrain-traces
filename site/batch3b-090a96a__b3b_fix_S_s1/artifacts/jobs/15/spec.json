@@ -1,0 +1,11 @@
+{
+ "task": "revstack",
+ "name": "current",
+ "steps": 8,
+ "batch": 8,
+ "lr": 2e-05,
+ "reward": "shaped",
+ "seed_start": 850000,
+ "time": "04:45:00",
+ "note": "This API has no z_approach parameter (never pass one); segment the green and red cubes with segment_sam3_text_prompt, derive each 3D pose from its back-projected mask depth with get_oriented_bounding_box_from_3d_points, transform the plan_grasp camera-frame grasp pose to the world frame using the camera pose_mat, then solve_ik and move_to_joints to grasp the green cube named in the Goal, lift at least 0.2 m, and place it on the red cube at place_z = red_center_z + red_extent[2]/2 + green_extent[2]/2 before opening the gripper."
+}

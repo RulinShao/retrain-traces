@@ -1,0 +1,11 @@
+{
+ "task": "wipe",
+ "name": "wipe2",
+ "steps": 30,
+ "batch": 8,
+ "lr": 2e-05,
+ "reward": "rewards/rewards_diag.py",
+ "note": "The first executable line must be `import numpy as np`. Use the observation keys exactly as written: obs = get_observation(); rgb = obs['robot0_robotview']['images']['rgb']; depth = obs['robot0_robotview']['images']['depth']; K = obs['robot0_robotview']['intrinsics']; extr = obs['robot0_robotview']['pose_mat']. Call only the APIs listed above; do not invent any others. To wipe: segment the brown spill from rgb, back-project the mask pixels to world 3D with K and extr, take min/max x and y, then sweep the end-effector back and forth across those bounds in small steps of at most 0.02 m, each via solve_ik with orientation quaternion (0, 0, 1, 0) wxyz at z = 0.0 followed by move_to_joints.",
+ "seed_start": 814000,
+ "time": "12:00:00"
+}

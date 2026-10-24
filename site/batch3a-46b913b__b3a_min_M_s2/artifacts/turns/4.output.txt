@@ -1,0 +1,83 @@
+rc=0
+---
+name: trainer
+description: The hyak trainer contract: every field train.py reads, what each failure returns, costs, and what a train produces.
+---
+# Trainer on this site (hyak, CaP-X Robosuite, GRPO LoRA)
+
+`python3 train.py SPEC` submits one practice call; SPEC is a JSON or YAML file in the workspace. `python3 train.py --help` prints this file.
+Relative paths in SPEC (a reward file, an init adapter path, data files) resolve against the workspace, where `train.py` runs, wherever SPEC itself is.
+
+## What a practice call is
+GRPO on LoRA adapters of the served model (Qwen3.8-27B; LoRA rank 32, alpha 64, on q,k,v,o,out,gate,up,down projections).
+Each step: `batch` prompts x 8 rollouts. A rollout is one program written by the model for the task, run once in the task's simulator
+on one seed; its score is the reward below. The training prompt is the task's evaluation prompt, byte for byte (checked before training), unless the spec sets `note` or `goal`.
+Sampling during practice: temperature 1.0, top_p 0.95, top_k 20; at most 8192 generated tokens per program.
+
+## Spec fields (all others are ignored)
+| field | type | default | accepted |
+|---|---|---|---|
+| `task` | string | required | a tasks.json name containing exactly one of: lift, stack, wipe, nut, restack, revstack |
+| `name` | string | `a<job id>` | letters, digits, `_ . -`, at most 48; not already taken, not `base` / `loaded`. Single-adapter mode: omit it (or `current`) |
+| `steps` | integer | 1 | any positive integer (cost grows with it, see below) |
+| `batch` | integer | 8 | prompts per step (each x 8 rollouts) |
+| `lr` | float | 2e-5 | learning rate |
+| `init` | string | none (fresh LoRA) | an adapter name produced by an earlier train of this session. Single-adapter mode: omit it (or `current`); every train continues `current` |
+| `reward` | string | `task_completed` | `task_completed` (1.0 if the task's own success check passes, else 0.0); `shaped` (the simulator's staged reward); Python source containing `def reward(r)`; or the path of a `.py` file (relative paths: the workspace) defining `reward(r)`. `r` is the simulator's reply: `task_completed`, `reward`, `sandbox_rc`, `seed`, `log_tail` (keys or attributes); return a float |
+| `seed_start` | integer | 810001 | rollout k of the call runs on seed `seed_start + k`; must not reach seeds 1-100 |
+| `note` | string | none | one sentence inserted after the training prompt's Goal line (not a comment: the rollouts see it; evaluation prompts never have it) |
+| `goal` | string | none | replaces the training prompt's Goal line (evaluation prompts keep theirs) |
+| `time` | string | `04:45:00` | wall limit of the job, `HH:MM:SS` |
+
+## Failures
+A request this site cannot run as written ends `failed` in `jobs/<id>.json` with this text; nothing is charged:
+- `train: task must be one of ['lift', 'nut', 'restack', 'revstack', 'stack', 'wipe'], got '<task>'` (twolift, handover, stackv2 have no practice unit here)
+- `train: init adapter not found: <path>`
+- `train: reward must be 'task_completed', 'shaped' or the path of a .py file defining reward(result) -> float`
+- `train: name: letters, digits, _ . - (max 48)`
+- `train: seeds 1-100 are reserved for the final score; use dev seeds >= 800001`
+A failure inside the trainer or the simulator (crash, missing adapter files, a hidden seed used) ends the session as an infrastructure
+fault. An all-zero update is a training outcome, shown on the scoreboard.
+
+## Progress and cancel
+While a train runs, its record shows completed steps, the latest step's mean reward, the fraction of rollouts with reward > 0
+and canonical GPU-hours of the steps done so far (read from the trainer's per-step output about once a minute). A checkpoint is saved every ceil(steps / 4)
+steps; `cancel.py ID` stops the job and keeps the adapter of the last saved step (registered with the steps it ran), or ends the
+job `failed` if none was saved; either way the job is charged the canonical cost of the steps it completed (see Cost).
+
+## Cost (canonical GPU-hours)
+The budget is charged a canonical cost per call, the same whatever hardware the site runs the call on.
+
+| call | canonical cost |
+|---|---|
+| train, 1 step | 2.76 |
+| train, 10 steps | 4.03 |
+| train, 30 steps | 6.84 |
+| train, N steps | 2 x (1.31 + 0.0703 x N x batch / 8) |
+
+| eval of one task on | 5 seeds | 20 seeds | 100 seeds |
+|---|---|---|---|
+| canonical cost | 0.36 | 0.38 | 0.48 |
+
+An eval's cost is mostly its fixed part, so 100 seeds cost little more than 5. A call that fails or is cancelled is charged the
+canonical cost of the steps it completed, or less if it ran only briefly. The cost is also the admission estimate.
+
+## Output
+A finished train writes `adapters/<name>/` (read-only to you): `adapter_model.safetensors`, `adapter_config.json`,
+`rewards.json` (per step: `step`, `score_mean` over that step's rollouts), `call.json` (job ids, GPU-hours, nonzero LoRA-B count,
+rollout seed range) and `training.json` (`resolved_spec`: the controls actually used). The adapter can then be named in `eval.py --adapter`, `load.py`, or as `init` of another train.
+=====OPTIONAL LS=====
+skills/optional/:
+total 259
+drwxr-sr-x 3 root nobody  512 Oct 22 09:01 .
+drwxr-sr-x 5 root nobody  512 Oct 22 09:07 ..
+-rw-r--r-- 1 root nobody 2420 Oct 22 09:01 PLAYBOOK.md
+-rw-r--r-- 1 root nobody 1436 Oct 22 09:01 README.md
+drwxr-sr-x 2 root nobody  512 Oct 22 09:01 reward_check
+
+skills/optional/reward_check:
+total 258
+drwxr-sr-x 2 root nobody  512 Oct 22 09:01 .
+drwxr-sr-x 3 root nobody  512 Oct 22 09:01 ..
+-rw-r--r-- 1 root nobody  809 Oct 22 09:01 SKILL.md
+-rw-r--r-- 1 root nobody 2810 Oct 22 09:01 check_reward.py

@@ -1,0 +1,78 @@
+rc=0
+285:def eval_env(adapter, task, seeds, name="ad"):
+====
+def eval_env(adapter, task, seeds, name="ad"):
+    """-> (job env, cell prefix) of one eval cell for (adapter or None = base, task name, seeds)."""
+    if task not in EVAL_CELLS:
+        raise ValueError(f"task must be one of {sorted(EVAL_CELLS)}")
+    rb, cell = EVAL_CELLS[task]
+    off, n = _seed_range(seeds)
+    env = dict(EVAL_ENV, TASK=rb, TRIALS=n, SEED=off)
+    env.pop("DW_RUN_BLOCK", None)
+    env["RMIN_POLICY_MODEL"] = POLICY_MODEL
+    if SMALL_POLICY:   # the port's sglang loads the 27B's HF dir: bind the policy's over it; its 65536 context > the 8B's 40960
+        env.update(RMIN_EXTRA_BIND=f"{POLICY_HF}:{HF_HOME}/hub/{AGENT_MODEL_HF}:ro", SGLANG_ALLOW_OVERWRITE_LONGER_CONTEXT_LEN="1")
+    if task in CFG_MAPS:   # the cell of record's config where the runner's tier default differs (hyak lead, #9)
+        env["CFG_MAP"] = CFG_MAPS[task]
+    if adapter is None:
+        env.update(INJOB_LORA_PATHS="=".join(LORA_ENABLE), CELLS=f"{cell}~base")
+    else:
+        if not re.fullmatch(r"[A-Za-z0-9_]{1,32}", name) or name in ("base", LORA_ENABLE[0]):
+            raise ValueError("adapter name: letters, digits, _ (not 'base' / 'a1')")
+        env.update(INJOB_LORA_PATHS=f"{name}={adapter}", CELLS=f"{cell}~{name}")
+    return env, f"{rb}_{cell.split(':')[0]}"
+
+
+def submit_eval(adapter, task, seeds, slurm=None, qos=None, wait_done=True, name="ad", tmax="04:00:00"):
+    """As fairsc3_jobs.submit_eval (same return record), on hyak: EVAL_GPUS H200 (1), 8 CPU, 240G, --requeue (run_block resumes trials)."""
+    if adapter is not None:
+        check_adapter(adapter)
+        check_policy(adapter)
+    env, prefix = eval_env(adapter, task, seeds, name)
+    env["RMIN_STAGE_ITEMS"] = STAGE_ITEMS["eval"]
+    if EVAL_GPUS == 1:
+        env.update(SINGLE_GPU_EVAL_ENV)
+    sl = slurm or SLURM
+    cd = _call_dir("eval", f"{task}_{name if adapter else 'base'}")
+    args = _sbatch_common(qos or QOS, f"rmin-eval-{task}", EVAL_GPUS, 8, "240G", tmax, f"{cd}/job-%j.out") + _in_image(EVAL_INNER, "eval")
+    job = sl.submit(args, env)
+    rec = {"kind": "eval", "adapter": adapter, "task": task, "seeds": [int(seeds[0]), int(seeds[-1])], "n": len(list(seeds)),
+           "jobs": [job], "call_dir": cd, "env": env, "t_submit": time.time(), "eval_root": EVAL_OUT, "cell_prefix": prefix,
+           "policy_model": POLICY_MODEL}
+    json.dump(rec, open(f"{cd}/submitted.json", "w"), indent=1)
+    return collect_eval(rec, sl) if wait_done else rec
+
+
+def check_policy(adapter):
+    """An adapter runs only on the policy it was trained on: its adapter_config base must be this profile's model."""
+    base = json.load(open(os.path.join(adapter, "adapter_config.json"))).get("base_model_name_or_path") or ""
+    other = [m for m, p in POLICIES.items() if p["hf"].split("--", 1)[1].replace("--", "/") in base or p["hf"] in base]
+    if other and POLICY_MODEL not in other:
+        raise ValueError(f"adapter {os.path.basename(adapter)} was trained on {other[0]}; the policy here is {POLICY_MODEL}")
+
+
+# ------------------------------------------------------------------ serving (the session job's own GPU)
+def sglang_cmd(port, host="127.0.0.1", mem_frac="0.85", lora=None, context=131072):
+    """fairsc3_jobs.sglang_cmd (the S1 cells' ServerArgs + LoRA flags) with hyak paths. context: the agent's chat holds the system
+    prompt + 60 messages (Config.context_messages), more than the eval cells' 65536 tokens; the context length changes no output."""
+    model = sorted(glob.glob(f"{HF_HOME}/hub/{AGENT_MODEL_HF}/snapshots/*/"))[0]   # the agent's model (LoRA a1 of the 27B)
+    lora = lora or ("a1", POLICIES["Qwen3.8-27B"]["a1"])
+    return [f"{SGL_VENV}/bin/python", "-u", "-m", "sglang.launch_server", "--model-path", model, "--served-model-name", "qwen38-27b",
+            "--host", host, "--port", str(port), "--tp-size", "1", "--mem-fraction-static", mem_frac, "--context-length", str(context),
+            "--trust-remote-code", "--enable-deterministic-inference", "--reasoning-parser", "qwen3",
+            "--enable-lora", "--max-loras-per-batch", os.environ.get("RMIN_MAX_LORAS", "4"), "--max-lora-rank", "64",
+            "--lora-paths", "=".join(lora)]   # RMIN_MAX_LORAS: a server shared by N sessions holds N LoRAs (hyak_batch.sbatch)
+
+
+def _serve_main(port):
+    """hyak_serve.sh body (inside the image, on the session job's GPU): exec sglang."""
+    j = os.environ.get("SLURM_JOB_ID", str(os.getpid()))
+    tmp = os.environ.get("TMPDIR") or f"…/'USER')}_{j}"
+    env = {k: v for k, v in os.environ.items() if k not in PROXY_VARS and k not in ("PYTHONPATH", "MUJOCO_GL", "PYOPENGL_PLATFORM")}
+    env.update(CUDA_HOME="/usr/local/cuda-12.8", HF_HOME=HF_HOME, HF_HUB_OFFLINE="1", PATH=f"{SGL_VENV}/bin:" + env.get("PATH", ""),
+               TORCHINDUCTOR_CACHE_DIR=f"{tmp}/inductor", TRITON_CACHE_DIR=f"{tmp}/triton", TMPDIR=f"{tmp}/tmp",
+               FLASHINFER_CACHE_DIR=f"{RA}/cache/flashinfer", no_proxy="*", NO_PROXY="*")
+    for k in ("TORCHINDUCTOR_CACHE_DIR", "TRITON_CACHE_DIR", "TMPDIR"):
+        os.makedirs(env[k], exist_ok=True)
+    cmd = sglang_cmd(port)
+    os.execvpe(cmd[0], cmd, env)

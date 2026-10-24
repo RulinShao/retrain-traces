@@ -1,0 +1,108 @@
+rc=0
+===== train.py =====
+"""python3 train.py SPEC  -- train an adapter from your spec file (JSON or YAML; any keys). The environment reads
+`name` (adapter name, default a<job id>), `init` (an adapter name to start from) and `steps`; the site's trainer reads the rest."""
+import sys
+from _submit import submit
+
+if len(sys.argv) != 2 or sys.argv[1] in ("-h", "--help"):
+    import os
+    doc = os.path.join(os.path.dirname(os.path.abspath(__file__)), "skills", "trainer", "SKILL.md")   # the site's trainer contract
+    sys.exit(open(doc).read() if os.path.isfile(doc) else __doc__)
+submit("train", {"spec": sys.argv[1]})
+===== eval.py =====
+"""python3 eval.py --adapter A[,B...]|base|loaded --task T --seeds N  -- success count of that adapter stack on N fresh dev seeds."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("--adapter", required=True)
+p.add_argument("--task", required=True)
+p.add_argument("--seeds", type=int, required=True)
+a = p.parse_args()
+submit("eval", {"adapter": a.adapter, "task": a.task, "seeds": a.seeds})
+===== load.py =====
+"""python3 load.py load A [B...] | stack A [B...] | unload [A...]  -- set, extend or shrink the adapter stack on your own
+serving endpoint (unload with no names = base). Free; always allowed. The loaded stack is what the final score evaluates."""
+import sys
+from _submit import submit
+
+if len(sys.argv) < 2 or sys.argv[1] not in ("load", "stack", "unload"):
+    sys.exit(__doc__)
+submit("load", {"verb": sys.argv[1], "names": sys.argv[2:]})
+===== status.py =====
+"""python3 status.py [ID...]  -- print the state and result of jobs (all jobs if no ID)."""
+import glob, json, os, sys
+
+if {"-h", "--help"} & set(sys.argv[1:]):
+    sys.exit(__doc__)
+jobs = os.path.join(os.path.dirname(os.path.abspath(__file__)), "jobs")
+ids = sys.argv[1:] or sorted((os.path.basename(p)[:-5] for p in glob.glob(f"{jobs}/*.json") if ".request" not in p), key=int)
+for i in ids:
+    path = os.path.join(jobs, f"{i}.json")
+    print(open(path).read().strip() if os.path.exists(path) else json.dumps({"id": i, "state": "requested"}))
+===== wait.py =====
+"""python3 wait.py all | ID [ID...]  -- after this command, block until those jobs finish before your next turn."""
+import sys
+from _submit import submit
+
+if len(sys.argv) < 2 or {"-h", "--help"} & set(sys.argv[1:]):
+    sys.exit(__doc__)
+submit("wait", {"ids": sys.argv[1:]})
+===== _submit.py =====
+"""Shared by train.py, eval.py, load.py, wait.py: write one request file to jobs/; the environment picks it up when
+the current shell command finishes, and writes jobs/<id>.json with its state and result."""
+import json, os
+
+JOBS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "jobs")
+
+
+def submit(kind, args):
+    os.makedirs(JOBS, exist_ok=True)
+    n = 1
+    while True:
+        try:
+            f = open(os.path.join(JOBS, f"{n}.request.json"), "x")
+            break
+        except FileExistsError:
+            n += 1
+    with f:
+        json.dump({"id": n, "kind": kind, "args": args}, f)
+    print(f"job {n}: {kind} requested; it is picked up when this command finishes (see python3 status.py {n})")
+===== lift/stack/nut goals =====
+--- lift ---
+=== user ===
+
+You are controlling a Franka Emika robot with API described below.
+Goal: pick up the red cube and lift it.
+You may write python code comments for reasoning but ONLY write the executable Python code and do not write it in code fences.
+The functions (APIs) below are already imported to the environment. If you want to use numpy, you need to import it explicitly.
+
+APIs:
+
+get_observation() -> dict[str, typing.Any]
+  Doc:
+--- stack ---
+=== user ===
+
+You are controlling a Franka Emika robot with the API described below.
+Goal: Pick up the red cube and gently stack it on top of the green cube, then release it.
+
+Key rules:
+- The extent from get_object_pose(..., return_bbox_extent=True) is the FULL side length. Use extent[2]/2 for half-height.
+- For placement orientation, reuse the grasp quaternion from sample_grasp_pose. Do NOT use the quaternion from get_object_pose (it is unreliable for orientation).
+- Always use z_approach=0.1 when approaching an object for grasping or placing.
+- After grasping, lift the cube to a safe height (at least +0.2m in Z) before moving laterally to the placement location.
+- The stacking height formula is: place_z = green_center_z + green_extent[2]/2 + red_extent[2]/2
+--- nut ---
+=== user ===
+
+You are controlling a Franka Emika robot with API described below.
+Goal: grasp and insert the `brown square nut` onto the `brown square block`.
+Note that you would grasp the nut by its handle. You can try language query `extruded handle of the brown square nut` to get a good grasp at the handle.
+The brown square nut and the extruded handle of the brown square nut are part of the same rigid body.
+The grasp pose query for 'extruded handle of the brown square nut' returns an end-effector pose expressed in world frame, located on the handle region.
+The nut's object center pose obtained via 'white hollow center of the brown square nut' and the handle grasp pose obtained via 'extruded handle of the brown square nut' have a fixed rigid transform, which must be applied correctly when inserting the nut onto the peg.
+You may write python code comments for reasoning but ONLY write the executable Python code and do not write it in code fences.
+The functions (APIs) below are already imported to the environment.
+If you want to use numpy, or scipy for spatial transformations, you need to import it explicitly.

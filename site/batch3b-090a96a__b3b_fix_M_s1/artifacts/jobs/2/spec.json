@@ -1,0 +1,10 @@
+{
+ "task": "restack",
+ "name": "restack1",
+ "steps": 15,
+ "batch": 8,
+ "lr": 2e-05,
+ "reward": "shaped",
+ "seed_start": 810001,
+ "note": "Approach both objects with z_approach=0.1, lift the red cube to at least +0.2m above the table before moving laterally, and place it with place_z = green_center_z + green_extent[2]/2 + red_extent[2]/2 so it sits flush on the green cube without dropping it from a height."
+}

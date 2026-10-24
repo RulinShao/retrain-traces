@@ -1,0 +1,11 @@
+{
+ "task": "restack",
+ "name": "restack2",
+ "steps": 20,
+ "batch": 8,
+ "lr": 2e-05,
+ "init": "restack1",
+ "reward": "reward_mixed.py",
+ "seed_start": 822001,
+ "note": "The red cube is already held in your gripper: do not grasp it again; move so the gripper is directly above the green cube center at z = green_center_z + green_extent[2]/2 + red_extent[2]/2, then open the gripper there."
+}

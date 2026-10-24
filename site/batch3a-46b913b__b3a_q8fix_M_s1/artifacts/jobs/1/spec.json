@@ -1,0 +1,11 @@
+{
+ "task": "stack",
+ "name": "stack1",
+ "steps": 10,
+ "batch": 8,
+ "lr": 2e-05,
+ "reward": "shaped",
+ "note": "Approach each cube from above with a z_approach offset of 0.1 m, lift the grasped red cube at least +0.2 m in Z before any lateral move, and release it on the top face of the green cube at place_z = green_center_z + green_extent[2]/2 + red_extent[2]/2 so nothing is dropped from a height.",
+ "seed_start": 810001,
+ "time": "12:00:00"
+}

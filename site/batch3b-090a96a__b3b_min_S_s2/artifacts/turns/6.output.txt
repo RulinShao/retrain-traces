@@ -1,0 +1,102 @@
+rc=0
+"""HyakSite: the Site interface (site/base.py) on hyak (UW klone), exactly as FairSC3Site (site/fairsc3.py) does it on fair-sc-3.
+
+The six methods, the spec keys, JobFailed / InfraError, the "loaded" serving convention and the call records are FairSC3Site's;
+only the job layer differs: hyak_jobs.py runs the same calls through the job paths proven on hyak (practice: the repo's
+sim_service.sbatch + train.sbatch unedited in the robodojo image with the ICSI-port binds; eval: the hyak eval port of record
+hyak_patches/dq; serving: sglang in the image on the session job's GPU). See README_hyak.md.
+
+Tasks (tasks.json "name", or a name containing exactly one of them): eval lift, stack, wipe, nut, restack, twolift, handover,
+revstack, stackv2; train (practice units) lift, stack, wipe, nut, restack, revstack; a train on the other three raises JobFailed
+(no practice unit on this site), which the agent reads.
+Construction: HyakSite(endpoint=..., qos=...); the cli builds HyakSite() with no arguments, so the endpoint falls back to
+RMIN_HYAK_ENDPOINT (the session job's sglang); calls go to RMIN_PARTITION / RMIN_ACCOUNT / RMIN_QOS (default ckpt-all / ckpt-zlab /
+ckpt-gpu, --requeue).
+"""
+import os
+
+from retrain_min.site import fairsc3, hyak_jobs
+
+# Same form as fair-sc-3: train 2 GPUs x (fixed + per step at 8 prompts), eval EVAL_GPUS (1 from batch 3) x (fixed + per seed), per GPU. Train: least squares over
+# every completed hyak train (hyak_fit_costs.py; data in README_hyak.md; re-fit after every 10 new jobs): 8 jobs 10-22, fixed 1.310 h,
+# per step 0.0703 h. Eval: 5 seeds 0.63-0.78 GPU-h (42128452, 42123601), 100 seeds 0.64-1.40, median 0.93 (base_scores_hyak.json jobs), all on 2 GPUs;
+# 1 GPU: 100 seeds 0.42 (42145418).
+TRAIN_FIXED_H, TRAIN_PER_STEP_H, EVAL_FIXED_H, EVAL_PER_SEED_H = 1.31, 0.0703, 0.35, 0.0013
+# The canonical cost table the agent is charged from (10-22 ruling; FairSC3Site.CANONICAL): a train = the 2-GPU layout's fit, an
+# eval = the 1-GPU layout, whatever GPUs the site uses for speed (3-GPU trains from batch 3). Measured GPU-hours are recorded
+# next to each charge (call.json, training.json, RESULT.json gpu_hours_actual).
+CANONICAL = dict(train_gpus=2, train_fixed=1.31, train_per_step=0.0703, eval_gpus=1, eval_fixed=0.35, eval_per_seed=0.0013)
+# small policy profiles (1 GPU per call): provisional; 8B lift 10 steps measured 0.48 GPU-h (42150702); re-fit per policy
+COSTS_SMALL = (0.45, 0.025, 0.35, 0.0013)
+if hyak_jobs.SMALL_POLICY:
+    TRAIN_FIXED_H, TRAIN_PER_STEP_H, EVAL_FIXED_H, EVAL_PER_SEED_H = COSTS_SMALL
+    CANONICAL = dict(train_gpus=1, train_fixed=COSTS_SMALL[0], train_per_step=COSTS_SMALL[1], eval_gpus=1, eval_fixed=COSTS_SMALL[2],
+                     eval_per_seed=COSTS_SMALL[3])
+
+
+def task_of(name, tasks):
+    """The site task a tasks.json name denotes: the name itself, else the one site task it contains (longest wins: stackv2 > stack)."""
+    n = str(name).lower()
+    if n in tasks:
+        return n
+    hits = [t for t in tasks if t in n]
+    hits = [t for t in hits if not any(t != u and t in u for u in hits)]
+    if len(hits) != 1:
+        raise ValueError(f"task {name!r}: hyak runs {sorted(tasks)} (name must contain exactly one)")
+    return hits[0]
+
+
+class HyakSite(fairsc3.FairSC3Site):
+    J = hyak_jobs
+    trainer_skill = "hyak"   # trainer_skills/hyak/SKILL.md: this site's complete trainer contract (fields, failures, costs, output)
+    TRAIN_FIXED_H, TRAIN_PER_STEP_H, EVAL_FIXED_H, EVAL_PER_SEED_H = TRAIN_FIXED_H, TRAIN_PER_STEP_H, EVAL_FIXED_H, EVAL_PER_SEED_H
+    CANONICAL = CANONICAL
+    ENDPOINT_ENV = "RMIN_HYAK_ENDPOINT"
+
+    policy_model = hyak_jobs.POLICY_ID   # (+init:<sha12> with RMIN_POLICY_INIT) recorded in RESULT.json, the scoreboard header and every call record
+
+    @classmethod
+    def task_of(cls, name):
+        return task_of(name, hyak_jobs.EVAL_CELLS)
+
+    def storage_paths(self):
+        """Exactly the dirs the calls and the session write to (hyak_jobs.write_paths; reads such as the HF cache are not checked)."""
+        return self.J.write_paths()
+
+    def eval_prompts(self, tasks):
+        """The eval cells' prompts (eval_prompts_hyak/<task>.txt, hyak_eval_prompts.py), by tasks.json name."""
+        out = {}
+        for name in tasks:
+            try:
+                path = os.path.join(os.path.dirname(__file__), "eval_prompts_hyak", f"{self.task_of(name)}.txt")
+            except ValueError:
+                continue
+            if os.path.isfile(path):
+                out[name] = open(path).read()
+        return out
+
+    def policy_description(self):
+        if not hyak_jobs.SMALL_POLICY:
+            return super().policy_description()
+        return (f"The policy being trained is a separate language model ({self.policy_model}) whose weights can be adapted with "
+                "LoRA adapters; you are not the policy and cannot change your own weights. train.py, eval.py and load.py act on "
+                f"{self.policy_model} adapters.").replace(self.policy_model, hyak_jobs.POLICY_MODEL)   # init sha: records only
+
+    def serve(self, adapters):
+        """Small policy: the agent's model is not the policy, so nothing chats with the stack; it is checked and recorded."""
+        if not hyak_jobs.SMALL_POLICY:
+            return super().serve(adapters)
+        adapters = list(adapters)
+        for a in adapters:
+            self.J.check_adapter(a)
+            self.J.check_policy(a)
+        self.stack, self.served_path = adapters, None
+        return self.endpoint
+
+    def loaded_adapters(self):
+        return list(self.stack) if hyak_jobs.SMALL_POLICY else super().loaded_adapters()
+
+
+def base_scores_add(path, task, seeds, slurm=None, qos=None):
+    """Operator: the base eval cell for (task, seeds) into the env's --base-scores file (fairsc3.base_scores_add on this site)."""
+    return fairsc3.base_scores_add(path, task, seeds, slurm=slurm, qos=qos, site=HyakSite)

@@ -1,0 +1,11 @@
+{
+ "task": "stack",
+ "name": "current",
+ "steps": 30,
+ "batch": 8,
+ "lr": 2e-05,
+ "reward": "shaped",
+ "seed_start": 830000,
+ "time": "08:00:00",
+ "note": "Do not call get_object_pose or sample_grasp_pose and do not pass any z_approach argument (none of these exist in this API); instead segment the red and green cubes with segment_sam3_text_prompt, derive each cube's 3D pose from its back-projected mask depth using get_oriented_bounding_box_from_3d_points, transform the plan_grasp camera-frame grasp pose into the world frame with the camera pose_mat, then solve_ik and move_to_joints to grasp, lift at least 0.2 m, and place so the red cube rests at green_center_z + green_extent[2]/2 + red_extent[2]/2 before opening the gripper."
+}

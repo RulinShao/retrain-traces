@@ -1,0 +1,36 @@
+{
+ "status": "DONE",
+ "turns": 23,
+ "gpu_hours": 14.903,
+ "final_score": {
+  "loaded": "v1",
+  "per_task": {
+   "lift": 76,
+   "stack": 57,
+   "nut": 0,
+   "wipe": 18,
+   "restack": 0,
+   "twolift": 0,
+   "handover": 1,
+   "revstack": 0,
+   "stackv2": 4
+  },
+  "total": 156,
+  "n_per_task": 100
+ },
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "gpu_hours_actual": 18.421,
+ "gpu_hours_charging": "canonical",
+ "skills_version": null,
+ "initial_skills_digest": "781c03e45fecb8c2c7fda12acde4d3af26ee19397bbd0ec40bfa787d3fd61737",
+ "artifacts": {
+  "registry": "…/batch3b-090a96a/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

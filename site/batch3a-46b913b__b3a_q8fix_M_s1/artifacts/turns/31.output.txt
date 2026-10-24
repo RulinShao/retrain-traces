@@ -1,0 +1,122 @@
+rc=0
+     1 …/site/__init__.py
+   160 …/site/base.py
+   246 …/site/calibrated.py
+    57 …/site/capx_reward.py
+   382 …/site/fairsc3.py
+    43 …/site/fairsc3_eval_prompts.py
+   653 …/site/fairsc3_jobs.py
+   131 …/site/fairsc3_lora.py
+    67 …/site/fake.py
+   101 …/site/hyak.py
+    38 …/site/hyak_base_check.py
+   125 …/site/hyak_container.py
+   244 …/site/hyak_dev.py
+    44 …/site/hyak_eval_prompts.py
+    39 …/site/hyak_fit_costs.py
+   359 …/site/hyak_jobs.py
+   396 …/site/hyak_vla.py
+    25 …/site/hyak_vla_lora.py
+    48 …/site/hyak_vla_smoke.py
+  3159 total
+====
+"""The Site interface: the only place a cluster, trainer, simulator or server is touched.
+
+A Site runs what it is asked and reports GPU-hours. It does NOT decide anything about the agent: no spec validation,
+no budget policy, no guards (env.py and guards.py own those). Calls may block for hours; env.py runs train/eval calls
+in worker threads, so they must be thread-safe with respect to each other.
+"""
+import threading
+from abc import ABC, abstractmethod
+import hashlib, inspect, json, logging, os
+
+LOG = logging.getLogger(__name__)
+
+
+class JobFailed(Exception):
+    """The call could not run the agent's request as written (e.g. the trainer cannot use the spec). str(e) is the
+    agent's to read: env.py ends the job as failed with this text and the session goes on. Any other exception is infra."""
+
+
+# The default policy paragraph: the self-training case (the agent's own served model is what train.py adapts).
+SELF_POLICY = "You are a language model whose weights can be adapted with LoRA adapters."
+
+HIDDEN_SEEDS_RESERVED = "seeds 1-100 are reserved for the final score; use dev seeds >= 800001"
+
+
+class Site(ABC):
+    trainer_skill = "generic"
+    policy_model = None   # a site that names its policy model (e.g. hyak's RMIN_POLICY_MODEL) records it in RESULT.json, the
+                          # scoreboard header and training.json
+    _call = threading.local()   # the environment's job key of the call running in this worker thread (run_keyed)
+
+    def run_keyed(self, key, fn, *args):
+        """Run a site call under the environment's job key, so cancel(key) can find it."""
+        self._call.key = key
+        try:
+            return fn(*args)
+        finally:
+            self._call.key = None
+
+    def current_key(self):
+        return getattr(self._call, "key", None)
+
+    def cancel(self, key):
+        """Stop the running call submitted under `key`. The call then returns or raises as the site documents (a train keeps the
+        adapter of its last saved step, or raises JobFailed if none). Sites that cannot cancel raise JobFailed."""
+        raise JobFailed("this site cannot cancel a running job")
+    adapter_composition = "site-defined"
+
+    def skill_directory(self):
+        """The trainer's agent-facing documentation, installed as workspace skills/trainer/ (mandatory tool docs: facts only).
+        Operator note: a new Site ships its own directory documenting supported spec fields, defaults, an example, and data
+        and reward formats; it may write training.json via write_training_record(); version the trainer and its doc together.
+        Budget, evaluation and isolation stay environment rules and are not documented there."""
+        return os.path.join(os.path.dirname(__file__), "trainer_skills", self.trainer_skill)
+
+    def storage_paths(self):
+        """Filesystems this site's calls write to (call dirs, run dirs, eval outputs, model caches), for the environment's storage
+        guard (storage.py) next to the session's out dir. Default: none."""
+        return []
+
+    def eval_prompts(self, tasks):
+        """{task name: the exact prompt text this site's eval sends to the policy for that task (no seed-specific state)} for
+        the tasks.json names it can state; the environment copies each to the workspace as tasks/<task>/eval_prompt.txt. The
+        evaluation prompt is what the policy sees at test time, not privileged information (only hidden seeds are). Default: none."""
+        return {}
+
+    def capabilities(self):
+        return {"adapter_composition": self.adapter_composition, "trainer_skill": "skills/trainer/SKILL.md",
+                "trainer_implementation": f"{type(self).__module__}.{type(self).__name__}"}
+
+    def write_training_record(self, out_dir, resolved_spec, artifacts=(), **facts):
+        """Record site-resolved parameters; source hashes identify site code, not all external trainer dependencies.
+        Called after a real (paid) job: it never raises, so the adapter is still returned and collected. A failure is
+        logged as an operator note and the adapter simply has no training.json."""
+        try:
+            sources = {}
+            owners = [owner for owner in type(self).__mro__[:-1] if owner.__module__ != "abc"]
+            if hasattr(self, "J"):
+                owners.append(self.J)
+            for owner in owners:
+                path = inspect.getsourcefile(owner)
+                if path and os.path.isfile(path):
+                    with open(path, "rb") as stream:
+                        sources[os.path.basename(path)] = hashlib.sha256(stream.read()).hexdigest()
+            if self.policy_model:
+                facts.setdefault("policy_model", self.policy_model)
+            text = json.dumps(dict({"resolved_spec": resolved_spec, "artifacts": list(artifacts), "site_sources": sources}, **facts),
+                              indent=1)
+            with open(os.path.join(out_dir, "training.json"), "w") as stream:
+                stream.write(text)
+        except Exception as error:
+            LOG.warning("operator note: training.json not written for %s: %r (the adapter is kept)", out_dir, error)
+
+    def training_metadata(self, adapter_path):
+        """training.json of an adapter, or {} if absent or unreadable (an unreadable one is logged as an operator note)."""
+        path = os.path.join(adapter_path, "training.json")
+        if not os.path.isfile(path):
+            return {}
+        try:
+            with open(path) as stream:
+                return json.load(stream)

@@ -1,0 +1,36 @@
+{
+ "format_version": "1",
+ "trajectory_id": "fl_min_s1",
+ "created": "2026-10-24T03:35:50.441Z",
+ "producer": {
+  "name": "trajectory.adapters.retrain_min_session",
+  "version": null,
+  "git_sha": "78769df14d50f4acad00528b461fb102f4f8bbb8"
+ },
+ "tags": {
+  "kind": "session",
+  "session": "fl_min_s1",
+  "seed": 1,
+  "site": "RecordingSite",
+  "batch": "fastloop-85ee471",
+  "adapter_mode": "library",
+  "policy_model": "Qwen3-8B+init:79fbddb55dd8"
+ },
+ "agent": {
+  "model": "qwen38-27b",
+  "backend": "local"
+ },
+ "harness": {
+  "name": "retrain_min.harness",
+  "config": {
+   "max_reply_tokens": 16384,
+   "context_messages": 60,
+   "context_tokens": 100000,
+   "reply_chars": 12000,
+   "observation_chars": 20000,
+   "reasoning": null,
+   "seed": 1,
+   "tree_sha": "67c94962f6fc5c71b08ccd125f5bf5a2da5db44a"
+  }
+ }
+}

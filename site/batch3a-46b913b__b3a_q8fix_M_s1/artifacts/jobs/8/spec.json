@@ -1,0 +1,11 @@
+{
+ "task": "wipe",
+ "name": "wipe1",
+ "steps": 30,
+ "batch": 8,
+ "lr": 2e-05,
+ "reward": "rewards/rewards_exec.py",
+ "note": "Write one executable program that: gets the observation; segments the brown spill with segment_sam3_text_prompt on the rgb image (if no mask is returned, fall back to point_prompt_molmo plus segment_sam3_point_prompt); back-projects the mask pixels to 3D with the camera intrinsics and transforms them to the world frame with the camera pose_mat (use the inverse of pose_mat if the resulting z is outside 0..0.3 m); computes the min and max x and y of the spill in world coordinates; then sweeps the end-effector back and forth over those bounds in small steps of at most 0.02 m, each move via solve_ik with orientation quaternion (0, 0, 1, 0) wxyz and z = 0.0 followed by move_to_joints.",
+ "seed_start": 812000,
+ "time": "12:00:00"
+}

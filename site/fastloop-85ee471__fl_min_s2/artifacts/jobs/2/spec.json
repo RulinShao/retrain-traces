@@ -1,0 +1,7 @@
+{
+ "task": "nut",
+ "name": "n1s",
+ "steps": 1,
+ "batch": 8,
+ "reward": "shaped"
+}

@@ -1,0 +1,21 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "train_failed: InfraError('trainer rc=None job 42154396 state RUNNING')",
+ "gpu_hours": 2.965,
+ "final_score": null,
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "gpu_hours_actual": 4.4475,
+ "gpu_hours_charging": "canonical",
+ "skills_version": "3123238-b564627b",
+ "initial_skills_digest": "796c75a45447b28e5372bfbbed72783404e0f8b67f14fd435445b7712d61d924",
+ "artifacts": {
+  "registry": "…/batch3a-46b913b/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

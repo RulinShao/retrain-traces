@@ -1,0 +1,65 @@
+rc=0
+total 1173
+drwxr-sr-x  5 root nobody 8192 Oct 22 17:26 .
+drwxr-xr-x  4 root root     80 Oct 22 17:26 ..
+-rw-r--r--  1 root nobody  786 Oct 22 17:22 ENVIRONMENT.json
+-rw-r--r--  1 root nobody  869 Oct 22 17:22 SCOREBOARD.md
+-rw-r--r--  1 root nobody  155 Oct 22 17:22 STATUS.json
+-rw-r--r--  1 root nobody  719 Oct 22 17:21 _submit.py
+lrwxrwxrwx  1 root nobody   19 Oct 22 17:21 adapters -> ../session/adapters
+-rw-r--r--  1 root nobody  396 Oct 22 17:21 cancel.py
+-rw-r--r--  1 root nobody  447 Oct 22 17:21 eval.py
+drwxr-sr-x  2 root nobody  512 Oct 22 17:21 jobs
+-rw-r--r--  1 root nobody  441 Oct 22 17:21 load.py
+drwxr-sr-x  5 root nobody  512 Oct 22 17:22 skills
+-rw-r--r--  1 root nobody  548 Oct 22 17:21 status.py
+drwxr-sr-x 11 root nobody  512 Oct 22 17:22 tasks
+-rw-r--r--  1 root nobody 1309 Oct 22 17:21 tasks.json
+-rw-r--r--  1 root nobody  595 Oct 22 17:21 train.py
+-rw-r--r--  1 root nobody  277 Oct 22 17:21 wait.py
+PLAYBOOK.md
+README.md
+reward_check
+==> skills/optional/PLAYBOOK.md <==
+# Playbook
+version: 5 (2026-10-22; 2: shaped reward on 0% tasks, hyak batch 3a; v4: 13; v3: 10-12, note/goal)
+Changelog policy: edited by humans from behaviour digests; agents may propose changes via playbook_suggestions.md.
+
+Actions earlier sessions found worth exploring (suggestions, not rules):
+1. Probe cheaply before spending: a small dev-seed eval of base on each task costs little and shows where training can start.
+2. Consider training where the base already succeeds sometimes. Earlier practice runs that started at 0% success got no signal; those starting at 5% or more improved. Shaped reward did not rescue 0% tasks: 5 of 5 such runs ended at 0-2/100.
+3. GRPO learns from reward differences within a rollout group: a group whose rollouts all get the same reward gives no gradient. Changing the start state or reward helped more than training longer.
+4. An adapter whose scoreboard state reads "weights unchanged (all-zero update)" learned nothing; check that before building on it.
+5. You can continue training from your best adapter instead of base; earlier records show no clear win either way.
+6. Consider keeping several adapters: the score is the loaded stack over every task. One adapter trained on six tasks together averaged 6.7 points above per-task specialists, but a joint adapter on a composite task scored below base.
+7. Evaluate a candidate on dev seeds of every task before loading it: one adapter loaded without that check lost 37 of 100 on another task.
+8. Gains from more steps on one task came by about step 120 and were flat after.
+9. Keep an eye on remaining GPU-hours against the cost table; a single large train call can take most of the budget.
+10. skills/trainer/SKILL.md lists every spec field; earlier sessions spent 16-77 turns reading code to find them.
+11. Loading is free and the session can end at any time: load your best evaluated stack as soon as you have one. After 5 h, none of 8 earlier sessions had loaded anything.
+12. An eval's cost is mostly its fixed start-up: 100 seeds cost little more than 20 and are far less noisy.
+13. Jobs can queue for hours and wait.py blocks your turn: submit the jobs you already want together, then wait.
+
+What did not work:
+- A put-down practice task starting with the cube in hand: 1 of 640 rollouts succeeded, too little signal.
+- Practice prompts that differed from the evaluation prompt (`note`, `goal`) were the leading suspected cause of weak trained adapters.
+
+==> skills/optional/README.md <==
+# Shared skills (new line: retrain_min and retrain_fixed)
+
+Optional, agent-facing scripts and notes. Pass this directory with `--skills skills/shared` to either harness: it is
+copied into the workspace as `skills/optional/` (apart from the mandatory tool docs in `skills/tools/` and
+`skills/trainer/`) and the system prompt gains two lines (where they are; append lessons to playbook_suggestions.md).
+`PLAYBOOK.md` (<= 2,500 characters, versioned) is also inlined into the system prompt under "Playbook
+(skills/optional/PLAYBOOK.md: optional advice from earlier sessions; you may follow or ignore it)"; the session records the version
+(RESULT.json `skills_version`, SCOREBOARD.md header). Nothing else changes; the agent may use, edit or ignore them.
+A skill is a directory with a SKILL.md and, optionally, scripts that run in the workspace with no other service.
+
+| skill | what it does |
+|---|---|
+| `reward_check/` | `check_reward.py REWARD [--results FILE]`: runs your reward(result) on example (or your own) sim replies and prints the scores |
+
+The other directories under `skills/` (decompose, library, reward_check, snapshot, train_grpo, write_practice,
+write_skill, gateway.py, README.md, ADAPTERS.md) are the frozen old loop's seed skills: they call `skills/gateway.py`,
+which only `retrain/` serves, and they stay in place because `retrain/workspace.py` (SEED) and `envs/` job scripts read
+them by path. See `../OLD_LOOP.md`.

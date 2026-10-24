@@ -1,0 +1,34 @@
+rc=0
+calibrated.py:16:  no mixed group   the adapter is all-zero (lora_B = 0 = the base model; a scoreboard fact via the guard), shift = init's
+calibrated.py:25:a reward file or inline reward is accepted and modelled as task_completed.
+calibrated.py:120:    # ------------------------------------------------------------ adapters: a PEFT-shaped dir + sim.json (per-task shifts)
+calibrated.py:134:                           {"lora_A.weight": ("F32", [r, 1], b"\x01" * 4 * r), "lora_B.weight": ("F32", [1, r], b)})
+calibrated.py:149:            if isinstance(r, str) and "def reward" in r:   # inline reward source: accepted (modelled as task_completed)
+calibrated.py:150:                s["reward"] = "task_completed"
+calibrated.py:151:            elif isinstance(r, str) and r not in ("task_completed", "shaped") and not os.path.isabs(r):
+capx_reward.py:4:`result` is the sim service's /run reply (keys: task_completed, reward (robosuite staged reward), sandbox_rc, seed, secs,
+capx_reward.py:5:wall_s, log_tail, task). task_completed is always logged next to the score.
+capx_reward.py:16:    """The /run reply; keys also readable as attributes (r["task_completed"] or r.task_completed). A missing attribute raises
+capx_reward.py:56:    return {"score": sc, "task_completed": float(r["task_completed"]), "sim_reward": float(r["reward"]),
+capx_reward.py:57:            "sandbox_rc": float(r["sandbox_rc"]), "seed": float(r["seed"]), "sim_secs": float(r["secs"]), "sim_wall_s": float(r["wall_s"])}
+fairsc3.py:193:            elif isinstance(r, str) and r not in ("task_completed", "shaped") and not os.path.isabs(r):
+fairsc3_jobs.py:21:trainer rc != 0, adapter missing (or without lora_B tensors), sim used a hidden seed (1-100), eval cell void / short / seed mismatch,
+fairsc3_jobs.py:107:TRAIN_DEFAULTS = {"steps": 1, "lr": 2e-5, "batch": 8, "seed_start": 810001, "reward": "task_completed", "init": None,
+fairsc3_jobs.py:230:    """-> (nonzero lora_B, total lora_B) via core.adapter_check (header + lora_B bytes only)."""
+fairsc3_jobs.py:241:    if tot == 0:   # all-zero lora_B (nz == 0) is not infra: a zero-gradient GRPO update; the env shows it to the agent
+fairsc3_jobs.py:242:        raise InfraError(f"adapter has no lora_B tensors: {peft}")
+fairsc3_jobs.py:279:    if r not in ("task_completed", "shaped") and not (isinstance(r, str) and os.path.isfile(r)):
+fairsc3_jobs.py:280:        raise ValueError("reward must be 'task_completed', 'shaped' or the path of a .py file defining reward(result) -> float")
+fairsc3_jobs.py:295:    if s["reward"] == "shaped":
+fairsc3_jobs.py:296:        env["CAPX_REWARD_MODE"] = "shaped"
+fairsc3_jobs.py:297:    elif s["reward"] != "task_completed":   # the caller's reward file: a recipe copy whose capx_reward.py calls it
+fairsc3_jobs.py:331:      reward      "task_completed" (recipe of record) | "shaped" (CAPX_REWARD_MODE=shaped) | path of a .py defining
+fairsc3_jobs.py:332:                  reward(result) -> float, result = the sim's /run reply (task_completed, reward, sandbox_rc, seed, log_tail)
+fairsc3_jobs.py:386:                                   "reward(r) gets the simulator reply: task_completed, reward, sandbox_rc, seed, secs, wall_s, log_tail, task")
+fairsc3_lora.py:3:  zero_like(src, dst)       a copy of PEFT dir `src` with every lora_B tensor zeroed: computes exactly the base model
+fairsc3_lora.py:6:  concat(srcs, dst)         an adapter stack as ONE LoRA: lora_A stacked along the rank dim, lora_B along its rank dim
+fairsc3_lora.py:67:    """An all-zero LoRA (A = B = 0: computes exactly the base) for a dense Qwen3-style model (config.json), on the recipe's target
+fairsc3_lora.py:83:            t[f"{k}.lora_B.weight"] = ("BF16", (fan_out, r), bytes(2 * fan_out * r))
+hyak_dev.py:224:    print(f"  adapter check: lora_B nonzero/total {t.get('lora_b_nonzero_total')} {t.get('adapter_error', '')}")
+hyak_jobs.py:58:# name; every record carries policy_model). a1 for the 8B = fairsc3_lora.zero_for(8B snapshot): all-zero, 8B-shaped, never scored.
+hyak_jobs.py:60:# per policy: HF dir; a1 (an all-zero LoRA of its shapes, fairsc3_lora.zero_for, never scored); LoRA target modules (the 27B: the

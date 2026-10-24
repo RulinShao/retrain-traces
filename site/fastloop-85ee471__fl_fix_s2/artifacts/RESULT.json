@@ -1,0 +1,21 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "train_failed: InfraError('trainer rc=None job 42196673 state TIMEOUT')",
+ "gpu_hours": 13.5,
+ "final_score": null,
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3-8B+init:79fbddb55dd8",
+ "gpu_hours_actual": 23.4602,
+ "gpu_hours_charging": "canonical",
+ "skills_version": null,
+ "initial_skills_digest": "781c03e45fecb8c2c7fda12acde4d3af26ee19397bbd0ec40bfa787d3fd61737",
+ "artifacts": {
+  "registry": "…/fastloop-85ee471/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

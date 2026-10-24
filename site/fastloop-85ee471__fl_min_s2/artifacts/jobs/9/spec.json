@@ -1,0 +1,7 @@
+{
+ "task": "restack",
+ "name": "restack_1",
+ "steps": 15,
+ "batch": 8,
+ "reward": "shaped"
+}

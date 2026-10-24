@@ -1,0 +1,51 @@
+rc=0
+=== my spec ===
+{
+  "task": "lift",
+  "name": "lift1",
+  "steps": 15,
+  "batch": 8,
+  "reward": "task_completed",
+  "seed_start": 810001
+}
+=== trainer SKILL (spec fields) ===
+2:name: trainer
+7:`python3 train.py SPEC` submits one practice call; SPEC is a JSON or YAML file in the workspace. `python3 train.py --help` prints this file.
+8:Relative paths in SPEC (a reward file, an init adapter path, data files) resolve against the workspace, where `train.py` runs, wherever SPEC itself is.
+13:GRPO on LoRA adapters of the policy model named in SCOREBOARD.md's `policy:` line (LoRA rank 32, alpha 64, on q,k,v,o,out,gate,up,down
+15:Each step: `batch` prompts x 8 rollouts. A rollout is one program written by the model for the task, run once in the task's simulator
+16:on one seed; its score is the reward below. The training prompt is the task's evaluation prompt, byte for byte (checked before training), unless the spec sets `note` or `goal`:
+17:those are part of the training prompt only. Every eval, including the final hidden-seed score, uses the task's
+18:`tasks/<task>/eval_prompt.txt` in the workspace verbatim, without any note or goal.
+22:unit and the eval cell run the same task config (`*_reduced_api_exampleless.yaml` is the s4:paper cell's config).
+24:## Spec fields (a spec with any other field fails; see Failures)
+27:| `task` | string | required | a tasks.json name containing exactly one of: lift, stack, wipe, nut, restack, revstack |
+28:| `name` | string | `a<job id>` | letters, digits, `_ . -`, at most 48; not already taken, not `base` / `loaded`. Single-adapter mode: omit it (or `current`) |
+29:| `steps` | integer | 1 | any positive integer (cost grows with it, see below) |
+30:| `batch` | integer | 8 | prompts per step (each x 8 rollouts) |
+32:| `init` | string | none (fresh LoRA) | an adapter name produced by an earlier train of this session. Single-adapter mode: omit it (or `current`); every train continues `current` |
+33:| `reward` | string | `task_completed` | `task_completed` (1.0 if the task's own success check passes, else 0.0); `shaped` (the simulator's staged reward); Python source containing `def reward(r)`; or the path of a `.py` file (relative paths: the workspace) defining `reward(r)`. `r` is the simulator's reply: `task_completed`, `reward`, `sandbox_rc`, `seed`, `log_tail` (keys or attributes); return a float |
+34:| `seed_start` | integer | 810001 | rollout k of the call runs on seed `seed_start + k`; must not reach seeds 1-100 |
+40:A request this site cannot run as written ends `failed` in `jobs/<id>.json` with this text; nothing is charged:
+41:- `train: unsupported spec field(s) ['<field>', ...]; this site reads only: steps, lr, batch, seed_start, reward, init, note, goal, time, task, name`
+42:- `train: task must be one of ['lift', 'nut', 'restack', 'revstack', 'stack', 'wipe'], got '<task>'` (twolift, handover, stackv2 have no practice unit here)
+44:- `train: reward must be 'task_completed', 'shaped' or the path of a .py file defining reward(result) -> float`
+45:- `train: reward file <path> is outside your workspace; a reward file must be a file in your workspace` (a symlink is not followed either)
+46:- `train: name: letters, digits, _ . - (max 48)`
+47:- `train: your reward function raised <Error>: <message> (reward.py line N); ...` / `train: your reward function tried to <action> (<detail>), which the reward sandbox refuses; ...` / `train: your reward function ran longer than 120 s on one rollout ...`: a custom `reward(r)` runs in a sandbox, once per rollout: plain Python and the interpreter's libraries (math, json, numpy), files only in its working directory (temporary), no other files, no network, no subprocesses, 60 s CPU and 4 GiB per call. The train stops at the first such failure.
+48:- `train: seeds 1-100 are reserved for the final score; use dev seeds >= 800001`
+49:A failure inside the trainer or the simulator (crash, missing adapter files, a hidden seed used) ends the session as an infrastructure
+53:While a train runs, its record shows completed steps, the latest step's mean reward, the fraction of rollouts with reward > 0
+54:and canonical GPU-hours of the steps done so far (read from the trainer's per-step output about once a minute). A checkpoint is saved every ceil(steps / 4)
+55:steps; `cancel.py ID` stops the job and keeps the adapter of the last saved step (registered with the steps it ran), or ends the
+56:job `failed` if none was saved; either way the job is charged the canonical cost of the steps it completed (see Cost).
+64:| train, 1 step | 2.76 |
+65:| train, 10 steps | 4.03 |
+66:| train, 30 steps | 6.84 |
+67:| train, N steps | 2 x (1.31 + 0.0703 x N x batch / 8) |
+69:| eval of one task on | 5 seeds | 20 seeds | 100 seeds |
+73:An eval's cost is mostly its fixed part, so 100 seeds cost little more than 5. A call that fails or is cancelled is charged the
+74:canonical cost of the steps it completed, or less if it ran only briefly. The cost is also the admission estimate.
+77:A finished train writes `adapters/<name>/` (read-only to you): `adapter_model.safetensors`, `adapter_config.json`,
+78:`rewards.json` (per step: `step`, `score_mean` over that step's rollouts), `call.json` (job ids, `gpu_hours` = the canonical charge to
+79:your budget, `gpu_hours_actual` = measured hardware time, not charged, nonzero LoRA-B count, rollout seed range) and `training.json` (`resolved_spec`: the controls actually used). The adapter can then be named in `eval.py --adapter`, `load.py`, or as `init` of another train.

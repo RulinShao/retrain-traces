@@ -1,0 +1,70 @@
+rc=0
+=== tasks.json (training tasks) ===
+{
+    "tasks": [
+        {
+            "name": "lift",
+            "eval": "CaP-X Robosuite Cube Lift (lift s4:paper), single-turn code, success = the task's own check"
+        },
+        {
+            "name": "stack",
+            "eval": "CaP-X Robosuite Cube Stack (stack s4:paper), single-turn code, success = the task's own check"
+        },
+        {
+            "name": "nut",
+            "eval": "CaP-X Robosuite Nut Assembly / peg (nut s4:paper), single-turn code, success = the task's own check"
+        },
+        {
+            "name": "wipe",
+            "eval": "CaP-X Robosuite Spill Wipe (wipe s4:paper), single-turn code, success = the task's own check"
+        },
+        {
+            "name": "restack",
+            "eval": "CaP-X Robosuite Cube Re-stack (restack s4:paper), single-turn code, success = the task's own check"
+        },
+        {
+            "name": "twolift",
+            "eval": "CaP-X Robosuite Two-arm Lift (twolift s4:paper), single-turn code, success = the task's own check"
+        },
+        {
+            "name": "handover",
+            "eval": "CaP-X Robosuite Two-arm Handover (handover s4:paper), single-turn code, success = the task's own check"
+        },
+        {
+            "name": "revstack",
+            "eval": "CaP-X Robosuite Reverse-colour Cube Stack, scene shift (stack s4shift:fix), single-turn code, success = the task's own check"
+        },
+        {
+            "name": "stackv2",
+            "eval": "CaP-X Robosuite Cube Stack, API v2 (stack s4v2:fix), single-turn code, success = the task's own check"
+        }
+    ]
+}
+
+=== EVAL_CELLS + how train task maps ===
+_T = f"{REPO}/envs/capx/targets"
+_UNITS = {"lift": (f"{_UP}/cube_lifting/franka_robosuite_cube_lifting_reduced_api_exampleless.yaml", "lift"),
+          "stack": (f"{_UP}/cube_stack/franka_robosuite_cube_stack_reduced_api_exampleless.yaml", "stack"),
+          "revstack": (f"{_T}/revstack_target.yaml", "stack"),
+          "restack": (f"{REPO}/experiments/ood_generalization/configs/restack_s4v2.yaml", "restack"),   # cell of record O3 (V2 API)
+          "wipe": (f"{_UP}/spill_wipe/franka_robosuite_spill_wipe_reduced_api_exampleless.yaml", "wipe"),
+          "nut": (f"{_UP}/nut_assembly/franka_robosuite_nut_assembly_reduced_api_exampleless.yaml", "nut")}
+TASKS = {t: {"unit": f"{t}_target", "yaml": y, "gate": g, "ref": f"{_T}/{t}_target.ref.txt", "e2e": f"{_T}/{t}_e2e.py",
+             "e7_spec": f"{_T}/{t}_b_spec.json"} for t, (y, g) in _UNITS.items()}
+# eval cells: task name -> (run_block TASK, cell tier:variant). revstack = the O4 eval cell, stackv2 = the E11 demo target's eval
+EVAL_CELLS = {"lift": ("lift", "s4:paper"), "stack": ("stack", "s4:paper"), "wipe": ("wipe", "s4:paper"),
+              "nut": ("nut", "s4:paper"), "restack": ("restack", "s4v2:paper"), "twolift": ("twolift", "s4:paper"),
+              "handover": ("handover", "s4:paper"), "revstack": ("stack", "s4shift:fix"), "stackv2": ("stack", "s4v2:fix")}
+# cells whose config of record is not the runner's tier default: revstack = O4 cell of record (367211 tillicum, 41958901 hyak) =
+# s4shift + API V2 (experiments/ood_generalization/plan.json O4_revstack cfg_map); the default s4shift config is API V1, an easier
+# cell (hyak 24/100 hidden vs 0/100 with the V2 config, job 42128068). Batch 1 (10-21, trees e3bd7548 / 57692feb) ran V1.
+CFG_MAPS = {"revstack": f"s4shift#={REPO}/experiments/ood_generalization/configs/stack_s4v2shift.yaml",
+            # restack = O3 cell of record (plan.json O3_restack): s4v2:paper + restack_s4v2.yaml (V2 API); batch 1 ran s4:paper (V1)
+            "restack": f"s4v2#={REPO}/experiments/ood_generalization/configs/restack_s4v2.yaml"}
+EVAL_ENV = F.EVAL_ENV   # the fair-sc-3 cell env; DW_RUN_BLOCK is set by hyak_eval.sh (the dq port's runner)
+
+# hyak-only practice env (hyak.env behaviour overrides; hyak_patches/wvc3 PACK_SIM_ENV): numba opt 0 in the image, EGL renderer,
+# Molmo2 readiness over GPFS
+SIM_HYAK = {"NUMBA_OPT": "0", "SUITE_GL": "egl", "RC_MOLMO_READY_POLLS": "480",
+            "CAPX_SUITE_API_VERSIONS": "1"}   # registers the V2 API (revstack / restack units; as the eval cells set it)
+

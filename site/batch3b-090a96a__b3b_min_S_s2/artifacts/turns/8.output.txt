@@ -1,0 +1,129 @@
+rc=0
+        seeds = list(range(self.next_dev_seed, self.next_dev_seed + n))
+        self.next_dev_seed += n
+        guards.seeds_disjoint(self.session_dir, seeds, self.cfg.hidden_seeds)
+        job["label"], job["n"] = "+".join(names) or "base", n
+        if self.single and names:   # the version evaluated, shown on the scoreboard
+            job["version"] = self.version_of(names[0])
+        future = self.pool.submit(self.site.run_keyed, f"job{jid}", self.site.submit_eval, self.paths(names), a["task"], seeds)
+        job["future"], job["state"] = future, "running"
+
+    def do_load(self, jid, job):
+        verb, names = job["args"]["verb"], list(job["args"]["names"])
+        if self.single and not self.versions and (verb != "load" or names != ["current"]):
+            raise ValueError(f"{SINGLE_RULE}; the only valid call is `load.py load current`")
+        if self.versions and (verb != "load" or len(names) != 1 or not (names[0] == "current" or re.fullmatch(r"v\d+", names[0]))):
+            raise ValueError(f"{SINGLE_VERSIONS_RULE}; valid calls: `load.py load v<k>` or `load.py load current`")
+        self.check_trained(names)
+        stack = {"load": names, "stack": self.loaded + names,
+                 "unload": [x for x in self.loaded if names and x not in names]}[verb]
+        url = self.site.serve(self.paths(stack))
+        guards.serving_matches(self.session_dir, self.paths(stack), self.site.loaded_adapters())
+        self.loaded = stack
+        job["state"], job["result"] = "done", f"loaded: {'+'.join(stack) or 'base'} at {url}"
+        self.history.append(f"load {'+'.join(stack) or 'base'}")
+
+    def do_cancel(self, jid, job):
+        """Stop a running train or eval (the site's cancel); its outcome arrives like any job's (collect)."""
+        target_id = int(job["args"]["id"])
+        target = self.jobs.get(target_id)
+        if not target or target["state"] != "running" or target["kind"] not in ("train", "eval"):
+            raise ValueError(f"job {target_id} is not a running train or eval")
+        self.site.cancel(f"job{target_id}")
+                               "spec": job["args"]["spec"], "state": state, "job": job.get("jid"), "digest": guards.digest(path)}
+        self.history.append(f"train {name} (init {init or 'base'}, steps {spec.get('steps')}): {state}")
+        return {"adapter": name, "path": f"adapters/{name}", "state": state}
+
+    # ---------------------------------------------------------------- arm S: one adapter, trained continually
+    # A human-imposed constraint used only for the single-vs-library ablation. Versions of `current` are kept in
+    # <session>/single/v<k>/ (operator dir); eval/serve/final score use the latest version's path there, and a copy of it
+    # is <workspace>/adapters/current.
+    def single_check_train(self, spec):
+        chain = self.adapters["current"]["chain"] if "current" in self.adapters else []
+        init_ok = (None, "current") + (() if chain else ("base",))
+        if self.versions:
+            init_ok += ("loaded",)
+        if spec.get("init") not in init_ok or spec.get("name") not in (None, "current"):
+            raise ValueError(f"{self.single_rule}; omit `name` and `init` or set them to \"current\"")
+        if any(j["kind"] == "train" for j in self.running()):
+            raise ValueError(f"{self.single_rule}; a train is already running, so this one has nothing to start from yet")
+
+    def single_prepare(self, spec):
+        """Write the spec the site trains from: the agent's spec with `init` = path of the latest version (with versions: of the
+        active version), None at first."""
+        k = len(self.adapters["current"]["chain"]) if "current" in self.adapters else 0
+        root = os.path.join(self.session_dir, "single")
+        os.makedirs(root, exist_ok=True)
+        init_path = self.adapters["current"]["path"] if k else None
+        if self.versions and k and self.loaded:
+            init_path = self.adapters[self.loaded[0]]["path"]
+        eff = os.path.join(root, f"v{k + 1}.spec.json")
+        with open(eff, "w") as f:
+            json.dump(dict(spec, init=init_path), f)
+        return eff, os.path.join(root, f"v{k + 1}")
+
+    def single_register(self, job, path):
+        prev = self.adapters.get("current")
+        chain = prev["chain"] if prev else []
+        init_label = f"current v{len(chain)}" if chain else "base"
+        init_path = prev["path"] if prev else None
+        if self.versions and chain and self.loaded:   # trained from the active version
+            init_label, init_path = f"v{self.version_of(self.loaded[0])}", self.adapters[self.loaded[0]]["path"]
+        state = guards.adapter_after_train(self.session_dir, "current", path, init_path, job["spec"].get("steps"))
+        chain = chain + [{"job": job["jid"], "steps": job["spec"].get("steps"), "spec": job["args"]["spec"], "state": state}]
+        if self.versions:   # every version stays addressable as v<k> (one adapter's versions, never a stack)
+            chain[-1]["init"] = init_label
+            self.adapters[f"v{len(chain)}"] = {"path": path, "init": init_label, "steps": job["spec"].get("steps"),
+                                               "spec": job["args"]["spec"], "state": state, "digest": guards.digest(path)}
+        self.adapters["current"] = {"path": path, "init": init_label, "steps": job["spec"].get("steps"),
+                                    "spec": job["args"]["spec"], "state": state, "chain": chain, "digest": guards.digest(path)}
+        ws_copy = os.path.join(self.adapters_dir, "current")   # the workspace's view of the latest version
+        shutil.rmtree(ws_copy, ignore_errors=True)
+        shutil.copytree(path, ws_copy)
+        metadata = self.site.training_metadata(path)
+-----
+"""python3 train.py SPEC  -- train an adapter from your spec file (JSON or YAML; any keys). The environment reads
+`name` (adapter name, default a<job id>), `init` (an adapter name to start from) and `steps`; the site's trainer reads the rest."""
+import sys
+from _submit import submit
+
+if len(sys.argv) != 2 or sys.argv[1] in ("-h", "--help"):
+    import os
+    doc = os.path.join(os.path.dirname(os.path.abspath(__file__)), "skills", "trainer", "SKILL.md")   # the site's trainer contract
+    sys.exit(open(doc).read() if os.path.isfile(doc) else __doc__)
+submit("train", {"spec": sys.argv[1]})
+"""python3 eval.py --adapter A[,B...]|base|loaded --task T --seeds N  -- success count of that adapter stack on N fresh dev seeds."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("--adapter", required=True)
+p.add_argument("--task", required=True)
+p.add_argument("--seeds", type=int, required=True)
+a = p.parse_args()
+submit("eval", {"adapter": a.adapter, "task": a.task, "seeds": a.seeds})
+"""python3 load.py load A [B...] | stack A [B...] | unload [A...]  -- set, extend or shrink the adapter stack on your own
+serving endpoint (unload with no names = base). Free; always allowed. The loaded stack is what the final score evaluates."""
+import sys
+from _submit import submit
+
+if len(sys.argv) < 2 or sys.argv[1] not in ("load", "stack", "unload"):
+    sys.exit(__doc__)
+submit("load", {"verb": sys.argv[1], "names": sys.argv[2:]})
+"""python3 wait.py all | ID [ID...]  -- after this command, block until those jobs finish before your next turn."""
+import sys
+from _submit import submit
+
+if len(sys.argv) < 2 or {"-h", "--help"} & set(sys.argv[1:]):
+    sys.exit(__doc__)
+submit("wait", {"ids": sys.argv[1:]})
+"""python3 status.py [ID...]  -- print the state and result of jobs (all jobs if no ID)."""
+import glob, json, os, sys
+
+if {"-h", "--help"} & set(sys.argv[1:]):
+    sys.exit(__doc__)
+jobs = os.path.join(os.path.dirname(os.path.abspath(__file__)), "jobs")
+ids = sys.argv[1:] or sorted((os.path.basename(p)[:-5] for p in glob.glob(f"{jobs}/*.json") if ".request" not in p), key=int)
+for i in ids:
+    path = os.path.join(jobs, f"{i}.json")
+    print(open(path).read().strip() if os.path.exists(path) else json.dumps({"id": i, "state": "requested"}))

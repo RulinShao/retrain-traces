@@ -1,0 +1,8 @@
+{
+ "task": "restack",
+ "steps": 50,
+ "batch": 8,
+ "reward": "shaped",
+ "seed_start": 810001,
+ "time": "13:00:00"
+}

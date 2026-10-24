@@ -1,0 +1,7 @@
+{
+ "task": "stack",
+ "name": "r1_stack",
+ "steps": 10,
+ "batch": 8,
+ "seed_start": 810001
+}

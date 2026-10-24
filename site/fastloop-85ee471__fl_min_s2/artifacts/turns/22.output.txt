@@ -1,0 +1,223 @@
+rc=2
+=== lift_a ===
+total 171011
+drwxr-sr-x 2 root nobody       512 Oct 23 04:42 .
+drwxr-sr-x 5 root nobody       512 Oct 23 12:19 ..
+-rw-r--r-- 1 root nobody       550 Oct 23 04:42 adapter_config.json
+-rw------- 2 root nobody 174656008 Oct 23 04:42 adapter_model.safetensors
+-rw-r--r-- 1 root nobody       271 Oct 23 04:42 call.json
+-rw-r--r-- 1 root nobody       439 Oct 23 04:42 rewards.json
+-rw-r--r-- 1 root nobody       684 Oct 23 04:42 training.json
+-- call.json:
+{
+ "jobs": [
+  "42179708"
+ ],
+ "gpu_hours": 0.7,
+ "gpu_hours_actual": 0.6525,
+ "lora_b": [
+  252,
+  252
+ ],
+ "sim_seeds": [
+  810001,
+  810641
+ ],
+ "adapter": "…/train_42179708/peft_rmin_lift_a_step10"
+}-- rewards:
+[
+ {
+  "step": 1,
+  "score_mean": 0.9375
+ },
+ {
+  "step": 2,
+  "score_mean": 0.8125
+ },
+ {
+  "step": 3,
+  "score_mean": 0.875
+ },
+ {
+  "step": 4,
+  "score_mean": 0.890625
+ },
+ {
+  "step": 5,
+  "score_mean": 0.8125
+ },
+ {
+  "step": 6,
+  "score_mean": 0.953125
+ },
+ {
+  "step": 7,
+  "score_mean": 0.890625
+ },
+ {
+  "step": 8,
+  "score_mean": 0.890625
+ },
+ {
+  "step": 9,
+  "score_mean": 0.875
+ },
+ {
+  "step": 10,
+  "score_mean": 0.9375
+ }
+]-- config:
+{
+  "peft_type": "LORA",
+  "task_type": "CAUSAL_LM",
+  "r": 32,
+  "lora_alpha": 64,
+  "lora_dropout": 0.0,
+  "bias": "none",
+  "target_modules": [
+    "down_proj",
+    "gate_proj",
+    "k_proj",
+    "o_proj",
+    "q_proj",
+    "up_proj",
+    "v_proj"
+  ],
+  "base_model_name_or_path": "…/
+=== stack_a ===
+total 171011
+drwxr-sr-x 2 root nobody       512 Oct 23 12:19 .
+drwxr-sr-x 5 root nobody       512 Oct 23 12:19 ..
+-rw-r--r-- 1 root nobody       550 Oct 23 12:19 adapter_config.json
+-rw------- 2 root nobody 174656008 Oct 23 12:19 adapter_model.safetensors
+-rw-r--r-- 1 root nobody       272 Oct 23 12:19 call.json
+-rw-r--r-- 1 root nobody       447 Oct 23 12:19 rewards.json
+-rw-r--r-- 1 root nobody       686 Oct 23 12:19 training.json
+-- call.json:
+{
+ "jobs": [
+  "42179633"
+ ],
+ "gpu_hours": 0.7,
+ "gpu_hours_actual": 0.7861,
+ "lora_b": [
+  252,
+  252
+ ],
+ "sim_seeds": [
+  810001,
+  810641
+ ],
+ "adapter": "…/train_42179633/peft_rmin_stack_a_step10"
+}-- rewards:
+[
+ {
+  "step": 1,
+  "score_mean": 0.546875
+ },
+ {
+  "step": 2,
+  "score_mean": 0.53125
+ },
+ {
+  "step": 3,
+  "score_mean": 0.515625
+ },
+ {
+  "step": 4,
+  "score_mean": 0.484375
+ },
+ {
+  "step": 5,
+  "score_mean": 0.453125
+ },
+ {
+  "step": 6,
+  "score_mean": 0.609375
+ },
+ {
+  "step": 7,
+  "score_mean": 0.515625
+ },
+ {
+  "step": 8,
+  "score_mean": 0.46875
+ },
+ {
+  "step": 9,
+  "score_mean": 0.53125
+ },
+ {
+  "step": 10,
+  "score_mean": 0.625
+ }
+]-- config:
+{
+  "peft_type": "LORA",
+  "task_type": "CAUSAL_LM",
+  "r": 32,
+  "lora_alpha": 64,
+  "lora_dropout": 0.0,
+  "bias": "none",
+  "target_modules": [
+    "down_proj",
+    "gate_proj",
+    "k_proj",
+    "o_proj",
+    "q_proj",
+    "up_proj",
+    "v_proj"
+  ],
+  "base_model_name_or_path": "…/
+=== r1s ===
+total 170883
+drwxr-sr-x 2 root nobody       512 Oct 23 04:12 .
+drwxr-sr-x 5 root nobody       512 Oct 23 12:19 ..
+-rw-r--r-- 1 root nobody       550 Oct 23 04:12 adapter_config.json
+-rw------- 2 root nobody 174656008 Oct 23 04:12 adapter_model.safetensors
+-rw-r--r-- 1 root nobody       269 Oct 23 04:12 call.json
+-rw-r--r-- 1 root nobody        59 Oct 23 04:12 rewards.json
+-rw-r--r-- 1 root nobody       675 Oct 23 04:12 training.json
+-- call.json:
+{
+ "jobs": [
+  "42179653"
+ ],
+ "gpu_hours": 0.475,
+ "gpu_hours_actual": 0.3353,
+ "lora_b": [
+  252,
+  252
+ ],
+ "sim_seeds": [
+  810001,
+  810065
+ ],
+ "adapter": "…/train_42179653/peft_rmin_r1s_step1"
+}-- rewards:
+[
+ {
+  "step": 1,
+  "score_mean": 0.006110905669629574
+ }
+]-- config:
+{
+  "peft_type": "LORA",
+  "task_type": "CAUSAL_LM",
+  "r": 32,
+  "lora_alpha": 64,
+  "lora_dropout": 0.0,
+  "bias": "none",
+  "target_modules": [
+    "down_proj",
+    "gate_proj",
+    "k_proj",
+    "o_proj",
+    "q_proj",
+    "up_proj",
+    "v_proj"
+  ],
+  "base_model_name_or_path": "…/
+
+[environment] ran from your tool call: `cd …/fl_min_s2/workspace
+for a i...`; a ```bash block also works

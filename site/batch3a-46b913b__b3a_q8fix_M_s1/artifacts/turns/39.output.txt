@@ -1,0 +1,155 @@
+rc=0
+[
+ {
+  "step": 1,
+  "score_mean": 0.27131250500679016
+ },
+ {
+  "step": 2,
+  "score_mean": 0.2317499816417694
+ },
+ {
+  "step": 3,
+  "score_mean": 0.26012498140335083
+ },
+ {
+  "step": 4,
+  "score_mean": 0.24774998426437378
+ },
+ {
+  "step": 5,
+  "score_mean": 0.25868749618530273
+ },
+ {
+  "step": 6,
+  "score_mean": 0.3306875228881836
+ },
+ {
+  "step": 7,
+  "score_mean": 0.3316250145435333
+ },
+ {
+  "step": 8,
+  "score_mean": 0.3605625033378601
+ },
+ {
+  "step": 9,
+  "score_mean": 0.3948749899864197
+ },
+ {
+  "step": 10,
+  "score_mean": 0.3411250114440918
+ },
+ {
+  "step": 11,
+  "score_mean": 0.42887499928474426
+ },
+ {
+  "step": 12,
+  "score_mean": 0.44056248664855957
+ },
+ {
+  "step": 13,
+  "score_mean": 0.37450000643730164
+ },
+ {
+  "step": 14,
+  "score_mean": 0.45875000953674316
+ },
+ {
+  "step": 15,
+  "score_mean": 0.4038749933242798
+ },
+ {
+  "step": 16,
+  "score_mean": 0.47331249713897705
+ },
+ {
+  "step": 17,
+  "score_mean": 0.5111249685287476
+ },
+ {
+  "step": 18,
+  "score_mean": 0.5369374752044678
+ },
+ {
+  "step": 19,
+  "score_mean": 0.5186874866485596
+ },
+ {
+  "step": 20,
+  "score_mean": 0.5392500162124634
+ },
+ {
+  "step": 21,
+  "score_mean": 0.6276875138282776
+ },
+ {
+  "step": 22,
+  "score_mean": 0.5412499904632568
+ },
+ {
+  "step": 23,
+  "score_mean": 0.5779375433921814
+ },
+ {
+  "step": 24,
+  "score_mean": 0.6732500195503235
+ },
+ {
+  "step": 25,
+  "score_mean": 0.6524375081062317
+ },
+ {
+  "step": 26,
+  "score_mean": 0.6803125143051147
+ },
+ {
+  "step": 27,
+  "score_mean": 0.6852500438690186
+ },
+ {
+  "step": 28,
+  "score_mean": 0.7785625457763672
+ },
+ {
+  "step": 29,
+  "score_mean": 0.8161875009536743
+ },
+ {
+  "step": 30,
+  "score_mean": 0.7971875071525574
+ }
+]=== DIAG LOG (first 30 lines) ===
+{"tc": false, "rc": 1, "sim": 0.0, "seed": 814001, "task": "wipe_target", "tail": "ts(joints)\n\n\nEnvironment response:\n  Sandbox failed: 1\n  Stdout: \n  Stderr: Traceback (most recent call last):\n  File \"…/sim/obs_guard.py\", line 236, in _run\n    exec(code, g, g)\n  File \"<string>\", line 22, in <module>\nValueError: operands could not be broadcast together with shapes (11629,) (512,512) \n\n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 1, "sim": 0.0, "seed": 814006, "task": "wipe_target", "tail": " move_to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 1\n  Stdout: \n  Stderr: Traceback (most recent call last):\n  File \"…/sim/obs_guard.py\", line 236, in _run\n    exec(code, g, g)\n  File \"<string>\", line 24, in <module>\nIndexError: arrays used as indices must be of integer (or boolean) type\n\n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 1, "sim": 0.0, "seed": 814009, "task": "wipe_target", "tail": "a-hyak/serving/cap-x/.venv/lib/python3.10/site-packages/numpy/core/shape_base.py\", line 289, in vstack\n    return _nx.concatenate(arrs, 0, dtype=dtype, casting=casting)\nValueError: all the input array dimensions except for the concatenation axis must match exactly, but along dimension 1, the array at index 0 has size 2 and the array at index 1 has size 11074\n\n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 1, "sim": 0.0, "seed": 814010, "task": "wipe_target", "tail": "to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 1\n  Stdout: \n  Stderr: Traceback (most recent call last):\n  File \"…/sim/obs_guard.py\", line 236, in _run\n    exec(code, g, g)\n  File \"<string>\", line 20, in <module>\nTypeError: slice indices must be integers or None or have an __index__ method\n\n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 0, "sim": 0.0, "seed": 814002, "task": "wipe_target", "tail": "+ 0.05\n\n# Wipe the spill in small steps\nfor x in np.arange(min_x, max_x, 0.02):\n    for y in np.arange(min_y, max_y, 0.02):\n        position = np.array([x, y, 0.0])\n        quaternion = np.array([0.0, 0.0, 1.0, 0.0])\n        joints = solve_ik(position, quaternion)\n        move_to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 0\n  Stdout: \n  Stderr: \n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 0, "sim": 0.0, "seed": 814004, "task": "wipe_target", "tail": "x + step_size, step_size)\ny_range = np.arange(y_min, y_max + step_size, step_size)\n\n# Sweep the end-effector across the spill area\nfor x in x_range:\n    for y in y_range:\n        position = np.array([x, y, 0.0])\n        joints = solve_ik(position, quaternion_wxyz)\n        move_to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 0\n  Stdout: \n  Stderr: \n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 1, "sim": 0.0, "seed": 814014, "task": "wipe_target", "tail": "failed: 1\n  Stdout: \n  Stderr: Traceback (most recent call last):\n  File \"…/sim/obs_guard.py\", line 236, in _run\n    exec(code, g, g)\n  File \"<string>\", line 27, in <module>\nIndexError: only integers, slices (`:`), ellipsis (`...`), numpy.newaxis (`None`) and integer or boolean arrays are valid indices\n\n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 1, "sim": 0.0, "seed": 814015, "task": "wipe_target", "tail": "ion)\n        move_to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 1\n  Stdout: \n  Stderr: Traceback (most recent call last):\n  File \"…/sim/obs_guard.py\", line 236, in _run\n    exec(code, g, g)\n  File \"<string>\", line 21, in <module>\nIndexError: index 2 is out of bounds for axis 1 with size 2\n\n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 0, "sim": 0.0, "seed": 814003, "task": "wipe_target", "tail": "   # Define target position\n        pos = np.array([x, y, 0.0])\n        # Define orientation quaternion (downward facing)\n        quat = np.array([0.0, 0.0, 1.0, 0.0])\n        # Solve inverse kinematics\n        joints = solve_ik(pos, quat)\n        # Move to joints\n        move_to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 0\n  Stdout: \n  Stderr: \n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 1, "sim": 0.0, "seed": 814016, "task": "wipe_target", "tail": "to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 1\n  Stdout: \n  Stderr: Traceback (most recent call last):\n  File \"…/sim/obs_guard.py\", line 236, in _run\n    exec(code, g, g)\n  File \"<string>\", line 21, in <module>\nTypeError: slice indices must be integers or None or have an __index__ method\n\n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 1, "sim": 0.0, "seed": 814017, "task": "wipe_target", "tail": "to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 1\n  Stdout: \n  Stderr: Traceback (most recent call last):\n  File \"…/sim/obs_guard.py\", line 236, in _run\n    exec(code, g, g)\n  File \"<string>\", line 21, in <module>\nTypeError: slice indices must be integers or None or have an __index__ method\n\n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 0, "sim": 0.0, "seed": 814005, "task": "wipe_target", "tail": "s.append([x, y, 0.0])\n\n# Move end-effector along the path\nfor point in path_points:\n    # Set orientation quaternion\n    quat = np.array([0.0, 0.0, 1.0, 0.0])\n    # Solve inverse kinematics\n    joints = solve_ik(np.array(point), quat)\n    # Move to joint configuration\n    move_to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 0\n  Stdout: \n  Stderr: \n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 1, "sim": 0.0, "seed": 814018, "task": "wipe_target", "tail": "tderr: Traceback (most recent call last):\n  File \"…/sim/obs_guard.py\", line 236, in _run\n    exec(code, g, g)\n  File \"<string>\", line 28, in <module>\nValueError: matmul: Input operand 1 has a mismatch in its core dimension 0, with gufunc signature (n?,k),(k,m?)->(n?,m?) (size 12316 is different from 3)\n\n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 1, "sim": 0.0, "seed": 814020, "task": "wipe_target", "tail": "    move_to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 1\n  Stdout: \n  Stderr: Traceback (most recent call last):\n  File \"…/sim/obs_guard.py\", line 236, in _run\n    exec(code, g, g)\n  File \"<string>\", line 16, in <module>\nNameError: name 'y_coords' is not defined. Did you mean: 'x_coords'?\n\n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 1, "sim": 0.0, "seed": 814021, "task": "wipe_target", "tail": "to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 1\n  Stdout: \n  Stderr: Traceback (most recent call last):\n  File \"…/sim/obs_guard.py\", line 236, in _run\n    exec(code, g, g)\n  File \"<string>\", line 21, in <module>\nTypeError: slice indices must be integers or None or have an __index__ method\n\n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 1, "sim": 0.0, "seed": 814023, "task": "wipe_target", "tail": "to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 1\n  Stdout: \n  Stderr: Traceback (most recent call last):\n  File \"…/sim/obs_guard.py\", line 236, in _run\n    exec(code, g, g)\n  File \"<string>\", line 20, in <module>\nTypeError: slice indices must be integers or None or have an __index__ method\n\n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 0, "sim": 0.0, "seed": 814008, "task": "wipe_target", "tail": " 0])\n\n# Perform the wiping motion\nfor x in np.arange(min_x, max_x + 0.02, 0.02):\n    for y in np.arange(min_y, max_y + 0.02, 0.02):\n        position = np.array([x, y, 0.0])\n        quaternion = np.array([0, 0, 1, 0])\n        joints = solve_ik(position, quaternion)\n        move_to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 0\n  Stdout: \n  Stderr: \n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 0, "sim": 0.96, "seed": 814012, "task": "wipe_target", "tail": "pill\nfor x in np.arange(min_x, max_x + step_size, step_size):\n    for y in np.arange(min_y, max_y + step_size, step_size):\n        position = np.array([x, y, 0.0])\n        quaternion = np.array([0.0, 0.0, 1.0, 0.0])\n        joints = solve_ik(position, quaternion)\n        move_to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 0\n  Stdout: \n  Stderr: \n  Reward: 0.96\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": true, "rc": 0, "sim": 1.0, "seed": 814007, "task": "wipe_target", "tail": "2\nfor x in np.arange(min_x_world, max_x_world, step_size):\n    for y in np.arange(min_y_world, max_y_world, step_size):\n        target_pos = np.array([x, y, 0.0])\n        target_quat = np.array([0.0, 0.0, 1.0, 0.0])\n        joints = solve_ik(target_pos, target_quat)\n        move_to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 0\n  Stdout: \n  Stderr: \n  Reward: 1.0\n  Task Completed: True\n  Terminated: True, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 1, "sim": 0.0, "seed": 814027, "task": "wipe_target", "tail": "tion\n        move_to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 1\n  Stdout: \n  Stderr: Traceback (most recent call last):\n  File \"…/sim/obs_guard.py\", line 236, in _run\n    exec(code, g, g)\n  File \"<string>\", line 25, in <module>\nIndexError: index 3 is out of bounds for axis 1 with size 3\n\n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 1, "sim": 0.0, "seed": 814028, "task": "wipe_target", "tail": "-hyak/serving/cap-x/.venv/lib/python3.10/site-packages/numpy/core/shape_base.py\", line 289, in vstack\n    return _nx.concatenate(arrs, 0, dtype=dtype, casting=casting)\nValueError: all the input array dimensions except for the concatenation axis must match exactly, but along dimension 1, the array at index 0 has size 1536 and the array at index 1 has size 512\n\n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 0, "sim": 0.92, "seed": 814026, "task": "wipe_target", "tail": "s\nstep_size = 0.02\nx_range = np.arange(min_x_world, max_x_world, step_size)\ny_range = np.arange(min_y_world, max_y_world, step_size)\n\nfor x in x_range:\n    for y in y_range:\n        position = np.array([x, y, 0.0])\n        joints = solve_ik(position, orientation)\n        move_to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 0\n  Stdout: \n  Stderr: \n  Reward: 0.92\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 1, "sim": 0.0, "seed": 814030, "task": "wipe_target", "tail": "m/obs_guard.py\", line 236, in _run\n    exec(code, g, g)\n  File \"<string>\", line 29, in <module>\n  File \"…/core/shape_base.py\", line 449, in stack\n    raise ValueError('all input arrays must have the same shape')\nValueError: all input arrays must have the same shape\n\n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 1, "sim": 0.0, "seed": 814031, "task": "wipe_target", "tail": "to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 1\n  Stdout: \n  Stderr: Traceback (most recent call last):\n  File \"…/sim/obs_guard.py\", line 236, in _run\n    exec(code, g, g)\n  File \"<string>\", line 22, in <module>\nTypeError: slice indices must be integers or None or have an __index__ method\n\n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 1, "sim": 0.0, "seed": 814032, "task": "wipe_target", "tail": "    move_to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 1\n  Stdout: \n  Stderr: Traceback (most recent call last):\n  File \"…/sim/obs_guard.py\", line 236, in _run\n    exec(code, g, g)\n  File \"<string>\", line 16, in <module>\nNameError: name 'y_coords' is not defined. Did you mean: 'x_coords'?\n\n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 1, "sim": 0.0, "seed": 814033, "task": "wipe_target", "tail": "to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 1\n  Stdout: \n  Stderr: Traceback (most recent call last):\n  File \"…/sim/obs_guard.py\", line 236, in _run\n    exec(code, g, g)\n  File \"<string>\", line 24, in <module>\nTypeError: slice indices must be integers or None or have an __index__ method\n\n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 1, "sim": 0.0, "seed": 814034, "task": "wipe_target", "tail": "oints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 1\n  Stdout: \n  Stderr: Traceback (most recent call last):\n  File \"…/sim/obs_guard.py\", line 236, in _run\n    exec(code, g, g)\n  File \"<string>\", line 31, in <module>\nValueError: operands could not be broadcast together with shapes (3,262144) (3,) \n\n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 0, "sim": 0.0, "seed": 814035, "task": "wipe_target", "tail": "ternion_wxyz)\n        move_to_joints(joints)\n\nfor x in np.arange(x_world_max, x_world_min, -step_size):\n    for y in np.arange(y_world_max, y_world_min, -step_size):\n        position = np.array([x, y, z_target])\n        joints = solve_ik(position, quaternion_wxyz)\n        move_to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 0\n  Stdout: \n  Stderr: \n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": false, "rc": 1, "sim": 0.0, "seed": 814036, "task": "wipe_target", "tail": "size\n    current_x += step_size\n\n\nEnvironment response:\n  Sandbox failed: 1\n  Stdout: \n  Stderr: Traceback (most recent call last):\n  File \"…/sim/obs_guard.py\", line 236, in _run\n    exec(code, g, g)\n  File \"<string>\", line 39, in <module>\nIndexError: index 512 is out of bounds for axis 0 with size 512\n\n  Reward: 0.0\n  Task Completed: False\n  Terminated: False, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+{"tc": true, "rc": 0, "sim": 1.0, "seed": 814019, "task": "wipe_target", "tail": "    target_pos = np.array([x, y, 0.0])\n        # Define orientation quaternion (0, 0, 1, 0)\n        target_quat = np.array([0.0, 0.0, 1.0, 0.0])\n        # Solve inverse kinematics\n        joints = solve_ik(target_pos, target_quat)\n        # Move to the target joints\n        move_to_joints(joints)\n\n\nEnvironment response:\n  Sandbox failed: 0\n  Stdout: \n  Stderr: \n  Reward: 1.0\n  Task Completed: True\n  Terminated: True, Truncated: False\n  Num Regenerations: 0\n  Num Finishes: 0\n  Num Code Blocks: 1\n----------------------------------------------------------------------------------------------------"}
+=== lora_b nonzero ===
+ "lora_b": [

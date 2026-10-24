@@ -1,0 +1,10 @@
+{
+  "task": "lift",
+  "name": "current",
+  "steps": 10,
+  "batch": 8,
+  "lr": 2e-5,
+  "init": "current",
+  "reward": "task_completed",
+  "seed_start": 814000
+}

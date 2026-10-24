@@ -1,0 +1,103 @@
+rc=0
+=== reward_check ===
+total 258
+drwxr-sr-x 2 root nobody  512 Oct 22 16:28 .
+drwxr-sr-x 3 root nobody  512 Oct 22 16:28 ..
+-rw-r--r-- 1 root nobody  809 Oct 22 16:28 SKILL.md
+-rw-r--r-- 1 root nobody 2810 Oct 22 16:28 check_reward.py
+# reward_check: run your reward function before you pay for training
+
+`python3 skills/optional/reward_check/check_reward.py REWARD [--results FILE]` loads `reward(result)` from a .py file or from
+your train spec (inline `def reward` source, or a .py path) and prints its score on three example sim replies (task
+completed, not completed, program crashed), or on replies you provide (`--results`, a JSON list or JSONL).
+
+`result` is the sim service's reply for one rollout: `task_completed`, `reward` (the simulator's staged reward),
+`sandbox_rc`, `seed`, `secs`, `wall_s`, `log_tail`, `task` (also readable as attributes). During training an exception
+in reward() fails the train job. A reward that gives every rollout the same score gives GRPO nothing to learn from.
+Free: it runs locally and sends nothing.
+"""usage: python3 skills/optional/reward_check/check_reward.py REWARD [--results FILE]
+
+REWARD: a .py file defining reward(result), or your train spec (JSON or YAML) whose `reward` is inline `def reward`
+source or a .py path. Runs reward(result) on three example sim replies (task completed / not completed / program
+crashed), or on your own replies (--results: a JSON list or JSONL of dicts), and prints each score or the exception.
+Nothing is sent anywhere and nothing is judged: the output is the scores.
+"""
+import argparse, json, os, traceback
+
+EXAMPLES = [   # the keys of the sim service's /run reply, which is what reward(result) receives during training
+    {"case": "completed", "task_completed": True, "reward": 1.0, "sandbox_rc": 0, "seed": 0, "secs": 30.0,
+     "wall_s": 31.0, "log_tail": "", "task": "T"},
+    {"case": "not completed", "task_completed": False, "reward": 0.25, "sandbox_rc": 0, "seed": 1, "secs": 30.0,
+     "wall_s": 31.0, "log_tail": "", "task": "T"},
+    {"case": "program crashed", "task_completed": False, "reward": 0.0, "sandbox_rc": 1, "seed": 2, "secs": 2.0,
+     "wall_s": 3.0, "log_tail": "Traceback (most recent call last): ...", "task": "T"},
+]
+
+
+class Result(dict):
+    """result["task_completed"] or result.task_completed, as during training."""
+    __getattr__ = dict.__getitem__
+
+
+def reward_source(path):
+    if path.endswith(".py"):
+        return open(path).read()
+    text = open(path).read()
+    try:
+        spec = json.loads(text)
+    except json.JSONDecodeError:
+        import yaml
+        spec = yaml.safe_load(text)
+    r = spec.get("reward") if isinstance(spec, dict) else None
+    if isinstance(r, str) and "def reward" in r:
+        return r
+    if isinstance(r, str) and r.endswith(".py"):
+        return open(os.path.join(os.path.dirname(os.path.abspath(path)), r)).read()
+    raise SystemExit(f"no reward source in {path}: `reward` is {r!r} (a built-in name, or missing)")
+
+
+def load_results(path):
+    text = open(path).read().strip()
+    return json.loads(text) if text.startswith("[") else [json.loads(line) for line in text.splitlines() if line.strip()]
+
+
+def main():
+    p = argparse.ArgumentParser(usage=__doc__)
+    p.add_argument("reward")
+    p.add_argument("--results")
+    a = p.parse_args()
+    scope = {}
+    exec(compile(reward_source(a.reward), a.reward, "exec"), scope)
+    if "reward" not in scope:
+        raise SystemExit("the source defines no function named reward")
+    rows = load_results(a.results) if a.results else EXAMPLES
+    for i, row in enumerate(rows):
+        label = row.get("case", f"result {i}")
+        try:
+            print(f"{label}: {scope['reward'](Result(row))!r}")
+        except Exception:
+            print(f"{label}: raised\n{traceback.format_exc(limit=2)}")
+
+
+if __name__ == "__main__":
+    main()
+
+=== README ===
+# Shared skills (new line: retrain_min and retrain_fixed)
+
+Optional, agent-facing scripts and notes. Pass this directory with `--skills skills/shared` to either harness: it is
+copied into the workspace as `skills/optional/` (apart from the mandatory tool docs in `skills/tools/` and
+`skills/trainer/`) and the system prompt gains two lines (where they are; append lessons to playbook_suggestions.md).
+`PLAYBOOK.md` (<= 2,500 characters, versioned) is also inlined into the system prompt under "Playbook
+(skills/optional/PLAYBOOK.md: optional advice from earlier sessions; you may follow or ignore it)"; the session records the version
+(RESULT.json `skills_version`, SCOREBOARD.md header). Nothing else changes; the agent may use, edit or ignore them.
+A skill is a directory with a SKILL.md and, optionally, scripts that run in the workspace with no other service.
+
+| skill | what it does |
+|---|---|
+| `reward_check/` | `check_reward.py REWARD [--results FILE]`: runs your reward(result) on example (or your own) sim replies and prints the scores |
+
+The other directories under `skills/` (decompose, library, reward_check, snapshot, train_grpo, write_practice,
+write_skill, gateway.py, README.md, ADAPTERS.md) are the frozen old loop's seed skills: they call `skills/gateway.py`,
+which only `retrain/` serves, and they stay in place because `retrain/workspace.py` (SEED) and `envs/` job scripts read
+them by path. See `../OLD_LOOP.md`.

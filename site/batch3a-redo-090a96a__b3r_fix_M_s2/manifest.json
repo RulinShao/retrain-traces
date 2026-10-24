@@ -1,0 +1,36 @@
+{
+ "format_version": "1",
+ "trajectory_id": "b3r_fix_M_s2",
+ "created": "2026-10-24T02:05:27.593Z",
+ "producer": {
+  "name": "trajectory.adapters.retrain_min_session",
+  "version": null,
+  "git_sha": "7f24cf661f91533e102ff81d277ad607f9c259b7"
+ },
+ "tags": {
+  "kind": "session",
+  "session": "b3r_fix_M_s2",
+  "seed": 2,
+  "site": "RecordingSite",
+  "batch": "batch3a-redo-090a96a",
+  "adapter_mode": "library",
+  "policy_model": "Qwen3.8-27B"
+ },
+ "agent": {
+  "model": "qwen38-27b:loaded_b3r_fix_M_s2",
+  "backend": "local"
+ },
+ "harness": {
+  "name": "retrain_fixed.harness",
+  "config": {
+   "max_reply_tokens": 16384,
+   "context_messages": 60,
+   "context_tokens": 100000,
+   "reply_chars": 12000,
+   "observation_chars": 20000,
+   "reasoning": null,
+   "seed": 2,
+   "tree_sha": "090a96ab28367ba5c530d71302f641f802828177"
+  }
+ }
+}

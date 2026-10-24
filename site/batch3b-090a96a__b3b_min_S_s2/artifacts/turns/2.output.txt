@@ -1,0 +1,64 @@
+rc=0
+total 1173
+drwxr-sr-x  5 root nobody 8192 Oct 22 17:27 .
+drwxr-xr-x  4 root root     80 Oct 22 17:27 ..
+-rw-r--r--  1 root nobody 1138 Oct 22 17:22 ENVIRONMENT.json
+-rw-r--r--  1 root nobody  895 Oct 22 17:22 SCOREBOARD.md
+-rw-r--r--  1 root nobody  155 Oct 22 17:22 STATUS.json
+-rw-r--r--  1 root nobody  719 Oct 22 17:21 _submit.py
+lrwxrwxrwx  1 root nobody   19 Oct 22 17:21 adapters -> ../session/adapters
+-rw-r--r--  1 root nobody  396 Oct 22 17:21 cancel.py
+-rw-r--r--  1 root nobody  447 Oct 22 17:21 eval.py
+drwxr-sr-x  2 root nobody  512 Oct 22 17:21 jobs
+-rw-r--r--  1 root nobody  441 Oct 22 17:21 load.py
+drwxr-sr-x  5 root nobody  512 Oct 22 17:22 skills
+-rw-r--r--  1 root nobody  548 Oct 22 17:21 status.py
+drwxr-sr-x 11 root nobody  512 Oct 22 17:22 tasks
+-rw-r--r--  1 root nobody 1309 Oct 22 17:21 tasks.json
+-rw-r--r--  1 root nobody  595 Oct 22 17:21 train.py
+-rw-r--r--  1 root nobody  277 Oct 22 17:21 wait.py
+-----
+PLAYBOOK.md
+README.md
+reward_check
+-----
+SKILL.md
+---
+name: retrain-tools
+description: Submit training and evaluation jobs, inspect results, and select the policy to score.
+---
+
+# Environment tools
+
+Read `ENVIRONMENT.json` for the site's policy, adapter composition and enforced constraints, and `tasks.json`
+for task details. `STATUS.json` contains the latest budget, loaded stack, adapters and running job IDs.
+`SCOREBOARD.md` has dev scores and lineage. While a train or eval is submitted, `jobs/<id>.json` (`progress`, `progress_line`; `status.py`),
+STATUS.json (`job_progress`) and the scoreboard show whether it is queued (not started, with its queue time so far) or running, and for a
+running train its completed steps, latest mean reward and GPU-hours so far, as the site reports them. `tasks/<task>/eval_prompt.txt` (when
+the site provides it) is the prompt the policy receives at evaluation; training prompts are checked against it. State comes from the environment; this skill is editable guidance.
+
+| Command | Effect |
+| --- | --- |
+| `python3 train.py SPEC` | Submit JSON/YAML spec to the installed trainer; see `skills/trainer/SKILL.md`. |
+| `python3 eval.py --adapter A[,B...]\|base\|loaded --task T --seeds N` | Evaluate on N fresh dev seeds. |
+| `python3 load.py load A [B...]` | Replace the loaded stack. |
+| `python3 load.py stack A [B...]` | Append to the loaded stack. |
+| `python3 load.py unload [A...]` | Remove names, or return to base with no names. |
+| `python3 status.py [ID...]` | Read job states and results; no IDs shows all jobs. |
+| `python3 wait.py all\|ID...` | Submit a wait barrier. |
+| `python3 cancel.py ID` | Stop a running train or eval. A train keeps the adapter of its last saved step (if the site saved one), registered with the steps it ran; the job is charged the GPU time it used. |
+
+Scripts submit request files and return IDs. Shell success means submission, not job success. In the chat backend,
+requests are handled only after the entire command returns: `train.py spec.json; wait.py all; load.py load a1`
+queues a dependency chain, but reading status later in that same shell still sees the old state. The Codex backend has a background executor; request processing and status refresh happen independently.
+Read `jobs/<id>.json` or the next observation to distinguish done, failed and refused requests.
+
+Training names are reserved while pending. Training does not load an adapter in library mode; single mode automatically
+replaces and loads `current`. Adapter composition depends on the site. Load calls are free. Train/dev calls reserve an
+estimated cost and charge actual GPU-hours; this is admission control, not a hard runtime cutoff.
+
+Successful training returns an adapter path, a skills digest, and site-provided training metadata when available.
+`training.json` in the adapter contains site-resolved parameters and artifact names. `site_sources` identifies the site
+code, not the complete external GPU/software environment. A skill edit alone does not change the installed trainer.
+
+Creating `DONE` ends the session; submitted jobs finish before the loaded policy is scored.

@@ -1,0 +1,37 @@
+{
+ "format_version": "1",
+ "trajectory_id": "b3a_min_S_s2",
+ "created": "2026-10-23T06:41:33.879Z",
+ "producer": {
+  "name": "trajectory.adapters.retrain_min_session",
+  "version": null,
+  "git_sha": "54671139673fd8495d4a37d3fb29380d44c550fc"
+ },
+ "tags": {
+  "kind": "session",
+  "session": "b3a_min_S_s2",
+  "seed": 2,
+  "site": "RecordingSite",
+  "batch": "batch3a-46b913b",
+  "adapter_mode": "single",
+  "policy_model": "Qwen3.8-27B",
+  "skills_version": "3123238-b564627b"
+ },
+ "agent": {
+  "model": "qwen38-27b:loaded_b3a_min_S_s2",
+  "backend": "local"
+ },
+ "harness": {
+  "name": "retrain_min.harness",
+  "config": {
+   "max_reply_tokens": 16384,
+   "context_messages": 60,
+   "context_tokens": 100000,
+   "reply_chars": 12000,
+   "observation_chars": 6000,
+   "reasoning": null,
+   "seed": 2,
+   "tree_sha": "46b913bf76ee147288731b4ec8c8cf828315aef1"
+  }
+ }
+}

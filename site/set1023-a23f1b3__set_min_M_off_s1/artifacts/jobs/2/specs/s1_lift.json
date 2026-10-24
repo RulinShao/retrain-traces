@@ -1,0 +1,7 @@
+{
+ "task": "lift",
+ "name": "s1_lift",
+ "steps": 10,
+ "batch": 8,
+ "note": "Locate the red cube with segment_sam3_text_prompt, plan a top-down grasp with plan_grasp, convert the camera-frame grasp pose to the world frame using the camera pose, IK to it with the gripper pointing down, close the gripper once aligned with the cube, then move straight upward about 0.15 m so the cube is clearly lifted off the table."
+}

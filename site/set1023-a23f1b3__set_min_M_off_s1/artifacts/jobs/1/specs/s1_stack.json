@@ -1,0 +1,7 @@
+{
+ "task": "stack",
+ "name": "s1_stack",
+ "steps": 10,
+ "batch": 8,
+ "note": "Follow the key rules exactly: reuse the grasp quaternion when placing, lift the red cube at least 0.2 m before any lateral move, compute place_z = green_center_z + green_extent[2]/2 + red_extent[2]/2, and always descend with z_approach=0.1 so nothing is dropped from a height."
+}

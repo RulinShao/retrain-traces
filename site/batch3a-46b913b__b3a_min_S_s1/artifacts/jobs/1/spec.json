@@ -1,0 +1,9 @@
+{
+ "task": "stack",
+ "steps": 10,
+ "batch": 8,
+ "lr": 2e-05,
+ "reward": "task_completed",
+ "note": "Use plan_grasp on the red cube, lift it at least 0.2 m above the table, align over the green cube's top center, lower slowly, then open the gripper.",
+ "seed_start": 810001
+}

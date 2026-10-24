@@ -1,0 +1,107 @@
+rc=0
+===== optional/README.md =====
+# Shared skills (new line: retrain_min and retrain_fixed)
+
+Optional, agent-facing scripts and notes. Pass this directory with `--skills skills/shared` to either harness: it is
+copied into the workspace as `skills/optional/` (apart from the mandatory tool docs in `skills/tools/` and
+`skills/trainer/`) and the system prompt gains two lines (where they are; append lessons to playbook_suggestions.md).
+`PLAYBOOK.md` (<= 2,500 characters, versioned) is also inlined into the system prompt under "Playbook
+(skills/optional/PLAYBOOK.md: optional advice from earlier sessions; you may follow or ignore it)"; the session records the version
+(RESULT.json `skills_version`, SCOREBOARD.md header). Nothing else changes; the agent may use, edit or ignore them.
+A skill is a directory with a SKILL.md and, optionally, scripts that run in the workspace with no other service.
+
+| skill | what it does |
+|---|---|
+| `reward_check/` | `check_reward.py REWARD [--results FILE]`: runs your reward(result) on example (or your own) sim replies and prints the scores |
+
+The other directories under `skills/` (decompose, library, reward_check, snapshot, train_grpo, write_practice,
+write_skill, gateway.py, README.md, ADAPTERS.md) are the frozen old loop's seed skills: they call `skills/gateway.py`,
+which only `retrain/` serves, and they stay in place because `retrain/workspace.py` (SEED) and `envs/` job scripts read
+them by path. See `../OLD_LOOP.md`.
+===== optional/reward_check =====
+total 258
+drwxr-sr-x 2 root nobody  512 Oct 22 16:28 .
+drwxr-sr-x 3 root nobody  512 Oct 22 16:28 ..
+-rw-r--r-- 1 root nobody  809 Oct 22 16:28 SKILL.md
+-rw-r--r-- 1 root nobody 2810 Oct 22 16:28 check_reward.py
+===== tools/SKILL.md =====
+---
+name: retrain-tools
+description: Submit training and evaluation jobs, inspect results, and select the policy to score.
+---
+
+# Environment tools
+
+Read `ENVIRONMENT.json` for the site's policy, adapter composition and enforced constraints, and `tasks.json`
+for task details. `STATUS.json` contains the latest budget, loaded stack, adapters and running job IDs.
+`SCOREBOARD.md` has dev scores and lineage. While a train or eval is submitted, `jobs/<id>.json` (`progress`, `progress_line`; `status.py`),
+STATUS.json (`job_progress`) and the scoreboard show whether it is queued (not started, with its queue time so far) or running, and for a
+running train its completed steps, latest mean reward and GPU-hours so far, as the site reports them. `tasks/<task>/eval_prompt.txt` (when
+the site provides it) is the prompt the policy receives at evaluation; training prompts are checked against it. State comes from the environment; this skill is editable guidance.
+
+| Command | Effect |
+| --- | --- |
+| `python3 train.py SPEC` | Submit JSON/YAML spec to the installed trainer; see `skills/trainer/SKILL.md`. |
+| `python3 eval.py --adapter A[,B...]\|base\|loaded --task T --seeds N` | Evaluate on N fresh dev seeds. |
+| `python3 load.py load A [B...]` | Replace the loaded stack. |
+| `python3 load.py stack A [B...]` | Append to the loaded stack. |
+| `python3 load.py unload [A...]` | Remove names, or return to base with no names. |
+| `python3 status.py [ID...]` | Read job states and results; no IDs shows all jobs. |
+| `python3 wait.py all\|ID...` | Submit a wait barrier. |
+| `python3 cancel.py ID` | Stop a running train or eval. A train keeps the adapter of its last saved step (if the site saved one), registered with the steps it ran; the job is charged the GPU time it used. |
+
+Scripts submit request files and return IDs. Shell success means submission, not job success. In the chat backend,
+requests are handled only after the entire command returns: `train.py spec.json; wait.py all; load.py load a1`
+queues a dependency chain, but reading status later in that same shell still sees the old state. The Codex backend has a background executor; request processing and status refresh happen independently.
+Read `jobs/<id>.json` or the next observation to distinguish done, failed and refused requests.
+
+Training names are reserved while pending. Training does not load an adapter in library mode; single mode automatically
+replaces and loads `current`. Adapter composition depends on the site. Load calls are free. Train/dev calls reserve an
+estimated cost and charge actual GPU-hours; this is admission control, not a hard runtime cutoff.
+
+Successful training returns an adapter path, a skills digest, and site-provided training metadata when available.
+`training.json` in the adapter contains site-resolved parameters and artifact names. `site_sources` identifies the site
+code, not the complete external GPU/software environment. A skill edit alone does not change the installed trainer.
+
+Creating `DONE` ends the session; submitted jobs finish before the loaded policy is scored.
+===== tasks.json =====
+{
+ "tasks": [
+  {
+   "name": "lift",
+   "eval": "CaP-X Robosuite Cube Lift (lift s4:paper), single-turn code, success = the task's own check"
+  },
+  {
+   "name": "stack",
+   "eval": "CaP-X Robosuite Cube Stack (stack s4:paper), single-turn code, success = the task's own check"
+  },
+  {
+   "name": "nut",
+   "eval": "CaP-X Robosuite Nut Assembly / peg (nut s4:paper), single-turn code, success = the task's own check"
+  },
+  {
+   "name": "wipe",
+   "eval": "CaP-X Robosuite Spill Wipe (wipe s4:paper), single-turn code, success = the task's own check"
+  },
+  {
+   "name": "restack",
+   "eval": "CaP-X Robosuite Cube Re-stack (restack s4:paper), single-turn code, success = the task's own check"
+  },
+  {
+   "name": "twolift",
+   "eval": "CaP-X Robosuite Two-arm Lift (twolift s4:paper), single-turn code, success = the task's own check"
+  },
+  {
+   "name": "handover",
+   "eval": "CaP-X Robosuite Two-arm Handover (handover s4:paper), single-turn code, success = the task's own check"
+  },
+  {
+   "name": "revstack",
+   "eval": "CaP-X Robosuite Reverse-colour Cube Stack, scene shift (stack s4shift:fix), single-turn code, success = the task's own check"
+  },
+  {
+   "name": "stackv2",
+   "eval": "CaP-X Robosuite Cube Stack, API v2 (stack s4v2:fix), single-turn code, success = the task's own check"
+  }
+ ]
+}

@@ -1,0 +1,198 @@
+rc=0
+########## twolift ##########
+=== system ===
+You are a helpful assistant that generates Python code to directly solve the task.
+
+=== user ===
+You are controlling a two-arm Franka Emika robot system on opposite sides of the table with API described below.
+Goal: The two arms should coordinate to lift a pot. Arm 0 should grasp handle 0, and Arm 1 should grasp handle 1. Then both arms should lift the pot up at the same height.
+
+Guidance:
+- The pot is in the center of the table and has two handles on opposite sides.
+- One handle0 is green and the other handle1 is blue, and the main body of the pot is red.
+- You may want to slightly lift both arms first to avoid occluding the pot and handles.
+- Avoid using top-down grasps, i.e. avoid using quaternion wxyz [0, 0, 1, 0] for the approach.
+- Sideways grasps are preferred with the y-axis of the gripper aligned with the world z-axis.
+- Coordinate system: All pose functions accept/return positions in robot0's base frame.
+
+You may write python code comments for reasoning but ONLY write the executable Python code and do not write it in code fences.
+The functions (APIs) below are already imported to the environment. If you want to use numpy, you need to import it explicitly.
+
+APIs:
+
+get_observation() -> dict[str, typing.Any]
+  Doc:
+    Get the observation of the environment.
+    Returns:
+        observation:
+            A dictionary containing the observation of the environment.
+            The dictionary contains the following keys:
+            - ["robot0_robotview"]["images"]["rgb"]: Current color camera image as a numpy array of shape (H, W, 3), dtype uint8.
+            - ["robot0_robotview"]["images"]["depth"]: Current depth camera image as a numpy array of shape (H, W), dtype float32.
+            - ["robot0_robotview"]["intrinsics"]: Camera intrinsic matrix as a numpy array of shape (3, 3), dtype float64.
+            - ["robot0_robotview"]["pose_mat"]: Camera extrinsic matrix as a numpy array of shape (4, 4), dtype float64.
+
+point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+  Doc:
+    Use Molmo to point to a coordinate in the image based on a text prompt.
+    
+    Args:
+        image: np.ndarray: The RGB image to process. Shape: (H, W, 3), dtype uint8.
+        text_prompt: str: The text prompt to point to.
+    
+    Returns:
+        dict[str, tuple[int | None, int | None]]: Pixel coordinates for each
+        object query; (None, None) if parsing failed.
+
+detect_object_owlvit(rgb: numpy.ndarray, text: str) -> list[dict[str, typing.Any]]
+  Doc:
+    Run OWL-ViT open-vocabulary detection on a single RGB image.
+    
+    Args:
+        rgb:
+            RGB image array of shape (H, W, 3), dtype uint8.
+        text:
+            Natural language text query for OWL-ViT.
+    
+    Returns:
+        detections:
+            A list of dictionaries, one per detected box. Each dict contains:
+    
+              - "box":   [x1, y1, x2, y2] in pixel coordinates (float)
+              - "label": str, the text label that matched best
+              - "score": float, confidence score in [0, 1]
+
+segment_sam2(rgb: numpy.ndarray, box: list[float] | None = None) -> list[dict[str, typing.Any]]
+  Doc:
+    Run SAM2 segmentation on an RGB image, optionally conditioned on a box.
+    
+    Args:
+        rgb:
+            RGB image array of shape (H, W, 3), dtype uint8.
+        box:
+            Optional bounding box [x1, y1, x2, y2] in pixel coordinates, float.
+            If provided, SAM2 will segment primarily within this region.
+            If None, SAM2 runs in global mode over the whole image.
+    
+    Returns:
+        masks:
+            A list of dictionaries. Each dict may contain:
+    
+              - "mask":  np.ndarray of shape (H, W), dtype bool or uint8,
+                          where True/1 means the pixel belongs to the instance.
+              - "score": float confidence score (if provided by SAM2).
+
+plan_grasp(depth: numpy.ndarray, intrinsics: numpy.ndarray, segmentation: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+  Doc:
+    Plan grasp candidates using Contact-GraspNet for a single instance.
+    
+    This is a thin wrapper around the Contact-GraspNet planner. It does not
+    apply any camera/world transforms or TCP offsets: the caller is
+    responsible for transforming the resulting grasp poses into the desired
+    frame and applying TCP offsets if necessary.
+    
+    Args:
+        depth:
+            Depth image in meters.
+            Shape: (H, W), dtype float32/float64.
+        intrinsics:
+            Camera intrinsic matrix.
+            Shape: (3, 3), dtype float64.
+        segmentation:
+            Instance segmentation map where each integer > 0 corresponds to a
+            unique object instance ID.
+            Shape: (H, W) or (H, W, 1), dtype int32/int64.
+    
+    Returns:
+        grasp_poses:
+            np.ndarray of shape (K, 4, 4), dtype float64.
+            Homogeneous transforms for each candidate grasp IN THE CAMERA FRAME.
+        grasp_scores:
+            np.ndarray of shape (K,), dtype float64.
+            Confidence score for each candidate grasp.
+
+get_oriented_bounding_box_from_3d_points(points: numpy.ndarray) -> dict[str, typing.Any]
+  Doc:
+    Get the oriented bounding box from 3D points.
+    
+    Args:
+        points: np.ndarray: The 3D points to get the oriented bounding box from.
+            Shape: (N, 3), dtype float64.
+    
+    Returns:
+        dict[str, Any]: The oriented bounding box. The dictionary contains the following keys:
+            - "center": np.ndarray: The center of the oriented bounding box in point cloud frame.
+            - "extent": np.ndarray: The extent of the oriented bounding box.
+            - "R": np.ndarray: The rotation matrix of the oriented bounding box in point cloud frame.
+
+solve_ik_arm0(position: numpy.ndarray, quaternion_wxyz: numpy.ndarray) -> numpy.ndarray
+  Doc:
+    Solve inverse kinematics for the panda_hand link for Arm 0 (robot0).
+
+solve_ik_arm1(position: numpy.ndarray, quaternion_wxyz: numpy.ndarray) -> numpy.ndarray
+  Doc:
+    Solve inverse kinematics for the panda_hand link for Arm 1 (robot1).
+
+move_to_joints_both(joints0: numpy.ndarray, joints1: numpy.ndarray) -> None
+  Doc:
+    Move the arms 0 and 1 to a given joint configuration in a blocking manner simultaneously.
+    
+    Args:
+        joints0:
+            Target joint angles for the 7-DoF Franka arm 0.
+            Shape: (7,), dtype float64.
+        joints1:
+            Target joint angles for the 7-DoF Franka arm 1.
+            Shape: (7,), dtype float64.
+
+move_to_joints_arm0(joints: numpy.ndarray) -> None
+  Doc:
+    Move the robot arm 0 to a given joint configuration in a blocking manner.
+    
+    Args:
+        joints:
+            Target joint angles for the 7-DoF Franka arm 0.
+            Shape: (7,), dtype float64.
+
+move_to_joints_arm1(joints: numpy.ndarray) -> None
+  Doc:
+    Move the robot arm 1 to a given joint configuration in a blocking manner.
+    
+    Args:
+        joints:
+            Target joint angles for the 7-DoF Franka arm 1.
+            Shape: (7,), dtype float64.
+
+open_gripper_arm0() -> None
+  Doc:
+    Open gripper fully for Arm 0 (robot0).
+    Args:
+        None
+    Returns:
+        None
+
+close_gripper_arm0() -> None
+  Doc:
+    Close gripper fully for Arm 0 (robot0).
+    Args:
+        None
+    Returns:
+        None
+
+open_gripper_arm1() -> None
+  Doc:
+    Open gripper fully for Arm 1 (robot1).
+    Args:
+        None
+    Returns:
+        None
+
+close_gripper_arm1() -> None
+  Doc:
+    Close gripper fully for Arm 1 (robot1).
+    Args:
+        None
+    Returns:
+        None
+
+########## handover ##########

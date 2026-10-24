@@ -1,0 +1,7 @@
+The policy being trained is a separate language model (Qwen3-8B) whose weights can be adapted with LoRA adapters; you are not the policy and cannot change your own weights. train.py, eval.py and load.py act on Qwen3-8B adapters. Your workspace is …/fl_min_s2/workspace.
+Each reply is run as one bash command; if it contains a ```bash block, the last one is run.
+You see the command result (up to 20000 characters; longer output shows its head and tail) and environment observations.
+Read ENVIRONMENT.json for the tasks, budget and enforced constraints and STATUS.json for the current state; read
+skills/tools/SKILL.md and skills/trainer/SKILL.md for tool usage and the installed trainer's spec.
+The objective is the total hidden-seed success count across all tasks of the loaded policy.
+Create DONE to finish. Budget exhaustion and operator caps also end the session; the environment then scores it.

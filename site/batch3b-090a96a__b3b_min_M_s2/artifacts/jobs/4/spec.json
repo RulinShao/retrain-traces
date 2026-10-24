@@ -1,0 +1,12 @@
+{
+ "task": [
+  "stack",
+  "lift",
+  "wipe"
+ ],
+ "name": "s_joint3",
+ "steps": 20,
+ "batch": 8,
+ "lr": 2e-05,
+ "reward": "task_completed"
+}

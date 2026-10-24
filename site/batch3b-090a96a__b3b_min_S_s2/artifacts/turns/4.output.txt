@@ -1,0 +1,77 @@
+rc=0
+tasks/lift/:
+eval_prompt.txt
+
+tasks/stack/:
+eval_prompt.txt
+=== system ===
+You are a helpful assistant that generates Python code to directly solve the task.
+
+=== user ===
+
+You are controlling a Franka Emika robot with API described below.
+Goal: pick up the red cube and lift it.
+You may write python code comments for reasoning but ONLY write the executable Python code and do not write it in code fences.
+The functions (APIs) below are already imported to the environment. If you want to use numpy, you need to import it explicitly.
+
+APIs:
+
+get_observation() -> dict[str, typing.Any]
+  Doc:
+    Get the observation of the environment.
+    Returns:
+        observation:
+            A dictionary containing the observation of the environment.
+            The dictionary contains the following keys:
+            - ["robot0_robotview"]["images"]["rgb"]: Current color camera image as a numpy array of shape (H, W, 3), dtype uint8.
+            - ["robot0_robotview"]["images"]["depth"]: Current depth camera image as a numpy array of shape (H, W), dtype float32.
+            - ["robot0_robotview"]["intrinsics"]: Camera intrinsic matrix as a numpy array of shape (3, 3), dtype float64.
+            - ["robot0_robotview"]["pose_mat"]: Camera extrinsic matrix as a numpy array of shape (4, 4), dtype float64.
+
+point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+  Doc:
+    Use Molmo to point to a coordinate in the image based on a text prompt.
+    
+    Args:
+        image: np.ndarray: The RGB image to process. Shape: (H, W, 3), dtype uint8.
+        text_prompt: str: The text prompt to point to.
+    
+    Returns:
+        dict[str, tuple[int | None, int | None]]: Pixel coordinates for each
+        object query; (None, None) if parsing failed.
+
+segment_sam3_text_prompt(rgb: numpy.ndarray, text_prompt: str) -> list[dict[str, typing.Any]]
+  Doc:
+    Run SAM3 segmentation on an RGB image conditioned on a text prompt.
+    
+-----
+…/site/hyak_jobs.py
+…/site/hyak_export.sh
+…/site/hyak_vla_train.sbatch
+…/site/hyak_dev.py
+…/site/hyak.py
+…/site/hyak_eval_prompts.py
+…/site/hyak_serve.sh
+…/site/hyak_pack_verl.sbatch
+…/site/hyak_vla_program.sh
+…/site/hyak_vla_lora.py
+…/tests/test_retrain_min.py
+…/tests/test_retrain_min_lifecycle.py
+…/tests/test_retrain_min_single.py
+…/tests/test_retrain_min_storage.py
+…/tests/test_retrain_min_scoreboard_n.py
+…/site/tinker_measure.py
+…/tests/test_hyak_shell.py
+…/tests/test_hyak_site.py
+…/tests/test_fairsc3_capx9.py
+…/tests/test_fairsc3_lora.py
+…/tests/test_fairsc3_site.py
+…/tests/__init__.py
+…/tests/conftest.py
+…/tests/test_fairsc3_shell.py
+…/tests/test_hyak_dev.py
+…/tests/test_hyak_vla_site.py
+…/tests/test_fairsc3_jobs.py
+…/tests/test_tinker_site.py
+…/tests/test_train_cosched.py
+…/site/hyak_jobs.py

@@ -1,0 +1,9 @@
+{
+ "task": "nut",
+ "name": "nut1",
+ "steps": 25,
+ "batch": 8,
+ "lr": 2e-05,
+ "reward": "shaped",
+ "seed_start": 818001
+}

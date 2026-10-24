@@ -1,0 +1,17 @@
+{
+ "format_version": "1",
+ "trajectory_id": "5",
+ "created": "2026-10-24T15:51:10.994Z",
+ "producer": {
+  "name": "trajectory.producers.capx_jobs",
+  "version": null,
+  "git_sha": "0f624a2a6a26a7e6d532c6296f93402dbbb9897a"
+ },
+ "tags": {
+  "session": "set_fix_M_on_s1",
+  "rebuilt": true,
+  "kind": "eval",
+  "job_id": "5",
+  "capx_version": "7fda1bef602c"
+ }
+}

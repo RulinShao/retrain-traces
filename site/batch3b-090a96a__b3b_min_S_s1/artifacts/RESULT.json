@@ -1,0 +1,36 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "eval_failed: InfraError('eval job 42231176 state FAILED: 0 cell summaries; ABORT: renderer is not NVIDIA')",
+ "gpu_hours": 18.406000000000002,
+ "final_score": null,
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 0.4728,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "e80103",
+  "how": "default-loaded-stack",
+  "turn": 18,
+  "confirmed": false,
+  "confirmed_turn": null,
+  "ended_by": "DONE",
+  "note": null,
+  "policy": "base + current (v1, sha 45472a251fa3)"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "781c03e45fecb8c2c7fda12acde4d3af26ee19397bbd0ec40bfa787d3fd61737",
+ "artifacts": {
+  "registry": "…/batch3b-090a96a/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ },
+ "resumed": {
+  "count": 2,
+  "log": "session/resumes.jsonl"
+ }
+}

@@ -1,0 +1,86 @@
+rc=0
+=== STACK ===
+- The extent from get_object_pose(..., return_bbox_extent=True) is the FULL side length. Use extent[2]/2 for half-height.
+- For placement orientation, reuse the grasp quaternion from sample_grasp_pose. Do NOT use the quaternion from get_object_pose (it is unreliable for orientation).
+- Always use z_approach=0.1 when approaching an object for grasping or placing.
+- After grasping, lift the cube to a safe height (at least +0.2m in Z) before moving laterally to the placement location.
+- The stacking height formula is: place_z = green_center_z + green_extent[2]/2 + red_extent[2]/2
+- Nothing should be dropped from a height. Always approach with z_approach for controlled descent.
+
+Write ONLY executable Python code (no code fences). Import numpy if needed.
+
+APIs:
+
+
+21:get_observation() -> dict[str, typing.Any]
+33:point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+82:plan_grasp(depth: numpy.ndarray, intrinsics: numpy.ndarray, segmentation: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+125:solve_ik(position: numpy.ndarray, quaternion_wxyz: numpy.ndarray) -> numpy.ndarray
+142:move_to_joints(joints: numpy.ndarray) -> None
+154:open_gripper() -> None
+161:close_gripper() -> None
+=== STACKV2 ===
+10,11d9
+< - The extent from get_object_pose(..., return_bbox_extent=True) is the FULL side length. Use extent[2]/2 for half-height.
+< - For placement orientation, reuse the grasp quaternion from sample_grasp_pose. Do NOT use the quaternion from get_object_pose (it is unreliable for orientation).
+=== TWOLIFT ===
+=== system ===
+You are a helpful assistant that generates Python code to directly solve the task.
+
+=== user ===
+You are controlling a two-arm Franka Emika robot system on opposite sides of the table with API described below.
+Goal: The two arms should coordinate to lift a pot. Arm 0 should grasp handle 0, and Arm 1 should grasp handle 1. Then both arms should lift the pot up at the same height.
+
+Guidance:
+- The pot is in the center of the table and has two handles on opposite sides.
+- One handle0 is green and the other handle1 is blue, and the main body of the pot is red.
+- You may want to slightly lift both arms first to avoid occluding the pot and handles.
+- Avoid using top-down grasps, i.e. avoid using quaternion wxyz [0, 0, 1, 0] for the approach.
+- Sideways grasps are preferred with the y-axis of the gripper aligned with the world z-axis.
+- Coordinate system: All pose functions accept/return positions in robot0's base frame.
+
+You may write python code comments for reasoning but ONLY write the executable Python code and do not write it in code fences.
+The functions (APIs) below are already imported to the environment. If you want to use numpy, you need to import it explicitly.
+
+APIs:
+
+get_observation() -> dict[str, typing.Any]
+  Doc:
+    Get the observation of the environment.
+    Returns:
+        observation:
+            A dictionary containing the observation of the environment.
+            The dictionary contains the following keys:
+            - ["robot0_robotview"]["images"]["rgb"]: Current color camera image as a numpy array of shape (H, W, 3), dtype uint8.
+            - ["robot0_robotview"]["images"]["depth"]: Current depth camera image as a numpy array of shape (H, W), dtype float32.
+            - ["robot0_robotview"]["intrinsics"]: Camera intrinsic matrix as a numpy array of shape (3, 3), dtype float64.
+            - ["robot0_robotview"]["pose_mat"]: Camera extrinsic matrix as a numpy array of shape (4, 4), dtype float64.
+
+point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+  Doc:
+    Use Molmo to point to a coordinate in the image based on a text prompt.
+    
+    Args:
+        image: np.ndarray: The RGB image to process. Shape: (H, W, 3), dtype uint8.
+        text_prompt: str: The text prompt to point to.
+    
+    Returns:
+        dict[str, tuple[int | None, int | None]]: Pixel coordinates for each
+        object query; (None, None) if parsing failed.
+
+detect_object_owlvit(rgb: numpy.ndarray, text: str) -> list[dict[str, typing.Any]]
+  Doc:
+    Run OWL-ViT open-vocabulary detection on a single RGB image.
+    
+    Args:
+        rgb:
+            RGB image array of shape (H, W, 3), dtype uint8.
+        text:
+            Natural language text query for OWL-ViT.
+    
+    Returns:
+        detections:
+            A list of dictionaries, one per detected box. Each dict contains:
+    
+              - "box":   [x1, y1, x2, y2] in pixel coordinates (float)
+              - "label": str, the text label that matched best

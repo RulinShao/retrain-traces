@@ -1,0 +1,8 @@
+{
+ "task": "lift",
+ "steps": 30,
+ "batch": 8,
+ "lr": 2e-05,
+ "seed_start": 810001,
+ "time": "10:00:00"
+}

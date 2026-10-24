@@ -1,0 +1,7 @@
+{
+ "task": "wipe",
+ "name": "s1_wipe",
+ "steps": 10,
+ "batch": 8,
+ "note": "Keep the sponge pressed on the table at z = 0.0 with the downward orientation (0,0,1,0) wxyz, and cover the full x/y range of the brown spill with many small, overlapping back-and-forth IK waypoints so the whole spill extent is wiped."
+}

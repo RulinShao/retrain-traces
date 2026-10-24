@@ -1,0 +1,2573 @@
+{
+ "updated": "2026-10-24T17:22:14.262Z",
+ "recent_hours": 72,
+ "sections": {
+  "live": [
+   {
+    "status": "running",
+    "turns": 35,
+    "last_t": "2026-10-24T17:04:45.537Z",
+    "gpu_hours": 12.115,
+    "harness": "fixed",
+    "arm": "single",
+    "playbook": null,
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_set_fix_S_off_s1",
+    "loaded": [
+     "v2"
+    ],
+    "cells": {
+     "restack": {
+      "label": "v1",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "lift": {
+      "label": "v2",
+      "score": 86,
+      "n": 100,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 19.0
+     },
+     "stack": {
+      "label": "v2",
+      "score": 51,
+      "n": 100,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "wipe": {
+      "label": "v2",
+      "score": 35,
+      "n": 100,
+      "base": 16,
+      "base_n": 100,
+      "lift_pp": 19.0
+     }
+    },
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": 19.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 19.0,
+    "ended_t": null,
+    "cause": null,
+    "id": "set1023-a23f1b3__set_fix_S_off_s1",
+    "batch": "set1023-a23f1b3",
+    "session": "set_fix_S_off_s1",
+    "path": "site/set1023-a23f1b3__set_fix_S_off_s1",
+    "batch_job": "42204775",
+    "batch_job_state": "RUNNING",
+    "idle_s": 1045,
+    "in_command": false
+   },
+   {
+    "status": "running",
+    "turns": 14,
+    "last_t": "2026-10-24T15:11:37.884Z",
+    "gpu_hours": 15.887,
+    "harness": "min",
+    "arm": "library",
+    "playbook": "ea39163-15ab3e1e",
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_set_min_M_on_s1",
+    "loaded": [
+     "stack25",
+     "wipe20"
+    ],
+    "cells": {
+     "lift": {
+      "label": "stack25+wipe20",
+      "score": 81,
+      "n": 100,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 14.0
+     },
+     "stack": {
+      "label": "stack25+wipe20",
+      "score": 71,
+      "n": 100,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 20.0
+     },
+     "wipe": {
+      "label": "stack25+wipe20",
+      "score": 80,
+      "n": 100,
+      "base": 16,
+      "base_n": 100,
+      "lift_pp": 64.0
+     }
+    },
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": 64.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 64.0,
+    "ended_t": null,
+    "cause": null,
+    "id": "set1023-a23f1b3__set_min_M_on_s1",
+    "batch": "set1023-a23f1b3",
+    "session": "set_min_M_on_s1",
+    "path": "site/set1023-a23f1b3__set_min_M_on_s1",
+    "batch_job": "42204775",
+    "batch_job_state": "RUNNING",
+    "idle_s": 7833,
+    "in_command": false
+   },
+   {
+    "status": "running",
+    "turns": 129,
+    "last_t": "2026-10-23T21:27:35.296Z",
+    "gpu_hours": 0,
+    "harness": "fixed",
+    "arm": "library",
+    "playbook": "ea39163-15ab3e1e",
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_st_lift_fix_s1",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "ended_t": null,
+    "cause": null,
+    "id": "single1023-c2190dc__st_lift_fix_s1",
+    "batch": "single1023-c2190dc",
+    "session": "st_lift_fix_s1",
+    "path": "site/single1023-c2190dc__st_lift_fix_s1",
+    "batch_job": "42210175",
+    "batch_job_state": "RUNNING",
+    "idle_s": 71675,
+    "in_command": true
+   },
+   {
+    "status": "running",
+    "turns": 51,
+    "last_t": "2026-10-24T01:24:09.096Z",
+    "gpu_hours": 0,
+    "harness": "min",
+    "arm": "library",
+    "playbook": "ea39163-15ab3e1e",
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_st_lift_min_s1",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "ended_t": null,
+    "cause": null,
+    "id": "single1023-c2190dc__st_lift_min_s1",
+    "batch": "single1023-c2190dc",
+    "session": "st_lift_min_s1",
+    "path": "site/single1023-c2190dc__st_lift_min_s1",
+    "batch_job": "42210175",
+    "batch_job_state": "RUNNING",
+    "idle_s": 57481,
+    "in_command": true
+   },
+   {
+    "status": "running",
+    "turns": 15,
+    "last_t": "2026-10-23T21:34:36.799Z",
+    "gpu_hours": 0,
+    "harness": "fixed",
+    "arm": "library",
+    "playbook": "ea39163-15ab3e1e",
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_st_stack_fix_s1",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "ended_t": null,
+    "cause": null,
+    "id": "single1023-c2190dc__st_stack_fix_s1",
+    "batch": "single1023-c2190dc",
+    "session": "st_stack_fix_s1",
+    "path": "site/single1023-c2190dc__st_stack_fix_s1",
+    "batch_job": "42210175",
+    "batch_job_state": "RUNNING",
+    "idle_s": 71254,
+    "in_command": true
+   },
+   {
+    "status": "running",
+    "turns": 6,
+    "last_t": "2026-10-23T21:00:08.882Z",
+    "gpu_hours": 0,
+    "harness": "min",
+    "arm": "library",
+    "playbook": "ea39163-15ab3e1e",
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_st_stack_min_s1",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "ended_t": null,
+    "cause": null,
+    "id": "single1023-c2190dc__st_stack_min_s1",
+    "batch": "single1023-c2190dc",
+    "session": "st_stack_min_s1",
+    "path": "site/single1023-c2190dc__st_stack_min_s1",
+    "batch_job": "42210175",
+    "batch_job_state": "RUNNING",
+    "idle_s": 73322,
+    "in_command": true
+   },
+   {
+    "status": "running",
+    "turns": 17,
+    "last_t": "2026-10-23T21:07:26.999Z",
+    "gpu_hours": 0,
+    "harness": "fixed",
+    "arm": "library",
+    "playbook": "ea39163-15ab3e1e",
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_st_wipe_fix_s1",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "ended_t": null,
+    "cause": null,
+    "id": "single1023-c2190dc__st_wipe_fix_s1",
+    "batch": "single1023-c2190dc",
+    "session": "st_wipe_fix_s1",
+    "path": "site/single1023-c2190dc__st_wipe_fix_s1",
+    "batch_job": "42210175",
+    "batch_job_state": "RUNNING",
+    "idle_s": 72884,
+    "in_command": true
+   },
+   {
+    "status": "running",
+    "turns": 10,
+    "last_t": "2026-10-23T20:58:26.707Z",
+    "gpu_hours": 0,
+    "harness": "min",
+    "arm": "library",
+    "playbook": "ea39163-15ab3e1e",
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_st_wipe_min_s1",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "ended_t": null,
+    "cause": null,
+    "id": "single1023-c2190dc__st_wipe_min_s1",
+    "batch": "single1023-c2190dc",
+    "session": "st_wipe_min_s1",
+    "path": "site/single1023-c2190dc__st_wipe_min_s1",
+    "batch_job": "42210175",
+    "batch_job_state": "RUNNING",
+    "idle_s": 73424,
+    "in_command": true
+   }
+  ],
+  "recent": [
+   {
+    "status": "FAILED-INFRA",
+    "turns": 54,
+    "last_t": "2026-10-24T15:51:07.572Z",
+    "gpu_hours": {
+     "canonical": 17.272,
+     "actual": 13.6153
+    },
+    "harness": "fixed",
+    "arm": "library",
+    "playbook": "ea39163-15ab3e1e",
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_set_fix_M_on_s1",
+    "loaded": [
+     "lift_a1",
+     "stack_a1"
+    ],
+    "cells": {
+     "lift": {
+      "label": "lift_a1",
+      "score": 88,
+      "n": 100,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 21.0
+     },
+     "stack": {
+      "label": "lift_a1+stack_a1",
+      "score": 65,
+      "n": 100,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 14.0
+     },
+     "wipe": {
+      "label": "lift_a1+stack_a1",
+      "score": 7,
+      "n": 20,
+      "base": 16,
+      "base_n": 100,
+      "lift_pp": 19.0
+     },
+     "nut": {
+      "label": "lift_a1+stack_a1",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     }
+    },
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": 21.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 21.0,
+    "ended_t": "2026-10-24T15:51:07.572Z",
+    "cause": "eval_failed: InfraError('eval job 42266972: n_scored 94/100 void 0 http_error 0')",
+    "id": "set1023-a23f1b3__set_fix_M_on_s1",
+    "batch": "set1023-a23f1b3",
+    "session": "set_fix_M_on_s1",
+    "path": "site/set1023-a23f1b3__set_fix_M_on_s1",
+    "batch_job": "42204775",
+    "batch_job_state": "RUNNING",
+    "idle_s": 5463,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 9,
+    "last_t": "2026-10-24T14:55:09.139Z",
+    "gpu_hours": {
+     "canonical": 8.508,
+     "actual": 4.9795
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": null,
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_set_min_M_off_s1",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "ended_t": "2026-10-24T14:55:09.139Z",
+    "cause": "train_failed: InfraError('trainer rc=1 job 42205078 state COMPLETED')",
+    "id": "set1023-a23f1b3__set_min_M_off_s1",
+    "batch": "set1023-a23f1b3",
+    "session": "set_min_M_off_s1",
+    "path": "site/set1023-a23f1b3__set_min_M_off_s1",
+    "batch_job": "42204775",
+    "batch_job_state": "RUNNING",
+    "idle_s": 8821,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 17,
+    "last_t": "2026-10-24T12:04:07.933Z",
+    "gpu_hours": {
+     "canonical": 13.998,
+     "actual": 15.3342
+    },
+    "harness": "fixed",
+    "arm": "library",
+    "playbook": "13a939b-eeac9359",
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3b_fix_M_s2",
+    "loaded": [
+     "lift_v1",
+     "wipe_v1"
+    ],
+    "cells": {
+     "lift": {
+      "label": "lift_v1,wipe_v1",
+      "score": 84,
+      "n": 100,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 17.0
+     },
+     "stack": {
+      "label": "lift_v1,wipe_v1",
+      "score": 61,
+      "n": 100,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 10.0
+     },
+     "wipe": {
+      "label": "lift_v1,wipe_v1",
+      "score": 48,
+      "n": 100,
+      "base": 16,
+      "base_n": 100,
+      "lift_pp": 32.0
+     }
+    },
+    "final": 172,
+    "final_lift_pp": 3.8,
+    "best_dev_lift_pp": 32.0,
+    "rank_basis": "final",
+    "rank_lift_pp": 3.8,
+    "ended_t": "2026-10-24T12:04:07.933Z",
+    "cause": null,
+    "id": "batch3b-090a96a__b3b_fix_M_s2",
+    "batch": "batch3b-090a96a",
+    "session": "b3b_fix_M_s2",
+    "path": "site/batch3b-090a96a__b3b_fix_M_s2",
+    "batch_job": "42172192",
+    "batch_job_state": "ENDED",
+    "idle_s": 19083,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 23,
+    "last_t": "2026-10-24T11:55:27.943Z",
+    "gpu_hours": {
+     "canonical": 8.613,
+     "actual": 6.6372
+    },
+    "harness": "min",
+    "arm": "single",
+    "playbook": null,
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_set_min_S_off_s1",
+    "loaded": [
+     "current"
+    ],
+    "cells": {
+     "stack": {
+      "label": "current",
+      "score": 67,
+      "n": 100,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 16.0
+     },
+     "lift": {
+      "label": "current",
+      "score": 77,
+      "n": 100,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 10.0
+     },
+     "revstack": {
+      "label": "current",
+      "score": 1,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 1.0
+     },
+     "stackv2": {
+      "label": "current",
+      "score": 0,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": -1.0
+     },
+     "nut": {
+      "label": "current",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "wipe": {
+      "label": "current",
+      "score": 33,
+      "n": 100,
+      "base": 16,
+      "base_n": 100,
+      "lift_pp": 17.0
+     },
+     "restack": {
+      "label": "current",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     }
+    },
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": 17.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 17.0,
+    "ended_t": "2026-10-24T11:55:27.943Z",
+    "cause": "eval_failed: InfraError('eval job 42260947 state FAILED: 0 cell summaries; ABORT: renderer is not NVIDIA')",
+    "id": "set1023-a23f1b3__set_min_S_off_s1",
+    "batch": "set1023-a23f1b3",
+    "session": "set_min_S_off_s1",
+    "path": "site/set1023-a23f1b3__set_min_S_off_s1",
+    "batch_job": "42204775",
+    "batch_job_state": "RUNNING",
+    "idle_s": 19603,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 12,
+    "last_t": "2026-10-24T11:51:58.108Z",
+    "gpu_hours": {
+     "canonical": 7.521,
+     "actual": 4.3293
+    },
+    "harness": "fixed",
+    "arm": "library",
+    "playbook": null,
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_set_fix_M_off_s1",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "ended_t": "2026-10-24T11:51:58.108Z",
+    "cause": "eval_failed: InfraError('eval job 42262178 state FAILED: 0 cell summaries; ABORT: renderer is not NVIDIA')",
+    "id": "set1023-a23f1b3__set_fix_M_off_s1",
+    "batch": "set1023-a23f1b3",
+    "session": "set_fix_M_off_s1",
+    "path": "site/set1023-a23f1b3__set_fix_M_off_s1",
+    "batch_job": "42204775",
+    "batch_job_state": "RUNNING",
+    "idle_s": 19812,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 23,
+    "last_t": "2026-10-24T11:34:23.347Z",
+    "gpu_hours": {
+     "canonical": 14.903,
+     "actual": 18.421
+    },
+    "harness": "fixed",
+    "arm": "single",
+    "playbook": null,
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3b_fix_S_s1",
+    "loaded": [
+     "v1"
+    ],
+    "cells": {
+     "stack": {
+      "label": "current",
+      "score": 61,
+      "n": 100,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 10.0
+     },
+     "revstack": {
+      "label": "current",
+      "score": 2,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 2.0
+     },
+     "restack": {
+      "label": "current",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "stackv2": {
+      "label": "current",
+      "score": 1,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "lift": {
+      "label": "current",
+      "score": 77,
+      "n": 100,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 10.0
+     },
+     "nut": {
+      "label": "current",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "wipe": {
+      "label": "current",
+      "score": 20,
+      "n": 100,
+      "base": 16,
+      "base_n": 100,
+      "lift_pp": 4.0
+     },
+     "twolift": {
+      "label": "current",
+      "score": 0,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": -1.0
+     },
+     "handover": {
+      "label": "current",
+      "score": 2,
+      "n": 100,
+      "base": 2,
+      "base_n": 100,
+      "lift_pp": 0.0
+     }
+    },
+    "final": 156,
+    "final_lift_pp": 2.0,
+    "best_dev_lift_pp": 10.0,
+    "rank_basis": "final",
+    "rank_lift_pp": 2.0,
+    "ended_t": "2026-10-24T11:34:23.347Z",
+    "cause": null,
+    "id": "batch3b-090a96a__b3b_fix_S_s1",
+    "batch": "batch3b-090a96a",
+    "session": "b3b_fix_S_s1",
+    "path": "site/batch3b-090a96a__b3b_fix_S_s1",
+    "batch_job": "42172192",
+    "batch_job_state": "ENDED",
+    "idle_s": 20867,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 19,
+    "last_t": "2026-10-24T10:29:01.600Z",
+    "gpu_hours": {
+     "canonical": 16.367,
+     "actual": 11.6448
+    },
+    "harness": "min",
+    "arm": "single",
+    "playbook": "13a939b-eeac9359",
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3b_min_S_s2",
+    "loaded": [
+     "v3"
+    ],
+    "cells": {
+     "lift": {
+      "label": "current",
+      "score": 16,
+      "n": 20,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 13.0
+     },
+     "stack": {
+      "label": "current",
+      "score": 13,
+      "n": 20,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 14.0
+     },
+     "wipe": {
+      "label": "current",
+      "score": 16,
+      "n": 20,
+      "base": 16,
+      "base_n": 100,
+      "lift_pp": 64.0
+     },
+     "stackv2": {
+      "label": "current",
+      "score": 0,
+      "n": 20,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": -1.0
+     },
+     "revstack": {
+      "label": "current",
+      "score": 1,
+      "n": 20,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 5.0
+     }
+    },
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": 64.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 64.0,
+    "ended_t": "2026-10-24T10:29:01.600Z",
+    "cause": "eval_failed: InfraError('eval job 42259374 state FAILED: 0 cell summaries; ABORT: xid gpu: bus e3:00 on g3128 has 420 kernel Xid 109/31 events; eval cells are \u2026",
+    "id": "batch3b-090a96a__b3b_min_S_s2",
+    "batch": "batch3b-090a96a",
+    "session": "b3b_min_S_s2",
+    "path": "site/batch3b-090a96a__b3b_min_S_s2",
+    "batch_job": "42172192",
+    "batch_job_state": "ENDED",
+    "idle_s": 24789,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 19,
+    "last_t": "2026-10-24T06:59:33.199Z",
+    "gpu_hours": {
+     "canonical": 15.014000000000001,
+     "actual": 8.6751
+    },
+    "harness": "fixed",
+    "arm": "single",
+    "playbook": "13a939b-eeac9359",
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3b_fix_S_s2",
+    "loaded": [
+     "current"
+    ],
+    "cells": {
+     "lift": {
+      "label": "current",
+      "score": 74,
+      "n": 100,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 7.0
+     },
+     "stack": {
+      "label": "current",
+      "score": 60,
+      "n": 100,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 9.0
+     },
+     "nut": {
+      "label": "current",
+      "score": 1,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 1.0
+     },
+     "wipe": {
+      "label": "current",
+      "score": 29,
+      "n": 100,
+      "base": 16,
+      "base_n": 100,
+      "lift_pp": 13.0
+     },
+     "restack": {
+      "label": "current",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "twolift": {
+      "label": "current",
+      "score": 0,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": -1.0
+     },
+     "handover": {
+      "label": "current",
+      "score": 1,
+      "n": 100,
+      "base": 2,
+      "base_n": 100,
+      "lift_pp": -1.0
+     },
+     "revstack": {
+      "label": "current",
+      "score": 3,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 3.0
+     },
+     "stackv2": {
+      "label": "current",
+      "score": 4,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 3.0
+     }
+    },
+    "final": 189,
+    "final_lift_pp": 5.7,
+    "best_dev_lift_pp": 13.0,
+    "rank_basis": "final",
+    "rank_lift_pp": 5.7,
+    "ended_t": "2026-10-24T06:59:33.199Z",
+    "cause": null,
+    "id": "batch3b-090a96a__b3b_fix_S_s2",
+    "batch": "batch3b-090a96a",
+    "session": "b3b_fix_S_s2",
+    "path": "site/batch3b-090a96a__b3b_fix_S_s2",
+    "batch_job": "42172192",
+    "batch_job_state": "ENDED",
+    "idle_s": 37357,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 18,
+    "last_t": "2026-10-24T06:27:27.686Z",
+    "gpu_hours": {
+     "canonical": 15.707,
+     "actual": 4.4754
+    },
+    "harness": "fixed",
+    "arm": "library",
+    "playbook": null,
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3b_fix_M_s1",
+    "loaded": [
+     "stack1",
+     "restack1"
+    ],
+    "cells": {
+     "stack": {
+      "label": "stack1",
+      "score": 61,
+      "n": 100,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 10.0
+     },
+     "restack": {
+      "label": "restack1",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "lift": {
+      "label": "stack1,restack1",
+      "score": 82,
+      "n": 100,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 15.0
+     },
+     "stackv2": {
+      "label": "stack1,restack1",
+      "score": 2,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 1.0
+     },
+     "revstack": {
+      "label": "stack1,restack1",
+      "score": 5,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 5.0
+     },
+     "wipe": {
+      "label": "stack1,restack1",
+      "score": 36,
+      "n": 100,
+      "base": 16,
+      "base_n": 100,
+      "lift_pp": 20.0
+     }
+    },
+    "final": 172,
+    "final_lift_pp": 3.8,
+    "best_dev_lift_pp": 20.0,
+    "rank_basis": "final",
+    "rank_lift_pp": 3.8,
+    "ended_t": "2026-10-24T06:27:27.686Z",
+    "cause": null,
+    "id": "batch3b-090a96a__b3b_fix_M_s1",
+    "batch": "batch3b-090a96a",
+    "session": "b3b_fix_M_s1",
+    "path": "site/batch3b-090a96a__b3b_fix_M_s1",
+    "batch_job": "42172192",
+    "batch_job_state": "ENDED",
+    "idle_s": 39283,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 19,
+    "last_t": "2026-10-24T06:13:08.544Z",
+    "gpu_hours": {
+     "canonical": 9.65,
+     "actual": 9.2917
+    },
+    "harness": "fixed",
+    "arm": "single",
+    "playbook": "ea39163-15ab3e1e",
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_set_fix_S_on_s1",
+    "loaded": [
+     "current"
+    ],
+    "cells": {},
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "ended_t": "2026-10-24T06:13:08.544Z",
+    "cause": "eval_failed: InfraError('sbatch failed rc=1: sbatch: error: Batch job submission failed: Requested node configuration is not available')",
+    "id": "set1023-a23f1b3__set_fix_S_on_s1",
+    "batch": "set1023-a23f1b3",
+    "session": "set_fix_S_on_s1",
+    "path": "site/set1023-a23f1b3__set_fix_S_on_s1",
+    "batch_job": "42204775",
+    "batch_job_state": "RUNNING",
+    "idle_s": 40142,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 6,
+    "last_t": "2026-10-24T05:12:12.079Z",
+    "gpu_hours": {
+     "canonical": 2.62,
+     "actual": 9.6872
+    },
+    "harness": "min",
+    "arm": "single",
+    "playbook": "ea39163-15ab3e1e",
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_set_min_S_on_s1",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "ended_t": "2026-10-24T05:12:12.079Z",
+    "cause": "train_failed: InfraError('trainer rc=None job 42205447 state TIMEOUT')",
+    "id": "set1023-a23f1b3__set_min_S_on_s1",
+    "batch": "set1023-a23f1b3",
+    "session": "set_min_S_on_s1",
+    "path": "site/set1023-a23f1b3__set_min_S_on_s1",
+    "batch_job": "42204775",
+    "batch_job_state": "RUNNING",
+    "idle_s": 43798,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 15,
+    "last_t": "2026-10-24T03:35:04.735Z",
+    "gpu_hours": {
+     "canonical": 13.378,
+     "actual": 16.6227
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": null,
+    "seed": 1,
+    "policy": "Qwen3-8B+init:79fbddb55dd8",
+    "agent": "qwen38-27b",
+    "loaded": [],
+    "cells": {
+     "lift": {
+      "label": "lift1",
+      "score": 19,
+      "n": 20,
+      "base": 89,
+      "base_n": 100,
+      "lift_pp": 6.0
+     },
+     "stack": {
+      "label": "stack1",
+      "score": 11,
+      "n": 20,
+      "base": 57,
+      "base_n": 100,
+      "lift_pp": -2.0
+     },
+     "wipe": {
+      "label": "wipe1",
+      "score": 12,
+      "n": 20,
+      "base": 22,
+      "base_n": 100,
+      "lift_pp": 38.0
+     },
+     "restack": {
+      "label": "restack1",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "nut": {
+      "label": "nut1",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "revstack": {
+      "label": "rev1",
+      "score": 2,
+      "n": 20,
+      "base": 2,
+      "base_n": 100,
+      "lift_pp": 8.0
+     }
+    },
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": 38.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 38.0,
+    "ended_t": "2026-10-24T03:35:04.735Z",
+    "cause": "eval_failed: InfraError('eval job 42238107 state FAILED: 0 cell summaries; ABORT: xid gpu: bus e3:00 on g3128 has 350 kernel Xid 109/31 events; eval cells are \u2026",
+    "id": "fastloop-85ee471__fl_min_s1",
+    "batch": "fastloop-85ee471",
+    "session": "fl_min_s1",
+    "path": "site/fastloop-85ee471__fl_min_s1",
+    "batch_job": "42178477",
+    "batch_job_state": "ENDED",
+    "idle_s": 49626,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 25,
+    "last_t": "2026-10-24T02:04:07.012Z",
+    "gpu_hours": {
+     "canonical": 14.422,
+     "actual": 13.6309
+    },
+    "harness": "fixed",
+    "arm": "library",
+    "playbook": null,
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3r_fix_M_s2",
+    "loaded": [],
+    "cells": {
+     "lift": {
+      "label": "restack1",
+      "score": 15,
+      "n": 20,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 8.0
+     },
+     "stack": {
+      "label": "restack1",
+      "score": 10,
+      "n": 20,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": -1.0
+     },
+     "restack": {
+      "label": "restack1",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     }
+    },
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": 8.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 8.0,
+    "ended_t": "2026-10-24T02:04:07.012Z",
+    "cause": "eval_failed: InfraError('eval job 42233707 state FAILED: 0 cell summaries; ABORT: xid gpu: bus e3:00 on g3128 has 278 kernel Xid 109/31 events; eval cells are \u2026",
+    "id": "batch3a-redo-090a96a__b3r_fix_M_s2",
+    "batch": "batch3a-redo-090a96a",
+    "session": "b3r_fix_M_s2",
+    "path": "site/batch3a-redo-090a96a__b3r_fix_M_s2",
+    "batch_job": "42172222",
+    "batch_job_state": "ENDED",
+    "idle_s": 55083,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 15,
+    "last_t": "2026-10-24T01:35:29.423Z",
+    "gpu_hours": {
+     "canonical": 14.532,
+     "actual": 11.2746
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": "13a939b-eeac9359",
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3r_min_M_s2",
+    "loaded": [],
+    "cells": {
+     "lift": {
+      "label": "r1_lift",
+      "score": 80,
+      "n": 100,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 13.0
+     },
+     "stack": {
+      "label": "r1_stack",
+      "score": 44,
+      "n": 100,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": -7.0
+     },
+     "wipe": {
+      "label": "r1_wipe",
+      "score": 33,
+      "n": 100,
+      "base": 16,
+      "base_n": 100,
+      "lift_pp": 17.0
+     }
+    },
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": 17.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 17.0,
+    "ended_t": "2026-10-24T01:35:29.423Z",
+    "cause": "eval_failed: InfraError('eval job 42231779 state FAILED: 0 cell summaries; ABORT: xid gpu: bus e3:00 on g3128 has 245 kernel Xid 109/31 events; eval cells are \u2026",
+    "id": "batch3a-redo-090a96a__b3r_min_M_s2",
+    "batch": "batch3a-redo-090a96a",
+    "session": "b3r_min_M_s2",
+    "path": "site/batch3a-redo-090a96a__b3r_min_M_s2",
+    "batch_job": "42172222",
+    "batch_job_state": "ENDED",
+    "idle_s": 56801,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 19,
+    "last_t": "2026-10-24T01:31:23.793Z",
+    "gpu_hours": {
+     "canonical": 18.406000000000002,
+     "actual": 0.4728
+    },
+    "harness": "min",
+    "arm": "single",
+    "playbook": null,
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3b_min_S_s1",
+    "loaded": [
+     "current"
+    ],
+    "cells": {
+     "restack": {
+      "label": "current",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "lift": {
+      "label": "current",
+      "score": 84,
+      "n": 100,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 17.0
+     },
+     "stack": {
+      "label": "current",
+      "score": 64,
+      "n": 100,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 13.0
+     },
+     "wipe": {
+      "label": "current",
+      "score": 35,
+      "n": 100,
+      "base": 16,
+      "base_n": 100,
+      "lift_pp": 19.0
+     },
+     "nut": {
+      "label": "current",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "twolift": {
+      "label": "current",
+      "score": 0,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": -1.0
+     },
+     "handover": {
+      "label": "current",
+      "score": 0,
+      "n": 100,
+      "base": 2,
+      "base_n": 100,
+      "lift_pp": -2.0
+     },
+     "revstack": {
+      "label": "current",
+      "score": 5,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 5.0
+     },
+     "stackv2": {
+      "label": "current",
+      "score": 2,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 1.0
+     }
+    },
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": 19.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 19.0,
+    "ended_t": "2026-10-24T01:31:23.793Z",
+    "cause": "eval_failed: InfraError('eval job 42231176 state FAILED: 0 cell summaries; ABORT: renderer is not NVIDIA')",
+    "id": "batch3b-090a96a__b3b_min_S_s1",
+    "batch": "batch3b-090a96a",
+    "session": "b3b_min_S_s1",
+    "path": "site/batch3b-090a96a__b3b_min_S_s1",
+    "batch_job": "42172192",
+    "batch_job_state": "ENDED",
+    "idle_s": 57047,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 24,
+    "last_t": "2026-10-24T01:27:22.102Z",
+    "gpu_hours": {
+     "canonical": 1.225,
+     "actual": 0.0322
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": null,
+    "seed": 2,
+    "policy": "Qwen3-8B+init:79fbddb55dd8",
+    "agent": "qwen38-27b",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "ended_t": "2026-10-24T01:27:22.102Z",
+    "cause": "eval_failed: InfraError('eval job 42228477 state FAILED: 0 cell summaries; ABORT: renderer is not NVIDIA')",
+    "id": "fastloop-85ee471__fl_min_s2",
+    "batch": "fastloop-85ee471",
+    "session": "fl_min_s2",
+    "path": "site/fastloop-85ee471__fl_min_s2",
+    "batch_job": "42178477",
+    "batch_job_state": "ENDED",
+    "idle_s": 57288,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 10,
+    "last_t": "2026-10-23T23:52:11.067Z",
+    "gpu_hours": {
+     "canonical": 9.538,
+     "actual": 9.6317
+    },
+    "harness": "min",
+    "arm": "single",
+    "playbook": "13a939b-eeac9359",
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3r_min_S_s2",
+    "loaded": [
+     "current"
+    ],
+    "cells": {
+     "lift": {
+      "label": "loaded",
+      "score": 66,
+      "n": 100,
+      "base": 66,
+      "base_n": 100,
+      "lift_pp": 0.0
+     }
+    },
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": 0.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 0.0,
+    "ended_t": "2026-10-23T23:52:11.067Z",
+    "cause": "eval_failed: InfraError('eval job 42221379 state FAILED: 0 cell summaries; ABORT: xid gpu: bus e3:00 on g3128 has 39 kernel Xid 109/31 events; eval cells are E\u2026",
+    "id": "batch3a-redo-090a96a__b3r_min_S_s2",
+    "batch": "batch3a-redo-090a96a",
+    "session": "b3r_min_S_s2",
+    "path": "site/batch3a-redo-090a96a__b3r_min_S_s2",
+    "batch_job": "42172222",
+    "batch_job_state": "ENDED",
+    "idle_s": 62999,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 17,
+    "last_t": "2026-10-23T23:51:47.917Z",
+    "gpu_hours": {
+     "canonical": 13.5,
+     "actual": 23.4602
+    },
+    "harness": "fixed",
+    "arm": "library",
+    "playbook": null,
+    "seed": 2,
+    "policy": "Qwen3-8B+init:79fbddb55dd8",
+    "agent": "qwen38-27b",
+    "loaded": [],
+    "cells": {
+     "restack": {
+      "label": "restack1",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "nut": {
+      "label": "nut1",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "stack": {
+      "label": "stack1",
+      "score": 56,
+      "n": 100,
+      "base": 57,
+      "base_n": 100,
+      "lift_pp": -1.0
+     },
+     "wipe": {
+      "label": "wipe1",
+      "score": 11,
+      "n": 100,
+      "base": 22,
+      "base_n": 100,
+      "lift_pp": -11.0
+     },
+     "revstack": {
+      "label": "revstack1",
+      "score": 0,
+      "n": 100,
+      "base": 2,
+      "base_n": 100,
+      "lift_pp": -2.0
+     }
+    },
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": 0.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 0.0,
+    "ended_t": "2026-10-23T23:51:47.917Z",
+    "cause": "train_failed: InfraError('trainer rc=None job 42196673 state TIMEOUT')",
+    "id": "fastloop-85ee471__fl_fix_s2",
+    "batch": "fastloop-85ee471",
+    "session": "fl_fix_s2",
+    "path": "site/fastloop-85ee471__fl_fix_s2",
+    "batch_job": "42178477",
+    "batch_job_state": "ENDED",
+    "idle_s": 63023,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 22,
+    "last_t": "2026-10-23T21:01:38.254Z",
+    "gpu_hours": {
+     "canonical": 18.152,
+     "actual": 17.92
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": "13a939b-eeac9359",
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3b_min_M_s2",
+    "loaded": [
+     "s_stack",
+     "s_lift"
+    ],
+    "cells": {
+     "lift": {
+      "label": "s_lift",
+      "score": 17,
+      "n": 20,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 18.0
+     },
+     "stack": {
+      "label": "s_stack",
+      "score": 11,
+      "n": 20,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 4.0
+     },
+     "nut": {
+      "label": "s_stack",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "wipe": {
+      "label": "s_stack",
+      "score": 3,
+      "n": 20,
+      "base": 16,
+      "base_n": 100,
+      "lift_pp": -1.0
+     },
+     "restack": {
+      "label": "s_stack",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "twolift": {
+      "label": "s_stack",
+      "score": 0,
+      "n": 20,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": -1.0
+     },
+     "handover": {
+      "label": "s_stack",
+      "score": 0,
+      "n": 20,
+      "base": 2,
+      "base_n": 100,
+      "lift_pp": -2.0
+     },
+     "revstack": {
+      "label": "s_stack",
+      "score": 1,
+      "n": 20,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 5.0
+     },
+     "stackv2": {
+      "label": "s_stack",
+      "score": 0,
+      "n": 20,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": -1.0
+     }
+    },
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": 18.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 18.0,
+    "ended_t": "2026-10-23T21:01:38.254Z",
+    "cause": "eval_failed: InfraError('eval job 42200505 state TIMEOUT: 0 cell summaries')",
+    "id": "batch3b-090a96a__b3b_min_M_s2",
+    "batch": "batch3b-090a96a",
+    "session": "b3b_min_M_s2",
+    "path": "site/batch3b-090a96a__b3b_min_M_s2",
+    "batch_job": "42172192",
+    "batch_job_state": "ENDED",
+    "idle_s": 73232,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 75,
+    "last_t": "2026-10-23T17:47:56.479Z",
+    "gpu_hours": {
+     "canonical": 7.767,
+     "actual": 16.4372
+    },
+    "harness": "fixed",
+    "arm": "library",
+    "playbook": null,
+    "seed": 1,
+    "policy": "Qwen3-8B",
+    "agent": "qwen38-27b",
+    "loaded": [
+     "wipe2"
+    ],
+    "cells": {
+     "stack": {
+      "label": "stack1",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "restack": {
+      "label": "stack1",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "stackv2": {
+      "label": "stack1",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "wipe": {
+      "label": "wipe1",
+      "score": 0,
+      "n": 5,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     }
+    },
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": 0.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 0.0,
+    "ended_t": "2026-10-23T17:47:56.479Z",
+    "cause": "train_failed: InfraError('trainer rc=None job 42200738 state RUNNING')",
+    "id": "batch3a-46b913b__b3a_q8fix_M_s1",
+    "batch": "batch3a-46b913b",
+    "session": "b3a_q8fix_M_s1",
+    "path": "site/batch3a-46b913b__b3a_q8fix_M_s1",
+    "batch_job": "42154019",
+    "batch_job_state": "ENDED",
+    "idle_s": 84854,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 34,
+    "last_t": "2026-10-23T11:19:21.650Z",
+    "gpu_hours": {
+     "canonical": 13.958,
+     "actual": 16.307
+    },
+    "harness": "fixed",
+    "arm": "library",
+    "playbook": null,
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3a_fix_M_s1",
+    "loaded": [
+     "stk1"
+    ],
+    "cells": {
+     "revstack": {
+      "label": "rev1",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "stack": {
+      "label": "stk1",
+      "score": 16,
+      "n": 20,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 29.0
+     },
+     "lift": {
+      "label": "stk1",
+      "score": 19,
+      "n": 20,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 28.0
+     },
+     "restack": {
+      "label": "rst1",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     }
+    },
+    "final": 165,
+    "final_lift_pp": 3.0,
+    "best_dev_lift_pp": 29.0,
+    "rank_basis": "final",
+    "rank_lift_pp": 3.0,
+    "ended_t": "2026-10-23T11:19:21.650Z",
+    "cause": null,
+    "id": "batch3a-46b913b__b3a_fix_M_s1",
+    "batch": "batch3a-46b913b",
+    "session": "b3a_fix_M_s1",
+    "path": "site/batch3a-46b913b__b3a_fix_M_s1",
+    "batch_job": "42154019",
+    "batch_job_state": "ENDED",
+    "idle_s": 108169,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 11,
+    "last_t": "2026-10-23T02:57:53.055Z",
+    "gpu_hours": {
+     "canonical": 15.596,
+     "actual": 20.2442
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": null,
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3a_min_M_s1",
+    "loaded": [],
+    "cells": {
+     "lift": {
+      "label": "lift30",
+      "score": 87,
+      "n": 100,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 20.0
+     },
+     "stack": {
+      "label": "stack30",
+      "score": 53,
+      "n": 100,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 2.0
+     }
+    },
+    "final": 118,
+    "final_lift_pp": -2.2,
+    "best_dev_lift_pp": 20.0,
+    "rank_basis": "final",
+    "rank_lift_pp": -2.2,
+    "ended_t": "2026-10-23T02:57:53.055Z",
+    "cause": null,
+    "id": "batch3a-46b913b__b3a_min_M_s1",
+    "batch": "batch3a-46b913b",
+    "session": "b3a_min_M_s1",
+    "path": "site/batch3a-46b913b__b3a_min_M_s1",
+    "batch_job": "42154019",
+    "batch_job_state": "ENDED",
+    "idle_s": 138257,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 19,
+    "last_t": "2026-10-22T21:35:24.008Z",
+    "gpu_hours": {
+     "canonical": 11.152,
+     "actual": 11.0097
+    },
+    "harness": "min",
+    "arm": "single",
+    "playbook": "3123238-b564627b",
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3a_min_S_s2",
+    "loaded": [
+     "current"
+    ],
+    "cells": {},
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "ended_t": "2026-10-22T21:35:24.008Z",
+    "cause": "eval_failed: InfraError('eval job 42160411 state RUNNING: 0 cell summaries')",
+    "id": "batch3a-46b913b__b3a_min_S_s2",
+    "batch": "batch3a-46b913b",
+    "session": "b3a_min_S_s2",
+    "path": "site/batch3a-46b913b__b3a_min_S_s2",
+    "batch_job": "42154019",
+    "batch_job_state": "ENDED",
+    "idle_s": 157606,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 21,
+    "last_t": "2026-10-22T20:13:15.378Z",
+    "gpu_hours": {
+     "canonical": 12.372,
+     "actual": 11.4577
+    },
+    "harness": "fixed",
+    "arm": "single",
+    "playbook": null,
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3a_fix_S_s1",
+    "loaded": [
+     "current"
+    ],
+    "cells": {
+     "lift": {
+      "label": "current",
+      "score": 78,
+      "n": 100,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 11.0
+     },
+     "stack": {
+      "label": "current",
+      "score": 50,
+      "n": 100,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": -1.0
+     },
+     "nut": {
+      "label": "current",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "wipe": {
+      "label": "current",
+      "score": 15,
+      "n": 100,
+      "base": 16,
+      "base_n": 100,
+      "lift_pp": -1.0
+     },
+     "restack": {
+      "label": "current",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "twolift": {
+      "label": "current",
+      "score": 0,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": -1.0
+     },
+     "handover": {
+      "label": "current",
+      "score": 1,
+      "n": 100,
+      "base": 2,
+      "base_n": 100,
+      "lift_pp": -1.0
+     },
+     "revstack": {
+      "label": "current",
+      "score": 1,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 1.0
+     },
+     "stackv2": {
+      "label": "current",
+      "score": 2,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 1.0
+     }
+    },
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": 11.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 11.0,
+    "ended_t": "2026-10-22T20:13:15.378Z",
+    "cause": "eval_failed: InfraError('sbatch failed rc=1: sbatch: error: Batch job submission failed: Socket timed out on send/recv operation')",
+    "id": "batch3a-46b913b__b3a_fix_S_s1",
+    "batch": "batch3a-46b913b",
+    "session": "b3a_fix_S_s1",
+    "path": "site/batch3a-46b913b__b3a_fix_S_s1",
+    "batch_job": "42154019",
+    "batch_job_state": "ENDED",
+    "idle_s": 162535,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 8,
+    "last_t": "2026-10-22T20:12:29.784Z",
+    "gpu_hours": {
+     "canonical": 2.965,
+     "actual": 4.4475
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": "3123238-b564627b",
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3a_min_M_s2",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "ended_t": "2026-10-22T20:12:29.784Z",
+    "cause": "train_failed: InfraError('trainer rc=None job 42154396 state RUNNING')",
+    "id": "batch3a-46b913b__b3a_min_M_s2",
+    "batch": "batch3a-46b913b",
+    "session": "b3a_min_M_s2",
+    "path": "site/batch3a-46b913b__b3a_min_M_s2",
+    "batch_job": "42154019",
+    "batch_job_state": "ENDED",
+    "idle_s": 162581,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 19,
+    "last_t": "2026-10-22T20:12:22.159Z",
+    "gpu_hours": {
+     "canonical": 8.243,
+     "actual": 8.4149
+    },
+    "harness": "fixed",
+    "arm": "library",
+    "playbook": null,
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3a_fix_M_s2",
+    "loaded": [
+     "revstack_pilot"
+    ],
+    "cells": {
+     "revstack": {
+      "label": "revstack_pilot",
+      "score": 2,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 2.0
+     },
+     "stack": {
+      "label": "revstack_pilot",
+      "score": 49,
+      "n": 100,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": -2.0
+     },
+     "lift": {
+      "label": "revstack_pilot",
+      "score": 68,
+      "n": 100,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 1.0
+     }
+    },
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": 2.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 2.0,
+    "ended_t": "2026-10-22T20:12:22.159Z",
+    "cause": "train_failed: InfraError('trainer rc=None job 42160385 state RUNNING')",
+    "id": "batch3a-46b913b__b3a_fix_M_s2",
+    "batch": "batch3a-46b913b",
+    "session": "b3a_fix_M_s2",
+    "path": "site/batch3a-46b913b__b3a_fix_M_s2",
+    "batch_job": "42154019",
+    "batch_job_state": "ENDED",
+    "idle_s": 162588,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 33,
+    "last_t": "2026-10-22T18:23:57.464Z",
+    "gpu_hours": {
+     "canonical": 4.026,
+     "actual": 2.9817
+    },
+    "harness": "min",
+    "arm": "single",
+    "playbook": null,
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3a_min_S_s1",
+    "loaded": [
+     "current"
+    ],
+    "cells": {},
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "ended_t": "2026-10-22T18:23:57.464Z",
+    "cause": "eval_failed: InfraError('sbatch failed rc=1: sbatch: error: Batch job submission failed: Socket timed out on send/recv operation')",
+    "id": "batch3a-46b913b__b3a_min_S_s1",
+    "batch": "batch3a-46b913b",
+    "session": "b3a_min_S_s1",
+    "path": "site/batch3a-46b913b__b3a_min_S_s1",
+    "batch_job": "42154019",
+    "batch_job_state": "ENDED",
+    "idle_s": 169093,
+    "in_command": false
+   }
+  ],
+  "best": [
+   {
+    "status": "DONE",
+    "turns": 19,
+    "last_t": "2026-10-24T06:59:33.199Z",
+    "gpu_hours": {
+     "canonical": 15.014000000000001,
+     "actual": 8.6751
+    },
+    "harness": "fixed",
+    "arm": "single",
+    "playbook": "13a939b-eeac9359",
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3b_fix_S_s2",
+    "loaded": [
+     "current"
+    ],
+    "cells": {
+     "lift": {
+      "label": "current",
+      "score": 74,
+      "n": 100,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 7.0
+     },
+     "stack": {
+      "label": "current",
+      "score": 60,
+      "n": 100,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 9.0
+     },
+     "nut": {
+      "label": "current",
+      "score": 1,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 1.0
+     },
+     "wipe": {
+      "label": "current",
+      "score": 29,
+      "n": 100,
+      "base": 16,
+      "base_n": 100,
+      "lift_pp": 13.0
+     },
+     "restack": {
+      "label": "current",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "twolift": {
+      "label": "current",
+      "score": 0,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": -1.0
+     },
+     "handover": {
+      "label": "current",
+      "score": 1,
+      "n": 100,
+      "base": 2,
+      "base_n": 100,
+      "lift_pp": -1.0
+     },
+     "revstack": {
+      "label": "current",
+      "score": 3,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 3.0
+     },
+     "stackv2": {
+      "label": "current",
+      "score": 4,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 3.0
+     }
+    },
+    "final": 189,
+    "final_lift_pp": 5.7,
+    "best_dev_lift_pp": 13.0,
+    "rank_basis": "final",
+    "rank_lift_pp": 5.7,
+    "ended_t": "2026-10-24T06:59:33.199Z",
+    "cause": null,
+    "id": "batch3b-090a96a__b3b_fix_S_s2",
+    "batch": "batch3b-090a96a",
+    "session": "b3b_fix_S_s2",
+    "path": "site/batch3b-090a96a__b3b_fix_S_s2",
+    "batch_job": "42172192",
+    "batch_job_state": "ENDED",
+    "idle_s": 37357,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 18,
+    "last_t": "2026-10-24T06:27:27.686Z",
+    "gpu_hours": {
+     "canonical": 15.707,
+     "actual": 4.4754
+    },
+    "harness": "fixed",
+    "arm": "library",
+    "playbook": null,
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3b_fix_M_s1",
+    "loaded": [
+     "stack1",
+     "restack1"
+    ],
+    "cells": {
+     "stack": {
+      "label": "stack1",
+      "score": 61,
+      "n": 100,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 10.0
+     },
+     "restack": {
+      "label": "restack1",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "lift": {
+      "label": "stack1,restack1",
+      "score": 82,
+      "n": 100,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 15.0
+     },
+     "stackv2": {
+      "label": "stack1,restack1",
+      "score": 2,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 1.0
+     },
+     "revstack": {
+      "label": "stack1,restack1",
+      "score": 5,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 5.0
+     },
+     "wipe": {
+      "label": "stack1,restack1",
+      "score": 36,
+      "n": 100,
+      "base": 16,
+      "base_n": 100,
+      "lift_pp": 20.0
+     }
+    },
+    "final": 172,
+    "final_lift_pp": 3.8,
+    "best_dev_lift_pp": 20.0,
+    "rank_basis": "final",
+    "rank_lift_pp": 3.8,
+    "ended_t": "2026-10-24T06:27:27.686Z",
+    "cause": null,
+    "id": "batch3b-090a96a__b3b_fix_M_s1",
+    "batch": "batch3b-090a96a",
+    "session": "b3b_fix_M_s1",
+    "path": "site/batch3b-090a96a__b3b_fix_M_s1",
+    "batch_job": "42172192",
+    "batch_job_state": "ENDED",
+    "idle_s": 39283,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 17,
+    "last_t": "2026-10-24T12:04:07.933Z",
+    "gpu_hours": {
+     "canonical": 13.998,
+     "actual": 15.3342
+    },
+    "harness": "fixed",
+    "arm": "library",
+    "playbook": "13a939b-eeac9359",
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3b_fix_M_s2",
+    "loaded": [
+     "lift_v1",
+     "wipe_v1"
+    ],
+    "cells": {
+     "lift": {
+      "label": "lift_v1,wipe_v1",
+      "score": 84,
+      "n": 100,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 17.0
+     },
+     "stack": {
+      "label": "lift_v1,wipe_v1",
+      "score": 61,
+      "n": 100,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 10.0
+     },
+     "wipe": {
+      "label": "lift_v1,wipe_v1",
+      "score": 48,
+      "n": 100,
+      "base": 16,
+      "base_n": 100,
+      "lift_pp": 32.0
+     }
+    },
+    "final": 172,
+    "final_lift_pp": 3.8,
+    "best_dev_lift_pp": 32.0,
+    "rank_basis": "final",
+    "rank_lift_pp": 3.8,
+    "ended_t": "2026-10-24T12:04:07.933Z",
+    "cause": null,
+    "id": "batch3b-090a96a__b3b_fix_M_s2",
+    "batch": "batch3b-090a96a",
+    "session": "b3b_fix_M_s2",
+    "path": "site/batch3b-090a96a__b3b_fix_M_s2",
+    "batch_job": "42172192",
+    "batch_job_state": "ENDED",
+    "idle_s": 19083,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 34,
+    "last_t": "2026-10-23T11:19:21.650Z",
+    "gpu_hours": {
+     "canonical": 13.958,
+     "actual": 16.307
+    },
+    "harness": "fixed",
+    "arm": "library",
+    "playbook": null,
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3a_fix_M_s1",
+    "loaded": [
+     "stk1"
+    ],
+    "cells": {
+     "revstack": {
+      "label": "rev1",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "stack": {
+      "label": "stk1",
+      "score": 16,
+      "n": 20,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 29.0
+     },
+     "lift": {
+      "label": "stk1",
+      "score": 19,
+      "n": 20,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 28.0
+     },
+     "restack": {
+      "label": "rst1",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     }
+    },
+    "final": 165,
+    "final_lift_pp": 3.0,
+    "best_dev_lift_pp": 29.0,
+    "rank_basis": "final",
+    "rank_lift_pp": 3.0,
+    "ended_t": "2026-10-23T11:19:21.650Z",
+    "cause": null,
+    "id": "batch3a-46b913b__b3a_fix_M_s1",
+    "batch": "batch3a-46b913b",
+    "session": "b3a_fix_M_s1",
+    "path": "site/batch3a-46b913b__b3a_fix_M_s1",
+    "batch_job": "42154019",
+    "batch_job_state": "ENDED",
+    "idle_s": 108169,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 23,
+    "last_t": "2026-10-24T11:34:23.347Z",
+    "gpu_hours": {
+     "canonical": 14.903,
+     "actual": 18.421
+    },
+    "harness": "fixed",
+    "arm": "single",
+    "playbook": null,
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3b_fix_S_s1",
+    "loaded": [
+     "v1"
+    ],
+    "cells": {
+     "stack": {
+      "label": "current",
+      "score": 61,
+      "n": 100,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 10.0
+     },
+     "revstack": {
+      "label": "current",
+      "score": 2,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 2.0
+     },
+     "restack": {
+      "label": "current",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "stackv2": {
+      "label": "current",
+      "score": 1,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "lift": {
+      "label": "current",
+      "score": 77,
+      "n": 100,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 10.0
+     },
+     "nut": {
+      "label": "current",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0
+     },
+     "wipe": {
+      "label": "current",
+      "score": 20,
+      "n": 100,
+      "base": 16,
+      "base_n": 100,
+      "lift_pp": 4.0
+     },
+     "twolift": {
+      "label": "current",
+      "score": 0,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": -1.0
+     },
+     "handover": {
+      "label": "current",
+      "score": 2,
+      "n": 100,
+      "base": 2,
+      "base_n": 100,
+      "lift_pp": 0.0
+     }
+    },
+    "final": 156,
+    "final_lift_pp": 2.0,
+    "best_dev_lift_pp": 10.0,
+    "rank_basis": "final",
+    "rank_lift_pp": 2.0,
+    "ended_t": "2026-10-24T11:34:23.347Z",
+    "cause": null,
+    "id": "batch3b-090a96a__b3b_fix_S_s1",
+    "batch": "batch3b-090a96a",
+    "session": "b3b_fix_S_s1",
+    "path": "site/batch3b-090a96a__b3b_fix_S_s1",
+    "batch_job": "42172192",
+    "batch_job_state": "ENDED",
+    "idle_s": 20867,
+    "in_command": false
+   }
+  ],
+  "pinned": [
+   {
+    "status": "DONE",
+    "turns": 11,
+    "last_t": "2026-10-23T02:57:53.055Z",
+    "gpu_hours": {
+     "canonical": 15.596,
+     "actual": 20.2442
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": null,
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3a_min_M_s1",
+    "loaded": [],
+    "cells": {
+     "lift": {
+      "label": "lift30",
+      "score": 87,
+      "n": 100,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 20.0
+     },
+     "stack": {
+      "label": "stack30",
+      "score": 53,
+      "n": 100,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 2.0
+     }
+    },
+    "final": 118,
+    "final_lift_pp": -2.2,
+    "best_dev_lift_pp": 20.0,
+    "rank_basis": "final",
+    "rank_lift_pp": -2.2,
+    "ended_t": "2026-10-23T02:57:53.055Z",
+    "cause": null,
+    "id": "batch3a-46b913b__b3a_min_M_s1",
+    "batch": "batch3a-46b913b",
+    "session": "b3a_min_M_s1",
+    "path": "site/batch3a-46b913b__b3a_min_M_s1",
+    "batch_job": "42154019",
+    "batch_job_state": "ENDED",
+    "idle_s": 138257,
+    "in_command": false
+   },
+   {
+    "status": "running",
+    "turns": 51,
+    "last_t": "2026-10-24T01:24:09.096Z",
+    "gpu_hours": 0,
+    "harness": "min",
+    "arm": "library",
+    "playbook": "ea39163-15ab3e1e",
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_st_lift_min_s1",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "ended_t": null,
+    "cause": null,
+    "id": "single1023-c2190dc__st_lift_min_s1",
+    "batch": "single1023-c2190dc",
+    "session": "st_lift_min_s1",
+    "path": "site/single1023-c2190dc__st_lift_min_s1",
+    "batch_job": "42210175",
+    "batch_job_state": "RUNNING",
+    "idle_s": 57481,
+    "in_command": true
+   },
+   {
+    "status": "running",
+    "turns": 15,
+    "last_t": "2026-10-23T21:34:36.799Z",
+    "gpu_hours": 0,
+    "harness": "fixed",
+    "arm": "library",
+    "playbook": "ea39163-15ab3e1e",
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_st_stack_fix_s1",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_lift_pp": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "ended_t": null,
+    "cause": null,
+    "id": "single1023-c2190dc__st_stack_fix_s1",
+    "batch": "single1023-c2190dc",
+    "session": "st_stack_fix_s1",
+    "path": "site/single1023-c2190dc__st_stack_fix_s1",
+    "batch_job": "42210175",
+    "batch_job_state": "RUNNING",
+    "idle_s": 71254,
+    "in_command": true
+   }
+  ]
+ },
+ "reports": [
+  "reports/bubble-2026-10-24.html"
+ ]
+}

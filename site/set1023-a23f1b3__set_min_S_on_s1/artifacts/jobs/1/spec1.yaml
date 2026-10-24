@@ -1,0 +1,5 @@
+task: restack
+steps: 50
+reward: shaped
+seed_start: 900001
+time: 04:45:00

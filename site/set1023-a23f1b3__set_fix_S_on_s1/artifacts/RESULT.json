@@ -1,0 +1,22 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "eval_failed: InfraError('sbatch failed rc=1: sbatch: error: Batch job submission failed: Requested node configuration is not available')",
+ "gpu_hours": 9.65,
+ "final_score": null,
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 9.2917,
+ "gpu_hours_charging": "canonical",
+ "skills_version": "ea39163-15ab3e1e",
+ "initial_skills_digest": "15eaf870b48fd266239dce7852352e97a007088eea00cd75bc7e65879b10e8a0",
+ "artifacts": {
+  "registry": "…/set1023-a23f1b3/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

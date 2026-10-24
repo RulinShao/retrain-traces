@@ -1,0 +1,10 @@
+{
+ "task": "restack",
+ "name": "restack1",
+ "steps": 50,
+ "batch": 8,
+ "lr": 2e-05,
+ "reward": "task_completed",
+ "seed_start": 820000,
+ "time": "14:00:00"
+}

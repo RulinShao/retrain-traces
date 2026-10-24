@@ -1,0 +1,21 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "eval_failed: InfraError('sbatch failed rc=1: sbatch: error: Batch job submission failed: Socket timed out on send/recv operation')",
+ "gpu_hours": 4.026,
+ "final_score": null,
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "gpu_hours_actual": 2.9817,
+ "gpu_hours_charging": "canonical",
+ "skills_version": null,
+ "initial_skills_digest": "a1597ffc044f803a96f89b742513d740afcaed92f915105dfe5a50b72dd6b09a",
+ "artifacts": {
+  "registry": "…/batch3a-46b913b/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

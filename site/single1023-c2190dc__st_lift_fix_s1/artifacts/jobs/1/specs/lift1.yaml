@@ -1,0 +1,6 @@
+task: lift
+name: lift1
+steps: 30
+batch: 8
+reward: task_completed
+seed_start: 800001

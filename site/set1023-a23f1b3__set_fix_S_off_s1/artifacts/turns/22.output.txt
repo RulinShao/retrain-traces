@@ -1,0 +1,46 @@
+rc=0
+# SCOREBOARD
+
+playbook: none
+agent: local
+mode: dev
+dev seeds: from 800001
+policy: Qwen3.8-27B
+
+Dev-seed success count per task x adapter stack (k/n = rate): the eval with the most seeds (equal n: the newest); smaller evals are in History and the job records. Adapter cells also give the base column's rate at the same n; `untested` = no eval of that stack on that task yet.
+
+| task | base | v1 | current |
+|---|---|---|---|
+| lift | 67/100 = 67% | 65/100 = 65% (v1) (base 67% = 67.0/100) | untested |
+| stack | 51/100 = 51% | 45/100 = 45% (v1) (base 51% = 51.0/100) | untested |
+| nut | 0/100 = 0% | untested | untested |
+| wipe | 16/100 = 16% | 11/100 = 11% (v1) (base 16% = 16.0/100) | untested |
+| restack | 0/100 = 0% | 0/100 = 0% (v1) (base 0% = 0.0/100) | untested |
+| twolift | 1/100 = 1% | untested | untested |
+| handover | 2/100 = 2% | untested | untested |
+| revstack | 0/100 = 0% | untested | untested |
+| stackv2 | 1/100 = 1% | untested | untested |
+
+GPU-hours: 6.649 spent, 9.351 remaining of 16.0 (0 job(s) running)
+Expected cost per call (the estimate checked against what remains): train.py (1 step 2.76, 10 steps 4.03, 50 steps 9.65) GPU-h; eval.py per task (5 seeds 0.36, 20 seeds 0.38, 100 seeds 0.48) GPU-h
+Loaded on your serving endpoint: current
+Submitted: none (python3 finish.py submits a policy)
+
+## Adapters
+
+| name | init | steps | spec | state |
+=== status ===
+{"id": 1, "kind": "train", "args": {"spec": "specs/restack_shaped_v1.json"}, "state": "done", "result": {"adapter": "current", "version": 1, "path": "adapters/current", "state": "trained", "skills_digest": "9640a7c03199133c7201d7139c5b1f4e697bea78e77263cd55e2f076ed62a7c8", "training": "adapters/current/training.json", "sha": "32289493b6a0", "jobs": ["42205255"], "policy": "Qwen3.8-27B", "simulator": "7fda1bef602c", "config": {"task": "restack", "steps": 15, "lr": 2e-05, "batch": 8, "seed_start": 812000, "reward": "shaped", "time": "04:45:00"}, "timing_s": {"queued": 43524, "run": 6039, "steps": 5118, "outside_steps": 921}}, "skills_digest": "9640a7c03199133c7201d7139c5b1f4e697bea78e77263cd55e2f076ed62a7c8", "progress": {"state": "queued", "queued_min": 0.7}, "progress_line": "queued (not started), 1 min in queue"}
+{"id": 2, "kind": "wait", "args": {"ids": ["all"]}, "state": "done", "result": "waited for 1 job(s)"}
+{"id": 3, "kind": "eval", "args": {"adapter": "v1", "task": "restack", "seeds": 100}, "state": "done", "result": {"successes": 0, "n": 100, "rate": 0.0, "task": "restack", "seeds": [800001, 800100], "adapters": [{"name": "v1", "version": 1, "sha": "32289493b6a0"}], "base": "0/100 = 0% (0.0/100)", "jobs": ["42253406"], "policy": "Qwen3.8-27B", "simulator": "7fda1bef602c", "decoding": {"model": "qwen38-27b", "think": "off", "temperature": 0.7, "top_p": 0.8, "max_tokens": 8192, "config_of_record": "2026-10-14-v4"}, "timing_s": {"queued": 5701, "run": 1549}}, "progress": {"state": "queued", "queued_min": 0.3}, "progress_line": "queued (not started), 0 min in queue"}
+{"id": 4, "kind": "eval", "args": {"adapter": "v1", "task": "lift", "seeds": 100}, "state": "done", "result": {"successes": 65, "n": 100, "rate": 0.65, "task": "lift", "seeds": [800101, 800200], "adapters": [{"name": "v1", "version": 1, "sha": "32289493b6a0"}], "base": "67/100 = 67% (67.0/100)", "jobs": ["42253526"], "policy": "Qwen3.8-27B", "simulator": "7fda1bef602c", "decoding": {"model": "qwen38-27b", "think": "off", "temperature": 0.7, "top_p": 0.8, "max_tokens": 8192, "config_of_record": "2026-10-14-v4"}, "timing_s": {"queued": 10604, "run": 2974}}}
+{"id": 5, "kind": "eval", "args": {"adapter": "v1", "task": "stack", "seeds": 100}, "state": "done", "result": {"successes": 45, "n": 100, "rate": 0.45, "task": "stack", "seeds": [800201, 800300], "adapters": [{"name": "v1", "version": 1, "sha": "32289493b6a0"}], "base": "51/100 = 51% (51.0/100)", "jobs": ["42253508"], "policy": "Qwen3.8-27B", "simulator": "7fda1bef602c", "decoding": {"model": "qwen38-27b", "think": "off", "temperature": 0.7, "top_p": 0.8, "max_tokens": 8192, "config_of_record": "2026-10-14-v4"}, "timing_s": {"queued": 5782, "run": 3732}}, "progress": {"state": "queued", "queued_min": 0.4}, "progress_line": "queued (not started), 0 min in queue"}
+{"id": 6, "kind": "eval", "args": {"adapter": "v1", "task": "wipe", "seeds": 100}, "state": "done", "result": {"successes": 11, "n": 100, "rate": 0.11, "task": "wipe", "seeds": [800301, 800400], "adapters": [{"name": "v1", "version": 1, "sha": "32289493b6a0"}], "base": "16/100 = 16% (16.0/100)", "jobs": ["42253727"], "policy": "Qwen3.8-27B", "simulator": "7fda1bef602c", "decoding": {"model": "qwen38-27b", "think": "off", "temperature": 0.7, "top_p": 0.8, "max_tokens": 8192, "config_of_record": "2026-10-14-v4"}, "timing_s": {"queued": 10863, "run": 828}}}
+{"id": 7, "kind": "wait", "args": {"ids": ["all"]}, "state": "done", "result": "waited for 4 job(s)"}
+{"id": 8, "kind": "load", "args": {"verb": "unload", "names": []}, "state": "refused", "result": "ValueError: single-adapter mode with versions: there is one active adapter at a time; every successful train.py call makes a new version v1, v2, ... (`current` names the latest), starts from the active version (the first from base) and makes the new version active; `load.py load v<k>` (or `load current`) makes that version the active one; versions are never stacked; valid calls: `load.py load v<k>` or `load.py load current`"}
+If you finish now, the scored policy is: base + current (v1, sha 32289493b6a0) (`python3 finish.py` submits the loaded stack)
+=== rewrite diagnosis.md (pass 2) ===
+wrote
+3:## Hypothesis
+14:## Evidence
+27:## Alternatives
