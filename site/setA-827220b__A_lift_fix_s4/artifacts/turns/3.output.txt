@@ -1,0 +1,223 @@
+rc=0
+=== system ===
+You are a helpful assistant that generates Python code to directly solve the task.
+
+=== user ===
+
+You are controlling a Franka Emika robot with API described below.
+Goal: pick up the red cube and lift it.
+You may write python code comments for reasoning but ONLY write the executable Python code and do not write it in code fences.
+The functions (APIs) below are already imported to the environment. If you want to use numpy, you need to import it explicitly.
+
+APIs:
+
+get_observation() -> dict[str, typing.Any]
+  Doc:
+    Get the observation of the environment.
+    Returns:
+        observation:
+            A dictionary containing the observation of the environment.
+            The dictionary contains the following keys:
+            - ["robot0_robotview"]["images"]["rgb"]: Current color camera image as a numpy array of shape (H, W, 3), dtype uint8.
+            - ["robot0_robotview"]["images"]["depth"]: Current depth camera image as a numpy array of shape (H, W), dtype float32.
+            - ["robot0_robotview"]["intrinsics"]: Camera intrinsic matrix as a numpy array of shape (3, 3), dtype float64.
+            - ["robot0_robotview"]["pose_mat"]: Camera extrinsic matrix as a numpy array of shape (4, 4), dtype float64.
+
+point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+  Doc:
+    Use Molmo to point to a coordinate in the image based on a text prompt.
+    
+    Args:
+        image: np.ndarray: The RGB image to process. Shape: (H, W, 3), dtype uint8.
+        text_prompt: str: The text prompt to point to.
+    
+    Returns:
+        dict[str, tuple[int | None, int | None]]: Pixel coordinates for each
+        object query; (None, None) if parsing failed.
+
+segment_sam3_text_prompt(rgb: numpy.ndarray, text_prompt: str) -> list[dict[str, typing.Any]]
+  Doc:
+    Run SAM3 segmentation on an RGB image conditioned on a text prompt.
+    
+    Args:
+        rgb:
+            RGB image array of shape (H, W, 3), dtype uint8.
+        text_prompt:
+            Text prompt for SAM3 segmentation.
+    
+    Returns:
+        masks:
+            A list of dictionaries. Each dict may contain:
+    
+              - "mask":  np.ndarray of shape (H, W), dtype bool,
+                          where True means the pixel belongs to the instance.
+              - "box": list [x1, y1, x2, y2] in pixel coordinates.
+              - "score": float confidence score.
+
+segment_sam3_point_prompt(rgb: numpy.ndarray, point_coords: tuple[float, float]) -> list[dict[str, typing.Any]]
+  Doc:
+    Run SAM3 segmentation on an RGB image, optionally conditioned on an image coordinate point prompt.
+    
+    Args:
+        rgb:
+            RGB image array of shape (H, W, 3), dtype uint8.
+        point_coords:
+            (x, y) pixel coordinates of the point prompt.
+    
+    Returns:
+        masks:
+            A list of dictionaries. Each dict may contain:
+    
+              - "mask":  np.ndarray of shape (H, W), dtype bool,
+                          where True means the pixel belongs to the instance.
+              - "score": float confidence score.
+
+plan_grasp(depth: numpy.ndarray, intrinsics: numpy.ndarray, segmentation: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+  Doc:
+    Plan grasp candidates using Contact-GraspNet for a single instance.
+    
+    This is a thin wrapper around the Contact-GraspNet planner. It does not
+    apply any camera/world transforms or TCP offsets: the caller is
+    responsible for transforming the resulting grasp poses into the desired
+    frame and applying TCP offsets if necessary.
+    
+    Args:
+        depth:
+            Depth image in meters.
+            Shape: (H, W), dtype float32/float64.
+        intrinsics:
+            Camera intrinsic matrix.
+            Shape: (3, 3), dtype float64.
+        segmentation:
+            Instance segmentation map where each integer > 0 corresponds to a
+            unique object instance ID.
+            Shape: (H, W) or (H, W, 1), dtype int32/int64.
+    
+    Returns:
+        grasp_poses:
+            np.ndarray of shape (K, 4, 4), dtype float64.
+            Homogeneous transforms for each candidate grasp IN THE CAMERA FRAME.
+        grasp_scores:
+            np.ndarray of shape (K,), dtype float64.
+            Confidence score for each candidate grasp.
+
+get_oriented_bounding_box_from_3d_points(points: numpy.ndarray) -> dict[str, typing.Any]
+  Doc:
+    Get the oriented bounding box from 3D points.
+    
+    Args:
+        points: np.ndarray: The 3D points to get the oriented bounding box from.
+            Shape: (N, 3), dtype float64.
+    
+    Returns:
+        dict[str, Any]: The oriented bounding box. The dictionary contains the following keys:
+            - "center": np.ndarray: The center of the oriented bounding box in point cloud frame.
+            - "extent": np.ndarray: The extent of the oriented bounding box.
+            - "R": np.ndarray: The rotation matrix of the oriented bounding box in point cloud frame.
+
+solve_ik(position: numpy.ndarray, quaternion_wxyz: numpy.ndarray) -> numpy.ndarray
+  Doc:
+    Solve inverse kinematics for the panda_hand link.
+    
+    Args:
+        position:
+            Target position in world frame.
+            Shape: (3,), dtype float64.
+        quaternion_wxyz:
+            Target orientation as a unit quaternion in world frame.
+            Shape: (4,), [w, x, y, z], dtype float64.
+    
+    Returns:
+        joints:
+            np.ndarray of shape (7,), dtype float64.
+            Joint angles for the 7 DoF Franka arm.
+
+move_to_joints(joints: numpy.ndarray) -> None
+  Doc:
+    Move the robot to a given joint configuration in a blocking manner.
+    
+    Args:
+        joints:
+            Target joint angles for the 7-DoF Franka arm.
+            Shape: (7,), dtype float64.
+    
+    Returns:
+        None
+
+open_gripper() -> None
+  Doc:
+    Open gripper fully.
+    
+    Args:
+        None
+
+close_gripper() -> None
+  Doc:
+    Close gripper fully.
+    
+    Args:
+        None
+===
+---
+name: retrain-tools
+description: Submit training and evaluation jobs, inspect results, and select the policy to score.
+---
+
+# Environment tools
+
+Read `ENVIRONMENT.json` for the site's policy, adapter composition and enforced constraints, and `tasks.json`
+for task details. `STATUS.json` contains the latest budget, loaded stack, adapters and running job IDs.
+`SCOREBOARD.md` has dev scores and lineage. While a train or eval is submitted, `jobs/<id>.json` (`progress`, `progress_line`; `status.py`),
+STATUS.json (`job_progress`) and the scoreboard show whether it is queued (not started, with its queue time so far) or running, and for a
+running train its completed steps, latest mean reward and GPU-hours so far, as the site reports them. `tasks/<task>/eval_prompt.txt` (when
+the site provides it) is the prompt the policy receives at evaluation; training prompts are checked against it. `tasks/INDEX.md` lists each task's goal line, dev and
+hidden seed ranges, recorded base score, API names and key rules, taken from tasks.json, the eval prompts and the base scores. State comes from the environment; this skill is editable guidance.
+
+| Command | Effect |
+| --- | --- |
+| `python3 train.py SPEC` | Submit JSON/YAML spec to the installed trainer; see `skills/trainer/SKILL.md`. |
+| `python3 eval.py --adapter A[,B...]\|base\|loaded --task T --seeds N` | Evaluate on the next N unused dev seeds (the result lists them; the base column has its own) with the task's `tasks/<task>/eval_prompt.txt` verbatim (no training `note`/`goal`; the final score uses the same prompt). A stack's score on a task is known only from an eval of that stack (`--adapter A,B`); neither the scoreboard nor the environment derives it from its adapters' single scores. `loaded` is the stack loaded when the request is picked up, so not an adapter whose train is still running. Results are written only when all seeds finish, so an eval that reaches its time limit usually fails with no count (rarely: a count over the seeds that finished, with `partial`). Where the site can resume an eval (eval port dq-t1v2), an eval stopped by the cluster (time limit, preemption, node failure) continues its remaining seeds in a new Slurm job, at most 3 times; its status then says `continued from seed k in job J`, and its result lists every Slurm job (`jobs`) and each continuation (`continued`: `job` stopped, `cause`, `from` seed, `of` seeds, `continued_in` job), as it lists site retries. |
+| `python3 load.py load A [B...]` | Replace the loaded stack (names separated by spaces; eval.py separates them by commas). |
+| `python3 load.py stack A [B...]` | Append to the loaded stack. |
+| `python3 load.py unload [A...]` | Remove names, or return to base with no names. |
+| `python3 status.py [ID...]` | Read job states and results; no IDs shows all jobs. The last line states what finishing now would score. |
+| `python3 wait.py all\|ID... [--max 4h\|90m]` | Submit a wait barrier: your next turn starts when those jobs finish or after `--max` (default 2h), whichever comes first. If the bound comes first, the result states each job's queue state, reason, position and time pending, and "no job finished". The barrier runs in the environment after your command returns, so `--max` is not limited by the per-command time limit. |
+| `python3 finish.py [--policy base \| --adapters A[,B...]] [--note TEXT]` | Step one of ending the session: submit the policy to score (no policy arguments: the loaded stack; single mode: `current`, `v<k>` or `current@<k>`). The result states exactly what will be scored and a token. |
+| `python3 finish.py --confirm TOKEN` | Step two, in a later turn: end the session; the submission is scored. |
+| `python3 cancel.py ID` | Stop a running train or eval. A train keeps the adapter of its last saved step (if the site saved one), registered with the steps it ran; the job is charged the GPU time it used. |
+
+Scripts submit request files and return IDs. Shell success means submission, not job success. In the chat backend,
+requests are handled only after the entire command returns: `train.py spec.json; wait.py all; load.py load a1`
+queues a dependency chain, but reading status later in that same shell still sees the old state. The Codex backend has a background executor; request processing and status refresh happen independently.
+Read `jobs/<id>.json` or the next observation to distinguish done, failed and refused requests.
+
+Training names are reserved while pending. Training does not load an adapter in library mode; single mode automatically
+replaces and loads `current`. When ENVIRONMENT.json `constraint` names versions, every successful train is a new version
+v1, v2, ... (`current` = the latest) and becomes active; `load.py load v<k>` makes an earlier version active again,
+`eval.py --adapter v<k>` evaluates one, the next train starts from the active version, and versions are never stacked.
+Adapter composition depends on the site. Load calls are free. Train/dev calls reserve the
+site's cost estimate at admission and are charged the site's cost per call (skills/trainer/SKILL.md, Cost); the
+reservation is admission control, not a hard runtime cutoff.
+
+Successful training returns an adapter path, a skills digest, and site-provided training metadata when available.
+`training.json` in the adapter contains site-resolved parameters and artifact names. `site_sources` identifies the site
+code, not the complete external GPU/software environment. A skill edit alone does not change the installed trainer.
+
+Ending the session takes two steps: `finish.py` submits a policy and its result states exactly what will be scored
+(adapters with version and weights sha, eval-prompt hash) and a token; `finish.py --confirm TOKEN` in a later turn ends the
+session. Until then the session goes on; a `load.py` or `train.py` request in between cancels the submission (submit
+again). An unknown adapter name refuses the submission. The submission is scored even if a different stack is loaded at
+the end. If the session ends without a confirmation (budget, caps), the pending submission is scored, else the loaded
+stack. Submitted jobs finish before the score. A file named `DONE` starts the two-step finish like `finish.py` with no
+arguments: it submits the loaded stack (the file is removed); the session ends only after `finish.py --confirm TOKEN`.
+===
+# Task index
+
+Written by the environment from tasks.json, tasks/<task>/eval_prompt.txt and the session's base scores.
+
+## lift
+
+- Goal: pick up the red cube and lift it.
+- Seeds: dev seeds from 800001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 67/100 (seeds 800001-800100)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper

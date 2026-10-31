@@ -1,0 +1,65 @@
+rc=0
+=====capx dir=====
+total 1222
+drwxr-sr-x 11 root nobody  8192 Oct 30 22:55 .
+drwxr-sr-x  9 root nobody   512 Oct 30 22:55 ..
+-rw-r--r--  1 root nobody  1183 Oct 30 22:55 README.md
+-rw-r--r--  1 root nobody 14075 Oct 30 22:55 SERVING_SETUP.md
+-rw-r--r--  1 root nobody     0 Oct 30 22:55 __init__.py
+-rw-r--r--  1 root nobody  2373 Oct 30 22:55 config_of_record.yaml
+-rw-r--r--  1 root nobody  3144 Oct 30 22:55 config_of_record_v4.yaml
+-rw-r--r--  1 root nobody 56112 Oct 30 22:55 env.py
+drwxr-sr-x  2 root nobody   512 Oct 30 22:55 freeze
+-rw-r--r--  1 root nobody 12370 Oct 30 22:55 gate_lts.py
+-rw-r--r--  1 root nobody  4025 Oct 30 22:55 gate_lts.sbatch
+-rw-r--r--  1 root nobody  3204 Oct 30 22:55 gate_lts_oracle.sbatch
+-rw-r--r--  1 root nobody  7172 Oct 30 22:55 lts_snapshots.py
+drwxr-sr-x  2 root nobody   512 Oct 30 22:55 patches
+drwxr-sr-x  2 root nobody  8192 Oct 30 22:55 practice
+drwxr-sr-x  2 root nobody   512 Oct 30 22:55 preflight
+drwxr-sr-x  2 root nobody   512 Oct 30 22:55 recipe
+drwxr-sr-x  2 root nobody   512 Oct 30 22:55 recipe_r2
+drwxr-sr-x  8 root nobody  8192 Oct 30 22:55 scripts
+drwxr-sr-x  2 root nobody  8192 Oct 30 22:55 sim
+d---------  2 root root      40 Oct 31 04:03 targets
+=====capx practice=====
+…/capx/lts_snapshots.py
+…/practice/smoke_priv_oracle.py
+…/practice/e7_hooks.py
+…/practice/tinker_practice.py
+…/practice/tinker_core.py
+…/practice/e7_grader.py
+…/practice/make_units.py
+…/practice/offd_tinker.py
+…/practice/validate.py
+…/sim/svc_timing.py
+…/sim/sim_route.py
+…/sim/sim_service.pre_lock.py
+…/sim/sim_service.pre_cap.py
+…/sim/sim_service.pre_respawn.py
+…/sim/obs_guard.py
+…/sim/sim_service.pre_e7.py
+…/sim/video_sample.py
+…/sim/gate_cache.py
+…/sim/grader_void.py
+…/sim/scene_service.py
+…/sim/sim_service.py
+…/sim/svc_guard.py
+…/sim/seed_list.py
+…/sim/build_start_presets.py
+…/sim/sim_service.pre_seedfield.py
+…/sim/start_states.py
+…/sim/sim_service.single.py
+…/sim/episode_service.py
+…/sim/graspnet_shards.py
+…/sim/warm_sim_registry.py
+…/sim/snap_restore.py
+…/recipe/released_dataset.py
+…/recipe/sim_route.py
+…/recipe/sft.py
+…/recipe/check_prompt.py
+…/recipe/capx_reward.py
+…/recipe/e2e_replay.py
+…/recipe/make_data.py
+…/recipe/make_data_rows.py
+…/capx/env.py

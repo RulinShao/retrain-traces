@@ -1,0 +1,130 @@
+rc=0
+# SCOREBOARD
+
+playbook: none
+agent: local
+mode: dev
+dev seeds: from 900001
+policy: Qwen3-8B+init:79fbddb55dd8
+
+Dev-seed success count per task x adapter stack (k/n = rate): the eval with the most seeds (equal n: the newest); smaller evals are in History and the job records. Adapter cells also give the base column's rate at the same n; `untested` = no eval of that stack on that task yet.
+
+| task | base |
+|---|---|
+| lift | 89/100 = 89% |
+| stack | 57/100 = 57% |
+| nut | 0/100 = 0% |
+| wipe | 22/100 = 22% |
+| restack | 0/100 = 0% |
+| twolift | 0/100 = 0% |
+| handover | 0/100 = 0% |
+| revstack | 2/100 = 2% |
+| stackv2 | 1/100 = 1% |
+
+GPU-hours: 0.000 spent, 16.000 remaining of 16.0 (0 job(s) running)
+Expected cost per call (the estimate checked against what remains): train.py (1 step 0.47, 10 steps 0.70, 50 steps 1.70) GPU-h; eval.py per task (5 seeds 0.36, 20 seeds 0.38, 100 seeds 0.48) GPU-h
+Loaded on your serving endpoint: base
+Submitted: none (python3 finish.py submits a policy)
+
+## Adapters
+
+| name | init | steps | spec | state |
+|---|---|---|---|---|
+
+## History (latest 30)
+
+===== tasks INDEX =====
+# Task index
+
+Written by the environment from tasks.json, tasks/<task>/eval_prompt.txt and the session's base scores.
+
+## lift
+
+- Goal: pick up the red cube and lift it.
+- Seeds: dev seeds from 900001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 89/100 (seeds [900001, 900100])
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper
+
+## stack
+
+- Goal: Pick up the red cube and gently stack it on top of the green cube, then release it.
+- Seeds: dev seeds from 900001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 57/100 (seeds [900001, 900100])
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper
+- Key rules:
+  - The extent from get_object_pose(..., return_bbox_extent=True) is the FULL side length. Use extent[2]/2 for half-height.
+  - For placement orientation, reuse the grasp quaternion from sample_grasp_pose. Do NOT use the quaternion from get_object_pose (it is unreliable for orientation).
+  - Always use z_approach=0.1 when approaching an object for grasping or placing.
+  - After grasping, lift the cube to a safe height (at least +0.2m in Z) before moving laterally to the placement location.
+  - The stacking height formula is: place_z = green_center_z + green_extent[2]/2 + red_extent[2]/2
+  - Nothing should be dropped from a height. Always approach with z_approach for controlled descent.
+
+## nut
+
+- Goal: grasp and insert the `brown square nut` onto the `brown square block`.
+- Seeds: dev seeds from 900001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 0/100 (seeds [900001, 900100])
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper
+
+## wipe
+
+- Goal: wipe up the 'brown spill'.
+- Seeds: dev seeds from 900001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 22/100 (seeds [900001, 900100])
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, solve_ik, move_to_joints
+
+## restack
+
+- Goal: Gently place the red cube on top of the green cube and then open the gripper. Nothing should be dropped from a height.
+- Seeds: dev seeds from 900001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 0/100 (seeds [900001, 900100])
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper
+
+## twolift
+
+- Goal: The two arms should coordinate to lift a pot. Arm 0 should grasp handle 0, and Arm 1 should grasp handle 1. Then both arms should lift the pot up at the same height.
+- Seeds: dev seeds from 900001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 0/100 (seeds [900001, 900100])
+- APIs: get_observation, point_prompt_molmo, detect_object_owlvit, segment_sam2, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik_arm0, solve_ik_arm1, move_to_joints_both, move_to_joints_arm0, move_to_joints_arm1, open_gripper_arm0, close_gripper_arm0, open_gripper_arm1, close_gripper_arm1
+
+## handover
+
+- Goal: Arm 0 should pick up the hammer, lift it, and hand it over to Arm 1. Arm 1 should then grasp the hammer handle (not hammer head). The z-value of hammer must be between 0.15 and 0.20 during the handover to count as a success.
+- Seeds: dev seeds from 900001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 0/100 (seeds [900001, 900100])
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik_arm0, solve_ik_arm1, move_to_joints_both, move_to_joints_arm0, move_to_joints_arm1, open_gripper_arm0, close_gripper_arm0, open_gripper_arm1, close_gripper_arm1
+
+## revstack
+
+- Goal: Pick up the green cube and gently stack it on top of the red cube, then release it.
+- Seeds: dev seeds from 900001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 2/100 (seeds [900001, 900100])
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper
+- Key rules:
+  - Always use z_approach=0.1 when approaching an object for grasping or placing.
+  - After grasping, lift the cube to a safe height (at least +0.2m in Z) before moving laterally to the placement location.
+  - The stacking height formula is: place_z = red_center_z + red_extent[2]/2 + green_extent[2]/2
+  - Nothing should be dropped from a height. Always approach with z_approach for controlled descent.
+
+## stackv2
+
+- Goal: Pick up the red cube and gently stack it on top of the green cube, then release it.
+- Seeds: dev seeds from 900001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 1/100 (seeds [900001, 900100])
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper
+- Key rules:
+  - Always use z_approach=0.1 when approaching an object for grasping or placing.
+  - After grasping, lift the cube to a safe height (at least +0.2m in Z) before moving laterally to the placement location.
+  - The stacking height formula is: place_z = green_center_z + green_extent[2]/2 + red_extent[2]/2
+  - Nothing should be dropped from a height. Always approach with z_approach for controlled descent.
+===== ls tasks =====
+INDEX.md
+handover
+lift
+nut
+restack
+revstack
+stack
+stackv2
+twolift
+wipe

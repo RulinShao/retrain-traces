@@ -1,0 +1,123 @@
+rc=0
+If you finish now, the scored policy is: base (`python3 finish.py` submits the loaded stack)
+===
+# Hints pool (source for PLAYBOOK v17a/b/c)
+
+What this is: a broad pool of strategy HINTS to try in a retrain session, drawn from the traces behind EVIDENCE.md, the
+tool docs (`skills/train_grpo/`, `skills/write_practice/`, `skills/reward_check/`, `skills/decompose/`, the B2 appendix
+`retrain_min/tool_skills_b2/SKILL_APPENDIX.md`) and the RL/agent literature. The three v17 playbooks each select a subset
+of these, emphasising a different strategy family, so they are diverse by construction and can be compared by hidden score
+(losing items retire, winners stay). This file is reference only; it is not inlined.
+
+Rules every hint follows (Rulin, #10, 10-24/10-29):
+- A hint is an OBSERVATION with the condition it held under + an ACTION worth trying + HOW TO CHECK IT CHEAPLY. Never an
+  absolute ("never / always / confirmed -> do not"). The reader may follow or ignore it.
+- NUMBERS stay in EVIDENCE.md; a hint names the EVIDENCE section (e.g. `#decomposition`), it does not bake a metric.
+- FACTS about this session/API stay in the tool docs; a hint references them ("tools: ..."), it does not restate them as
+  experience.
+- The playbook is OPTIONAL and inlined only via `--skills`; it is never a guard or instruction.
+
+EVIDENCE sections referenced below: `#shaped-0pct`, `#hidden`, `#shaped-side-effects`, `#pair-collapse`,
+`#v15-moved-numbers`, `#fair-sc-3-trace`, `#hyak-trace`, `#pin3-trace`, `#decomposition`.
+
+---
+
+## A. Subtask with your own verifier + start state (the B2 decomposition recipe)
+
+- **A1 (reframes v16 item 1).** Shaping the simulator's privileged/staged reward has not lifted a base-0 task in the
+  recorded runs (EVIDENCE #shaped-0pct, #hyak-trace); of the practice calls that defined a `reward.py`, most shaped that
+  privileged signal and none authored a new sub-goal CHECK or used a start preset (EVIDENCE #decomposition). A real
+  subtask is largely untested. Try one small call: your own `reward.py` scoring a sub-goal from the program's PRINTED
+  observations (`log_tail`), started from your own prefix program, and count `task_completed` on a few seeds before
+  scaling.
+- **A2.** On hidden cells the privileged reward modes (`task_completed`, `shaped`) are refused and only `reward(result)`
+  over `log_tail` is accepted (tools: B2 appendix; `fairsc3_jobs.py` fails closed). `log_tail` is the only observation
+  your reward sees, so a silent program scores nothing. Try making programs PRINT the `get_observation()` values and the
+  object/gripper poses your sub-goal depends on (before/after each move); check the spread with `rollout.py --reward FILE`
+  before you train.
+- **A3.** A sub-goal lifted the tail only when it was REACHABLE from the chosen start (EVIDENCE #decomposition: restack
+  trained from a lifted preset raised completions; an unreachable aim did not). Before training a sub-goal, roll out a
+  handful from your start program and confirm some rollouts reach the sub-goal state at all; if none do, pick a closer
+  start or an easier sub-goal.
+- **A4.** A sub-goal BEYOND the policy stayed flat (0 completions, 0 nonzero reward) and the adapter went net-negative on
+  other tasks (forgetting) (EVIDENCE #decomposition). If a few steps show an all-zero group, treat it as beyond-reach and
+  re-pick rather than training longer; re-measure the earlier skills to catch forgetting.
+- **A5.** The `decompose` helper names the failing step correctly, but the practice tasks that actually LEARN are the ones
+  with a nonzero base rate (tools: decompose SKILL.md / E11). Try the helper for ideas (free, one LLM call, ~10/session);
+  prefer the decomposed sub-goal that already shows a few completions from your start.
+- **A6.** `reward_check` drops a reward that pays on an untouched or knocked-over scene, or never pays on a checked expert
+  success (tools). Try running `reward_check` on your `reward.py` before you pay for training; a reward that scores every
+  rollout the same gives GRPO nothing to learn from.
+
+## B. Curricula / training-order
+
+- **B1.** The biggest single-task gain came from the highest-HEADROOM task (low base, but real signal), not from pushing
+  already-strong tasks (EVIDENCE #pin3-trace, #fair-sc-3-trace item 10). Try ranking the set by headroom x "base shows
+  some completions" and committing early to the top one; check base completions cheaply first.
+- **B2.** Stacking skills in sequence: a long 2nd-skill train eroded the 1st (EVIDENCE #pin3-trace g08). Try keeping each
+  later train SHORT and re-measuring the earlier skill afterward; cancelling keeps the last saved step.
+- **B3.** Training one task shifts others up or down, and one adapter can carry a tax on a sibling (a stack adapter
+  over-fit the red cube and taxed revstack; EVIDENCE #pin3-trace, #shaped-side-effects, #fair-sc-3-trace). Try measuring a
+  candidate on the task it most likely taxes before committing it.
+- **B4.** A mixed start-state / depth curriculum kept within-group variance alive where from-scratch collapsed (EVIDENCE
+  #decomposition: a per-group mixture of lifted/grasped/scratch spread scores across depths and climbed). On a task that
+  trains from a preset but gives 0 from-scratch, try a start-state MIXTURE and watch whether group variance stays nonzero.
+- **B5.** The preset-trained gain did not transfer to from-scratch for free (EVIDENCE #decomposition): the policy
+  hill-climbs to the easiest sub-goal and variance collapses past the first barrier. If you train from a preset, plan a
+  schedule that shifts starts toward scratch and re-check from-scratch completions, rather than assuming the skill
+  transfers to the eval's own start.
+
+## C. Data / reward mixtures
+
+- **C1.** Keeping a mixture of start depths per GRPO group kept a gradient alive where a single hard start gave none
+  (EVIDENCE #decomposition). Try mixing start states within a group so some rollouts land in a scorable region; check that
+  staged_mean climbs and variance does not collapse to ~0.
+- **C2.** The reward shape matters: a full-chain staged reward (scores spread across depths) kept variance; a binary
+  all-or-nothing reward on a 0-base task gave a flat all-zero group (EVIDENCE #decomposition, #shaped-0pct). On a sparse
+  task, try a reward with graded intermediate credit over the printed observations so rollouts differ; check the per-step
+  reward spread.
+- **C3.** One adapter meant to help several tasks risks regressing the one you never evaluated (EVIDENCE #fair-sc-3-trace
+  item 2: a global adapter regressed an eval-only task to 0). If one adapter will serve several tasks, try evaluating it on
+  each of them, including eval-only / base-0 ones, before shipping.
+
+## D. SFT / self-distillation on your own material
+
+- **D1.** The trainer has a second objective, `sdft` (self-distillation of a text skill into the weights): it needs no
+  reward and gives a signal even on a task with no successes (tools: train_grpo "Objectives"). On a base-0 task where GRPO
+  has no gradient, try writing a short text skill describing the maneuver and `sdft`-ing it in, then measure whether
+  completions appear. Untested here.
+- **D2.** Objectives chain through `--init` (sdft then grpo, or grpo then sdft) (tools). Try `sdft` to seed a behaviour,
+  then a short `grpo` train to sharpen it on the reward; compare against grpo-from-base on the same budget.
+- **D3.** `sdft` runs its max steps (the reward-curve stop options do not apply) and records `kl_curve`, not a reward
+  (tools). If you sdft, budget the fixed step count up front and read `kl_curve` (student-minus-teacher logprob) for
+  convergence instead of expecting an early stop.
+- Note: "SFT on your own filtered rollouts" from the literature maps, in this harness, to distilling a text skill (your
+  own best written explanation) via `sdft`; there is no separate filtered-rollout SFT tool, so frame it as D1/D2.
+
+## E. Chaining adapters (vs loading pairs)
+
+- **E1.** Chaining (train B continuing from A's adapter via `--init <A>`) kept BOTH skills where a fresh-adapter PAIR
+  dropped one (EVIDENCE #pin3-trace confound-free cell; #fair-sc-3-trace c09 chain topped the batch). To combine two
+  skills, try a chain rather than two fresh adapters loaded together, and compare chain vs pair in one batch.
+- **E2.** Pairs combined well AND badly, and collapse is adapter-specific (EVIDENCE #pair-collapse: 8B pairs collapsed
+  under an init-adapter confound; one 27B dev pair held, another dropped a component). If you do load a pair, try
+  evaluating each adapter ALONE and the pair in the same batch so a collapse is visible before you ship.
+- **E3.** A long 2nd train on a chain eroded the 1st skill (EVIDENCE #pin3-trace g08). Keep chained trains short and
+  re-measure the earlier skill; if it dropped, roll back a step (cancel keeps the last saved step).
+- **E4.** `finish.py` can ship a DIFFERENT stack per task (tools: `--per-task TASK=STACK`). Rather than forcing one global
+  adapter onto all tasks, try shipping each task its own best-checked stack (base for the rest); confirm the final
+  per-task assignment on every task.
+
+## F. Budget allocation across the set
+
+- **F1.** Planning the budget up front, reserving checking evals and loads, let early commitment to signal-bearing tasks
+  pay off (v16 item 9); a train is refused if the budget cannot pay (tools). Try writing the plan first: reserve rollouts
+  for checks, allocate the rest to top-headroom tasks.
+- **F2.** Sessions stopped with budget left that could have fit another train+checks (EVIDENCE #hyak-trace item 11 /
+  header). Before ending, try checking whether a short second train on another signal-bearing task still fits; a second
+  train has added to the first (v16 item 11).
+- **F3.** Queues took hours; many short re-polls wasted attention versus one long wait (EVIDENCE #hyak-trace item 7).
+  Submit the jobs you want together, then wait in long windows (waiting is not charged).
+- **F4.** Reference scores from other sessions are not this session's targets (EVIDENCE header; #hyak-trace header: a
+  session stopped citing another's hidden total). Spend against your own measured headroom, not a remembered number.
+

@@ -1,0 +1,6 @@
+{
+  "task": "lift",
+  "name": "lift1",
+  "batch": 8,
+  "steps": 30
+}

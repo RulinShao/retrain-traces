@@ -1,0 +1,32 @@
+# SCOREBOARD
+
+playbook: none
+agent: local
+mode: dev
+dev seeds: from 800001
+policy: Qwen3.8-27B
+
+Dev-seed success count per task x adapter stack (k/n = rate): the eval with the most seeds (equal n: the newest); smaller evals are in History and the job records. Adapter cells also give the base column's rate at the same n; `untested` = no eval of that stack on that task yet.
+
+| task | base | s1 |
+|---|---|---|
+| stack | 51/100 = 51% | 71/100 = 71% (base 51% = 51.0/100) |
+
+GPU-hours: 7.318 spent, 0.682 remaining of 8.0 (0 job(s) running)
+Expected cost per call (the estimate checked against what remains): train.py (1 step 2.76, 10 steps 4.03, 50 steps 9.65) GPU-h; eval.py per task (5 seeds 0.36, 20 seeds 0.38, 100 seeds 0.48) GPU-h
+Loaded on your serving endpoint: s1
+Submitted: base + s1 (sha 2b4552e3e30d) (turn 64, token 2b454c; confirmed in turn 65)
+
+## Adapters
+
+| name | init | steps | spec | state |
+|---|---|---|---|---|
+| s1 | base | 30 | specs/s1.json | trained |
+
+## History (latest 30)
+
+- train s1 (init base, steps 30): trained
+- eval s1 on stack: 71/100
+- load s1
+- finish: submitted s1 (token 2b454c, job 48)
+- finish: confirmed s1 (token 2b454c)

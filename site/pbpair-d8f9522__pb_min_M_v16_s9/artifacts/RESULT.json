@@ -1,0 +1,32 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "eval_failed: InfraError('eval job 42575858: n_scored 99/100 void 0 http_error 0')",
+ "gpu_hours": 17.996,
+ "final_score": null,
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 17.6649,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "0ce443",
+  "how": "default-loaded-stack",
+  "turn": 18,
+  "confirmed": true,
+  "confirmed_turn": 19,
+  "ended_by": "DONE",
+  "note": null,
+  "policy": "base + wipe30 (sha 69dff07c5a2f) + stack30 (sha 0455b7a12388)"
+ },
+ "skills_version": "7b74a5fa-a57a4058",
+ "initial_skills_digest": "664c7af4ffa10e9d81f46f46045cdb9aa81bfd4f9906f11e2f7f5756f124d98e",
+ "artifacts": {
+  "registry": "…/pbpair-d8f9522/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

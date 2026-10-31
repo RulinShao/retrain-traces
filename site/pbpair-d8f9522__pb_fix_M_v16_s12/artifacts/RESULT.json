@@ -1,0 +1,49 @@
+{
+ "status": "DONE",
+ "turns": 89,
+ "gpu_hours": 15.676,
+ "final_score": {
+  "loaded": "s1+w1",
+  "per_task": {
+   "lift": 54,
+   "stack": 63,
+   "nut": 0,
+   "wipe": 81,
+   "restack": 0,
+   "twolift": 0,
+   "handover": 1,
+   "revstack": 0,
+   "stackv2": 6
+  },
+  "total": 205,
+  "n_per_task": 100,
+  "submission": "33bb08",
+  "confirmed": true
+ },
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 17.9494,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "33bb08",
+  "how": "default-loaded-stack",
+  "turn": 87,
+  "confirmed": true,
+  "confirmed_turn": 88,
+  "ended_by": "DONE",
+  "note": "Submitting stack s1,w1 (stack-tuned + wipe-tuned, rank-concat sum). Dev evidence for THIS stack: job 53 stack 61/100 (base 51, +10 pair synergy); job 55 lift 53/100 (base 67); job 60 wipe 39/50=78% (base 16). Pair dominates w1-alone (job 48 wipe 77/100, job 49 stack 51/100, job 51 lift 53/100, job 66 lift 23/50) on stack and ties wipe/lift. s1-alone job 52 stack 53/100. Untested (base ~0-2%): nut, restack, twolift, handover, revstack, stackv2. Expected hidden total ~196 vs base 138 / w1-alone ~183. Key evals: 53, 55, 60.",
+  "policy": "base + s1 (sha 0fd3656d8e01) + w1 (sha e92f6d6e0a16)"
+ },
+ "skills_version": "7b74a5fa-a57a4058",
+ "initial_skills_digest": "664c7af4ffa10e9d81f46f46045cdb9aa81bfd4f9906f11e2f7f5756f124d98e",
+ "artifacts": {
+  "registry": "…/pbpair-d8f9522/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

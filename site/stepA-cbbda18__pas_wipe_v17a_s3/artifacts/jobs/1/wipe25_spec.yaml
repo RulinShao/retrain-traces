@@ -1,0 +1,8 @@
+task: wipe
+name: wipe25
+steps: 25
+batch: 8
+lr: 2.0e-5
+reward: reward_wipe.py
+time: "01:50:00"
+note: "Concrete procedure: import numpy as np; obs=get_observation(); image=obs["robot0_robotview"]["images"]["rgb"]; masks=segment_sam3_text_prompt(image,"brown spill") (else segment_sam3_text_prompt(image,"spill")); keep the highest-score mask with box width and height at least 10 pixels and print('WV: mask box=' + str(m["box"]) + ' score=' + str(float(m["score"]))); use the camera intrinsics and pose_mat to unproject the mask's pixel box corners to world points (back-projection: normalize pixel by fx,fy+cx,cy, scale by depth) and take the min/max x and y of the points that have finite small depth; the wipe grid is 4x4 points inside those world x/y bounds at z=0.0 with no offset; for every grid point call solve_ik(np.array([x,y,0.0]),np.array([1.0,0.0,0.0,0.0])) and move_to_joints on the result, moving only one small step between points, and after each print('WV: wipe x=%.3f y=%.3f z=%.3f q=%s j=%s' % (x,y,0.0,str([1.0,0.0,0.0,0.0]),str(list(joints)))); also print('WV: grid center=%s size=%s' % (str(center),str(size))) once, and at the very end print('WV: done moves=<n>')."

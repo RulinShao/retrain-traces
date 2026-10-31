@@ -1,0 +1,49 @@
+rc=0
+{"id": 1, "kind": "train", "args": {"spec": "train_lift_20.json"}, "state": "done", "result": {"adapter": "lift20", "path": "adapters/lift20", "state": "trained", "skills_digest": "2183de583536dbaeb94e225f8c35bee89c66f2cb995a01283990304f2e05e3d7", "training": "adapters/lift20/training.json", "sha": "5500391fed3a", "jobs": ["42603650002"], "policy": "Qwen3.8-27B", "simulator": "7fda1bef602c", "config": {"task": "lift", "steps": 20, "lr": 2e-05, "batch": 8, "seed_start": 810001, "reward": "task_completed", "time": "07:05:00"}, "timing_s": {"queued": null, "run": null, "steps": 5467, "outside_steps": null}, "step_facts": {"steps": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "zero_variance_frac": [0.0, 0.0, 0.0, 0.0, 0.0, 0.125, 0.0, 0.0, 0.0, 0.125, 0.0, 0.25, 0.0, 0.25, 0.0, 0.125, 0.0, 0.25, 0.375, 0.125], "failure_stages": {"program": [14, 18, 8, 2, 3, 3, 4, 0, 1, 1, 0, 2, 0, 0, 1, 1, 0, 2, 0, 0], "task": [24, 18, 17, 30, 21, 13, 24, 16, 23, 14, 16, 12, 16, 15, 15, 14, 17, 10, 9, 11]}}}, "skills_digest": "2183de583536dbaeb94e225f8c35bee89c66f2cb995a01283990304f2e05e3d7"}
+{"id": 2, "kind": "wait", "args": {"ids": ["all"], "max": "1h"}, "state": "done", "result": "no job finished in 1h; job 1 (train): running"}
+{"id": 3, "kind": "wait", "args": {"ids": ["all"], "max": "1h"}, "state": "done", "result": "no job finished in 1h; job 1 (train): running"}
+{"id": 4, "kind": "wait", "args": {"ids": ["all"], "max": "1h"}, "state": "done", "result": "no job finished in 1h; job 1 (train): running"}
+{"id": 5, "kind": "wait", "args": {"ids": ["all"], "max": "1h"}, "state": "done", "result": "no job finished in 1h; job 1 (train): running"}
+{"id": 6, "kind": "wait", "args": {"ids": ["all"], "max": "1h"}, "state": "done", "result": "no job finished in 1h; job 1 (train): running"}
+{"id": 7, "kind": "wait", "args": {"ids": ["all"], "max": "1h"}, "state": "done", "result": "no job finished in 1h; job 1 (train): running"}
+{"id": 8, "kind": "wait", "args": {"ids": ["all"], "max": "1h"}, "state": "done", "result": "no job finished in 1h; job 1 (train): running"}
+{"id": 9, "kind": "wait", "args": {"ids": ["all"], "max": "1h"}, "state": "done", "result": "no job finished in 1h; job 1 (train): running"}
+{"id": 10, "kind": "wait", "args": {"ids": ["all"], "max": "1h"}, "state": "done", "result": "waited for 1 job(s)"}
+{"id": 11, "kind": "load", "args": {"verb": "load", "names": ["lift20"]}, "state": "done", "result": "loaded: lift20 at http://127.0.0.1:30438/v1 (lift20 sha 5500391fed3a)"}
+{"id": 12, "kind": "eval", "args": {"adapter": "lift20", "task": "lift", "seeds": 100}, "state": "done", "result": {"successes": 84, "n": 100, "rate": 0.84, "task": "lift", "seeds": [800001, 800100], "adapters": [{"name": "lift20", "sha": "5500391fed3a"}], "base": "67/100 = 67% (67.0/100)", "jobs": ["42606840001"], "simulator": null, "decoding": {"model": null, "think": null}, "timing_s": {"queued": null, "run": null}}}
+{"id": 13, "kind": "wait", "args": {"ids": ["all"], "max": "1h"}, "state": "done", "result": "no job finished in 1h; job 12 (eval): running"}
+{"id": 14, "kind": "wait", "args": {"ids": ["all"], "max": "1h"}, "state": "done", "result": "no job finished in 1h; job 12 (eval): running"}
+{"id": 15, "kind": "wait", "args": {"ids": ["all"], "max": "1h"}, "state": "done", "result": "waited for 1 job(s)"}
+If you finish now, the scored policy is: base + lift20 (sha 5500391fed3a) (`python3 finish.py` submits the loaded stack)
+
+=== SCOREBOARD ===
+# SCOREBOARD
+
+playbook: none
+agent: local
+mode: dev
+dev seeds: from 800001
+policy: Qwen3.8-27B
+
+Dev-seed success count per task x adapter stack (k/n = rate): the eval with the most seeds (equal n: the newest); smaller evals are in History and the job records. Adapter cells also give the base column's rate at the same n; `untested` = no eval of that stack on that task yet.
+
+| task | base | lift20 |
+|---|---|---|
+| lift | 67/100 = 67% | 84/100 = 84% (base 67% = 67.0/100) |
+
+GPU-hours: 5.912 spent, 2.088 remaining of 8.0 (0 job(s) running)
+Expected cost per call (the estimate checked against what remains): train.py (1 step 2.76, 10 steps 4.03, 50 steps 9.65) GPU-h; eval.py per task (5 seeds 0.36, 20 seeds 0.38, 100 seeds 0.48) GPU-h
+Loaded on your serving endpoint: lift20
+Submitted: none (python3 finish.py submits a policy)
+
+## Adapters
+
+| name | init | steps | spec | state |
+|---|---|---|---|---|
+| lift20 | base | 20 | train_lift_20.json | trained |
+
+## History (latest 30)
+
+- train lift20 (init base, steps 20): trained
+- load lift20
+- eval lift20 on lift: 84/100

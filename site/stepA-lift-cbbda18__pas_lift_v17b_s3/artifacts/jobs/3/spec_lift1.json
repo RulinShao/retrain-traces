@@ -1,0 +1,8 @@
+{
+  "task": "lift",
+  "name": "lift15",
+  "steps": 15,
+  "batch": 8,
+  "reward": "task_completed",
+  "time": "06:00:00"
+}

@@ -1,0 +1,9 @@
+{
+  "task": ["lift", "stack", "wipe", "nut", "restack"],
+  "name": "a5",
+  "steps": 20,
+  "batch": 10,
+  "reward": "shaped",
+  "seed_start": 810001,
+  "lr": 2e-5
+}

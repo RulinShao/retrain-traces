@@ -1,0 +1,326 @@
+rc=0
+=== adapters/lift1 ===
+total 354051
+drwxr-sr-x 2 root nobody       512 Oct 30 08:18 .
+drwxr-sr-x 3 root nobody       512 Oct 30 08:18 ..
+-rw-r--r-- 1 root nobody       549 Oct 30 08:18 adapter_config.json
+-rw------- 2 root nobody 353461856 Oct 30 08:18 adapter_model.safetensors
+-rw-r--r-- 1 root nobody       312 Oct 30 08:18 call.json
+-rw-r--r-- 1 root nobody      6258 Oct 30 08:18 practice_prompts.json
+-rw-r--r-- 1 root nobody   8471682 Oct 30 08:18 practice_rows.jsonl
+-rw-r--r-- 1 root nobody      3885 Oct 30 08:18 rewards.json
+-rw-r--r-- 1 root nobody       707 Oct 30 08:18 training.json
+=== rewards.json ===
+[
+    {
+        "step": 1,
+        "score_mean": 0.546875,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 10,
+            "task": 19
+        }
+    },
+    {
+        "step": 2,
+        "score_mean": 0.609375,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 7,
+            "task": 18
+        }
+    },
+    {
+        "step": 3,
+        "score_mean": 0.53125,
+        "zero_variance_frac": 0.125,
+        "failure_stages": {
+            "program": 5,
+            "task": 25
+        }
+    },
+    {
+        "step": 4,
+        "score_mean": 0.546875,
+        "zero_variance_frac": 0.125,
+        "failure_stages": {
+            "program": 1,
+            "task": 28
+        }
+    },
+    {
+        "step": 5,
+        "score_mean": 0.640625,
+        "zero_variance_frac": 0.125,
+        "failure_stages": {
+            "program": 5,
+            "task": 18
+        }
+    },
+    {
+        "step": 6,
+        "score_mean": 0.703125,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 1,
+            "task": 18
+        }
+    },
+    {
+        "step": 7,
+        "score_mean": 0.625,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 2,
+            "task": 22
+        }
+    },
+    {
+        "step": 8,
+        "score_mean": 0.640625,
+        "zero_variance_frac": 0.125,
+        "failure_stages": {
+            "program": 1,
+            "task": 22
+        }
+    },
+    {
+        "step": 9,
+        "score_mean": 0.765625,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 1,
+            "task": 14
+        }
+    },
+    {
+        "step": 10,
+        "score_mean": 0.78125,
+        "zero_variance_frac": 0.25,
+        "failure_stages": {
+            "program": 2,
+            "task": 12
+        }
+    },
+    {
+        "step": 11,
+        "score_mean": 0.734375,
+        "zero_variance_frac": 0.125,
+        "failure_stages": {
+            "program": 2,
+            "task": 15
+        }
+    },
+    {
+        "step": 12,
+        "score_mean": 0.78125,
+        "zero_variance_frac": 0.125,
+        "failure_stages": {
+            "task": 14
+        }
+    },
+    {
+        "step": 13,
+        "score_mean": 0.734375,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 2,
+            "task": 15
+        }
+    },
+    {
+        "step": 14,
+        "score_mean": 0.734375,
+        "zero_variance_frac": 0.125,
+        "failure_stages": {
+            "program": 1,
+            "task": 16
+        }
+    },
+    {
+        "step": 15,
+        "score_mean": 0.75,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 4,
+            "task": 12
+        }
+    },
+    {
+        "step": 16,
+        "score_mean": 0.796875,
+        "zero_variance_frac": 0.375,
+        "failure_stages": {
+            "program": 2,
+            "task": 11
+        }
+    },
+    {
+        "step": 17,
+        "score_mean": 0.828125,
+        "zero_variance_frac": 0.125,
+        "failure_stages": {
+            "program": 2,
+            "task": 9
+        }
+    },
+    {
+        "step": 18,
+        "score_mean": 0.875,
+        "zero_variance_frac": 0.5,
+        "failure_stages": {
+            "task": 8
+        }
+    },
+    {
+        "step": 19,
+        "score_mean": 0.828125,
+        "zero_variance_frac": 0.25,
+        "failure_stages": {
+            "program": 1,
+            "task": 10
+        }
+    },
+    {
+        "step": 20,
+        "score_mean": 0.8125,
+        "zero_variance_frac": 0.125,
+        "failure_stages": {
+            "program": 3,
+            "task": 9
+        }
+    },
+    {
+        "step": 21,
+        "score_mean": 0.9375,
+        "zero_variance_frac": 0.625,
+        "failure_stages": {
+            "task": 4
+        }
+    },
+    {
+        "step": 22,
+        "score_mean": 0.921875,
+        "zero_variance_frac": 0.5,
+        "failure_stages": {
+            "program": 1,
+            "task": 4
+        }
+    },
+    {
+        "step": 23,
+        "score_mean": 0.921875,
+        "zero_variance_frac": 0.375,
+        "failure_stages": {
+            "program": 2,
+            "task": 3
+        }
+    },
+    {
+        "step": 24,
+        "score_mean": 0.890625,
+        "zero_variance_frac": 0.25,
+        "failure_stages": {
+            "program": 3,
+            "task": 4
+        }
+    },
+    {
+        "step": 25,
+        "score_mean": 0.921875,
+        "zero_variance_frac": 0.625,
+        "failure_stages": {
+            "program": 1,
+            "task": 4
+        }
+    },
+    {
+        "step": 26,
+        "score_mean": 0.8125,
+        "zero_variance_frac": 0.25,
+        "failure_stages": {
+            "task": 12
+        }
+    },
+    {
+        "step": 27,
+        "score_mean": 0.90625,
+        "zero_variance_frac": 0.375,
+        "failure_stages": {
+            "task": 6
+        }
+    },
+    {
+        "step": 28,
+        "score_mean": 0.890625,
+        "zero_variance_frac": 0.375,
+        "failure_stages": {
+            "program": 1,
+            "task": 6
+        }
+    },
+    {
+        "step": 29,
+        "score_mean": 0.90625,
+        "zero_variance_frac": 0.375,
+        "failure_stages": {
+            "task": 6
+        }
+    },
+    {
+        "step": 30,
+        "score_mean": 0.9375,
+        "zero_variance_frac": 0.625,
+        "failure_stages": {
+            "program": 2,
+            "task": 2
+        }
+    }
+]
+=== call.json ===
+{
+    "jobs": [
+        "42603652002"
+    ],
+    "gpu_hours": 6.838,
+    "gpu_hours_actual": 5.1994,
+    "train_gpus": 2,
+    "lora_b": [
+        304,
+        304
+    ],
+    "sim_seeds": [
+        810001,
+        811921
+    ],
+    "adapter": "…/train_42603652002/peft_rmin_lift1_step30"
+}
+=== training.json ===
+{
+    "resolved_spec": {
+        "steps": 30,
+        "lr": 2e-05,
+        "batch": 8,
+        "seed_start": 810001,
+        "reward": "task_completed",
+        "init": null,
+        "start_preset": null,
+        "start_mix": null,
+        "note": null,
+        "goal": null,
+        "time": null,
+        "task": "lift",
+        "name": "lift1"
+    },
+    "artifacts": [
+        "rewards.json",
+        "call.json"
+    ],
+    "site_sources": {
+        "hyak.py": "31819fef4cbc98060029f120ae0420d98ea5388d0e2cb76cf3b0cc3cf6526a85",
+        "fairsc3.py": "ff7d712225c71c63b7ac7682331ff278de890d0c9c41db7367ce5e9843528913",
+        "base.py": "63e1baf9a61680a3fce2e25b697f68fa732932f45977c840e891265570085722",
+        "hyak_jobs.py": "a7aa23b4cc3f601d8d10718d1ed022c03904130d2618778348984d51be3b1209"
+    },
+    "policy_model": "Qwen3.8-27B"
+}

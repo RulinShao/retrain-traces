@@ -1,0 +1,124 @@
+rc=0
+=== system ===
+You are a helpful assistant that generates Python code to directly solve the task.
+
+=== user ===
+
+You are controlling a Franka Emika robot with API described below.
+Goal: wipe up the 'brown spill'.
+A sponge is already attached to your gripper/end-effector.
+The table surface height is exactly z = 0.0 m, and wiping should be performed at that height (no extra offset).
+Use the spill extents to inform the min/max x and y bounds of wiping motions.
+Avoid large wiping motions since large deltas between inverse kinematics solutions may not guarantee optimal trajectories.
+A sponge is already attached to the end-effector, and you should use a downward-facing orientation (0,0,1,0 wxyz) for wiping.
+You may write python code comments for reasoning but ONLY write the executable Python code and do not write it in code fences.
+The functions (APIs) below are already imported to the environment. If you want to use numpy, you need to import it explicitly.
+
+APIs:
+
+get_observation() -> dict[str, typing.Any]
+  Doc:
+    Get the observation of the environment.
+    Returns:
+        observation:
+            A dictionary containing the observation of the environment.
+            The dictionary contains the following keys:
+            - ["robot0_robotview"]["images"]["rgb"]: Current color camera image as a numpy array of shape (H, W, 3), dtype uint8.
+            - ["robot0_robotview"]["images"]["depth"]: Current depth camera image as a numpy array of shape (H, W), dtype float32.
+            - ["robot0_robotview"]["intrinsics"]: Camera intrinsic matrix as a numpy array of shape (3, 3), dtype float64.
+            - ["robot0_robotview"]["pose_mat"]: Camera extrinsic matrix as a numpy array of shape (4, 4), dtype float64.
+
+point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+  Doc:
+    Use Molmo to point to a coordinate in the image based on a text prompt.
+    
+    Args:
+        image: np.ndarray: The RGB image to process. Shape: (H, W, 3), dtype uint8.
+        text_prompt: str: The text prompt to point to.
+    
+    Returns:
+        dict[str, tuple[int | None, int | None]]: Pixel coordinates for each
+        object query; (None, None) if parsing failed.
+
+segment_sam3_text_prompt(rgb: numpy.ndarray, text_prompt: str) -> list[dict[str, typing.Any]]
+  Doc:
+    Run SAM3 segmentation on an RGB image conditioned on a text prompt.
+    
+    Args:
+        rgb:
+            RGB image array of shape (H, W, 3), dtype uint8.
+        text_prompt:
+            Text prompt for SAM3 segmentation.
+    
+    Returns:
+        masks:
+            A list of dictionaries. Each dict may contain:
+    
+              - "mask":  np.ndarray of shape (H, W), dtype bool,
+                          where True means the pixel belongs to the instance.
+              - "box": list [x1, y1, x2, y2] in pixel coordinates.
+              - "score": float confidence score.
+
+segment_sam3_point_prompt(rgb: numpy.ndarray, point_coords: tuple[float, float]) -> list[dict[str, typing.Any]]
+  Doc:
+    Run SAM3 segmentation on an RGB image, optionally conditioned on an image coordinate point prompt.
+    
+    Args:
+        rgb:
+            RGB image array of shape (H, W, 3), dtype uint8.
+        point_coords:
+            (x, y) pixel coordinates of the point prompt.
+    
+    Returns:
+        masks:
+            A list of dictionaries. Each dict may contain:
+    
+              - "mask":  np.ndarray of shape (H, W), dtype bool,
+                          where True means the pixel belongs to the instance.
+              - "score": float confidence score.
+
+solve_ik(position: numpy.ndarray, quaternion_wxyz: numpy.ndarray) -> numpy.ndarray
+  Doc:
+    Solve inverse kinematics for the panda_hand link.
+    
+    Args:
+        position:
+            Target position in world frame.
+            Shape: (3,), dtype float64.
+        quaternion_wxyz:
+            Target orientation as a unit quaternion in world frame.
+            Shape: (4,), [w, x, y, z], dtype float64.
+    
+    Returns:
+        joints:
+            np.ndarray of shape (7,), dtype float64.
+            Joint angles for the 7 DoF Franka arm.
+
+move_to_joints(joints: numpy.ndarray) -> None
+  Doc:
+    Move the robot to a given joint configuration in a blocking manner.
+    
+    Args:
+        joints:
+            Target joint angles for the 7-DoF Franka arm.
+            Shape: (7,), dtype float64.
+    
+    Returns:
+        None
+=====PLAYBOOK=====
+# Playbook v17b (bet: compose what already trains — chain + order + budget)
+version: 17b (2026-10-29; diverse-hints arm #9/#10)
+Hints to TRY, not rules: observation + what to try + a cheap check. Numbers in EVIDENCE.md (not targets); facts in tool docs. Scored vs other arms; losers retire. Edits -> playbook_suggestions.md.
+
+Hints to try:
+1. Shaping the privileged reward hasn't lifted a base-0 task (EVIDENCE #shaped-0pct). Spend first where completions already exist; treat a base-0 task as "try one small own-verifier subtask from a reachable start" (EVIDENCE #decomposition), not a place to pour steps.
+2. The biggest gain came from the highest-HEADROOM task (low base, real signal), not the strong ones (EVIDENCE #pin3-trace, #fair-sc-3-trace). Rank by headroom x has-signal; commit early to the top.
+3. To combine skills, CHAIN (train B from A via --init A), not two fresh adapters; a chain kept both where a pair dropped one (EVIDENCE #pin3-trace, #fair-sc-3-trace c09). Compare chain vs pair in one batch.
+4. Pair collapse is adapter-specific (EVIDENCE #pair-collapse). If you load a pair, eval each adapter ALONE and the pair together so a collapse shows before shipping.
+5. A long 2nd train on a chain eroded the 1st skill (EVIDENCE #pin3-trace). Keep later trains short; re-measure the earlier skill; cancel keeps the last saved step.
+6. finish.py ships a different stack per task (tools --per-task). Rather than one global adapter (which regressed an eval-only task, EVIDENCE #fair-sc-3-trace), give each task its best-checked stack and confirm the assignment on every task.
+7. Plan the budget up front, reserving checks and loads (v16 item 9); a train is refused if the budget can't pay (tools). Commit early to signal-bearing tasks.
+8. Sessions stopped with budget left for a train+checks (EVIDENCE #hyak-trace). Before ending, check if a short second train on another signal task still fits; it added to the first.
+9. Gains flatten; past the peak a run lost its gain and hurt others (v16 item 5, EVIDENCE #hyak-trace). Read the curve; set --patience/--target-success; cancel if it's falling.
+10. Queues took hours; submit the wanted jobs together then wait long (waiting isn't charged) (EVIDENCE #hyak-trace), not many short re-polls.
+11. A preset-start skill didn't transfer to from-scratch eval, and a training-only note didn't carry (edits prompt, not the task; EVIDENCE #decomposition, #v15-moved-numbers). Trust held-out dev over training-seed scores (v16 item 6).

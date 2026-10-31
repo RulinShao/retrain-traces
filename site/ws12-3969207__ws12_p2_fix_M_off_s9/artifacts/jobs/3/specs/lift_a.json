@@ -1,0 +1,8 @@
+{
+  "task": "lift",
+  "name": "lift_a",
+  "steps": 6,
+  "batch": 8,
+  "reward": "task_completed",
+  "lr": 2e-5
+}

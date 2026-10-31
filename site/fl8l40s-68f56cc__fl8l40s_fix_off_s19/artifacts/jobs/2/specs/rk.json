@@ -1,0 +1,7 @@
+{
+  "task": "restack",
+  "name": "rk",
+  "steps": 40,
+  "reward": "shaped",
+  "note": "Use only the listed APIs (there is no z_approach parameter); gently place the red cube on the green one at z = green_center_z + green_extent[2]/2 + red_extent[2]/2 using a two-stage descent (approach at +0.1 m, then lower) and finish with open_gripper() so the cube rests on the green cube."
+}

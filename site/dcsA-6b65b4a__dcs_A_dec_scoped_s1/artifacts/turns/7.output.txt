@@ -1,0 +1,533 @@
+rc=0
+n rows: 8 keys: ['task', 'adapters', 'prompt_ref', 'seed', 'program']
+prompt_ref: tasks/lift/eval_prompt.txt sha256:ff96608e601e
+--- seed 800001 | program len 5227 ---
+Let me break down the task of picking up a red cube and lifting it:
+
+1. Get the current observation (RGB image, depth, camera intrinsics/extrinsics)
+2. Use vision to locate the red cube in the image
+3. Segment the red cube to get its mask
+4. Plan a grasp for the red cube using the depth map and segmentation
+5. Transform the grasp pose from camera frame to world frame
+6. Solve IK to get joint angles for the grasp position
+7. Move robot to approach position
+8. Open gripper
+9. Move to grasp position
+10. Close gripper
+11. Lift the object
+
+Let me think about the coordinate transformations:
+- The grasp poses are in camera frame
+- We need to transform them to world frame using the camera extrinsic matrix (pose_mat)
+- The pose_mat is 4x4 homogeneous transformation from camera to world frame
+
+For the red cube detection, I'll use SAM3 with text prompt "red cube" to segment it.
+
+```python
+import numpy as np
+
+# Step 1: Get observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+extrinsics = obs["robot0_robotview"]["pose_mat"]  # Camera to world transform
+
+# Step 2: Segment the red cube using SAM3 with text prompt
+masks = segment_sam3_text_prompt(rgb_image, "red cube")
+
+if not masks or len(masks) == 0:
+    print("No red cube found!")
+else:
+    # Take the first detected instance (assuming it's the red cube)
+    best_mask = max(masks, key=lambda x: x.get("score", 0))
+    segmentation = best_mask["mask"].astype(np.int32)
+    
+    # Step 3: Plan grasp using Contact-GraspNet
+    grasp_poses, grasp_scores = plan_grasp(depth_image, intrinsics, segmentation)
+    
+    if len(grasp_poses) == 0:
+        print("No valid grasp found!")
+    else:
+        # Select the best grasp
+        best_idx = np.argmax(grasp_scores)
+        grasp_pose_cam = grasp_poses[best_idx]  # In camera frame
+        
+        # Step 4: Transform grasp pose from camera frame to world frame
+        # grasp_pose_world = extrinsics @ grasp_pose_cam
+        grasp_pose_world = extrinsics @ grasp_pose_cam
+        
+        # Extract position and orientation
+        grasp_pos_world = grasp_pose_world[:3, 3]
+        grasp_rot_world = grasp_pose_world[:3, :3]
+        
+        # Convert rotation matrix to quaternion (wxyz format)
+        # Using formula to convert rotation matrix to quaternion
+        trace = np.trace(grasp_rot_world)
+        if trace > 0:
+            S = np.sqrt(trace + 1.0) * 2  # S = 4*w
+            w = 0.25 * S
+            x = (grasp_rot_world[2, 1] - grasp_rot_world[1, 2]) / S
+            y = (grasp_rot_world[0, 2] - grasp_rot_world[2, 0]) / S
+            z = (grasp_rot_world[1, 0] - grasp_rot_world[0, 1]) / S
+        elif (grasp_rot_world[0, 0] > grasp_rot_world[1, 1]) and (grasp_rot_world[0, 0] > grasp_rot_world[2, 2]):
+            S = np.sqrt(1.0 + grasp_rot_world[0, 0] - grasp_rot_world[1, 1] - grasp_rot_world[2, 2]) * 2  # S = 4*x
+            w
+...
+--- seed 800002 | program len 4040 ---
+Let me break down the task of picking up a red cube and lifting it:
+
+1. Get the current observation (RGB image, depth, camera intrinsics, extrinsics)
+2. Segment the red cube using SAM3 with text prompt "red cube"
+3. Plan a grasp for the segmented object
+4. Transform the grasp pose from camera frame to world frame
+5. Solve IK for the robot arm
+6. Move to pre-grasp position (above the object)
+7. Open gripper
+8. Move down to grasp position
+9. Close gripper
+10. Lift the object
+
+```python
+import numpy as np
+
+# Step 1: Get observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+extrinsics = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Segment the red cube
+masks = segment_sam3_text_prompt(rgb_image, "red cube")
+
+if not masks:
+    raise Exception("No red cube found in the scene")
+
+# Use the first mask (assuming it's the red cube)
+mask = masks[0]["mask"]
+
+# Create segmentation map with instance ID 1 for the red cube
+segmentation_map = np.zeros(mask.shape, dtype=np.int32)
+segmentation_map[mask] = 1
+
+# Step 3: Plan grasp
+grasp_poses, grasp_scores = plan_grasp(depth_image, intrinsics, segmentation_map)
+
+if len(grasp_poses) == 0:
+    raise Exception("No valid grasp candidates found")
+
+# Select the best grasp candidate
+best_idx = np.argmax(grasp_scores)
+grasp_pose_cam = grasp_poses[best_idx]  # This is in camera frame
+
+# Step 4: Transform grasp pose from camera frame to world frame
+# The extrinsics matrix transforms from camera frame to world frame
+# So we need: T_world_camera @ T_camera_grasp = T_world_grasp
+T_world_grasp = extrinsics @ grasp_pose_cam
+
+# Extract position and orientation from the world-frame grasp pose
+grasp_position_world = T_world_grasp[:3, 3]
+grasp_orientation_world = T_world_grasp[:3, :3]
+
+# Convert rotation matrix to quaternion (wxyz format)
+def rotmat_to_quat(R):
+    trace = R[0, 0] + R[1, 1] + R[2, 2]
+    if trace > 0:
+        S = np.sqrt(trace + 1.0) * 2
+        w = 0.25 * S
+        x = (R[2, 1] - R[1, 2]) / S
+        y = (R[0, 2] - R[2, 0]) / S
+        z = (R[1, 0] - R[0, 1]) / S
+    elif R[0, 0] > R[1, 1] and R[0, 0] > R[2, 2]:
+        S = np.sqrt(1.0 + R[0, 0] - R[1, 1] - R[2, 2]) * 2
+        w = (R[2, 1] - R[1, 2]) / S
+        x = 0.25 * S
+        y = (R[0, 1] + R[1, 0]) / S
+        z = (R[0, 2] + R[2, 0]) / S
+    elif R[1, 1] > R[0, 0] and R[1, 1] > R[2, 2]:
+        S = np.sqrt(1.0 + R[1, 1] - R[0, 0] - R[2, 2]) * 2
+        w = (R[0, 2] - R[2, 0]) / S
+        x = (R[0, 1] + R[1, 0]) / S
+        y = 0.25 * S
+        z = (R[1, 2] + R[2, 1]) / S
+    else:
+        S = np.sqrt(1.0 + R[2, 2] - R[0, 0] - R[1, 1]) * 2
+        w = (R[1, 0] - R[0, 1]) / S
+        x = (R[0, 2] + R[2, 0]) / S
+        y = (R[1, 2] + R[2, 1]) / S
+        z = 0.25 * S
+    
+    quat = np.array([w, x, y, z])
+    return quat / np.linalg.norm(quat)
+
+grasp_quat_world = rotmat_to_quat(grasp_orientation_world)
+
+# Step 5: Define 
+...
+--- seed 800003 | program len 4917 ---
+Let me break down the task of picking up the red cube and lifting it:
+
+1. Get the current observation (image, depth, camera parameters)
+2. Find the red cube in the image using segmentation
+3. Plan a grasp for the red cube
+4. Transform the grasp pose from camera frame to world frame
+5. Solve IK to get joint angles
+6. Move robot to approach position
+7. Open gripper
+8. Move to grasp position
+9. Close gripper
+10. Lift the object
+
+```python
+import numpy as np
+
+# Step 1: Get observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Segment the red cube
+masks = segment_sam3_text_prompt(rgb_image, "red cube")
+
+if not masks:
+    print("No red cube found")
+else:
+    # Use the first mask with highest score
+    best_mask = max(masks, key=lambda x: x.get("score", 0))
+    segmentation = best_mask["mask"].astype(np.int32)
+    
+    # Step 3: Plan grasp
+    grasp_poses, grasp_scores = plan_grasp(depth_image, intrinsics, segmentation)
+    
+    if len(grasp_poses) == 0:
+        print("No valid grasp found")
+    else:
+        # Select the best grasp (highest score)
+        best_idx = np.argmax(grasp_scores)
+        grasp_pose_cam = grasp_poses[best_idx]  # Grasp pose in camera frame
+        
+        # Step 4: Transform grasp pose from camera frame to world frame
+        # The pose_mat is the extrinsic matrix that transforms from camera frame to world frame
+        # So we need: T_world_to_cam = pose_mat, thus T_cam_to_world = inv(pose_mat)
+        # Actually, let's think about this more carefully.
+        # pose_mat is typically the transformation from camera to world frame
+        # So T_world = T_cam_to_world @ T_cam
+        # But we need to be careful about the convention.
+        
+        # Let's assume pose_mat transforms points from camera frame to world frame
+        # So if we have a point in camera frame p_cam, then p_world = pose_mat @ [p_cam; 1]
+        # For a pose, T_world = T_cam_to_world @ T_cam_to_object
+        # But our grasp_pose_cam is the pose of the gripper in camera frame
+        # We want the pose of the gripper in world frame
+        
+        # If pose_mat is the transform from camera to world:
+        # T_world_gripper = T_cam_to_world @ T_cam_gripper
+        # where T_cam_gripper = grasp_pose_cam
+        
+        T_cam_to_world = pose_mat.copy()
+        T_world_gripper = T_cam_to_world @ grasp_pose_cam
+        
+        # Extract position and orientation
+        target_position = T_world_gripper[:3, 3]
+        
+        # Convert rotation matrix to quaternion (wxyz format)
+        R = T_world_gripper[:3, :3]
+        
+        # Convert rotation matrix to quaternion
+        trace = np.trace(R)
+        if trace > 0:
+            S = np.sqrt(trace + 1.0) * 2
+            w = 0.25 * S
+            x = (R[2, 1] - R[1, 2]) / S
+            y = (R[0, 2] - R[2,
+...
+--- seed 800004 | program len 477 ---
+Let me break down the task of picking up the red cube and lifting it:
+
+1. Get the current observation (image, depth, camera parameters)
+2. Segment the red cube from the image
+3. Plan a grasp for the red cube
+4. Transform the grasp pose from camera frame to world frame
+5. Solve IK to get joint positions
+6. Move to a pre-grasp position (above the object)
+7. Open gripper
+8. Move down to grasp the object
+9. Close gripper
+10. Lift the object
+
+Let me implement this step by step:
+
+--- seed 800005 | program len 4954 ---
+Let me break down the task:
+1. Get the current observation (camera image, depth, intrinsics, extrinsics)
+2. Use point_prompt_molmo to find the red cube in the image
+3. Use segment_sam3_point_prompt to get a segmentation mask for the red cube
+4. Use plan_grasp to get grasp candidates
+5. Transform the best grasp from camera frame to world frame
+6. Solve IK for the robot to reach that position
+7. Move the robot to the pre-grasp position
+8. Open gripper, move down to grasp, close gripper, lift up
+
+Let me think through the coordinate transformations:
+- The grasp poses are in the camera frame
+- We need to transform them to the world frame using the camera extrinsic matrix (pose_mat)
+- The pose_mat is the camera extrinsic matrix (4x4), which transforms from camera frame to world frame
+
+For lifting, I'll add an offset in the z-direction (upward) after grasping.
+
+```python
+import numpy as np
+
+# Step 1: Get observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Use Molmo to point to the red cube
+point_result = point_prompt_molmo(rgb_image, "red cube")
+if point_result.get("red cube", (None, None)) == (None, None):
+    # Try alternative prompt
+    point_result = point_prompt_molmo(rgb_image, "the red cube")
+    
+point_coords = point_result.get("red cube", (None, None))
+if point_coords == (None, None):
+    raise Exception("Could not find red cube in image")
+
+print(f"Found red cube at pixel coordinates: {point_coords}")
+
+# Step 3: Segment the red cube using SAM3 with point prompt
+masks = segment_sam3_point_prompt(rgb_image, point_coords)
+if not masks:
+    raise Exception("No segmentation found for red cube")
+
+# Use the first (best) mask
+segmentation_mask = masks[0]["mask"]
+
+# Create integer segmentation map (single instance = 1)
+seg_map = np.ones_like(segmentation_mask, dtype=np.int32) * 1
+seg_map[~segmentation_mask] = 0
+
+# Step 4: Plan grasp
+grasp_poses, grasp_scores = plan_grasp(depth_image, intrinsics, seg_map)
+
+if len(grasp_poses) == 0:
+    raise Exception("No valid grasp candidates found")
+
+# Select the best grasp
+best_idx = np.argmax(grasp_scores)
+best_grasp_cam = grasp_poses[best_idx]  # In camera frame (4x4 homogeneous transform)
+
+# Step 5: Transform grasp from camera frame to world frame
+# pose_mat is the camera extrinsic matrix: transforms points from camera frame to world frame
+# So world_pose = pose_mat @ cam_pose
+world_grasp_pose = pose_mat @ best_grasp_cam
+
+# Extract position and orientation from world grasp pose
+grasp_position_world = world_grasp_pose[:3, 3].copy()
+grasp_rotation_world = world_grasp_pose[:3, :3].copy()
+
+# Convert rotation matrix to quaternion (wxyz format)
+def rotation_matrix_to_quaternion(R):
+    """Convert 3x3 rotation matrix to quaternion [w, x, y, z]"""
+    trace = R[0, 0] + R[1, 1] + R[2, 2]
+    
+    if trace > 0:
+        S = n
+...
+--- seed 800006 | program len 3910 ---
+Let me break down the task:
+1. Get the observation (camera image, depth, intrinsics, extrinsics)
+2. Find the red cube in the image using segmentation
+3. Plan a grasp for the red cube
+4. Transform the grasp pose from camera frame to world frame
+5. Solve IK for the robot arm
+6. Move to a pre-grasp position (above the object)
+7. Open gripper
+8. Move down to grasp the object
+9. Close gripper
+10. Lift the object
+
+```python
+import numpy as np
+
+# Step 1: Get observation
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Segment the red cube
+masks = segment_sam3_text_prompt(rgb, "red cube")
+
+if not masks or len(masks) == 0:
+    raise Exception("No red cube found in the scene")
+
+# Use the first detected mask
+mask = masks[0]["mask"]
+
+# Step 3: Plan grasp
+grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, mask.astype(np.int32))
+
+if len(grasp_poses) == 0:
+    raise Exception("No valid grasp poses found")
+
+# Select the best grasp pose (highest score)
+best_idx = np.argmax(grasp_scores)
+grasp_pose_cam = grasp_poses[best_idx]  # 4x4 homogeneous transform in camera frame
+
+# Step 4: Transform grasp pose from camera frame to world frame
+# The camera extrinsic matrix transforms points from camera frame to world frame
+# So we need: T_world_camera @ T_cam_grasp = T_world_grasp
+T_world_grasp = pose_mat @ grasp_pose_cam
+
+# Extract position and orientation from the world-frame grasp pose
+grasp_pos_world = T_world_grasp[:3, 3]
+grasp_rot_world = T_world_grasp[:3, :3]
+
+# Convert rotation matrix to quaternion (wxyz)
+def rotmat_to_quat(R):
+    trace = R[0, 0] + R[1, 1] + R[2, 2]
+    if trace > 0:
+        S = np.sqrt(trace + 1.0) * 2
+        w = 0.25 * S
+        x = (R[2, 1] - R[1, 2]) / S
+        y = (R[0, 2] - R[2, 0]) / S
+        z = (R[1, 0] - R[0, 1]) / S
+    elif R[0, 0] > R[1, 1] and R[0, 0] > R[2, 2]:
+        S = np.sqrt(1.0 + R[0, 0] - R[1, 1] - R[2, 2]) * 2
+        w = (R[2, 1] - R[1, 2]) / S
+        x = 0.25 * S
+        y = (R[0, 1] + R[1, 0]) / S
+        z = (R[0, 2] + R[2, 0]) / S
+    elif R[1, 1] > R[0, 0] and R[1, 1] > R[2, 2]:
+        S = np.sqrt(1.0 + R[1, 1] - R[0, 0] - R[2, 2]) * 2
+        w = (R[0, 2] - R[2, 0]) / S
+        x = (R[0, 1] + R[1, 0]) / S
+        y = 0.25 * S
+        z = (R[1, 2] + R[2, 1]) / S
+    else:
+        S = np.sqrt(1.0 + R[2, 2] - R[0, 0] - R[1, 1]) * 2
+        w = (R[1, 0] - R[0, 1]) / S
+        x = (R[0, 2] + R[2, 0]) / S
+        y = (R[1, 2] + R[2, 1]) / S
+        z = 0.25 * S
+    
+    quat = np.array([w, x, y, z])
+    return quat / np.linalg.norm(quat)
+
+grasp_quat_world = rotmat_to_quat(grasp_rot_world)
+
+# Step 5: Create pre-grasp position (lift up by some amount along the approach direction)
+# The approach direction is typically along the z-axis of the grasp frame (negative z is downward)
+# In world frame, the approach direction is the third colum
+...
+--- seed 800007 | program len 923 ---
+Let me break down the task:
+1. Get the current observation (camera image, depth, intrinsics, extrinsics)
+2. Use vision to locate the red cube in the image
+3. Segment the red cube
+4. Plan a grasp for the red cube
+5. Transform the grasp pose from camera frame to world frame
+6. Solve IK for the robot arm
+7. Move the robot to approach position
+8. Open gripper, move to grasp position, close gripper
+9. Lift the object
+
+Let me think through the steps:
+
+1. First, I need to get the observation to see where the red cube is
+2. I'll use point_prompt_molmo or segment_sam3_text_prompt to find the red cube
+3. Then use plan_grasp to get grasp candidates
+4. The grasp poses are in camera frame, so I need to transform them to world frame using the camera extrinsic matrix (pose_mat)
+5. Apply TCP offset if needed (but since we're grasping, we might need to adjust)
+6. Solve IK and move the robot
+
+Let me write the code step by step:
+
+--- seed 800008 | program len 4653 ---
+Let me break down the task:
+1. Get the current observation (camera image, depth, intrinsics, extrinsics)
+2. Find the red cube in the image using segmentation
+3. Plan a grasp for the red cube
+4. Transform the grasp pose from camera frame to world frame
+5. Solve IK for the robot arm
+6. Move to pre-grasp position
+7. Open gripper
+8. Move to grasp position
+9. Close gripper
+10. Lift the object
+
+```python
+import numpy as np
+
+# Step 1: Get observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Segment the red cube
+masks = segment_sam3_text_prompt(rgb_image, "red cube")
+
+if not masks:
+    print("No red cube found!")
+else:
+    # Use the first mask with highest score
+    best_mask = max(masks, key=lambda x: x.get("score", 0))
+    segmentation_map = best_mask["mask"].astype(np.int32)
+    
+    # Step 3: Plan grasp
+    grasp_poses, grasp_scores = plan_grasp(depth_image, intrinsics, segmentation_map)
+    
+    if len(grasp_poses) == 0:
+        print("No valid grasp poses found!")
+    else:
+        # Select the best grasp pose
+        best_idx = np.argmax(grasp_scores)
+        grasp_pose_cam = grasp_poses[best_idx]  # Shape: (4, 4), in camera frame
+        
+        # Step 4: Transform grasp pose from camera frame to world frame
+        # The camera extrinsic matrix transforms points from camera frame to world frame
+        # So we need: T_world_camera @ T_camera_grasp = T_world_grasp
+        T_world_grasp = pose_mat @ grasp_pose_cam
+        
+        # Extract position and orientation
+        grasp_position = T_world_grasp[:3, 3]  # Position in world frame
+        R_cam_to_grasp = grasp_pose_cam[:3, :3]  # Rotation from camera to grasp frame
+        
+        # We need the rotation of the grasp frame in world coordinates
+        # R_world_grasp = R_world_cam @ R_cam_grasp
+        R_world_cam = pose_mat[:3, :3]
+        R_world_grasp = R_world_cam @ R_cam_to_grasp
+        
+        # Convert rotation matrix to quaternion (wxyz format)
+        def rotmat_to_quat(R):
+            trace = R[0,0] + R[1,1] + R[2,2]
+            if trace > 0:
+                S = np.sqrt(trace + 1.0) * 2
+                w = 0.25 * S
+                x = (R[2,1] - R[1,2]) / S
+                y = (R[0,2] - R[2,0]) / S
+                z = (R[1,0] - R[0,1]) / S
+            elif R[0,0] > R[1,1] and R[0,0] > R[2,2]:
+                S = np.sqrt(1.0 + R[0,0] - R[1,1] - R[2,2]) * 2
+                w = (R[2,1] - R[1,2]) / S
+                x = 0.25 * S
+                y = (R[0,1] + R[1,0]) / S
+                z = (R[0,2] + R[2,0]) / S
+            elif R[1,1] > R[2,2]:
+                S = np.sqrt(1.0 + R[1,1] - R[0,0] - R[2,2]) * 2
+                w = (R[0,2] - R[2,0]) / S
+                x = (R[0,1] + R[1,0]) / S
+                y = 0.25 * S
+                z = (R[1,2] + R[2,1]) / S
+            else:
+       
+...

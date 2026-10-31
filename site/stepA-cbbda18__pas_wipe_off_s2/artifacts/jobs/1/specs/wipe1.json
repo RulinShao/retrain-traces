@@ -1,0 +1,9 @@
+{
+  "task": "wipe",
+  "name": "wipe1",
+  "steps": 25,
+  "batch": 8,
+  "lr": 0.00002,
+  "reward": "task_completed",
+  "note": "Solve it by: getting the observation, segmenting the 'brown spill' with segment_sam3_text_prompt, back-projecting the mask pixels (using depth, intrinsics and pose_mat) to world coordinates to find the spill's min/max x and y, then wiping by moving in small IK steps with downward orientation (0,0,1,0) across that x/y rectangle at z = 0.0."
+}

@@ -1,0 +1,8 @@
+{
+  "name": "core",
+  "data": "train_mix.jsonl",
+  "batch": 20,
+  "reward": "reward_blend.py",
+  "seed_start": 810001,
+  "time": "06:00:00"
+}

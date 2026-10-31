@@ -1,0 +1,89 @@
+rc=0
+# Playbook
+version: 15 (2026-10-24; split by kind, mapping below)
+What this is: experience from earlier sessions, with the condition it held under, to test here. Not facts about this session (tasks, model, budget, site may differ); those are in the tool docs. Numbers and sources: skills/shared/EVIDENCE.md. Gate: an item from one session is "unconfirmed"; a second session or a hidden-seed score confirms it; one still unconfirmed after two batches that could test it is dropped. Propose edits in playbook_suggestions.md.
+
+Observations to test:
+1. Practice on a task whose base never succeeded gave no completion signal, and shaped reward did not lift such a task in any recorded run (confirmed). Check your rewards for completions before spending on it.
+2. Training on one task has changed other tasks' scores, up or down. Measure a candidate on every task before deciding.
+3. When rollouts got equal rewards, changing the practice start state or reward helped more than training longer.
+4. Adapter pairs for different tasks combined well and badly (one pair dropped a task to 0; unconfirmed). Evaluate the combination itself, not only its parts.
+5. On tasks that improved, gains flattened after a moderate number of steps. Read your learning curve before extending a run.
+6. Continuing from an earlier adapter versus starting fresh showed no consistent difference; compare both if it matters.
+7. Training-seed scores (rewards.json) and held-out dev evals have differed; prefer the held-out number.
+8. On a shared cluster, queues took hours; submitting the jobs already wanted together, then waiting, saved time.
+9. Keeping the best checked stack loaded as you go left a checked stack in place when a session was cut short.
+10. Planning the budget up front, with checking evals and loads reserved, let early commitment to tasks with signal pay off.
+
+Did not work in earlier sessions:
+- A practice start state the evaluation never uses (cube already in hand): almost no successful rollouts.
+- A training-only note did not carry over to evaluation (unconfirmed; another note-trained adapter gained).
+
+Changelog v15: v14 split by kind. To tool docs: GRPO's signal is reward differences within a group (v14 3); all-zero update = unchanged adapter (v14 4); score = loaded stack on every task (v14 6, in the system text). To EVIDENCE.md only: all result numbers. Map v14->v15: 1->1, 2+7->2, 3->3, 5->6, 6->4, 8->5, 9->9, 10->8, 11->7, 12->10, did-not-work kept. v14 = commit 703cc605.
+----
+EVIDENCE.md
+PLAYBOOK.md
+README.md
+reward_check
+----
+INDEX.md
+handover
+lift
+nut
+restack
+revstack
+stack
+stackv2
+twolift
+wipe
+----
+# Task index
+
+Written by the environment from tasks.json, tasks/<task>/eval_prompt.txt and the session's base scores.
+
+## lift
+
+- Goal: pick up the red cube and lift it.
+- Seeds: dev seeds from 800001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 67/100 (seeds 800001-800100)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper
+
+## stack
+
+- Goal: Pick up the red cube and gently stack it on top of the green cube, then release it.
+- Seeds: dev seeds from 800001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 51/100 (seeds 800001-800100)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper
+- Key rules:
+  - The extent from get_object_pose(..., return_bbox_extent=True) is the FULL side length. Use extent[2]/2 for half-height.
+  - For placement orientation, reuse the grasp quaternion from sample_grasp_pose. Do NOT use the quaternion from get_object_pose (it is unreliable for orientation).
+  - Always use z_approach=0.1 when approaching an object for grasping or placing.
+  - After grasping, lift the cube to a safe height (at least +0.2m in Z) before moving laterally to the placement location.
+  - The stacking height formula is: place_z = green_center_z + green_extent[2]/2 + red_extent[2]/2
+  - Nothing should be dropped from a height. Always approach with z_approach for controlled descent.
+
+## nut
+
+- Goal: grasp and insert the `brown square nut` onto the `brown square block`.
+- Seeds: dev seeds from 800001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 0/100 (seeds 800001-800100)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper
+
+## wipe
+
+- Goal: wipe up the 'brown spill'.
+- Seeds: dev seeds from 800001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 16/100 (seeds 800001-800100)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, solve_ik, move_to_joints
+
+## restack
+
+- Goal: Gently place the red cube on top of the green cube and then open the gripper. Nothing should be dropped from a height.
+- Seeds: dev seeds from 800001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 0/100
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper
+
+## twolift
+
+- Goal: The two arms should coordinate to lift a pot. Arm 0 should grasp handle 0, and Arm 1 should grasp handle 1. Then both arms should lift the pot up at the same height.
+- Seeds: dev seeds from 800001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score

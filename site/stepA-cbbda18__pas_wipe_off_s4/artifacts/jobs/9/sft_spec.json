@@ -1,0 +1,8 @@
+{
+  "objective": "sft",
+  "data": "sft_rows.jsonl",
+  "name": "wipe_sft",
+  "init": "wipe_grpo",
+  "epochs": 1,
+  "batch": 16
+}

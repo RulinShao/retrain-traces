@@ -1,0 +1,7 @@
+{
+  "task": "wipe",
+  "name": "wp",
+  "steps": 40,
+  "reward": "shaped",
+  "note": "Keep every wiping move small (about 0.05 m) so consecutive solve_ik solutions stay close, and sweep the full spill bounding box at z = 0.0 with the downward-facing orientation (0, 0, 1, 0 wxyz)."
+}

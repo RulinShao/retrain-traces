@@ -1,0 +1,8 @@
+{
+  "name": "rv",
+  "task": "revstack",
+  "reward": "shaped",
+  "batch": 8,
+  "steps": 22,
+  "time": "12:00:00"
+}

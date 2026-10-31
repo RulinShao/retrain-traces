@@ -1,0 +1,206 @@
+rc=0
+=== skills/trainer/SKILL.md (from char 12000) ===
+: `train: data line <N>: <rule>` (a row's keys, task, seed reserved, prompt, program or reward), `train: no row has reward >= min_reward <m> ...`, `train: field(s) [...] have no meaning with objective 'sft'; ...`, `train: objective 'sft' needs data: ...`, `train: objective 'sft' trains the small policy profiles on this site ...`, `train: steps <s> != ceil(kept rows x epochs / batch) = <n>; omit steps`, `train: task: an sft spec trains the tasks of its kept rows (...); omit task`
+- `train: data line <N>: <rule>` for a row that breaks a rule above (not a JSON object; unsupported key(s); task must be one of ...; seed must be an integer; seed <s> is reserved ...; variant of '<task>' must be one of ...; prompt must be a non-empty string; prompt has <n> characters), or `train: data file has no rows` / `data has more than 4096 rows` / `data file is <n> bytes; at most 16777216`
+- `train: data has <rows> rows, not a multiple of batch <batch>: ...` / `train: steps <s> != data rows / batch = ...; omit steps` / `train: task: a spec with data trains the tasks its rows name (...); omit task` / `train: note cannot be set with data; ...`
+- `train: data file <path> is outside your workspace; a data file must be a file in your workspace` (a symlink is not followed either)
+- `train: batch <b> does not split equally across <n> tasks [...]; use a multiple of <n>` / `train: task: each task at most once, got [...]` / `train: note edit one task's training prompt; a spec naming several tasks cannot set them` (a `task` list)
+- `train: task 'revstack' runs its simulator under a scene shift and practises alone; name it in a spec of its own`
+- `train: your reward function raised <Error>: <message> (reward.py line N); ...` / `train: your reward function tried to <action> (<detail>), which the reward sandbox refuses; ...` / `train: your reward function ran longer than 120 s on one rollout ...`: a custom `reward(r)` runs in a sandbox, once per rollout: plain Python and the interpreter's libraries (math, json, numpy), files only in its working directory (temporary), no other files, no network, no subprocesses, 60 s CPU and 4 GiB per call. The train stops at the first such failure.
+- `train: seeds 1-100 are reserved for the final score; use dev seeds >= 800001`
+- B2: `train: start_preset '<p>' is a registry preset, built with the privileged oracle; on a hidden task build your own start states with preset.py ...` / `train: start_preset '<p>' was built on task another task, not <task>`
+A failure inside the trainer or the simulator (crash, missing adapter files, a hidden seed used) ends the session as an infrastructure
+fault. An all-zero update is a training outcome, shown on the scoreboard: the adapter's change is zero, so it behaves as its init (base or the init adapter).
+
+## Progress and cancel
+While a train runs, its record shows completed steps, the latest step's mean reward, the fraction of rollouts with reward > 0
+and canonical GPU-hours of the steps done so far (read from the trainer's per-step output about once a minute). A checkpoint is saved every
+step. A call stopped by the cluster (time limit, preemption, node failure) continues from its last checkpoint in a new Slurm job, at most 3 times; its status then says `continued from step k in job J`, and its result lists every Slurm job (`jobs`) and each continuation (`continued`: `job` stopped, `cause`, `from` step, `of` steps, `continued_in` job), as it lists site retries.
+`cancel.py ID` stops the job and keeps the adapter of the last saved step (registered with the steps it ran), or ends the
+job `failed` if none was saved; either way the job is charged the canonical cost of the steps it completed (see Cost).
+
+## Cost (canonical GPU-hours)
+The budget is charged a canonical cost per call, the same whatever hardware the site runs the call on. The tables below are
+the Qwen3.8-27B policy's; with another policy the costs differ, and SCOREBOARD.md's "Expected cost per call" line gives them.
+
+| call | canonical cost |
+|---|---|
+| train, 1 step | 2.76 |
+| train, 10 steps | 4.03 |
+| train, 30 steps | 6.84 |
+| train, N steps | 2 x (1.31 + 0.0703 x N x batch / 8) |
+
+| eval of one task on | 5 seeds | 20 seeds | 100 seeds |
+|---|---|---|---|
+| canonical cost | 0.36 | 0.38 | 0.48 |
+
+An eval's cost is mostly its fixed part, so 100 seeds cost little more than 5. A call that fails or is cancelled is charged the
+canonical cost of the steps it completed, or less if it ran only briefly. The cost is also the admission estimate.
+
+## Output
+A finished train writes `adapters/<name>/` (read-only to you): `adapter_model.safetensors`, `adapter_config.json`,
+`rewards.json` (per step: `step`, `score_mean` over that step's rollouts), `call.json` (job ids, `gpu_hours` = the canonical charge to
+your budget, `gpu_hours_actual` = measured hardware time, not charged, nonzero LoRA-B count, rollout seed range) and `training.json` (`resolved_spec`: the controls actually used). The adapter can then be named in `eval.py --adapter`, `load.py`, or as `init` of another train.
+Each `rewards.json` step also has `zero_variance_frac` (the share of that step's prompt groups whose rollouts all got one reward) and `failure_stages` (failed rollouts by stage: `sim`, `timeout`, `program`, `grader`, `task`); the running job's status line shows them for the latest step and the train's result lists them per step (`step_facts`).
+A call of several tasks (a `task` list, or `data` naming several) adds `per_task` to each `rewards.json` step: `{task: {"score_mean", "rollouts"}}`, that step's rollouts of each task and their mean reward (a rollout is attributed by its prompt; one matching no single task is left out).
+Each finished train (and one kept at a stop) also writes `practice_rows.jsonl`: one line per rollout of the call, `{task, seed, prompt_sha, program, reward, step, start}` (reward = the score GRPO gave it; start = the adapter the call started from), with the prompts in `practice_prompts.json` (`{prompt_sha: [chat messages]}`). A rollout whose program was written for two seeds in one step is left out. These are training data you generated yourself; `skills/trainer/sft_rows.py practice adapters/<name>` turns them into SFT rows (see SFT below).
+
+=== tasks/lift/eval_prompt.txt ===
+=== system ===
+You are a helpful assistant that generates Python code to directly solve the task.
+
+=== user ===
+
+You are controlling a Franka Emika robot with API described below.
+Goal: pick up the red cube and lift it.
+You may write python code comments for reasoning but ONLY write the executable Python code and do not write it in code fences.
+The functions (APIs) below are already imported to the environment. If you want to use numpy, you need to import it explicitly.
+
+APIs:
+
+get_observation() -> dict[str, typing.Any]
+  Doc:
+    Get the observation of the environment.
+    Returns:
+        observation:
+            A dictionary containing the observation of the environment.
+            The dictionary contains the following keys:
+            - ["robot0_robotview"]["images"]["rgb"]: Current color camera image as a numpy array of shape (H, W, 3), dtype uint8.
+            - ["robot0_robotview"]["images"]["depth"]: Current depth camera image as a numpy array of shape (H, W), dtype float32.
+            - ["robot0_robotview"]["intrinsics"]: Camera intrinsic matrix as a numpy array of shape (3, 3), dtype float64.
+            - ["robot0_robotview"]["pose_mat"]: Camera extrinsic matrix as a numpy array of shape (4, 4), dtype float64.
+
+point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+  Doc:
+    Use Molmo to point to a coordinate in the image based on a text prompt.
+    
+    Args:
+        image: np.ndarray: The RGB image to process. Shape: (H, W, 3), dtype uint8.
+        text_prompt: str: The text prompt to point to.
+    
+    Returns:
+        dict[str, tuple[int | None, int | None]]: Pixel coordinates for each
+        object query; (None, None) if parsing failed.
+
+segment_sam3_text_prompt(rgb: numpy.ndarray, text_prompt: str) -> list[dict[str, typing.Any]]
+  Doc:
+    Run SAM3 segmentation on an RGB image conditioned on a text prompt.
+    
+    Args:
+        rgb:
+            RGB image array of shape (H, W, 3), dtype uint8.
+        text_prompt:
+            Text prompt for SAM3 segmentation.
+    
+    Returns:
+        masks:
+            A list of dictionaries. Each dict may contain:
+    
+              - "mask":  np.ndarray of shape (H, W), dtype bool,
+                          where True means the pixel belongs to the instance.
+              - "box": list [x1, y1, x2, y2] in pixel coordinates.
+              - "score": float confidence score.
+
+segment_sam3_point_prompt(rgb: numpy.ndarray, point_coords: tuple[float, float]) -> list[dict[str, typing.Any]]
+  Doc:
+    Run SAM3 segmentation on an RGB image, optionally conditioned on an image coordinate point prompt.
+    
+    Args:
+        rgb:
+            RGB image array of shape (H, W, 3), dtype uint8.
+        point_coords:
+            (x, y) pixel coordinates of the point prompt.
+    
+    Returns:
+        masks:
+            A list of dictionaries. Each dict may contain:
+    
+              - "mask":  np.ndarray of shape (H, W), dtype bool,
+                          where True means the pixel belongs to the instance.
+              - "score": float confidence score.
+
+plan_grasp(depth: numpy.ndarray, intrinsics: numpy.ndarray, segmentation: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+  Doc:
+    Plan grasp candidates using Contact-GraspNet for a single instance.
+    
+    This is a thin wrapper around the Contact-GraspNet planner. It does not
+    apply any camera/world transforms or TCP offsets: the caller is
+    responsible for transforming the resulting grasp poses into the desired
+    frame and applying TCP offsets if necessary.
+    
+    Args:
+        depth:
+            Depth image in meters.
+            Shape: (H, W), dtype float32/float64.
+        intrinsics:
+            Camera intrinsic matrix.
+            Shape: (3, 3), dtype float64.
+        segmentation:
+            Instance segmentation map where each integer > 0 corresponds to a
+            unique object instance ID.
+            Shape: (H, W) or (H, W, 1), dtype int32/int64.
+    
+    Returns:
+        grasp_poses:
+            np.ndarray of shape (K, 4, 4), dtype float64.
+            Homogeneous transforms for each candidate grasp IN THE CAMERA FRAME.
+        grasp_scores:
+            np.ndarray of shape (K,), dtype float64.
+            Confidence score for each candidate grasp.
+
+get_oriented_bounding_box_from_3d_points(points: numpy.ndarray) -> dict[str, typing.Any]
+  Doc:
+    Get the oriented bounding box from 3D points.
+    
+    Args:
+        points: np.ndarray: The 3D points to get the oriented bounding box from.
+            Shape: (N, 3), dtype float64.
+    
+    Returns:
+        dict[str, Any]: The oriented bounding box. The dictionary contains the following keys:
+            - "center": np.ndarray: The center of the oriented bounding box in point cloud frame.
+            - "extent": np.ndarray: The extent of the oriented bounding box.
+            - "R": np.ndarray: The rotation matrix of the oriented bounding box in point cloud frame.
+
+solve_ik(position: numpy.ndarray, quaternion_wxyz: numpy.ndarray) -> numpy.ndarray
+  Doc:
+    Solve inverse kinematics for the panda_hand link.
+    
+    Args:
+        position:
+            Target position in world frame.
+            Shape: (3,), dtype float64.
+        quaternion_wxyz:
+            Target orientation as a unit quaternion in world frame.
+            Shape: (4,), [w, x, y, z], dtype float64.
+    
+    Returns:
+        joints:
+            np.ndarray of shape (7,), dtype float64.
+            Joint angles for the 7 DoF Franka arm.
+
+move_to_joints(joints: numpy.ndarray) -> None
+  Doc:
+    Move the robot to a given joint configuration in a blocking manner.
+    
+    Args:
+        joints:
+            Target joint angles for the 7-DoF Franka arm.
+            Shape: (7,), dtype float64.
+    
+    Returns:
+        None
+
+open_gripper() -> None
+  Doc:
+    Open gripper fully.
+    
+    Args:
+        None
+
+close_gripper() -> None
+  Doc:
+    Close gripper fully.
+    
+    Args:
+        None

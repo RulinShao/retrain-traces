@@ -1,0 +1,49 @@
+{
+ "status": "DONE",
+ "turns": 24,
+ "gpu_hours": 15.242,
+ "final_score": {
+  "loaded": "stk2",
+  "per_task": {
+   "lift": 75,
+   "stack": 69,
+   "nut": 0,
+   "wipe": 29,
+   "restack": 0,
+   "twolift": 0,
+   "handover": 1,
+   "revstack": 1,
+   "stackv2": 3
+  },
+  "total": 178,
+  "n_per_task": 100,
+  "submission": "96ccf3",
+  "confirmed": true
+ },
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 0,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "96ccf3",
+  "how": "default-loaded-stack",
+  "turn": 22,
+  "confirmed": true,
+  "confirmed_turn": 23,
+  "ended_by": "DONE",
+  "note": "stk2 (stk base+20 step stack LoRA continued +10 steps; contains stk). Full 9-task dev check of stk2 n=20: eval jobs 13-21 (lift 80%, stack 65%, wipe 30%, zero-base tasks 0 within base+1sigma). stk init n=100 check jobs 3-7: stack 66 vs 51 base, lift 74 vs 67, wipe 27 vs 16, no regressions. Trains jobs 1, 11.",
+  "policy": "base + stk2 (sha 2e5aa1009860)"
+ },
+ "skills_version": "e9fea0d6-a57a4058",
+ "initial_skills_digest": "62615a84ee3134c144803bfe0d67200a4a4d95bc853d5525038c0d7d30a3f025",
+ "artifacts": {
+  "registry": "…/sp11s-f05763b/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

@@ -1,0 +1,50 @@
+{
+ "status": "DONE",
+ "turns": 36,
+ "gpu_hours": 15.801,
+ "final_score": {
+  "loaded": "wipe1+stack1",
+  "per_task": {
+   "lift": 71,
+   "stack": 66,
+   "nut": 0,
+   "wipe": 80,
+   "restack": 0,
+   "twolift": 0,
+   "handover": 1,
+   "revstack": 2,
+   "stackv2": 2
+  },
+  "total": 222,
+  "n_per_task": 100,
+  "submission": "46548e",
+  "confirmed": true
+ },
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 10.9891,
+ "gpu_hours_charging": "canonical",
+ "agent_gpu_h": 0.3826,
+ "submission": {
+  "token": "46548e",
+  "how": "default-loaded-stack",
+  "turn": 34,
+  "confirmed": true,
+  "confirmed_turn": 35,
+  "ended_by": "DONE",
+  "note": "Pair wipe1(wipe,30s)+stack1(stack,12s). Dev pair (all 9 tasks): wipe 84/100 j17, lift 76/100 j19, stack 54/100 j18, revstack 1/20 j22, stackv2 0/20 j23, twolift 0/20 j24, handover 0/20 j25, nut 0/20 j20, restack 0/20 j21; >= base on every task, no base-0 collapse. Singles: wipe1 wipe 76/100 j26, stack1 stack 62/100 j27.",
+  "policy": "base + wipe1 (sha e8e9a79c3209) + stack1 (sha 9df57f3efbca)"
+ },
+ "skills_version": "212e0bab-a57a4058",
+ "initial_skills_digest": "879adc4a7b6c1f9a570be59590bbd49c4a26f476740c6e6ec0e72192b8ecd19c",
+ "artifacts": {
+  "registry": "…/wt14-aa49cd6/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

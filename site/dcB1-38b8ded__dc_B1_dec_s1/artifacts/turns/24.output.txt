@@ -1,0 +1,40 @@
+rc=0
+===success/staged-reward grep in sim_service.py===
+1:"""[10-14 stateful eval: unit spec start_from {file, sha, seed} (absent = unchanged) restores that snapshot at every rollout reset, on its seed (envs/capx/sim/snap_restore.py)]\n[10-14 TTST: SIM_PIN_SEED=<s in 1-100> (default unset = unchanged) pins every counter-assigned rollout to eval seed s (retrain-robotics experiments/ttst/PREREG.md); previous version sim_service.pre_ttst.py]\n[10-11 RL lane: POST /run accepts optional "seed" (>= 101; counter not advanced); previous version sim_service.pre_seedfield.py sha256 ab79c383cb57]\nCaP-X Cube Stack S3-fix rollout service for RL rewards (runs inside the cap-x .venv, cwd = cap-x).
+6:env.oracle_code = program), i.e. the same _extract_code, sandboxed execution and Stack._check_success as an eval trial.
+13:HTTP: POST /run {"program": str, "tag": str} -> {"seed", "task_completed", "reward", "sandbox_rc", "secs", "queue_s"}
+92:    """(server, url for the ready file) for SIM_BIND_HOST: a TCP HTTP server, or with unix:<path> the same handler on a unix
+127:# was imported; a raw depth buffer that is non-finite or outside [0,1] counts a render fault (the original then asserts as before). Each rollout returns render_faults; capx_reward aborts.
+247:    if os.environ.get("RETRAIN_REWARD_STAGES"):   # stage-restricted reward (core/reward_stages.py; unset = unchanged)
+249:        from core import reward_stages as RS
+253:    if os.environ.get("RETRAIN_STAGED_REWARD"):   # monotone staged sub-goal PRACTICE reward (core/staged_reward.py; unset = unchanged)
+256:        if os.environ.get("CAPX_REWARD_MODE") == "shaped":   # shaped turns a partial float into 1.0 downstream (capx_reward.py): refuse
+257:            raise ValueError("RETRAIN_STAGED_REWARD is incompatible with CAPX_REWARD_MODE=shaped (shaped binarises the staged float to 1.0)")
+259:        from core import staged_reward as SR_STAGED_M
+260:        _staged_stages = SR_STAGED_M.parse(task=task)
+261:        if _staged_stages is not None:   # None = OFF or this worker's task has no preset (multi-task pool): skip, no raise
+262:            SR_STAGED_M.install(env.low_level_env, task, _staged_stages)
+279:                out = {"task_completed": False, "reward": 0.0, "sandbox_rc": 1, "success": False, "terminated": False,
+292:                env.low_level_env._reward_stages_last = None
+295:            out = {"task_completed": bool(s.task_completed), "reward": float(s.reward), "sandbox_rc": int(s.sandbox_rc),
+299:            if SR_STAGED is not None:   # staged reward: task_completed (the GRPO score) becomes the monotone staged reward (1.0 iff binary-complete); binary stays in staged_binary
+309:            out = {"task_completed": False, "reward": 0.0, "sandbox_rc": 1, "log_tail": f"service exception: {type(e).__name__}: {e}"[-600:]}
+399:    return {"task_completed": (None if s.task_completed is None else bool(s.task_completed)),
+400:            "reward": float(s.reward), "sandbox_rc": int(s.sandbox_rc), "success": bool(s.success),
+432:        manager's placement key). Only ever reached via ``POST /reset`` behind the flag; the default
+456:        it is returned as failed (task_completed False, worker_crash True) and counted in /health."""
+494:                                    "task_completed": False, "reward": 0.0, "sandbox_rc": 1, "render_faults": 0, "timeout": True,
+498:                                    "task_completed": False, "reward": 0.0, "sandbox_rc": 1, "render_faults": 0, "worker_crash": True,
+543:        keys = ("task_completed", "reward", "sandbox_rc", "success", "terminated", "truncated", "code_path",
+570:        if os.environ.get("E7_SPEC"):   # E7: reward_fn runs in a separate grader process on the state the worker serialised
+573:            if (e7_grader.units().get(task) or {}).get("reward_src"):   # units with reward_src null (E7 arm b) keep upstream task_completed
+578:                        return OG._agent_code().grade(e7_grader.units()[task]["reward_src"], r.get("e7_state"), graded=gu)
+581:                        from core import graded_reward
+582:                        return graded_reward.grade(e7_grader.units()[task]["reward_src"], r.get("e7_state"))
+592:                e7 = {"upstream_task_completed": r["task_completed"], "e7_reward": sc, "e7_err": err, "e7_state": r.get("e7_state")}
+594:                    e7["svc_infra"] = void   # never scored: capx_reward / tinker_practice / offd_tinker abort, sessions pause (svc_fault)
+595:                r["task_completed"] = float(sc) if gu else bool(sc)
+597:                e7 = {"upstream_task_completed": r["task_completed"], "e7_state": r.get("e7_state")}
+599:               "program_chars": len(program), "task_completed": r["task_completed"], "reward": r["reward"],
+602:               **{k: r[k] for k in ("stage_criteria", "lts_success", "task_success", "reward_stages", "staged_reward", "staged_binary", "staged_stages", "staged_err", "staged_from", "snapshot", "start_from_restored", "svc_s", "video") if k in r},
+734:            print(f"[sim] warm-sim registered: {url} -> {_regp}", flush=True)   # successful register used to log 'register failed')

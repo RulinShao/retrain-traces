@@ -1,0 +1,79 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "eval_failed: InfraError(\"system eval eval-b7f654eab58f: outcome=infra_error InfraError('eval job 42608146022 state FAILED: 0 cell summaries; ABORT: xid gpu: bus c3:00 on g3126 has 662 kernel Xid 109/31 events; eval cells are EGL-only (EVAL_CELL=1) -> not run here (site retries: job 42608146020 xid on g3126; job 42608146021 xid on g3126) (continued: job 42608146017 xid at 0 of 100 -> job 42608146018; job 42608146018 xid at 0 of 100 -> job 42608146019; job 42608146019 xid at 0 of 100 -> job 42608146020)')\")",
+ "gpu_hours": 5.432,
+ "final_score": null,
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 5.6539,
+ "gpu_hours_charging": "canonical",
+ "skills_version": "nogit-a57a4058",
+ "initial_skills_digest": "f707a08695a6f04d82ae02c942f5260fbf566ef3c8d7eff97bf84fd92e0dd194",
+ "suite": {
+  "name": "A-wipe",
+  "version": 1,
+  "hash": "sha256:4fb8a45ea23da069",
+  "train": [
+   "wipe"
+  ],
+  "eval": [
+   {
+    "cell": "wipe",
+    "split": "id"
+   },
+   {
+    "cell": "lift",
+    "split": "retain"
+   },
+   {
+    "cell": "stack",
+    "split": "retain"
+   },
+   {
+    "cell": "nut",
+    "split": "retain"
+   },
+   {
+    "cell": "restack",
+    "split": "retain"
+   },
+   {
+    "cell": "twolift",
+    "split": "retain"
+   },
+   {
+    "cell": "handover",
+    "split": "retain"
+   },
+   {
+    "cell": "revstack",
+    "split": "retain"
+   },
+   {
+    "cell": "stackv2",
+    "split": "retain"
+   }
+  ],
+  "splits": {
+   "wipe": "id",
+   "lift": "retain",
+   "stack": "retain",
+   "nut": "retain",
+   "restack": "retain",
+   "twolift": "retain",
+   "handover": "retain",
+   "revstack": "retain",
+   "stackv2": "retain"
+  }
+ },
+ "artifacts": {
+  "registry": "…/stepA-cbbda18/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

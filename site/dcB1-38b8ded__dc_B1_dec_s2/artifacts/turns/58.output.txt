@@ -1,0 +1,46 @@
+rc=0
+14:running train its completed steps, latest mean reward and GPU-hours so far, as the site reports them. `tasks/<task>/eval_prompt.txt` (when
+15:the site provides it) is the prompt the policy receives at evaluation; training prompts are checked against it. `tasks/INDEX.md` lists each task's goal line, dev and
+21:| `python3 eval.py --adapter A[,B...]\|base\|loaded --task T --seeds N` | Evaluate on the next N unused dev seeds (the result lists them; the base column has its own) with the task's `tasks/<task>/eval_prompt.txt` verbatim (no training `note`/`goal`; the final score uses the same prompt). A stack's score on a task is known only from an eval of that stack (`--adapter A,B`); neither the scoreboard nor the environment derives it from its adapters' single scores. `loaded` is the stack loaded when the request is picked up, so not an adapter whose train is still running. Results are written only when all seeds finish, so an eval that reaches its time limit usually fails with no count (rarely: a count over the seeds that finished, with `partial`). Where the site can resume an eval (eval port dq-t1v2), an eval stopped by the cluster (time limit, preemption, node failure) continues its remaining seeds in a new Slurm job, at most 3 times; its status then says `continued from seed k in job J`, and its result lists every Slurm job (`jobs`) and each continuation (`continued`: `job` stopped, `cause`, `from` seed, `of` seeds, `continued_in` job), as it lists site retries. |
+27:| `python3 finish.py [--policy base \| --adapters A[,B...]] [--note TEXT]` | Step one of ending the session: submit the policy to score (no policy arguments: the loaded stack; single mode: `current`, `v<k>` or `current@<k>`). The result states exactly what will be scored and a token. |
+56:## policy_sample.py (this session)
+64:`program`, and with `--rollout` also `reward` (the eval's success on that seed, 0 or 1) and `log_tail` (the tail of what the
+74:Relative paths in SPEC (a reward file, an init adapter path, data files) resolve against the workspace, where `train.py` runs, wherever SPEC itself is.
+84:## What a practice call is
+87:Each step: `batch` prompts x 8 rollouts. GRPO's update comes from reward differences among a prompt's 8 rollouts: a prompt whose rollouts all get the same reward adds nothing to it. A rollout is one program written by the model for the task, run once in the task's simulator
+88:on one seed; its score is the reward below. The training prompt is the task's evaluation prompt, byte for byte (checked before training), unless the spec sets `note` or `goal` or a `data` row sets `prompt`:
+90:`tasks/<task>/eval_prompt.txt` in the workspace verbatim, without any note or goal.
+100:## Spec fields (a spec with any other field fails; see Failures)
+103:| `task` | string or list | required unless `data` | a trainable task (see workspace/tasks/INDEX.md), or a list of them: one call practising all, every batch split equally across them (`batch` a multiple of their number; no `note` / `goal`); revstack practises alone |
+109:| `start_preset` | string | none | a named start-state preset (core/start_presets.py: `restack_grasped`/`restack_lifted`/`restack_aligned`, `nut_grasped`/`nut_aligned`) to begin practice from an intermediate scene (e.g. object already grasped) so the agent trains the hard tail; the staged reward then scores only the stages after that sub-goal; fails loudly if the preset has not been built. With hidden tasks (B2): also the name of a preset you built with `preset.py` (`presets/<name>.json`), on the task it was built on; on a hidden task only such a preset |
+110:| `start_mix` | string | none | a mixed start-state pool (core/mix_presets.py, built with `build_mix`): seeds split across presets of one task at a ratio, some from scratch; the staged reward scores the full chain; not with `start_preset`; fails loudly if not built; refused on a hidden task (B2) |
+111:| `reward` | string | `task_completed` | `task_completed` (1.0 if the task's own success check passes, else 0.0); `shaped` (the simulator's staged reward); Python source containing `def reward(r)`; or the path of a `.py` file (relative paths: the workspace) defining `reward(r)`. `r` is the simulator's reply: `task_completed`, `reward`, `sandbox_rc`, `seed`, `log_tail` (keys or attributes); return a float |
+112:| `seed_start` | integer | 810001 | rollout k of the call runs on seed `seed_start + k`; must not reach seeds 1-100 |
+113:| `note` | string | none | one sentence inserted after the training prompt's Goal line (not a comment: the rollouts see it; evaluation prompts never have it) |
+114:| `goal` | string | none | replaces the training prompt's Goal line (evaluation prompts keep theirs) |
+119:| `min_reward` | number | 1.0 | `objective: sft` only: rows with `reward` >= this are trained on, the others dropped (a filter, never a weight) |
+121:## Training data (`data`)
+132:  rows / batch steps (omit `steps`, or give that number). The call's tasks come from the rows (omit `task`); `note` and
+133:  `goal` are not accepted with `data`. At most 4096 rows, 16 MB, 65536 characters per `prompt`.
+137:## SFT (`objective: sft`)
+139:(1e-4), `min_reward` (1.0), `time`; no other field) trains the policy's LoRA by supervised fine-tuning (cross-entropy on the program's
+142:- Each line of `data` is `{"task": ..., "seed": ..., "prompt": [{"role": "system" | "user", "content": ...}, ...], "program": ..., "reward": ...}`
+144:  message last; `tasks/<task>/eval_prompt.txt` as messages is the eval prompt of record), `program` the response trained on, `reward`
+145:  a number used only as the `min_reward` filter.
+149:  `data.prompt_overrides` and labelled, as `note`/`goal` are.
+152:- Building the file: `python3 skills/trainer/sft_rows.py practice adapters/<name> [--min-reward 1] [--steps 3-5] > sft.jsonl` takes a
+153:  finished practice call's rollouts (Output below); `python3 skills/trainer/sft_rows.py rollouts rollouts/<id>.jsonl [--min-reward 1] > sft.jsonl`
+154:  takes rollout.py rows (reward = your self_reward). Both print why each dropped row was dropped.
+156:  `training.json` (`resolved_spec.data`: `sha256` of your file, `rows`, `kept`, rows per task, `min_reward`, `prompt_overrides`); the
+160:## Failures
+162:- `train: unsupported spec field(s) ['<field>', ...]; this site reads only: steps, lr, batch, seed_start, reward, init, start_preset, start_mix, note, goal, time, task, name, data, objective, epochs, min_reward`
+165:- `train: reward must be 'task_completed', 'shaped' or the path of a .py file defining reward(result) -> float`
+166:- `train: reward file <path> is outside your workspace; a reward file must be a file in your workspace` (a symlink is not followed either)
+168:- sft: `train: data line <N>: <rule>` (a row's keys, task, seed reserved, prompt, program or reward), `train: no row has reward >= min_reward <m> ...`, `train: field(s) [...] have no meaning with objective 'sft'; ...`, `train: objective 'sft' needs data: ...`, `train: objective 'sft' trains the small policy profiles on this site ...`, `train: steps <s> != ceil(kept rows x epochs / batch) = <n>; omit steps`, `train: task: an sft spec trains the tasks of its kept rows (...); omit task`
+170:- `train: data has <rows> rows, not a multiple of batch <batch>: ...` / `train: steps <s> != data rows / batch = ...; omit steps` / `train: task: a spec with data trains the tasks its rows name (...); omit task` / `train: note cannot be set with data; ...`
+172:- `train: batch <b> does not split equally across <n> tasks [...]; use a multiple of <n>` / `train: task: each task at most once, got [...]` / `train: note edit one task's training prompt; a spec naming several tasks cannot set them` (a `task` list)
+174:- `train: your reward function raised <Error>: <message> (reward.py line N); ...` / `train: your reward function tried to <action> (<detail>), which the reward sandbox refuses; ...` / `train: your reward function ran longer than 120 s on one rollout ...`: a custom `reward(r)` runs in a sandbox, once per rollout: plain Python and the interpreter's libraries (math, json, numpy), files only in its working directory (temporary), no other files, no network, no subprocesses, 60 s CPU and 4 GiB per call. The train stops at the first such failure.
+176:- B2: `train: start_preset '<p>' is a registry preset, built with the privileged oracle; on a hidden task build your own start states with preset.py ...` / `train: start_preset '<p>' was built on task another task, not <task>`
+180:## Progress and cancel
+181:While a train runs, its record shows completed steps, the latest step's mean reward, the fraction of rollouts with reward > 0
+187:## Cost (canonical GPU-hours)

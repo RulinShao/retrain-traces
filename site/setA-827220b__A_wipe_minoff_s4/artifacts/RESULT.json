@@ -1,0 +1,110 @@
+{
+ "status": "DONE",
+ "turns": 34,
+ "gpu_hours": 0.0,
+ "final_score": {
+  "loaded": "base",
+  "per_task": {
+   "wipe": 13,
+   "lift": 66,
+   "stack": 53,
+   "nut": 0,
+   "restack": 0,
+   "twolift": 0,
+   "handover": 1,
+   "revstack": 2,
+   "stackv2": 3
+  },
+  "total": 138,
+  "n_per_task": 100,
+  "submission": "181e10",
+  "confirmed": true,
+  "per_split": {
+   "id": 13,
+   "retain": 125
+  }
+ },
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 2.7485,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "181e10",
+  "how": "explicit",
+  "turn": 29,
+  "confirmed": true,
+  "confirmed_turn": 33,
+  "ended_by": "DONE",
+  "note": "Cluster queue (377 of 1869) made training infeasible within session; submitting base.",
+  "policy": "base"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "5fe18e4eae22797fe3860e6493daa340bbd7c90e5d154d43a73748765971e840",
+ "suite": {
+  "name": "A-wipe",
+  "version": 1,
+  "hash": "sha256:4fb8a45ea23da069",
+  "train": [
+   "wipe"
+  ],
+  "eval": [
+   {
+    "cell": "wipe",
+    "split": "id"
+   },
+   {
+    "cell": "lift",
+    "split": "retain"
+   },
+   {
+    "cell": "stack",
+    "split": "retain"
+   },
+   {
+    "cell": "nut",
+    "split": "retain"
+   },
+   {
+    "cell": "restack",
+    "split": "retain"
+   },
+   {
+    "cell": "twolift",
+    "split": "retain"
+   },
+   {
+    "cell": "handover",
+    "split": "retain"
+   },
+   {
+    "cell": "revstack",
+    "split": "retain"
+   },
+   {
+    "cell": "stackv2",
+    "split": "retain"
+   }
+  ],
+  "splits": {
+   "wipe": "id",
+   "lift": "retain",
+   "stack": "retain",
+   "nut": "retain",
+   "restack": "retain",
+   "twolift": "retain",
+   "handover": "retain",
+   "revstack": "retain",
+   "stackv2": "retain"
+  }
+ },
+ "artifacts": {
+  "registry": "…/setA-827220b/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

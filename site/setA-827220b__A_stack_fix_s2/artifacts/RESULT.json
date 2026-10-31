@@ -1,0 +1,154 @@
+{
+ "status": "DONE",
+ "turns": 66,
+ "gpu_hours": 7.318,
+ "final_score": {
+  "loaded": "s1",
+  "per_task": {
+   "stack": 69,
+   "t1_stack_wide": 66,
+   "t1_stack_big": 67,
+   "t1_stack_d1": 66,
+   "t1_stack_d3": 66,
+   "t1_stack_small": 50,
+   "t1_stack_wider_big": 48,
+   "t1_stack_wider_small_d3": 58,
+   "lift": 84,
+   "nut": 0,
+   "wipe": 30,
+   "restack": 0,
+   "twolift": 0,
+   "handover": 1,
+   "revstack": 2,
+   "stackv2": 4
+  },
+  "total": 611,
+  "n_per_task": 100,
+  "submission": "2b454c",
+  "confirmed": true,
+  "per_split": {
+   "id": 69,
+   "near": 363,
+   "far": 58,
+   "retain": 121
+  }
+ },
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 12.079,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "2b454c",
+  "how": "default-loaded-stack",
+  "turn": 64,
+  "confirmed": true,
+  "confirmed_turn": 65,
+  "ended_by": "DONE",
+  "note": "evidence: eval job 43 (s1 71/100 vs base 51/100 on stack, n=100 dev seeds 800001-800100); train job 1 (s1, 30 steps, score_mean 0.22->0.66, program failures eliminated)",
+  "policy": "base + s1 (sha 2b4552e3e30d)"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "5fe18e4eae22797fe3860e6493daa340bbd7c90e5d154d43a73748765971e840",
+ "suite": {
+  "name": "A-stack",
+  "version": 1,
+  "hash": "sha256:2973e8164cb46bd9",
+  "train": [
+   "stack"
+  ],
+  "eval": [
+   {
+    "cell": "stack",
+    "split": "id"
+   },
+   {
+    "cell": "t1_stack_wide",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_big",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_d1",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_d3",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_small",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_wider_big",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_wider_small_d3",
+    "split": "far"
+   },
+   {
+    "cell": "lift",
+    "split": "retain"
+   },
+   {
+    "cell": "nut",
+    "split": "retain"
+   },
+   {
+    "cell": "wipe",
+    "split": "retain"
+   },
+   {
+    "cell": "restack",
+    "split": "retain"
+   },
+   {
+    "cell": "twolift",
+    "split": "retain"
+   },
+   {
+    "cell": "handover",
+    "split": "retain"
+   },
+   {
+    "cell": "revstack",
+    "split": "retain"
+   },
+   {
+    "cell": "stackv2",
+    "split": "retain"
+   }
+  ],
+  "splits": {
+   "stack": "id",
+   "t1_stack_wide": "near",
+   "t1_stack_big": "near",
+   "t1_stack_d1": "near",
+   "t1_stack_d3": "near",
+   "t1_stack_small": "near",
+   "t1_stack_wider_big": "near",
+   "t1_stack_wider_small_d3": "far",
+   "lift": "retain",
+   "nut": "retain",
+   "wipe": "retain",
+   "restack": "retain",
+   "twolift": "retain",
+   "handover": "retain",
+   "revstack": "retain",
+   "stackv2": "retain"
+  }
+ },
+ "artifacts": {
+  "registry": "…/setA-827220b/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

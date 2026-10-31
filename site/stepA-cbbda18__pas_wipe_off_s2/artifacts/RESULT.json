@@ -1,0 +1,89 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "eval_failed: InfraError(\"system eval eval-e2ba3d03ba9a: outcome=infra_error InfraError('eval job 42630376025 state FAILED: 0 cell summaries; ABORT: xid gpu: bus e3:00 on g3128 has 56 kernel Xid 109/31 events; eval cells are EGL-only (EVAL_CELL=1) -> not run here (site retries: job 42630376023 xid on g3128; job 42630376024 xid on g3128) (continued: job 42630376020 xid at 0 of 100 -> job 42630376021; job 42630376021 xid at 0 of 100 -> job 42630376022; job 42630376022 xid at 0 of 100 -> job 42630376023)')\")",
+ "gpu_hours": 9.495,
+ "final_score": null,
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 9.7224,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "24380d",
+  "how": "explicit",
+  "turn": 20,
+  "confirmed": true,
+  "confirmed_turn": 21,
+  "ended_by": "DONE",
+  "note": "wipe1: 25-step GRPO, 54/100 dev (16% base) on seeds 800001-800100",
+  "policy": "base + wipe1 (sha a4e9ecb597f4)"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "2183de583536dbaeb94e225f8c35bee89c66f2cb995a01283990304f2e05e3d7",
+ "suite": {
+  "name": "A-wipe",
+  "version": 1,
+  "hash": "sha256:4fb8a45ea23da069",
+  "train": [
+   "wipe"
+  ],
+  "eval": [
+   {
+    "cell": "wipe",
+    "split": "id"
+   },
+   {
+    "cell": "lift",
+    "split": "retain"
+   },
+   {
+    "cell": "stack",
+    "split": "retain"
+   },
+   {
+    "cell": "nut",
+    "split": "retain"
+   },
+   {
+    "cell": "restack",
+    "split": "retain"
+   },
+   {
+    "cell": "twolift",
+    "split": "retain"
+   },
+   {
+    "cell": "handover",
+    "split": "retain"
+   },
+   {
+    "cell": "revstack",
+    "split": "retain"
+   },
+   {
+    "cell": "stackv2",
+    "split": "retain"
+   }
+  ],
+  "splits": {
+   "wipe": "id",
+   "lift": "retain",
+   "stack": "retain",
+   "nut": "retain",
+   "restack": "retain",
+   "twolift": "retain",
+   "handover": "retain",
+   "revstack": "retain",
+   "stackv2": "retain"
+  }
+ },
+ "artifacts": {
+  "registry": "…/stepA-cbbda18/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

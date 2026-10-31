@@ -1,0 +1,101 @@
+rc=0
+- `train: reward must be 'task_completed', 'shaped' or the path of a .py file defining reward(result) -> float`
+- `train: reward file <path> is outside your workspace; a reward file must be a file in your workspace` (a symlink is not followed either)
+- `train: name: letters, digits, _ . - (max 48)`
+- sft: `train: data line <N>: <rule>` (a row's keys, task, seed reserved, prompt, program or reward), `train: no row has reward >= min_reward <m> ...`, `train: field(s) [...] have no meaning with objective 'sft'; ...`, `train: objective 'sft' needs data: ...`, `train: objective 'sft' trains the small policy profiles on this site ...`, `train: steps <s> != ceil(kept rows x epochs / batch) = <n>; omit steps`, `train: task: an sft spec trains the tasks of its kept rows (...); omit task`
+- `train: data line <N>: <rule>` for a row that breaks a rule above (not a JSON object; unsupported key(s); task must be one of ...; seed must be an integer; seed <s> is reserved ...; variant of '<task>' must be one of ...; prompt must be a non-empty string; prompt has <n> characters), or `train: data file has no rows` / `data has more than 4096 rows` / `data file is <n> bytes; at most 16777216`
+- `train: data has <rows> rows, not a multiple of batch <batch>: ...` / `train: steps <s> != data rows / batch = ...; omit steps` / `train: task: a spec with data trains the tasks its rows name (...); omit task` / `train: note cannot be set with data; ...`
+- `train: data file <path> is outside your workspace; a data file must be a file in your workspace` (a symlink is not followed either)
+- `train: batch <b> does not split equally across <n> tasks [...]; use a multiple of <n>` / `train: task: each task at most once, got [...]` / `train: note edit one task's training prompt; a spec naming several tasks cannot set them` (a `task` list)
+- `train: task 'revstack' runs its simulator under a scene shift and practises alone; name it in a spec of its own`
+- `train: your reward function raised <Error>: <message> (reward.py line N); ...` / `train: your reward function tried to <action> (<detail>), which the reward sandbox refuses; ...` / `train: your reward function ran longer than 120 s on one rollout ...`: a custom `reward(r)` runs in a sandbox, once per rollout: plain Python and the interpreter's libraries (math, json, numpy), files only in its working directory (temporary), no other files, no network, no subprocesses, 60 s CPU and 4 GiB per call. The train stops at the first such failure.
+- `train: seeds 1-100 are reserved for the final score; use dev seeds >= 800001`
+- B2: `train: start_preset '<p>' is a registry preset, built with the privileged oracle; on a hidden task build your own start states with preset.py ...` / `train: start_preset '<p>' was built on task another task, not <task>`
+A failure inside the trainer or the simulator (crash, missing adapter files, a hidden seed used) ends the session as an infrastructure
+fault. An all-zero update is a training outcome, shown on the scoreboard: the adapter's change is zero, so it behaves as its init (base or the init adapter).
+
+## Progress and cancel
+While a train runs, its record shows completed steps, the latest step's mean reward, the fraction of rollouts with reward > 0
+and canonical GPU-hours of the steps done so far (read from the trainer's per-step output about once a minute). A checkpoint is saved every
+step. A call stopped by the cluster (time limit, preemption, node failure) continues from its last checkpoint in a new Slurm job, at most 3 times; its status then says `continued from step k in job J`, and its result lists every Slurm job (`jobs`) and each continuation (`continued`: `job` stopped, `cause`, `from` step, `of` steps, `continued_in` job), as it lists site retries.
+`cancel.py ID` stops the job and keeps the adapter of the last saved step (registered with the steps it ran), or ends the
+job `failed` if none was saved; either way the job is charged the canonical cost of the steps it completed (see Cost).
+
+## Cost (canonical GPU-hours)
+The budget is charged a canonical cost per call, the same whatever hardware the site runs the call on. The tables below are
+the Qwen3.8-27B policy's; with another policy the costs differ, and SCOREBOARD.md's "Expected cost per call" line gives them.
+
+| call | canonical cost |
+|---|---|
+| train, 1 step | 2.76 |
+| train, 10 steps | 4.03 |
+| train, 30 steps | 6.84 |
+| train, N steps | 2 x (1.31 + 0.0703 x N x batch / 8) |
+
+| eval of one task on | 5 seeds | 20 seeds | 100 seeds |
+|---|---|---|---|
+| canonical cost | 0.36 | 0.38 | 0.48 |
+
+An eval's cost is mostly its fixed part, so 100 seeds cost little more than 5. A call that fails or is cancelled is charged the
+canonical cost of the steps it completed, or less if it ran only briefly. The cost is also the admission estimate.
+
+## Output
+A finished train writes `adapters/<name>/` (read-only to you): `adapter_model.safetensors`, `adapter_config.json`,
+`rewards.json` (per step: `step`, `score_mean` over that step's rollouts), `call.json` (job ids, `gpu_hours` = the canonical charge to
+your budget, `gpu_hours_actual` = measured hardware time, not charged, nonzero LoRA-B count, rollout seed range) and `training.json` (`resolved_spec`: the controls actually used). The adapter can then be named in `eval.py --adapter`, `load.py`, or as `init` of another train.
+Each `rewards.json` step also has `zero_variance_frac` (the share of that step's prompt groups whose rollouts all got one reward) and `failure_stages` (failed rollouts by stage: `sim`, `timeout`, `program`, `grader`, `task`); the running job's status line shows them for the latest step and the train's result lists them per step (`step_facts`).
+A call of several tasks (a `task` list, or `data` naming several) adds `per_task` to each `rewards.json` step: `{task: {"score_mean", "rollouts"}}`, that step's rollouts of each task and their mean reward (a rollout is attributed by its prompt; one matching no single task is left out).
+Each finished train (and one kept at a stop) also writes `practice_rows.jsonl`: one line per rollout of the call, `{task, seed, prompt_sha, program, reward, step, start}` (reward = the score GRPO gave it; start = the adapter the call started from), with the prompts in `practice_prompts.json` (`{prompt_sha: [chat messages]}`). A rollout whose program was written for two seeds in one step is left out. These are training data you generated yourself; `skills/trainer/sft_rows.py practice adapters/<name>` turns them into SFT rows (see SFT below).
+-----TOOLS SKILL-----
+---
+name: retrain-tools
+description: Submit training and evaluation jobs, inspect results, and select the policy to score.
+---
+
+# Environment tools
+
+Read `ENVIRONMENT.json` for the site's policy, adapter composition and enforced constraints, and `tasks.json`
+for task details. `STATUS.json` contains the latest budget, loaded stack, adapters and running job IDs.
+`SCOREBOARD.md` has dev scores and lineage. While a train or eval is submitted, `jobs/<id>.json` (`progress`, `progress_line`; `status.py`),
+STATUS.json (`job_progress`) and the scoreboard show whether it is queued (not started, with its queue time so far) or running, and for a
+running train its completed steps, latest mean reward and GPU-hours so far, as the site reports them. `tasks/<task>/eval_prompt.txt` (when
+the site provides it) is the prompt the policy receives at evaluation; training prompts are checked against it. `tasks/INDEX.md` lists each task's goal line, dev and
+hidden seed ranges, recorded base score, API names and key rules, taken from tasks.json, the eval prompts and the base scores. State comes from the environment; this skill is editable guidance.
+
+| Command | Effect |
+| --- | --- |
+| `python3 train.py SPEC` | Submit JSON/YAML spec to the installed trainer; see `skills/trainer/SKILL.md`. |
+| `python3 eval.py --adapter A[,B...]\|base\|loaded --task T --seeds N` | Evaluate on the next N unused dev seeds (the result lists them; the base column has its own) with the task's `tasks/<task>/eval_prompt.txt` verbatim (no training `note`/`goal`; the final score uses the same prompt). A stack's score on a task is known only from an eval of that stack (`--adapter A,B`); neither the scoreboard nor the environment derives it from its adapters' single scores. `loaded` is the stack loaded when the request is picked up, so not an adapter whose train is still running. Results are written only when all seeds finish, so an eval that reaches its time limit usually fails with no count (rarely: a count over the seeds that finished, with `partial`). Where the site can resume an eval (eval port dq-t1v2), an eval stopped by the cluster (time limit, preemption, node failure) continues its remaining seeds in a new Slurm job, at most 3 times; its status then says `continued from seed k in job J`, and its result lists every Slurm job (`jobs`) and each continuation (`continued`: `job` stopped, `cause`, `from` seed, `of` seeds, `continued_in` job), as it lists site retries. |
+| `python3 load.py load A [B...]` | Replace the loaded stack (names separated by spaces; eval.py separates them by commas). |
+| `python3 load.py stack A [B...]` | Append to the loaded stack. |
+| `python3 load.py unload [A...]` | Remove names, or return to base with no names. |
+| `python3 status.py [ID...]` | Read job states and results; no IDs shows all jobs. The last line states what finishing now would score. |
+| `python3 wait.py all\|ID... [--max 4h\|90m]` | Submit a wait barrier: your next turn starts when those jobs finish or after `--max` (default 2h), whichever comes first. If the bound comes first, the result states each job's queue state, reason, position and time pending, and "no job finished". The barrier runs in the environment after your command returns, so `--max` is not limited by the per-command time limit. |
+| `python3 finish.py [--policy base \| --adapters A[,B...]] [--note TEXT]` | Step one of ending the session: submit the policy to score (no policy arguments: the loaded stack; single mode: `current`, `v<k>` or `current@<k>`). The result states exactly what will be scored and a token. |
+| `python3 finish.py --confirm TOKEN` | Step two, in a later turn: end the session; the submission is scored. |
+| `python3 cancel.py ID` | Stop a running train or eval. A train keeps the adapter of its last saved step (if the site saved one), registered with the steps it ran; the job is charged the GPU time it used. |
+
+Scripts submit request files and return IDs. Shell success means submission, not job success. In the chat backend,
+requests are handled only after the entire command returns: `train.py spec.json; wait.py all; load.py load a1`
+queues a dependency chain, but reading status later in that same shell still sees the old state. The Codex backend has a background executor; request processing and status refresh happen independently.
+Read `jobs/<id>.json` or the next observation to distinguish done, failed and refused requests.
+
+Training names are reserved while pending. Training does not load an adapter in library mode; single mode automatically
+replaces and loads `current`. When ENVIRONMENT.json `constraint` names versions, every successful train is a new version
+v1, v2, ... (`current` = the latest) and becomes active; `load.py load v<k>` makes an earlier version active again,
+`eval.py --adapter v<k>` evaluates one, the next train starts from the active version, and versions are never stacked.
+Adapter composition depends on the site. Load calls are free. Train/dev calls reserve the
+site's cost estimate at admission and are charged the site's cost per call (skills/trainer/SKILL.md, Cost); the
+reservation is admission control, not a hard runtime cutoff.
+
+Successful training returns an adapter path, a skills digest, and site-provided training metadata when available.
+`training.json` in the adapter contains site-resolved parameters and artifact names. `site_sources` identifies the site
+code, not the complete external GPU/software environment. A skill edit alone does not change the installed trainer.
+
+Ending the session takes two steps: `finish.py` submits a policy and its result states exactly what will be scored
+(adapters with version and weights sha, eval-prompt hash) and a token; `finish.py --confirm TOKEN` in a later turn ends the
+session. Until then the session goes on; a `load.py` or `train.py` request in between cancels the submission (submit
+again). An unknown adapter name refuses the submission. The submission is scored even if a different stack is loaded at
+the end. If the session ends without a confirmation (budget, caps), the pending submission is scored, else the loaded
+stack. Submitted jobs finish before the score. A file named `DONE` starts the two-step finish like `finish.py` with no
+arguments: it submits the loaded stack (the file is removed); the session ends only after `finish.py --confirm TOKEN`.

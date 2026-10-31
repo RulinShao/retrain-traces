@@ -1,0 +1,185 @@
+rc=0
+"""Build SFT rows (objective: sft; SKILL.md "SFT data") from your practice calls or your rollout.py rows. Run it in your workspace:
+
+  python3 skills/trainer/sft_rows.py practice adapters/l1 [adapters/l2 ...] [--min-reward R] [--steps 3-5] > sft.jsonl
+  python3 skills/trainer/sft_rows.py rollouts rollouts/12.jsonl [rollouts/15.jsonl ...] [--min-reward R] > sft.jsonl
+
+practice: every rollout of a finished practice call (its adapter dir's practice_rows.jsonl, prompts in practice_prompts.json);
+  reward = the score GRPO gave it (your reward when the spec set one); --steps keeps only those steps of the call.
+rollouts: every row of rollout.py's output with a program and a self_reward; prompt = tasks/<task>/eval_prompt.txt; reward =
+  self_reward.
+Each SFT row is {task, seed, prompt, program, reward}. Dropped, each counted with its reason on stderr: rows without a program or a
+reward, rows below --min-reward, rows outside --steps, and rows on a seed the trainer refuses (hidden 1-100, dev eval
+800001-809999; the trainer applies the same rule). The train spec's min_reward filters again when the call runs. Stdlib only.
+"""
+import argparse, collections, json, os, re, sys
+
+SFT_SEED_RESERVED = ((1, 100), (800001, 809999))   # as retrain_min/site/sft_data.py SFT_SEED_RESERVED
+EVAL_PROMPT_HEADER = re.compile(r"^=== (system|user) ===\n", re.M)
+PRACTICE_ROWS, PRACTICE_PROMPTS = "practice_rows.jsonl", "practice_prompts.json"   # site/practice_rows.py ROWS_FILE / PROMPTS_FILE
+SEED_RESERVED = "seed reserved (hidden 1-100 or dev eval 800001-809999)"
+
+
+def eval_prompt_messages(text: str) -> list:
+    """tasks/<task>/eval_prompt.txt ("=== <role> ===\n<content>" blocks joined by a blank line) -> its chat messages
+    (as retrain_min/site/sft_data.py eval_prompt_messages)."""
+    parts = EVAL_PROMPT_HEADER.split(text)
+    if parts[0] or len(parts) < 3:
+        raise ValueError("an eval prompt starts with '=== system ===' or '=== user ===' and has at least one block")
+    blocks = list(zip(parts[1::2], parts[2::2]))
+    messages = []
+    for i, (role, body) in enumerate(blocks):
+        tail = "\n\n" if i + 1 < len(blocks) else "\n"
+        messages.append({"role": role, "content": body[:-len(tail)] if body.endswith(tail) else body})
+    return messages
+
+
+def reserved(seed) -> bool:
+    return isinstance(seed, int) and any(lo <= seed <= hi for lo, hi in SFT_SEED_RESERVED)
+
+
+def is_number(value) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def keep(task, seed, prompt, program, reward, min_reward, dropped) -> dict:
+    """The SFT row, or None with its drop reason counted."""
+    if not program:
+        dropped["no program"] += 1
+    elif not is_number(reward):
+        dropped["no reward"] += 1
+    elif min_reward is not None and reward < min_reward:
+        dropped[f"reward < {min_reward}"] += 1
+    elif reserved(seed):
+        dropped[SEED_RESERVED] += 1
+    elif prompt is None:
+        dropped["prompt not found"] += 1
+    else:
+        return {"task": task, "seed": seed, "prompt": prompt, "program": program, "reward": reward}
+    return None
+
+
+def from_rollouts(rows: list, prompt_of, min_reward=None) -> tuple:
+    """rollout.py rows -> (SFT rows, {reason: dropped count}); prompt_of(task) -> that task's chat messages."""
+    out, dropped = [], collections.Counter()
+    for r in rows:
+        reward = r.get("self_reward") if r.get("self_reward_error") is None else None
+        row = keep(r.get("task"), r.get("seed"), prompt_of(r.get("task")) if r.get("program") else None, r.get("program"), reward,
+                   min_reward, dropped)
+        if row:
+            out.append(row)
+    return out, dropped
+
+
+def from_practice(rows: list, prompts: dict, min_reward=None, steps=None) -> tuple:
+    """practice_rows.jsonl rows (+ practice_prompts.json) -> (SFT rows, {reason: dropped count})."""
+    out, dropped = [], collections.Counter()
+    for r in rows:
+        if steps is not None and r.get("step") not in steps:
+            dropped["step not selected"] += 1
+            continue
+        row = keep(r.get("task"), r.get("seed"), prompts.get(r.get("prompt_sha")), r.get("program"), r.get("reward"), min_reward, dropped)
+        if row:
+            out.append(row)
+    return out, dropped
+
+
+def step_range(text: str) -> set:
+    """'3' -> {3}; '3-5' -> {3, 4, 5}."""
+    lo, _, hi = text.partition("-")
+    return set(range(int(lo), int(hi or lo) + 1))
+
+
+def read_jsonl(path: str) -> list:
+    with open(path) as f:
+        return [json.loads(line) for line in f if line.strip()]
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    ap.add_argument("source", choices=("practice", "rollouts"))
+    ap.add_argument("paths", nargs="+", help="practice: adapters/<name> dirs; rollouts: rollouts/<job id>.jsonl files")
+    ap.add_argument("--min-reward", type=float, default=None, help="drop rows whose reward is below this")
+    ap.add_argument("--steps", type=step_range, default=None, help="practice: keep only these steps, e.g. 3 or 3-5")
+    ap.add_argument("--workspace", default=".", help="rollouts: the dir holding tasks/<task>/eval_prompt.txt (default: here)")
+    a = ap.parse_args(argv)
+    out, dropped, n = [], collections.Counter(), 0
+    if a.source == "practice":
+        for d in a.paths:
+            rows = read_jsonl(os.path.join(d, PRACTICE_ROWS))
+            with open(os.path.join(d, PRACTICE_PROMPTS)) as f:
+                prompts = json.load(f)
+            got, why = from_practice(rows, prompts, a.min_reward, a.steps)
+            out, n = out + got, n + len(rows)
+            dropped.update(why)
+    else:
+        cache = {}
+
+        def prompt_of(task):
+            if task not in cache:
+                path = os.path.join(a.workspace, "tasks", str(task), "eval_prompt.txt")
+                cache[task] = eval_prompt_messages(open(path).read()) if os.path.isfile(path) else None
+            return cache[task]
+
+        for path in a.paths:
+            rows = read_jsonl(path)
+            got, why = from_rollouts(rows, prompt_of, a.min_reward)
+            out, n = out + got, n + len(rows)
+            dropped.update(why)
+    for row in out:
+        sys.stdout.write(json.dumps(row) + "\n")
+    print(f"sft_rows: {len(out)} SFT rows from {n} {a.source} rows; dropped: {dict(dropped) or 'none'}", file=sys.stderr)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+=====FINISH=====
+"""python3 finish.py [--policy base | --adapters A[@VERSION][,B...]] [--note TEXT]  |  python3 finish.py --confirm TOKEN
+End the session in two steps. Step one submits the policy to score (no policy arguments: the loaded stack) and the next
+observation states exactly what will be scored and a token; the session continues. Step two, in a later turn,
+`--confirm TOKEN` ends the session and that submission is scored on the hidden seeds. A load.py or train.py request between
+the two steps cancels the submission (submit again)."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("--policy", choices=["base"], help="submit the base policy (no adapters)")
+p.add_argument("--adapters", help="comma-separated adapter names; single mode: current, v<k> or current@<k>")
+p.add_argument("--note", help="free text kept with the submission")
+p.add_argument("--confirm", metavar="TOKEN", help="step two: end the session with the pending submission")
+a = p.parse_args()
+if a.confirm is not None and (a.policy or a.adapters or a.note):
+    p.error("--confirm takes no other arguments")
+if a.policy and a.adapters:
+    p.error("give either --policy base or --adapters, not both")
+submit("finish", {"confirm": a.confirm} if a.confirm is not None else
+       {k: v for k, v in (("policy", a.policy), ("adapters", a.adapters), ("note", a.note)) if v is not None})
+=====WAIT=====
+"""python3 wait.py all | ID [ID...] [--max DURATION]  -- after this command, block until those jobs finish before your next
+turn, at most DURATION (hours or minutes: 4h, 90m; default 2h). If none of them finished by then, the result states each one's
+queue state, reason, position and time pending, and "no job finished"."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("ids", nargs="+")
+p.add_argument("--max")
+a = p.parse_args()
+submit("wait", {"ids": a.ids, **({"max": a.max} if a.max is not None else {})})
+=====STATUS.PY=====
+"""python3 status.py [ID...]  -- print the state and result of jobs (all jobs if no ID), then what finishing now would score."""
+import glob, json, os, sys
+
+if {"-h", "--help"} & set(sys.argv[1:]):
+    sys.exit(__doc__)
+here = os.path.dirname(os.path.abspath(__file__))
+jobs = os.path.join(here, "jobs")
+ids = sys.argv[1:] or sorted((os.path.basename(p)[:-5] for p in glob.glob(f"{jobs}/*.json") if ".request" not in p), key=int)
+for i in ids:
+    path = os.path.join(jobs, f"{i}.json")
+    print(open(path).read().strip() if os.path.exists(path) else json.dumps({"id": i, "state": "requested"}))
+try:   # STATUS.json is rewritten by the environment after every command
+    print(json.load(open(os.path.join(here, "STATUS.json")))["finish_now"])
+except (OSError, ValueError, KeyError):
+    pass

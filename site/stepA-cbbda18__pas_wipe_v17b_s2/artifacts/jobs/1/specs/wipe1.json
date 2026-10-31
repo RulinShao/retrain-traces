@@ -1,0 +1,6 @@
+{
+  "task": "wipe",
+  "name": "wipe1",
+  "steps": 30,
+  "batch": 8
+}

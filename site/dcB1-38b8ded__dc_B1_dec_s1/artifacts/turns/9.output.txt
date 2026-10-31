@@ -1,0 +1,216 @@
+rc=0
+=====site.toml=====
+# hyak (UW klone) site configuration for the shared `system/` package (experiments/system/SYSTEM_DESIGN.md §5.0, §9).
+# Every hyak-specific value lives here or in this directory's launchers; `system/` code reads it through its site config object and
+# names no partition, account, path, node or GPU type itself. Facts carry the command and date they were read with (live Slurm is
+# authoritative; re-read before relying on a number).
+
+[site]
+name = "hyak"
+gpu_type = "h200"                # the default class of a pool that names none (shared pool loader)
+
+[cluster]
+name = "hyak"
+scheduler = "slurm"
+gpu_type = "h200"
+gpus_per_node = 8
+# klone's priority has no age term (PriorityWeightAge = 0; `scontrol show config`, 2026-10-24): the manager does the aging.
+priority_weight_age = 0
+
+[owned]
+# Owned H200 (hyakalloc 2026-10-24): zlab 32, kohlab 8, shared with labmates. Accounts, not partitions.
+partition = "gpu-h200"
+accounts = ["gpu-h200-zlab", "gpu-h200-kohlab"]
+qos = "normal"
+# `scontrol show partition gpu-h200` 2026-10-24: MaxTime=UNLIMITED, DefaultTime=01:00:00, PreemptMode=REQUEUE, GraceTime=0.
+max_time = "UNLIMITED"
+# The limit owned workers and the manager request (SYSTEM_DESIGN §5.0), capped so a job ends before the next maintenance window.
+worker_time = "3-00:00:00"
+renew_before_s = 43200            # 12 h, as the #86 server renewal
+max_submit_per_user = 10000       # `sacctmgr show qos` normal MaxSubmitPU, 2026-10-25
+# Q3 (Rulin 10-25, accepted): operator constants, changeable without a pin. Cap 3 is proposed (experiments/hyak/system/RESULTS.md §5).
+max_idle_held_gpus = 2
+idle_release_s = 900
+warm_to_cold_s = 1800
+owned_reserve_gpus = 2            # kept free of preemptible-class work (agent turns, final evals)
+
+# GPU classes (Rulin 10-25, #100 6394770803): every pool unit carries gpu_class next to owned|preemptible; requests name the minimum
+# GPU memory they need, not a card. Owned GPUs per account from `hyakalloc`, GPU types from `sinfo -o "%P %G %D"`, 2026-10-25.
+# Partition MaxTime=UNLIMITED, PreemptMode=REQUEUE for all five (`scontrol show partition`). ckpt-all spans the same node types
+# preemptibly (gres types h200 / l40s / l40 / a40 / a100). Align with hyak_jobs.py's class table when it lands (hyak fill agent).
+[gpu_classes.h200]
+rank = 5                          # placement + controller: cheapest adequate class first (shared placement.configure_gpu_classes)
+mem_gb = 141
+memory_gb = 141
+partition = "gpu-h200"
+gres = "gpu:h200"
+owned = { "gpu-h200-zlab" = 32, "gpu-h200-kohlab" = 8 }
+
+[gpu_classes.l40s]
+rank = 0                          # placement + controller: cheapest adequate class first (shared placement.configure_gpu_classes)
+mem_gb = 48
+memory_gb = 48
+partition = "gpu-l40s"
+gres = "gpu:l40s"
+owned = { "gpu-l40s-zlab" = 8, "gpu-l40s-kohlab" = 8, "gpu-l40s-cse" = 14 }   # cse association MaxWall 1-00:00:00
+
+[gpu_classes.l40]
+rank = 1                          # placement + controller: cheapest adequate class first (shared placement.configure_gpu_classes)
+mem_gb = 48
+memory_gb = 48
+partition = "gpu-l40"
+gres = "gpu:l40"
+owned = { "gpu-l40-zlab" = 8, "gpu-l40-kohlab" = 8 }
+
+[gpu_classes.a40]
+rank = 2                          # placement + controller: cheapest adequate class first (shared placement.configure_gpu_classes)
+mem_gb = 48
+memory_gb = 48
+partition = "gpu-a40"
+gres = "gpu:a40"
+owned = { "gpu-a40-zlab" = 24 }
+
+[gpu_classes.a100]
+rank = 3                          # placement + controller: cheapest adequate class first (shared placement.configure_gpu_classes)
+mem_gb = 80
+memory_gb = 80
+partition = "gpu-a100"
+gres = "gpu:a100"
+owned = { "gpu-a100-cse" = 4 }                                              # cse association MaxWall 1-00:00:00
+
+[resources]                       # §5.4a resource profile (RESOURCE_PROFILE): demand-side knobs the manager resolves and hands to
+# placement so the retrain unit -> system seam carries them (retrain-robotics#100).
+[gpu_mem_floor]         # model class -> minimum per-GPU memory (GiB). placement raises the unit's gpu_mem_gb need to this
+# floor (configure_gpu_mem_floor) and rejects any worker advertising less, so a 27B train never lands on a 48 GB L40S and dies at
+# hyak_jobs import (the I-100 infinite-requeue). These mirror the [services.*] min_gpu_memory_gb and hyak_jobs POLICIES min_gpu_mem_gb:
+# the 27B / 14B / coder need H200 (141 GiB); the 8B fits the 48 GB classes (no floor). Keyed by the site's own model tokens
+# (RMIN_POLICY_MODEL / policy), carried in the request spec; the shared code names no model.
+"Qwen3.8-27B" = 141
+"Qwen3-14B" = 141
+"Qwen3-Coder-30B-A3B-Instruct" = 141
+"27B" = 141
+
+# Placement order by memory need: the smallest class that fits first, H200 only when it is the only fit or the others are exhausted.
+[placement]
+prefer_small_classes = true
+class_order = ["l40s", "l40", "a40", "a100", "h200"]
+
+[owned_cpu_slot]
+# Operational processes (manager, watcher, publisher, exports, batch loops in shared mode) and test jobs: CPU-only on owned
+# partitions, never ckpt (site policy + Rulin's rule).
+partition = "gpu-l40s"              # CPU-only on the L40S nodes (idle 10-25), as shared-mode batch jobs (launch.py)
+account = "gpu-l40s-kohlab"
+qos = "normal"
+manager_cpus = 2
+manager_mem = "8G"
+tests_partition = "gpu-l40s"
+tests_account = "gpu-l40s-zlab"
+
+[preemptible]
+partition = "ckpt-all"
+account = "ckpt-zlab"
+qos = "ckpt-gpu"                  # priority ckpt-gpu 300 > ckpt 100 > ckpt-scav 0 (`sacctmgr show qos`)
+requeue = true
+# `scontrol show partition ckpt-all` 2026-10-24: 559 nodes, MaxTime=UNLIMITED, PreemptMode=REQUEUE, GraceTime=0.
+max_time = "UNLIMITED"
+max_jobs_per_user = 500           # ckpt / ckpt-gpu MaxJobsPU, 2026-10-25
+max_submit_per_user = 1000        # MaxSubmitPU
+# Our own ckpt-all jobs, last 7 days (`sacct -u <user> -S now-7days -r ckpt-all -D -X`, 2026-10-24): preempted + requeued per
+# run-hour. Refreshed by the manager hourly (SYSTEM_DESIGN §10 Stage 3 plan); these are the seed values.
+preemptions_per_gpu_run_hour = 0.194
+preemptions_per_cpu_run_hour = 0.159
+median_elapsed_at_preemption_s = 1316
+
+[maintenance]
+# `scontrol show res` (MAINT, ALL_NODES): no job whose limit crosses a window starts before it ends.
+source = "scontrol show res"
+windows = [["2026-11-10T09:00:00", "2026-11-11T09:00:00"]]
+
+[filesystem]
+# Shared state off zlab (the 10-22 storage incident); every multi-node-written file goes through filelock (lockf; flock is not
+# coherent across GPFS nodes: 1829/4000 cross-node updates lost, PR #112).
+state_root = "…/rmin_out/system"
+lock = "lockf"
+node_local_tmp = "$TMPDIR"
+
+[network]
+# The shared inference server binds only a cluster-internal address (Rulin 10-25; server_registry.require_internal).
+bind = "cluster-internal"
+no_proxy = "localhost,127.0.0.1,.hyak.local"
+
+[services.inference]
+min_gpu_memory_gb = 141   # 27B bf16 + KV pool: H200 only (declared per model; an 8B server fits 48 GB)
+# Production config (Rulin 10-25): internal bind, one random API key per server job (0600 file, 0700 job-private dir), radix on (Q8).
+launcher = "retrain_min/site/hyak_serve.sbatch"
+gpus = 1
+sessions_per_server = 13          # rank 64 with 15 LoRA slots (live, #86); ~10 at rank 128
+class = "owned"
+
+[services.trainer]
+min_gpu_memory_gb = 141   # 27B LoRA training: H200 only; 8B training prefers the 48 GB classes
+# 27B replica: 2 trainer GPUs + 1 sim GPU (cosched layout, Q7) until the sandbox server reaches hyak.
+gpus = 3
+class = "owned"
+train_on_preemptible = false
+
+[services.sandbox]
+min_gpu_memory_gb = 48   # sim render, GraspNet, SAM3, Molmo2, PyRoKi: fit 48 GB
+class = "preemptible_preferred"
+programs_per_graspnet = 8         # one GraspNet process per GPU (efficiency RESULTS §6)
+
+[services.eval]
+min_gpu_memory_gb = 48   # dev eval = sim + Molmo2 on a 48 GB unit, decode on the shared server (decode=shared); rows of record stay in-job on H200
+class = "either"
+gpus = 1
+
+[manager]
+# Lease timing, passed by launchers/manager.sbatch as RMIN_MANAGER_{DEADLINE,CEILING}_S to the shared manager entry. A live worker
+# heartbeats every 5 s, so the soft deadline only matters for a dead worker; the 72 h hard ceiling exceeds every hyak unit.
+deadline_s = 120.0                # soft lease deadline; a live worker heartbeats every 5 s (launchers/manager.sbatch default)
+ceiling_s = 259200.0
+
+# §5.6 pool controller (shared system/manager/pool.py). A hyak worker is a CPU-slot job (passthrough: each unit is a child job on
+# its GPU class), so every pool's own sbatch flags are the owned CPU slot; the class decides where the children go (worker.sbatch).
+# max_workers here is the dev cap; the scaling drives override it per scale (experiments/hyak/system/SCALING.md).
+[pools.owned]
+pool_class = "owned"
+gpu_class = "h200"
+partition = "gpu-l40s"
+account = "gpu-l40s-kohlab"
+qos = "normal"
+gpus_per_worker = 4
+min_workers = 0
+max_workers = 2
+
+[pools.owned_l40s]
+pool_class = "owned"
+gpu_class = "l40s"
+partition = "gpu-l40s"
+account = "gpu-l40s-kohlab"
+qos = "normal"
+gpus_per_worker = 4
+min_workers = 0
+max_workers = 2
+
+[pools.preemptible_l40s]
+pool_class = "preemptible"
+gpu_class = "l40s"
+partition = "gpu-l40s"
+account = "gpu-l40s-kohlab"
+qos = "normal"
+gpus_per_worker = 4
+min_workers = 0
+max_workers = 0                 # off until the ckpt submit cap clears (PROFILE problem 2)
+
+[controller]
+idle_cap_gpus = 2               # Q3: at most 2 owned GPUs idle beyond idle_cap_s (accepted cap; 3 proposed, RESULTS.md §5)
+idle_cap_s = 900.0
+warm_cold_s = 1800.0
+renew_lead_s = 300.0
+startup_grace_s = 600.0
+default_pool_class = "owned"
+[controller.class_pool]
+E0 = "owned"                    # final evals: owned reserve only (§5.4)
+E1 = "owned"                    # dev evals: owned while preemptible is off
+T = "owned"
+A = "owned"

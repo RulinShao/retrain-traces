@@ -1,0 +1,455 @@
+{
+ "format_version": "1",
+ "trajectory_id": "dc_B1_dec_s2",
+ "created": "2026-10-31T10:57:17.229Z",
+ "producer": {
+  "name": "retrain_min.runner",
+  "version": null,
+  "git_sha": "38b8ded1c57c837996c4d187046e8f79c124f359"
+ },
+ "tags": {
+  "kind": "session",
+  "session": "dc_B1_dec_s2",
+  "mode": "dev",
+  "adapter_mode": "library",
+  "site": "RecordingSite",
+  "policy_model": "Qwen3.8-27B",
+  "capx_version": "7fda1bef602c",
+  "seed": 2
+ },
+ "agent": {
+  "model": "qwen38-27b:base0",
+  "backend": "local"
+ },
+ "harness": {
+  "name": "retrain_min.harness",
+  "config": {
+   "tasks_path": "\u2026/session/suite_tasks.json",
+   "out_dir": "\u2026/dcB1-38b8ded/dc_B1_dec_s2",
+   "budget_gpu_hours": 16.0,
+   "endpoint": "http://127.0.0.1:46392",
+   "model": "qwen38-27b:loaded_dc_B1_dec_s2",
+   "dev_seed_start": 800001,
+   "hidden_seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100
+   ],
+   "max_turns": 300,
+   "max_wall_hours": 72.0,
+   "command_timeout_s": 600,
+   "max_reply_tokens": 16384,
+   "chat_timeout_s": 1213,
+   "observation_chars": 20000,
+   "context_messages": 60,
+   "reply_chars": 12000,
+   "context_tokens": 100000,
+   "base_scores": {
+    "lift": {
+     "count": 67,
+     "n": 100,
+     "cell": "lift s4:paper~base",
+     "seeds": "800001-800100",
+     "job": "42123048",
+     "gpu_hours": 0.7983
+    },
+    "stack": {
+     "count": 51,
+     "n": 100,
+     "cell": "stack s4:paper~base",
+     "seeds": "800001-800100",
+     "job": "42123050",
+     "gpu_hours": 0.9044
+    },
+    "nut": {
+     "count": 0,
+     "n": 100,
+     "cell": "nut s4:paper~base",
+     "seeds": "800001-800100",
+     "job": "42123051",
+     "gpu_hours": 0.9233
+    },
+    "wipe": {
+     "count": 16,
+     "n": 100,
+     "cell": "wipe s4:paper~base",
+     "seeds": "800001-800100",
+     "job": "42123052",
+     "gpu_hours": 0.9356
+    },
+    "restack": {
+     "count": 0,
+     "n": 100,
+     "cell": "restack s4v2:paper~base",
+     "cfg_map": "restack_s4v2.yaml",
+     "api": "V2",
+     "job": "42147118",
+     "gpu_hours": 0.6544,
+     "note": "V2 rerun 10-22 (cell of record O3); the V1 s4:paper row (0/100, job 42123053) is superseded"
+    },
+    "twolift": {
+     "count": 1,
+     "n": 100,
+     "cell": "twolift s4:paper~base",
+     "seeds": "800001-800100",
+     "job": "42123054",
+     "gpu_hours": 0.9356
+    },
+    "handover": {
+     "count": 2,
+     "n": 100,
+     "cell": "handover s4:paper~base",
+     "seeds": "800001-800100",
+     "job": "42123055",
+     "gpu_hours": 1.3961
+    },
+    "revstack": {
+     "count": 0,
+     "n": 100,
+     "cell": "stack s4shift:fix~base",
+     "cfg_map": "stack_s4v2shift.yaml",
+     "api": "V2",
+     "job": "42143965",
+     "gpu_hours": 0.6872,
+     "note": "V2 rerun 10-22 (cell of record O4); the V1 row (38/100, job 42123095) is superseded"
+    },
+    "stackv2": {
+     "count": 1,
+     "n": 100,
+     "cell": "stack s4v2:fix~base",
+     "seeds": "800001-800100",
+     "job": "42123096",
+     "gpu_hours": 0.8272
+    }
+   },
+   "skills_dir": null,
+   "agent": "local",
+   "adapter_mode": "library",
+   "single_versions": false,
+   "state_fields": [
+    "adapters",
+    "gpu_hours_remaining",
+    "gpu_hours_reserved",
+    "gpu_hours_spent",
+    "loaded",
+    "running_jobs",
+    "job_progress"
+   ],
+   "mode": "dev",
+   "preset_adapters": null,
+   "eval_cells": [
+    "lift",
+    "stack",
+    "wipe",
+    "nut",
+    "restack",
+    "revstack",
+    "t1_stack_wide",
+    "t1_stack_big",
+    "t1_stack_d1",
+    "t1_lift_wide",
+    "t1_lift_big",
+    "t1_nut_wide",
+    "t1_stack_d3",
+    "t1_stack_small",
+    "t1_stack_wider_big",
+    "t1_stack_wider_small_d3",
+    "t1_lift_far",
+    "t1_lift_small",
+    "t1_nut_wider",
+    "t2_l",
+    "t2_s",
+    "t2_p",
+    "t2_ls",
+    "t2_sp",
+    "t2_pl",
+    "t2_ss",
+    "t2_lsl",
+    "t2_spl",
+    "t2_sssl",
+    "twolift",
+    "handover",
+    "stackv2"
+   ],
+   "suite": {
+    "name": "B1-setlevel",
+    "version": 1,
+    "hash": "sha256:992a3ebe189920ee",
+    "train": [
+     "lift",
+     "stack",
+     "wipe",
+     "nut",
+     "restack",
+     "revstack"
+    ],
+    "eval": [
+     {
+      "cell": "lift",
+      "split": "id"
+     },
+     {
+      "cell": "stack",
+      "split": "id"
+     },
+     {
+      "cell": "wipe",
+      "split": "id"
+     },
+     {
+      "cell": "nut",
+      "split": "id"
+     },
+     {
+      "cell": "restack",
+      "split": "id"
+     },
+     {
+      "cell": "revstack",
+      "split": "id"
+     },
+     {
+      "cell": "t1_stack_wide",
+      "split": "near"
+     },
+     {
+      "cell": "t1_stack_big",
+      "split": "near"
+     },
+     {
+      "cell": "t1_stack_d1",
+      "split": "near"
+     },
+     {
+      "cell": "t1_lift_wide",
+      "split": "near"
+     },
+     {
+      "cell": "t1_lift_big",
+      "split": "near"
+     },
+     {
+      "cell": "t1_nut_wide",
+      "split": "near"
+     },
+     {
+      "cell": "t1_stack_d3",
+      "split": "near"
+     },
+     {
+      "cell": "t1_stack_small",
+      "split": "near"
+     },
+     {
+      "cell": "t1_stack_wider_big",
+      "split": "near"
+     },
+     {
+      "cell": "t1_stack_wider_small_d3",
+      "split": "far"
+     },
+     {
+      "cell": "t1_lift_far",
+      "split": "near"
+     },
+     {
+      "cell": "t1_lift_small",
+      "split": "near"
+     },
+     {
+      "cell": "t1_nut_wider",
+      "split": "near"
+     },
+     {
+      "cell": "t2_l",
+      "split": "far"
+     },
+     {
+      "cell": "t2_s",
+      "split": "far"
+     },
+     {
+      "cell": "t2_p",
+      "split": "far"
+     },
+     {
+      "cell": "t2_ls",
+      "split": "far"
+     },
+     {
+      "cell": "t2_sp",
+      "split": "far"
+     },
+     {
+      "cell": "t2_pl",
+      "split": "far"
+     },
+     {
+      "cell": "t2_ss",
+      "split": "far"
+     },
+     {
+      "cell": "t2_lsl",
+      "split": "far"
+     },
+     {
+      "cell": "t2_spl",
+      "split": "far"
+     },
+     {
+      "cell": "t2_sssl",
+      "split": "far"
+     },
+     {
+      "cell": "twolift",
+      "split": "far"
+     },
+     {
+      "cell": "handover",
+      "split": "far"
+     },
+     {
+      "cell": "stackv2",
+      "split": "far"
+     }
+    ],
+    "splits": {
+     "lift": "id",
+     "stack": "id",
+     "wipe": "id",
+     "nut": "id",
+     "restack": "id",
+     "revstack": "id",
+     "t1_stack_wide": "near",
+     "t1_stack_big": "near",
+     "t1_stack_d1": "near",
+     "t1_lift_wide": "near",
+     "t1_lift_big": "near",
+     "t1_nut_wide": "near",
+     "t1_stack_d3": "near",
+     "t1_stack_small": "near",
+     "t1_stack_wider_big": "near",
+     "t1_stack_wider_small_d3": "far",
+     "t1_lift_far": "near",
+     "t1_lift_small": "near",
+     "t1_nut_wider": "near",
+     "t2_l": "far",
+     "t2_s": "far",
+     "t2_p": "far",
+     "t2_ls": "far",
+     "t2_sp": "far",
+     "t2_pl": "far",
+     "t2_ss": "far",
+     "t2_lsl": "far",
+     "t2_spl": "far",
+     "t2_sssl": "far",
+     "twolift": "far",
+     "handover": "far",
+     "stackv2": "far"
+    }
+   },
+   "final_concurrency": 1,
+   "trajectory": true,
+   "agent_model": "base0",
+   "policy_sample": true,
+   "data_provenance": true
+  }
+ }
+}

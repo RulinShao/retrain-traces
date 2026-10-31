@@ -1,0 +1,314 @@
+rc=0
+=== training.json ===
+{
+ "resolved_spec": {
+  "steps": 30,
+  "lr": 2e-05,
+  "batch": 8,
+  "seed_start": 810001,
+  "reward": "task_completed",
+  "init": null,
+  "note": "Produce a robust pick program: if segmentation or grasp planning returns empty, retry using a Molmo point prompt with the SAM3 point-prompt segmentation; convert the camera-frame grasp pose to the world frame using the camera intrinsics and extrinsics; open the gripper and move directly above the grasp target with a safe height margin before descending onto it, then close the gripper and lift; keep all motion within the arm workspace and collision-free.",
+  "goal": null,
+  "time": "09:55:00",
+  "task": "lift",
+  "name": "lift1"
+ },
+ "artifacts": [
+  "rewards.json",
+  "call.json"
+ ],
+ "site_sources": {
+  "hyak.py": "278ed6b7f82bc5ae0fda9008666705dc5c671fb497e5d1654e922160e54cd98a",
+  "fairsc3.py": "505a5134ebf2ed76e93527796ec256629477e1619f98cb804712038cd8005008",
+  "base.py": "e16295dd5611ddb63e26b69c1ee1034cbaf15fd51c667e4684644296e62e0f61",
+  "hyak_jobs.py": "228059585f82bacab6d381c14ea113835215a0e6ecd11c3c0a44fe413d3bf23b"
+ },
+ "policy_model": "Qwen3.8-27B"
+}
+=== rewards.json ===
+[
+ {
+  "step": 1,
+  "score_mean": 0.5625,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 5,
+   "task": 23
+  }
+ },
+ {
+  "step": 2,
+  "score_mean": 0.484375,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 7,
+   "task": 26
+  }
+ },
+ {
+  "step": 3,
+  "score_mean": 0.609375,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 14,
+   "task": 11
+  }
+ },
+ {
+  "step": 4,
+  "score_mean": 0.625,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 7,
+   "task": 17
+  }
+ },
+ {
+  "step": 5,
+  "score_mean": 0.71875,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "task": 18
+  }
+ },
+ {
+  "step": 6,
+  "score_mean": 0.78125,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 4,
+   "task": 10
+  }
+ },
+ {
+  "step": 7,
+  "score_mean": 0.609375,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 5,
+   "task": 20
+  }
+ },
+ {
+  "step": 8,
+  "score_mean": 0.6875,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 5,
+   "task": 15
+  }
+ },
+ {
+  "step": 9,
+  "score_mean": 0.8125,
+  "zero_variance_frac": 0.125,
+  "failure_stages": {
+   "program": 3,
+   "task": 9
+  }
+ },
+ {
+  "step": 10,
+  "score_mean": 0.71875,
+  "zero_variance_frac": 0.125,
+  "failure_stages": {
+   "program": 3,
+   "task": 15
+  }
+ },
+ {
+  "step": 11,
+  "score_mean": 0.8125,
+  "zero_variance_frac": 0.125,
+  "failure_stages": {
+   "program": 3,
+   "task": 9
+  }
+ },
+ {
+  "step": 12,
+  "score_mean": 0.828125,
+  "zero_variance_frac": 0.375,
+  "failure_stages": {
+   "program": 1,
+   "task": 10
+  }
+ },
+ {
+  "step": 13,
+  "score_mean": 0.859375,
+  "zero_variance_frac": 0.125,
+  "failure_stages": {
+   "program": 1,
+   "task": 8
+  }
+ },
+ {
+  "step": 14,
+  "score_mean": 0.84375,
+  "zero_variance_frac": 0.25,
+  "failure_stages": {
+   "program": 4,
+   "task": 6
+  }
+ },
+ {
+  "step": 15,
+  "score_mean": 0.921875,
+  "zero_variance_frac": 0.5,
+  "failure_stages": {
+   "program": 2,
+   "task": 3
+  }
+ },
+ {
+  "step": 16,
+  "score_mean": 0.90625,
+  "zero_variance_frac": 0.5,
+  "failure_stages": {
+   "program": 1,
+   "task": 5
+  }
+ },
+ {
+  "step": 17,
+  "score_mean": 0.84375,
+  "zero_variance_frac": 0.375,
+  "failure_stages": {
+   "program": 2,
+   "task": 8
+  }
+ },
+ {
+  "step": 18,
+  "score_mean": 0.890625,
+  "zero_variance_frac": 0.375,
+  "failure_stages": {
+   "program": 1,
+   "task": 6
+  }
+ },
+ {
+  "step": 19,
+  "score_mean": 0.84375,
+  "zero_variance_frac": 0.125,
+  "failure_stages": {
+   "program": 1,
+   "task": 9
+  }
+ },
+ {
+  "step": 20,
+  "score_mean": 0.921875,
+  "zero_variance_frac": 0.375,
+  "failure_stages": {
+   "program": 1,
+   "task": 4
+  }
+ },
+ {
+  "step": 21,
+  "score_mean": 0.90625,
+  "zero_variance_frac": 0.375,
+  "failure_stages": {
+   "program": 2,
+   "task": 4
+  }
+ },
+ {
+  "step": 22,
+  "score_mean": 0.90625,
+  "zero_variance_frac": 0.375,
+  "failure_stages": {
+   "program": 1,
+   "task": 5
+  }
+ },
+ {
+  "step": 23,
+  "score_mean": 0.90625,
+  "zero_variance_frac": 0.625,
+  "failure_stages": {
+   "program": 2,
+   "task": 4
+  }
+ },
+ {
+  "step": 24,
+  "score_mean": 0.875,
+  "zero_variance_frac": 0.25,
+  "failure_stages": {
+   "program": 2,
+   "task": 6
+  }
+ },
+ {
+  "step": 25,
+  "score_mean": 0.9375,
+  "zero_variance_frac": 0.5,
+  "failure_stages": {
+   "task": 4
+  }
+ },
+ {
+  "step": 26,
+  "score_mean": 0.953125,
+  "zero_variance_frac": 0.75,
+  "failure_stages": {
+   "task": 3
+  }
+ },
+ {
+  "step": 27,
+  "score_mean": 0.890625,
+  "zero_variance_frac": 0.375,
+  "failure_stages": {
+   "program": 1,
+   "task": 6
+  }
+ },
+ {
+  "step": 28,
+  "score_mean": 0.953125,
+  "zero_variance_frac": 0.75,
+  "failure_stages": {
+   "task": 3
+  }
+ },
+ {
+  "step": 29,
+  "score_mean": 0.890625,
+  "zero_variance_frac": 0.25,
+  "failure_stages": {
+   "program": 1,
+   "task": 6
+  }
+ },
+ {
+  "step": 30,
+  "score_mean": 0.984375,
+  "zero_variance_frac": 0.875,
+  "failure_stages": {
+   "task": 1
+  }
+ }
+]
+=== call.json ===
+{
+ "jobs": [
+  "42504831"
+ ],
+ "gpu_hours": 6.838,
+ "gpu_hours_actual": 4.7161,
+ "train_gpus": 2,
+ "lora_b": [
+  304,
+  304
+ ],
+ "sim_seeds": [
+  810001,
+  811921
+ ],
+ "adapter": "…/train_42504831/peft_rmin_lift1_step30"
+}

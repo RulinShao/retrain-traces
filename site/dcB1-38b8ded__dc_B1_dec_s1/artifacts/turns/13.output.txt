@@ -1,0 +1,96 @@
+rc=0
+=====capx_reward.py=====
+"""Runtime copy of record for information-contract sessions (envs/capx/recipe; reconciled 10-14 from pskills rl/capx_rl/capx_reward.py:
+CAPX_REWARD_MODE shaped / model / model_shaped kept; its e7_state logging removed). verl custom reward for CaP-X Cube Stack S3-fix: send the decoded response (the program, raw, as the eval would receive
+it as `content`) to the sim service, which assigns a fresh seed >= 101 and runs it through the upstream trial path.
+score = 1.0 iff the simulator reports task_completed (no partial credit; the env reward B is logged as sim_reward only)."""
+import json, os, time, urllib.request
+
+READY = os.environ.get("CAPX_SIM_READY_FILE")   # one ready file, or several joined by '+' (one sim per API family, E5)
+_ROUTE = {}
+
+
+def _url(task):
+    """URL of the sim that serves `task` (routing from each service's /health; see sim_route.py)."""
+    if task not in _ROUTE:
+        import sys
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from sim_route import route, urls_from
+        _ROUTE.update(route(urls_from(READY)))
+    if task in _ROUTE:
+        return _ROUTE[task]
+    if None in _ROUTE and len(_ROUTE) == 1:
+        return _ROUTE[None]
+    raise RuntimeError(f"no sim serves task {task}: {_ROUTE}")
+
+
+def _log(ei, program, r):
+    """One line per scored rollout in $RUN_OUT/rollout_log.jsonl (the workspace's per-rollout records join it to verl's rollout_data
+    by program): seed, sandbox rc, program and the sim log tail. Information contract v1: no success flag, no reward state (the
+    E7 recorder's e7_state is privileged; it is consumed only by the grader)."""
+    import fcntl
+    with open(os.path.join(os.environ["RUN_OUT"], "rollout_log.jsonl"), "a") as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        f.write(json.dumps({"index": ei.get("index"), "seed": r.get("seed"), "sandbox_rc": r.get("sandbox_rc"),
+                            "program": program, "log_tail": (r.get("log_tail") or "")[-600:]}, default=str) + "\n")
+        fcntl.flock(f, fcntl.LOCK_UN)
+
+
+RETRIES = 10                    # ~17 min of retries in all (RETRY_WAIT_S x attempt, capped)
+RETRY_WAIT_S, RETRY_WAIT_MAX_S = 30, 120
+RUN_TIMEOUT_S = 1800            # one /run request
+
+
+def rollout(ei, program, score):
+    """POST `program` to the sim that serves ei["task"] and return score(reply). The request, retries, route refresh and aborts of
+    every CaP-X practice reward (this file, and retrain_min/site/capx_reward.py's custom-reward hook, which passes score = the
+    reply itself and scores outside the retries). An exception in score() is retried with the request, as it always was here."""
+    request = {"program": program, "tag": f"idx{ei.get('index')}", "task": ei.get("task")}
+    if ei.get("seed") is not None:   # a dataset row's own seed (make_data_rows.py); without it the sim's counter assigns one
+        request["seed"] = int(ei["seed"])
+    body = json.dumps(request).encode()
+    last = None
+    for attempt in range(RETRIES):   # the route is re-resolved each time (a restarted sim re-writes its ready file)
+        try:
+            if attempt:
+                _ROUTE.clear()
+            url = _url(ei.get("task"))  # multi-task runs: extra_info["task"] routes the program to that task's sim workers
+            req = urllib.request.Request(url + "/run", data=body, headers={"Content-Type": "application/json"})
+            r = json.loads(urllib.request.urlopen(req, timeout=RUN_TIMEOUT_S).read())
+            if r.get("svc_infra"):   # service-pause v1 (ruling b): an unrecovered service fault is never scored; abort (resubmit re-runs the step)
+                raise SystemExit(f"ABORT: unrecovered service fault in rollout seed {r.get('seed')}: {json.dumps(r.get('svc_infra'))[:300]}")
+            if r.get("render_faults", 0):   # garbage/asserted depth (concurrent offscreen rendering): never score it, abort the run
+                raise SystemExit(f"ABORT: render fault in rollout seed {r.get('seed')} task {r.get('task')} (render_faults={r['render_faults']})")
+            if os.environ.get("ROLLOUT_LOG") == "1" and os.environ.get("RUN_OUT"):   # retrain practice_iface (default off): per-rollout
+                _log(ei, program, r)                                                  # record without state or success
+            return score(r)
+        except Exception as e:
+            last = e; time.sleep(min(RETRY_WAIT_MAX_S, RETRY_WAIT_S * (attempt + 1)))
+    raise RuntimeError(f"sim service failed {RETRIES}x: {last}")
+
+
+def compute_score(data_source, solution_str, ground_truth, extra_info=None, **kw):
+    return rollout(extra_info or {}, solution_str, _score)
+
+
+def _score(r):
+    """The recipe's score of one /run reply (CAPX_REWARD_MODE: task_completed by default; shaped / model / model_shaped opt-in)."""
+    # E6 A7 (opt-in, default unchanged): CAPX_REWARD_MODE=shaped -> score = 1 if task_completed else min(env reward, 1) * SHAPED_SCALE
+    # (robosuite staged reward; partial credit for reach/grasp/lift). Binary task_completed stays in "task_completed".
+    sc = float(r["task_completed"])
+    if os.environ.get("CAPX_REWARD_MODE") == "shaped" and not r["task_completed"]:
+        sc = min(float(r["reward"]), 1.0) * float(os.environ.get("CAPX_SHAPED_SCALE", "0.5"))
+    if os.environ.get("CAPX_REWARD_MODE") == "model":   # E11 DFxPR (opt-in, exploratory): score = the model-written dense reward itself
+        sc = min(max(float(r.get("e7_reward") or 0.0), 0.0), 1.0)
+        return {"score": sc, "task_completed": float(r["task_completed"]), "model_reward": sc, "sim_reward": float(r["reward"]),
+                "sandbox_rc": float(r["sandbox_rc"]), "seed": float(r["seed"]), "sim_secs": float(r["secs"]), "sim_wall_s": float(r["wall_s"])}
+    if os.environ.get("CAPX_REWARD_MODE") == "model_shaped":   # E11 MR (opt-in): the same form as A7 with the model-written staged reward
+        sc = 1.0 if r["task_completed"] else min(float(r.get("e7_reward") or 0.0), 1.0) * float(os.environ.get("CAPX_SHAPED_SCALE", "0.5"))
+        return {"score": sc, "task_completed": float(r["task_completed"]), "model_reward": float(r.get("e7_reward") or 0.0),
+                "sim_reward": float(r["reward"]), "sandbox_rc": float(r["sandbox_rc"]), "seed": float(r["seed"]),
+                "sim_secs": float(r["secs"]), "sim_wall_s": float(r["wall_s"])}
+    if os.environ.get("CAPX_REWARD_MODE") == "shaped":
+        return {"score": sc, "task_completed": float(r["task_completed"]), "sim_reward": float(r["reward"]), "sandbox_rc": float(r["sandbox_rc"]),
+                "seed": float(r["seed"]), "sim_secs": float(r["secs"]), "sim_wall_s": float(r["wall_s"])}
+    return {"score": sc, "sim_reward": float(r["reward"]), "sandbox_rc": float(r["sandbox_rc"]),
+            "seed": float(r["seed"]), "sim_secs": float(r["secs"]), "sim_wall_s": float(r["wall_s"])}

@@ -1,0 +1,50 @@
+{
+ "status": "DONE",
+ "turns": 82,
+ "gpu_hours": 13.887,
+ "final_score": {
+  "loaded": "r1_multi+r1_revstack",
+  "per_task": {
+   "lift": 74,
+   "stack": 47,
+   "nut": 0,
+   "wipe": 41,
+   "restack": 0,
+   "twolift": 0,
+   "handover": 0,
+   "revstack": 2,
+   "stackv2": 3
+  },
+  "total": 167,
+  "n_per_task": 100,
+  "submission": "ceb61a",
+  "confirmed": true
+ },
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 11.5011,
+ "gpu_hours_charging": "canonical",
+ "agent_gpu_h": 0.7408,
+ "submission": {
+  "token": "ceb61a",
+  "how": "default-loaded-stack",
+  "turn": 68,
+  "confirmed": true,
+  "confirmed_turn": 81,
+  "ended_by": "DONE",
+  "note": "STACK [r1_multi, r1_revstack]: verified dev total 155 vs base 137 (lift+12, wipe+20, stack-15). No budget left for retrain (min 2.76 > 2.11).",
+  "policy": "base + r1_multi (sha 531f422f7cef) + r1_revstack (sha 8d0abd3d665c)"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "a63d33bba9c2a0141f6b8244b896ed23a7e4afde9919a7c1eb5a3a37fc0fa3c4",
+ "artifacts": {
+  "registry": "…/wt14-aa49cd6/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

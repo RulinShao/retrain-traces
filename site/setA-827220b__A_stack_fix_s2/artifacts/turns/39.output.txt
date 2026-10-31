@@ -1,0 +1,89 @@
+rc=0
+15:Your shell on this site writes only in the workspace and has no network (pip, curl and similar fail) and no Slurm client;
+42:| `init` | string | none (fresh LoRA) | an adapter name produced by an earlier train of this session (`base` is not one: omit `init` to start from the policy). Single-adapter mode: omit it (or `current`); every train continues `current`. The new adapter is the init adapter continued (it already holds init's change): loading both stacks that change twice |
+47:| `time` | string | set by the site: 1 GPU 25 min + 13 min x steps, 2 GPUs 85 min + 17 min x steps, 3 GPUs 30 min + 14 min x steps, at least 2 h (whole minutes, rounded up; the job record's `config` shows the value used) | wall limit of each Slurm job of the call, `HH:MM:SS`; a call whose job reaches it continues from its last saved step (below); once it has continued 3 times it keeps the adapter of its last saved step, as a cancel (result `time_limit`; a preempted or node-failed call likewise, result `preempted` / `node_fail`), or ends `failed` with the fact if none was saved |
+64:and canonical GPU-hours of the steps done so far (read from the trainer's per-step output about once a minute). A checkpoint is saved every
+65:step. A call stopped by the cluster (time limit, preemption, node failure) continues from its last checkpoint in a new Slurm job, at most 3 times; its status then says `continued from step k in job J`, and its result lists every Slurm job (`jobs`) and each continuation (`continued`: `job` stopped, `cause`, `from` step, `of` steps, `continued_in` job), as it lists site retries.
+91:Each `rewards.json` step also has `zero_variance_frac` (the share of that step's prompt groups whose rollouts all got one reward) and `failure_stages` (failed rollouts by stage: `sim`, `timeout`, `program`, `grader`, `task`); the running job's status line shows them for the latest step and the train's result lists them per step (`step_facts`).
+=== design.md ===
+# Design (pass 1)
+
+## Change
+Spec `specs/s1.json` against base (fresh LoRA rank 32): GRPO on `stack`, 30 steps x 8
+prompts x 8 rollouts, lr 2e-5 (default), reward = `task_completed` (binary 1/0 — exactly
+the hidden-score metric), rollout seeds 810001-810240 (>= 800001, never 1-100).
+No `note`/`goal`: the training prompt is the eval prompt byte-for-byte, so trained
+behavior must transfer to the eval prompt with no condition mismatch (the eval prompt
+keeps its confusing "Key rules" naming nonexistent APIs; the model must learn to work
+around them from its own rollouts). Single train; no stacking yet.
+
+## Expected observation
+If the hypothesis holds (base fails mainly via hallucinated/privileged APIs and
+transform/height mistakes):
+- Live: score_mean starts near base-equivalent (~0.4-0.55), rises over steps 5-30 to
+  ~0.6-0.75; failure_stages of failed rollouts dominated by `program` early, shifting
+  toward `task` as programs become valid; zero_variance_frac stays moderate (enough
+  within-group reward spread for GRPO).
+- Dev check (100 fresh seeds, e.g. 800101+): s1 >= ~56-60 successes vs base 51 at same
+  n. Submit rule decided at evaluation: submit s1 if it beats base by a clear margin
+  (>= ~5 points on 100 seeds); otherwise submit base (never submit a policy below base).
+- Red flags (cancel early at the step-10 checkpoint): score_mean stuck at 0 with
+  zero_variance_frac ~1 (GRPO has no signal -> follow-up would need shaped reward), or
+  score_mean falling after an early peak (submit at the peak step via cancel).
+
+## Budget
+- Train s1, 30 steps: 2 x (1.31 + 0.0703 x 30) = 6.84 GPU-h (reserved at admission,
+  charged on completion; early cancel charges completed steps only: 10 steps = 4.03).
+- Checking eval: `eval.py --adapter s1 --task stack --seeds 100` = 0.48 GPU-h
+  (nearly all fixed cost; 20 seeds would save only 0.10, not worth the lost n).
+- Total 7.32 of 8.0; 0.68 remains (holds one 5-seed eval at 0.36 if ever needed).
+- If train is cancelled at <= 10 steps (charged <= 4.03): >= 3.97 remains — still pays
+  the 100-seed eval (0.48) and the submit/finish decision; no room for a second large
+  train in any branch, so this is the one-shot train.
+
+Checkpoint: step 10
+=== diagnosis.md ===
+# Diagnosis (pass 1)
+
+## Hypothesis
+Single task `stack`, base 51/100. The ~49% failures are believed to be mostly
+PROGRAM-stage failures: the prompt's "Key rules" reference APIs that do not exist in
+this cell (`get_object_pose`, `sample_grasp_pose`, `z_approach` param, `goto_pose_arm*`),
+so a large share of base programs call undefined functions and crash. Secondary failure
+sources in valid programs: frame transforms (plan_grasp doc: poses are IN THE CAMERA
+FRAME, no camera/world transform or TCP offset applied — caller must transform via
+pose_mat) and placement height/orientation (place_z = green_center_z + green_extent[2]/2
++ red_extent[2]/2, orientation from the grasp quaternion).
+Training change to investigate: plain GRPO on `stack` with reward = `task_completed`
+(the exact hidden-score metric), default lr 2e-5, batch 8, 30 steps (seeds 810001+),
+name `s1`. Watch per-step score_mean and failure_stages live; cancel early at a
+plateau/collapse (checkpoint per step is kept, charged only for steps completed).
+
+## Evidence
+- Base: 51/100 on seeds 800001-800100 (SCOREBOARD base column, site-precomputed, free).
+- tasks/stack/eval_prompt.txt: API list = get_observation, point_prompt_molmo,
+  segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp,
+  get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper,
+  close_gripper — while Key rules mention get_object_pose/sample_grasp_pose/z_approach
+  (none exist; per skills/trainer/SKILL.md the rules text is shared with the
+  privileged-API variant).
+- plan_grasp doc explicitly leaves camera->world transform + TCP offsets to the caller.
+- No jobs yet (status.py: none); no adapters exist.
+- Cost plan (skills/trainer/SKILL.md table): 30-step train = 6.84 GPU-h + 100-seed eval
+  = 0.48 -> 7.32 of 8.0, leaving 0.68 buffer. Eval is mostly fixed cost, so one 100-seed
+  eval is near-free compared to smaller ones.
+
+## Alternatives
+1. Failures are mostly grasp/placement precision (valid programs, `task`-stage
+   failures), not API hallucination. Test: after training starts, failure_stages in the
+   job record shows mostly `task` (not `program`) on low-reward steps. If so, a `shaped`
+   (denser staged) reward or a second focused adapter stacked on s1 would be the follow-up.
+2. Low prompt-group variance (high zero_variance_frac) weakens GRPO signal. Test:
+   rewards.json / job progress; if most groups are all-0 or all-1, prefer shaped reward
+   or more steps/batch in a follow-up train.
+3. 30 steps overfits/oscillates (score_mean peaks then falls). Test: live score_mean
+   trend; remedy: cancel at the peak step (adapter of last saved step is kept) and, if
+   budget allows, a short follow-up train from the base.
+4. Dev (800001+) and hidden (1-100) distributions differ. Test: not directly; proxy =
+   100-seed dev eval of s1 vs base at same n (scoreboard shows both). Submit rule: s1
+   only if it beats base by a clear margin (~5+ points on 100 seeds); else submit base.

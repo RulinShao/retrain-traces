@@ -1,0 +1,6 @@
+{
+  "task": "wipe",
+  "name": "wipe_grpo",
+  "steps": 20,
+  "batch": 8
+}

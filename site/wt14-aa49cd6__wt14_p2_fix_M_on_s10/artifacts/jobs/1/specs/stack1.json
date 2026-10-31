@@ -1,0 +1,6 @@
+{
+  "task": "stack",
+  "name": "stack1",
+  "steps": 10,
+  "batch": 8
+}

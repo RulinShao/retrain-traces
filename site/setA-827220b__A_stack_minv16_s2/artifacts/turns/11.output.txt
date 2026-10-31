@@ -1,0 +1,318 @@
+rc=0
+=== rewards.json ===
+[
+    {
+        "step": 1,
+        "score_mean": 0.359375,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 16,
+            "task": 25
+        }
+    },
+    {
+        "step": 2,
+        "score_mean": 0.25,
+        "zero_variance_frac": 0.125,
+        "failure_stages": {
+            "program": 16,
+            "task": 32
+        }
+    },
+    {
+        "step": 3,
+        "score_mean": 0.375,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 12,
+            "task": 28
+        }
+    },
+    {
+        "step": 4,
+        "score_mean": 0.421875,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 16,
+            "task": 21
+        }
+    },
+    {
+        "step": 5,
+        "score_mean": 0.375,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 11,
+            "task": 29
+        }
+    },
+    {
+        "step": 6,
+        "score_mean": 0.375,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 11,
+            "task": 29
+        }
+    },
+    {
+        "step": 7,
+        "score_mean": 0.4375,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 8,
+            "task": 28
+        }
+    },
+    {
+        "step": 8,
+        "score_mean": 0.453125,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 8,
+            "task": 27
+        }
+    },
+    {
+        "step": 9,
+        "score_mean": 0.5625,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 7,
+            "task": 21
+        }
+    },
+    {
+        "step": 10,
+        "score_mean": 0.484375,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 4,
+            "task": 29
+        }
+    },
+    {
+        "step": 11,
+        "score_mean": 0.5,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 8,
+            "task": 24
+        }
+    },
+    {
+        "step": 12,
+        "score_mean": 0.5625,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 2,
+            "task": 25,
+            "timeout": 1
+        }
+    },
+    {
+        "step": 13,
+        "score_mean": 0.515625,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 5,
+            "task": 26
+        }
+    },
+    {
+        "step": 14,
+        "score_mean": 0.46875,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 1,
+            "task": 33
+        }
+    },
+    {
+        "step": 15,
+        "score_mean": 0.5,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 5,
+            "task": 27
+        }
+    },
+    {
+        "step": 16,
+        "score_mean": 0.546875,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 3,
+            "task": 26
+        }
+    },
+    {
+        "step": 17,
+        "score_mean": 0.59375,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 2,
+            "task": 24
+        }
+    },
+    {
+        "step": 18,
+        "score_mean": 0.53125,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 1,
+            "task": 29
+        }
+    },
+    {
+        "step": 19,
+        "score_mean": 0.65625,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 2,
+            "task": 20
+        }
+    },
+    {
+        "step": 20,
+        "score_mean": 0.5625,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 4,
+            "task": 24
+        }
+    },
+    {
+        "step": 21,
+        "score_mean": 0.578125,
+        "zero_variance_frac": 0.125,
+        "failure_stages": {
+            "program": 2,
+            "task": 25
+        }
+    },
+    {
+        "step": 22,
+        "score_mean": 0.65625,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 2,
+            "task": 20
+        }
+    },
+    {
+        "step": 23,
+        "score_mean": 0.703125,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 1,
+            "task": 18
+        }
+    },
+    {
+        "step": 24,
+        "score_mean": 0.59375,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 2,
+            "task": 24
+        }
+    },
+    {
+        "step": 25,
+        "score_mean": 0.578125,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 1,
+            "task": 26
+        }
+    },
+    {
+        "step": 26,
+        "score_mean": 0.625,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "task": 24
+        }
+    },
+    {
+        "step": 27,
+        "score_mean": 0.671875,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "task": 21
+        }
+    },
+    {
+        "step": 28,
+        "score_mean": 0.53125,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 2,
+            "task": 28
+        }
+    },
+    {
+        "step": 29,
+        "score_mean": 0.546875,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "program": 2,
+            "task": 27
+        }
+    },
+    {
+        "step": 30,
+        "score_mean": 0.640625,
+        "zero_variance_frac": 0.0,
+        "failure_stages": {
+            "task": 23
+        }
+    }
+]
+
+=== call.json ===
+{
+ "jobs": [
+  "42507453"
+ ],
+ "gpu_hours": 6.838,
+ "gpu_hours_actual": 5.8978,
+ "train_gpus": 2,
+ "lora_b": [
+  304,
+  304
+ ],
+ "sim_seeds": [
+  810001,
+  811921
+ ],
+ "adapter": "…/train_42507453/peft_rmin_stack30_step30"
+}
+=== training.json ===
+{
+ "resolved_spec": {
+  "steps": 30,
+  "lr": 2e-05,
+  "batch": 8,
+  "seed_start": 810001,
+  "reward": "task_completed",
+  "init": null,
+  "note": null,
+  "goal": null,
+  "time": "09:55:00",
+  "task": "stack",
+  "name": "stack30"
+ },
+ "artifacts": [
+  "rewards.json",
+  "call.json"
+ ],
+ "site_sources": {
+  "hyak.py": "278ed6b7f82bc5ae0fda9008666705dc5c671fb497e5d1654e922160e54cd98a",
+  "fairsc3.py": "505a5134ebf2ed76e93527796ec256629477e1619f98cb804712038cd8005008",
+  "base.py": "e16295dd5611ddb63e26b69c1ee1034cbaf15fd51c667e4684644296e62e0f61",
+  "hyak_jobs.py": "228059585f82bacab6d381c14ea113835215a0e6ecd11c3c0a44fe413d3bf23b"
+ },
+ "policy_model": "Qwen3.8-27B"
+}

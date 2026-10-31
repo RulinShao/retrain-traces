@@ -1,0 +1,82 @@
+rc=0
+=== design ===
+# Design (pass 1)
+
+## Change
+`specs/lift1.json` — one GRPO train on `lift` from base (no init):
+- `reward: task_completed` (binary, matches the scored metric exactly)
+- `steps: 30, batch: 8` (64 rollouts/step; 1920 rollouts total), default `lr 2e-5`
+- training seeds 810001+ (default) — disjoint from dev-eval (800001+) and hidden (1-100)
+- `note` (training prompt only, never in eval): steer exploration toward robust
+  programs — retry segmentation via Molmo point prompt on empty text-prompt masks,
+  explicit camera->world conversion of the grasp pose, open + above-target approach
+  with height margin before descending, close + lift, stay in workspace.
+Against: base policy (67/100 on dev 800001-800100).
+
+## Expected observation
+- Training: per-step `score_mean` should start near ~0.65-0.7 (base-level program
+  quality on training seeds) and climb over 30 steps; `frac>0` near 1.0;
+  `failure_stages` concentrated in `task` (grasp/execution), not `sim`/`program`
+  crashes. If score_mean stays flat or crashes dominate, the hypothesis that "more
+  robust program structure" is learnable is weak -> cancel and reconsider.
+- Dev (held-out, fresh seeds 800101+): lift1 should beat base's 67 at the same n.
+  Ship lift1 if its 100-seed count >= base's 67 (posterior mean otherwise favors
+  base); ship base if lift1 < 67.
+
+## Budget
+- train lift1 (30 steps, batch 8): 6.84 GPU-h (site table)
+- checking eval: lift1 @ 100 dev seeds: 0.48 GPU-h
+- total committed: 7.32; remaining after: 0.68 (covers one 5-seed spot check, 0.36)
+- hedge: Checkpoint at step 10 — if the step-10 trend is bad, cancel (charged ~4.03
+  for 10 steps) leaves ~3.5 for a redesigned smaller run.
+
+Checkpoint: step 10
+
+=== probe ===
+## Evidence
+base column already filled on 100 seeds (lift: 67/100 = 67%); nothing to probe
+## Unknowns
+none -- only task (lift) is already counted on 100 dev seeds; no evals submitted
+
+=== train ===
+# Train (pass 1) — lift1 (PRELIMINARY: job 1 still queued at ~8.4h; update on start/done)
+
+## Config
+From specs/lift1.json (resolved settings to be confirmed in jobs/1.json config + adapters/lift1/training.json):
+- task lift; GRPO LoRA from base (no init); steps 30; batch 8 (64 rollouts/step); lr 2e-5
+- reward task_completed (binary, == scored metric)
+- note: robust-pick guidance (retry seg via Molmo point prompt; camera->world grasp
+  transform; open + approach above target with margin; descend; close; lift; stay in workspace)
+- seed_start default 810001 (disjoint from dev-eval and hidden seeds)
+- time limit: site-set (1 GPU 25 min + 13 min x 30 steps = 06:55)
+
+## Artefacts
+- job 1 (train) — state: PENDING in queue (~502 min at time of writing); not started
+- adapter: adapters/lift1/ (pending: adapter_model.safetensors, adapter_config.json,
+  rewards.json, call.json, training.json)
+
+## Signals
+- (none yet — no steps completed; job still queued)
+- budget: 6.838 GPU-h reserved on admission; charged on completion (6.84 for full 30 steps)
+
+=== spec ===
+{
+  "task": "lift",
+  "name": "lift1",
+  "steps": 30,
+  "batch": 8,
+  "lr": 2e-5,
+  "reward": "task_completed",
+  "note": "Produce a robust pick program: if segmentation or grasp planning returns empty, retry using a Molmo point prompt with the SAM3 point-prompt segmentation; convert the camera-frame grasp pose to the world frame using the camera intrinsics and extrinsics; open the gripper and move directly above the grasp target with a safe height margin before descending onto it, then close the gripper and lift; keep all motion within the arm workspace and collision-free."
+}
+
+=== jobs/1.json ===
+{"id": 1, "kind": "train", "args": {"spec": "specs/lift1.json"}, "state": "running", "result": null, "skills_digest": "5fe18e4eae22797fe3860e6493daa340bbd7c90e5d154d43a73748765971e840", "progress": {"state": "queued", "queued_min": 2033.4}, "progress_line": "queued (not started), 2033 min in queue"}
+=== request ===
+{"id": 1, "kind": "train", "args": {"spec": "specs/lift1.json"}}
+=== ls notes ===
+design.md
+diagnosis.md
+evaluate.md
+probe.md
+train.md

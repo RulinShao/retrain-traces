@@ -1,0 +1,89 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "train_failed: InfraError('system train train-863103dad888: no result within timeout')",
+ "gpu_hours": 0,
+ "final_score": null,
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 0,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "18e0c0",
+  "how": "default-loaded-stack",
+  "turn": 20,
+  "confirmed": true,
+  "confirmed_turn": 21,
+  "ended_by": null,
+  "note": null,
+  "policy": "base"
+ },
+ "skills_version": "nogit-1fa162df",
+ "initial_skills_digest": "6a3568d55834e3f559363309e06132587baa0f52d792328bd976efa88ef17bdf",
+ "suite": {
+  "name": "A-wipe",
+  "version": 1,
+  "hash": "sha256:4fb8a45ea23da069",
+  "train": [
+   "wipe"
+  ],
+  "eval": [
+   {
+    "cell": "wipe",
+    "split": "id"
+   },
+   {
+    "cell": "lift",
+    "split": "retain"
+   },
+   {
+    "cell": "stack",
+    "split": "retain"
+   },
+   {
+    "cell": "nut",
+    "split": "retain"
+   },
+   {
+    "cell": "restack",
+    "split": "retain"
+   },
+   {
+    "cell": "twolift",
+    "split": "retain"
+   },
+   {
+    "cell": "handover",
+    "split": "retain"
+   },
+   {
+    "cell": "revstack",
+    "split": "retain"
+   },
+   {
+    "cell": "stackv2",
+    "split": "retain"
+   }
+  ],
+  "splits": {
+   "wipe": "id",
+   "lift": "retain",
+   "stack": "retain",
+   "nut": "retain",
+   "restack": "retain",
+   "twolift": "retain",
+   "handover": "retain",
+   "revstack": "retain",
+   "stackv2": "retain"
+  }
+ },
+ "artifacts": {
+  "registry": "…/stepA-cbbda18/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

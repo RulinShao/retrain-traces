@@ -1,0 +1,9 @@
+{
+  "task": ["lift", "stack", "wipe"],
+  "name": "ms3",
+  "steps": 40,
+  "batch": 12,
+  "lr": 2e-5,
+  "reward": "task_completed",
+  "seed_start": 820001
+}

@@ -1,0 +1,200 @@
+rc=0
+=== tasks.json ===
+{
+ "tasks": [
+  {
+   "name": "stack",
+   "eval": "CaP-X Robosuite Cube Stack (stack s4:paper), single-turn code, success = the task's own check"
+  }
+ ]
+}
+=== tasks/ tree ===
+tasks/INDEX.md
+tasks/stack/eval_prompt.txt
+
+=== tasks/INDEX.md ===
+# Task index
+
+Written by the environment from tasks.json, tasks/<task>/eval_prompt.txt and the session's base scores.
+
+## stack
+
+- Goal: Pick up the red cube and gently stack it on top of the green cube, then release it.
+- Seeds: dev seeds from 800001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 51/100 (seeds 800001-800100)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper
+- Key rules:
+  - The extent from get_object_pose(..., return_bbox_extent=True) is the FULL side length. Use extent[2]/2 for half-height.
+  - For placement orientation, reuse the grasp quaternion from sample_grasp_pose. Do NOT use the quaternion from get_object_pose (it is unreliable for orientation).
+  - Always use z_approach=0.1 when approaching an object for grasping or placing.
+  - After grasping, lift the cube to a safe height (at least +0.2m in Z) before moving laterally to the placement location.
+  - The stacking height formula is: place_z = green_center_z + green_extent[2]/2 + red_extent[2]/2
+  - Nothing should be dropped from a height. Always approach with z_approach for controlled descent.
+
+=== eval_prompt.txt ===
+=== system ===
+You are a helpful assistant that generates Python code to directly solve the task.
+
+=== user ===
+
+You are controlling a Franka Emika robot with the API described below.
+Goal: Pick up the red cube and gently stack it on top of the green cube, then release it.
+
+Key rules:
+- The extent from get_object_pose(..., return_bbox_extent=True) is the FULL side length. Use extent[2]/2 for half-height.
+- For placement orientation, reuse the grasp quaternion from sample_grasp_pose. Do NOT use the quaternion from get_object_pose (it is unreliable for orientation).
+- Always use z_approach=0.1 when approaching an object for grasping or placing.
+- After grasping, lift the cube to a safe height (at least +0.2m in Z) before moving laterally to the placement location.
+- The stacking height formula is: place_z = green_center_z + green_extent[2]/2 + red_extent[2]/2
+- Nothing should be dropped from a height. Always approach with z_approach for controlled descent.
+
+Write ONLY executable Python code (no code fences). Import numpy if needed.
+
+APIs:
+
+get_observation() -> dict[str, typing.Any]
+  Doc:
+    Get the observation of the environment.
+    Returns:
+        observation:
+            A dictionary containing the observation of the environment.
+            The dictionary contains the following keys:
+            - ["robot0_robotview"]["images"]["rgb"]: Current color camera image as a numpy array of shape (H, W, 3), dtype uint8.
+            - ["robot0_robotview"]["images"]["depth"]: Current depth camera image as a numpy array of shape (H, W), dtype float32.
+            - ["robot0_robotview"]["intrinsics"]: Camera intrinsic matrix as a numpy array of shape (3, 3), dtype float64.
+            - ["robot0_robotview"]["pose_mat"]: Camera extrinsic matrix as a numpy array of shape (4, 4), dtype float64.
+
+point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+  Doc:
+    Use Molmo to point to a coordinate in the image based on a text prompt.
+    
+    Args:
+        image: np.ndarray: The RGB image to process. Shape: (H, W, 3), dtype uint8.
+        text_prompt: str: The text prompt to point to.
+    
+    Returns:
+        dict[str, tuple[int | None, int | None]]: Pixel coordinates for each
+        object query; (None, None) if parsing failed.
+
+segment_sam3_text_prompt(rgb: numpy.ndarray, text_prompt: str) -> list[dict[str, typing.Any]]
+  Doc:
+    Run SAM3 segmentation on an RGB image conditioned on a text prompt.
+    
+    Args:
+        rgb:
+            RGB image array of shape (H, W, 3), dtype uint8.
+        text_prompt:
+            Text prompt for SAM3 segmentation.
+    
+    Returns:
+        masks:
+            A list of dictionaries. Each dict may contain:
+    
+              - "mask":  np.ndarray of shape (H, W), dtype bool,
+                          where True means the pixel belongs to the instance.
+              - "box": list [x1, y1, x2, y2] in pixel coordinates.
+              - "score": float confidence score.
+
+segment_sam3_point_prompt(rgb: numpy.ndarray, point_coords: tuple[float, float]) -> list[dict[str, typing.Any]]
+  Doc:
+    Run SAM3 segmentation on an RGB image, optionally conditioned on an image coordinate point prompt.
+    
+    Args:
+        rgb:
+            RGB image array of shape (H, W, 3), dtype uint8.
+        point_coords:
+            (x, y) pixel coordinates of the point prompt.
+    
+    Returns:
+        masks:
+            A list of dictionaries. Each dict may contain:
+    
+              - "mask":  np.ndarray of shape (H, W), dtype bool,
+                          where True means the pixel belongs to the instance.
+              - "score": float confidence score.
+
+plan_grasp(depth: numpy.ndarray, intrinsics: numpy.ndarray, segmentation: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+  Doc:
+    Plan grasp candidates using Contact-GraspNet for a single instance.
+    
+    This is a thin wrapper around the Contact-GraspNet planner. It does not
+    apply any camera/world transforms or TCP offsets: the caller is
+    responsible for transforming the resulting grasp poses into the desired
+    frame and applying TCP offsets if necessary.
+    
+    Args:
+        depth:
+            Depth image in meters.
+            Shape: (H, W), dtype float32/float64.
+        intrinsics:
+            Camera intrinsic matrix.
+            Shape: (3, 3), dtype float64.
+        segmentation:
+            Instance segmentation map where each integer > 0 corresponds to a
+            unique object instance ID.
+            Shape: (H, W) or (H, W, 1), dtype int32/int64.
+    
+    Returns:
+        grasp_poses:
+            np.ndarray of shape (K, 4, 4), dtype float64.
+            Homogeneous transforms for each candidate grasp IN THE CAMERA FRAME.
+        grasp_scores:
+            np.ndarray of shape (K,), dtype float64.
+            Confidence score for each candidate grasp.
+
+get_oriented_bounding_box_from_3d_points(points: numpy.ndarray) -> dict[str, typing.Any]
+  Doc:
+    Get the oriented bounding box from 3D points.
+    
+    Args:
+        points: np.ndarray: The 3D points to get the oriented bounding box from.
+            Shape: (N, 3), dtype float64.
+    
+    Returns:
+        dict[str, Any]: The oriented bounding box. The dictionary contains the following keys:
+            - "center": np.ndarray: The center of the oriented bounding box in point cloud frame.
+            - "extent": np.ndarray: The extent of the oriented bounding box.
+            - "R": np.ndarray: The rotation matrix of the oriented bounding box in point cloud frame.
+
+solve_ik(position: numpy.ndarray, quaternion_wxyz: numpy.ndarray) -> numpy.ndarray
+  Doc:
+    Solve inverse kinematics for the panda_hand link.
+    
+    Args:
+        position:
+            Target position in world frame.
+            Shape: (3,), dtype float64.
+        quaternion_wxyz:
+            Target orientation as a unit quaternion in world frame.
+            Shape: (4,), [w, x, y, z], dtype float64.
+    
+    Returns:
+        joints:
+            np.ndarray of shape (7,), dtype float64.
+            Joint angles for the 7 DoF Franka arm.
+
+move_to_joints(joints: numpy.ndarray) -> None
+  Doc:
+    Move the robot to a given joint configuration in a blocking manner.
+    
+    Args:
+        joints:
+            Target joint angles for the 7-DoF Franka arm.
+            Shape: (7,), dtype float64.
+    
+    Returns:
+        None
+
+open_gripper() -> None
+  Doc:
+    Open gripper fully.
+    
+    Args:
+        None
+
+close_gripper() -> None
+  Doc:
+    Close gripper fully.
+    
+    Args:
+        None

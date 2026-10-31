@@ -1,0 +1,53 @@
+rc=0
+=== 1.json (full) ===
+{"id": 1, "kind": "train", "args": {"spec": "spec_lift1.json"}, "state": "running", "result": null, "skills_digest": "d116545268e1b04de812b00b598b79781fd7f7f35648fde724a2d07196ed1c80"}
+=== adapters symlink target ===
+…/session/adapters
+total 1
+drwxr-sr-x 2 root nobody 512 Oct 30 00:35 .
+drwxr-xr-x 3 root root    60 Oct 30 08:12 ..
+=== broad search for lift1/adapter/safetensors/rewards ===
+=== session dir tree (depth 3) ===
+…/stepA-lift-cbbda18/pas_lift_v17a_s1
+…/pas_lift_v17a_s1/session
+…/session/adapters
+…/pas_lift_v17a_s1/workspace
+…/workspace/outputs
+…/outputs/turn_6.txt
+…/outputs/turn_1.txt
+…/workspace/adapters
+…/workspace/ENVIRONMENT.json
+…/workspace/wait.py
+…/workspace/cancel.py
+…/workspace/_submit.py
+…/workspace/SCOREBOARD.md
+…/workspace/finish.py
+…/workspace/tasks
+…/tasks/lift
+…/tasks/INDEX.md
+…/workspace/jobs
+…/jobs/6.request.json
+…/jobs/2.request.json
+…/jobs/6.json
+…/jobs/1.json
+…/jobs/1.request.json
+…/jobs/2.json
+…/jobs/3.json
+…/jobs/3.request.json
+…/jobs/4.request.json
+…/jobs/4.json
+…/jobs/5.request.json
+…/jobs/5.json
+…/workspace/skills
+…/skills/tools
+…/skills/optional
+…/skills/trainer
+…/workspace/tasks.json
+…/workspace/spec_lift1.json
+…/workspace/train.py
+…/workspace/status.py
+…/workspace/eval.py
+…/workspace/__pycache__
+…/__pycache__/_submit.cpython-311.pyc
+…/workspace/load.py
+…/workspace/STATUS.json

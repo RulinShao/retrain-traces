@@ -1,0 +1,109 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "train_failed: InfraError('system train train-b7dc9e4ce7ff: no result within timeout')",
+ "gpu_hours": 4.506,
+ "final_score": null,
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 2.2811,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "742645",
+  "how": "explicit",
+  "turn": 17,
+  "confirmed": true,
+  "confirmed_turn": 19,
+  "ended_by": null,
+  "note": "liftA: 10-step GRPO task_completed on lift; dev 77/100 vs base 67",
+  "policy": "base + liftA (sha 4ec215e3daea)"
+ },
+ "skills_version": "nogit-58e9eacc",
+ "initial_skills_digest": "d116545268e1b04de812b00b598b79781fd7f7f35648fde724a2d07196ed1c80",
+ "suite": {
+  "name": "A-lift",
+  "version": 1,
+  "hash": "sha256:e7e657ad43456c4f",
+  "train": [
+   "lift"
+  ],
+  "eval": [
+   {
+    "cell": "lift",
+    "split": "id"
+   },
+   {
+    "cell": "t1_lift_wide",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_big",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_far",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_small",
+    "split": "near"
+   },
+   {
+    "cell": "stack",
+    "split": "retain"
+   },
+   {
+    "cell": "nut",
+    "split": "retain"
+   },
+   {
+    "cell": "wipe",
+    "split": "retain"
+   },
+   {
+    "cell": "restack",
+    "split": "retain"
+   },
+   {
+    "cell": "twolift",
+    "split": "retain"
+   },
+   {
+    "cell": "handover",
+    "split": "retain"
+   },
+   {
+    "cell": "revstack",
+    "split": "retain"
+   },
+   {
+    "cell": "stackv2",
+    "split": "retain"
+   }
+  ],
+  "splits": {
+   "lift": "id",
+   "t1_lift_wide": "near",
+   "t1_lift_big": "near",
+   "t1_lift_far": "near",
+   "t1_lift_small": "near",
+   "stack": "retain",
+   "nut": "retain",
+   "wipe": "retain",
+   "restack": "retain",
+   "twolift": "retain",
+   "handover": "retain",
+   "revstack": "retain",
+   "stackv2": "retain"
+  }
+ },
+ "artifacts": {
+  "registry": "…/stepA-lift-cbbda18/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

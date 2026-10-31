@@ -1,0 +1,1 @@
+{"objective": "sft", "name": "sftw1", "data": "sft.jsonl", "epochs": 1, "batch": 16, "lr": 1e-4, "min_reward": 1.0}

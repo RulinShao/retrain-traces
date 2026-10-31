@@ -1,0 +1,9 @@
+{
+  "task": "lift",
+  "name": "lift60",
+  "steps": 30,
+  "batch": 8,
+  "reward": "task_completed",
+  "init": "lift30",
+  "note": "Use the pipeline: get_observation; segment_sam3_text_prompt for the 'red cube'; plan_grasp with the depth image and a 0/1 mask of that segmentation; take the highest-scoring grasp and transform it from the camera frame into the world frame with pose_mat; solve_ik for the target position and an upright gripper; open the gripper, move_to_joints to an approach pose above the grasp, move down to the grasp, close the gripper, then lift straight up."
+}

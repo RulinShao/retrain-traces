@@ -1,0 +1,8 @@
+{
+  "name": "m1",
+  "task": ["lift","stack","wipe","nut","restack"],
+  "reward": "shaped",
+  "batch": 10,
+  "steps": 20,
+  "time": "12:00:00"
+}

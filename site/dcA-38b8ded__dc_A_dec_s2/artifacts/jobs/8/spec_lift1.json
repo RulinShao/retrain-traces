@@ -1,0 +1,10 @@
+{
+  "task": "lift",
+  "name": "lift1",
+  "steps": 10,
+  "batch": 8,
+  "lr": 2e-5,
+  "reward": "task_completed",
+  "seed_start": 810001,
+  "note": "Write ONLY a single python code block delimited by ```python and ``` with no prose outside the fences; after choosing the highest-scored grasp, open the gripper, move to the grasp pose, close the gripper, then move upward about 0.15 m along the grasp approach direction."
+}

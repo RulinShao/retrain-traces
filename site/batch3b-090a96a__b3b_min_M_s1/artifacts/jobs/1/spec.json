@@ -1,0 +1,7 @@
+{
+ "task": "stack",
+ "name": "stack1",
+ "steps": 20,
+ "reward": "task_completed",
+ "seed_start": 810001
+}

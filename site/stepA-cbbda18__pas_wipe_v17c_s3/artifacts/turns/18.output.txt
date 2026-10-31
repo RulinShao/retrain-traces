@@ -1,0 +1,144 @@
+rc=0
+"""Build SFT rows (objective: sft; SKILL.md "SFT data") from your practice calls or your rollout.py rows. Run it in your workspace:
+
+  python3 skills/trainer/sft_rows.py practice adapters/l1 [adapters/l2 ...] [--min-reward R] [--steps 3-5] > sft.jsonl
+  python3 skills/trainer/sft_rows.py rollouts rollouts/12.jsonl [rollouts/15.jsonl ...] [--min-reward R] > sft.jsonl
+
+practice: every rollout of a finished practice call (its adapter dir's practice_rows.jsonl, prompts in practice_prompts.json);
+  reward = the score GRPO gave it (your reward when the spec set one); --steps keeps only those steps of the call.
+rollouts: every row of rollout.py's output with a program and a self_reward; prompt = tasks/<task>/eval_prompt.txt; reward =
+  self_reward.
+Each SFT row is {task, seed, prompt, program, reward}. Dropped, each counted with its reason on stderr: rows without a program or a
+reward, rows below --min-reward, rows outside --steps, and rows on a seed the trainer refuses (hidden 1-100, dev eval
+800001-809999; the trainer applies the same rule). The train spec's min_reward filters again when the call runs. Stdlib only.
+"""
+import argparse, collections, json, os, re, sys
+
+SFT_SEED_RESERVED = ((1, 100), (800001, 809999))   # as retrain_min/site/sft_data.py SFT_SEED_RESERVED
+EVAL_PROMPT_HEADER = re.compile(r"^=== (system|user) ===\n", re.M)
+PRACTICE_ROWS, PRACTICE_PROMPTS = "practice_rows.jsonl", "practice_prompts.json"   # site/practice_rows.py ROWS_FILE / PROMPTS_FILE
+SEED_RESERVED = "seed reserved (hidden 1-100 or dev eval 800001-809999)"
+
+
+def eval_prompt_messages(text: str) -> list:
+    """tasks/<task>/eval_prompt.txt ("=== <role> ===\n<content>" blocks joined by a blank line) -> its chat messages
+    (as retrain_min/site/sft_data.py eval_prompt_messages)."""
+    parts = EVAL_PROMPT_HEADER.split(text)
+    if parts[0] or len(parts) < 3:
+        raise ValueError("an eval prompt starts with '=== system ===' or '=== user ===' and has at least one block")
+    blocks = list(zip(parts[1::2], parts[2::2]))
+    messages = []
+    for i, (role, body) in enumerate(blocks):
+        tail = "\n\n" if i + 1 < len(blocks) else "\n"
+        messages.append({"role": role, "content": body[:-len(tail)] if body.endswith(tail) else body})
+    return messages
+
+
+def reserved(seed) -> bool:
+    return isinstance(seed, int) and any(lo <= seed <= hi for lo, hi in SFT_SEED_RESERVED)
+
+
+def is_number(value) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def keep(task, seed, prompt, program, reward, min_reward, dropped) -> dict:
+    """The SFT row, or None with its drop reason counted."""
+    if not program:
+        dropped["no program"] += 1
+    elif not is_number(reward):
+        dropped["no reward"] += 1
+    elif min_reward is not None and reward < min_reward:
+        dropped[f"reward < {min_reward}"] += 1
+    elif reserved(seed):
+        dropped[SEED_RESERVED] += 1
+    elif prompt is None:
+        dropped["prompt not found"] += 1
+    else:
+        return {"task": task, "seed": seed, "prompt": prompt, "program": program, "reward": reward}
+    return None
+
+
+def from_rollouts(rows: list, prompt_of, min_reward=None) -> tuple:
+    """rollout.py rows -> (SFT rows, {reason: dropped count}); prompt_of(task) -> that task's chat messages."""
+    out, dropped = [], collections.Counter()
+    for r in rows:
+        reward = r.get("self_reward") if r.get("self_reward_error") is None else None
+        row = keep(r.get("task"), r.get("seed"), prompt_of(r.get("task")) if r.get("program") else None, r.get("program"), reward,
+                   min_reward, dropped)
+        if row:
+            out.append(row)
+    return out, dropped
+
+
+def from_practice(rows: list, prompts: dict, min_reward=None, steps=None) -> tuple:
+    """practice_rows.jsonl rows (+ practice_prompts.json) -> (SFT rows, {reason: dropped count})."""
+    out, dropped = [], collections.Counter()
+    for r in rows:
+        if steps is not None and r.get("step") not in steps:
+            dropped["step not selected"] += 1
+            continue
+        row = keep(r.get("task"), r.get("seed"), prompts.get(r.get("prompt_sha")), r.get("program"), r.get("reward"), min_reward, dropped)
+        if row:
+            out.append(row)
+    return out, dropped
+
+
+def step_range(text: str) -> set:
+    """'3' -> {3}; '3-5' -> {3, 4, 5}."""
+    lo, _, hi = text.partition("-")
+    return set(range(int(lo), int(hi or lo) + 1))
+
+
+def read_jsonl(path: str) -> list:
+    with open(path) as f:
+        return [json.loads(line) for line in f if line.strip()]
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    ap.add_argument("source", choices=("practice", "rollouts"))
+    ap.add_argument("paths", nargs="+", help="practice: adapters/<name> dirs; rollouts: rollouts/<job id>.jsonl files")
+    ap.add_argument("--min-reward", type=float, default=None, help="drop rows whose reward is below this")
+    ap.add_argument("--steps", type=step_range, default=None, help="practice: keep only these steps, e.g. 3 or 3-5")
+    ap.add_argument("--workspace", default=".", help="rollouts: the dir holding tasks/<task>/eval_prompt.txt (default: here)")
+    a = ap.parse_args(argv)
+    out, dropped, n = [], collections.Counter(), 0
+    if a.source == "practice":
+        for d in a.paths:
+            rows = read_jsonl(os.path.join(d, PRACTICE_ROWS))
+            with open(os.path.join(d, PRACTICE_PROMPTS)) as f:
+                prompts = json.load(f)
+            got, why = from_practice(rows, prompts, a.min_reward, a.steps)
+            out, n = out + got, n + len(rows)
+            dropped.update(why)
+    else:
+        cache = {}
+
+        def prompt_of(task):
+            if task not in cache:
+                path = os.path.join(a.workspace, "tasks", str(task), "eval_prompt.txt")
+                cache[task] = eval_prompt_messages(open(path).read()) if os.path.isfile(path) else None
+            return cache[task]
+
+        for path in a.paths:
+            rows = read_jsonl(path)
+            got, why = from_rollouts(rows, prompt_of, a.min_reward)
+            out, n = out + got, n + len(rows)
+            dropped.update(why)
+    for row in out:
+        sys.stdout.write(json.dumps(row) + "\n")
+    print(f"sft_rows: {len(out)} SFT rows from {n} {a.source} rows; dropped: {dict(dropped) or 'none'}", file=sys.stderr)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+===EVAL PROMPT (raw)===
+=== system ===$
+You are a helpful assistant that generates Python code to directly solve the task.$
+$
+=== user ===$
+$
+===wc===
+106 tasks/wipe/eval_prompt.txt

@@ -1,0 +1,180 @@
+rc=0
+# Evidence behind PLAYBOOK.md items
+
+Each confirmed playbook item names its section here. Rows are dev-seed evals from the sessions' `workspace/jobs/<id>.json`,
+or hidden-seed rows from a batch `RESULTS.md`; session roots are under `…/<user>/rmin_out` unless written
+in full.
+
+These numbers come from other sessions, with their own policy, adapter mode, budget, GPU class and seeds. They show where an
+item came from; they are not targets or expected scores for another session.
+
+## shaped-0pct
+
+Shaped reward on a task whose base succeeds 0/100. Every recorded run left that task at 0-3/100.
+
+| session | adapter (reward) | task | result | source |
+|---|---|---|---|---|
+| …/batch2/b2min_M_s1 | nut10 (shaped, 10 steps) | nut | 0/100 dev | job 5 |
+| same | restack10 (shaped, 10 steps) | restack | 0/100 dev | job 9 |
+| batch3a-46b913b/b3a_fix_M_s1 | rev1 (shaped, 10 steps) | revstack | 0/20 dev; 3/100 hidden | job 3; batch3a-46b913b/RESULTS.md row b3a_fix_M_s1 |
+| batch3a-46b913b/b3a_fix_M_s2 | revstack_pilot (shaped, 12 steps) | revstack | 2/100 dev | job 3 |
+| batch3a-46b913b/b3a_q8fix_M_s1 (Qwen3-8B policy, base 0 everywhere) | stack1 (shaped + note, 10 steps) | stack | 0/100 dev | job 3 |
+| batch3b-090a96a/b3b_fix_M_s1 | restack1 (shaped + note) | restack | 0/100 dev | job 5 |
+| batch3b-090a96a/b3b_min_S_s1 | v1 (shaped, 50 steps) | restack | 0/100 dev | job 3 |
+| batch3a-redo-090a96a/b3r_fix_M_s2 | restack1 (shaped, 30 steps) | restack | 0/100 dev | job 5 |
+| fastloop-85ee471/fl_fix_s1 (8B profile) | restack_a1 (shaped) | restack | 0/100 dev | job 16 |
+| same | restack_a2 (shaped + note, 50 steps) | restack | 0/100 dev | job 20 |
+
+The same b3b_min_S_s1 adapter raised lift, stack and wipe on dev seeds (PLAYBOOK item 2, unconfirmed: one session).
+
+## hidden
+
+Hidden-set results of earlier sessions, operator-provided (seeds 1-100, 9 tasks; base 118 = rmin_out/base_hidden_27b/base_hidden_27b.json),
+from each batch's RESULTS.md, next to the dev-seed total that session measured for the same stack (its own evals of each task, base
+row for tasks it did not evaluate). The counterfactual row is operator-side, not that agent's score.
+
+| session | loaded at the end | hidden total | dev total (seeds) | source |
+|---|---|---|---|---|
+| batch3b-090a96a/b3b_fix_M_s1 | stack1+restack1 (pair) | 172 | 187 (100) | batch3b-090a96a/RESULTS.md |
+| batch3b-090a96a/b3b_fix_M_s2 | lift_v1+wipe_v1 (pair) | 172 | 197 (100) | batch3b-090a96a/RESULTS.md |
+| batch3a-46b913b/b3a_min_M_s1 | lift30+stack30 (pair, verified then unloaded: counterfactual) | 170 | 157 (100) | rmin_out/counterfactual_b3a_min_M_s1/results.json |
+| batch3a-46b913b/b3a_fix_M_s1 | stk1 (single adapter) | 165 | 195 (20) | batch3a-46b913b/RESULTS.md |
+| batch3b-090a96a/b3b_fix_S_s2 | v1 (single-adapter mode, stack 30 steps) | 189 | 171 (100) | batch3b-090a96a/RESULTS.md |
+| batch3b-090a96a/b3b_fix_S_s1 | v1 (single-adapter mode, rolled back from v2) | 156 | 163 (100) | batch3b-090a96a/RESULTS.md |
+
+## shaped-side-effects (unconfirmed)
+
+| session | adapter | trained task | other tasks, dev 100 seeds (base) | source |
+|---|---|---|---|---|
+| batch3b-090a96a/b3b_min_S_s1 | v1 (shaped, 50 steps) | restack 0 | lift 84 (67), stack 64 (51), wipe 35 (16) | jobs 4-6 |
+| set1023-a23f1b3/set_fix_S_off_s1 | v1 (shaped, 15 steps) | restack 0 | lift 65 (67), stack 45 (51), wipe 11 (16) | jobs 4-6 |
+
+## pair-collapse (unconfirmed)
+
+| session | pair | task | pair vs alone (dev, 100 seeds) | source |
+|---|---|---|---|---|
+| fastloop-85ee471/fl_fix_s1 (8B profile) | stack_a1+wipe_a1 | wipe | 0 vs stack_a1 43, wipe_a1 26 | jobs 25, 27 |
+| …/fl40a-378c108/fl40a_fix_on_s8 (8B profile) | stack50+wipe50 | lift / stack | 11 / 0 vs stack50 lift 92, wipe50 stack 56 | jobs 24, 25 vs 10, 17 |
+| …/fl40l-378c108/fl40l_fix_on_s12 (8B profile) | wipe1+stack1 | lift / stack | 1 / 0 vs stack1 lift 80 | jobs 36, 37 vs 11 |
+| …/p3fl48-9fc16e6/p3fl48_min_on_s16 (8B profile) | stack1+wipe1 | lift / stack | 0 / 0 (singles not evaluated) | jobs 4, 5 |
+
+All four collapsed pairs ran on the distilled 8B profile (`RMIN_POLICY_INIT`), where every trained adapter already contains the
+profile's init adapter (retrain_min/site/README_hyak.md "Distilled DEV policy"; hyak_jobs `INIT_PEFT`), so a pair applies that init
+twice. No 27B pair (#hidden: 170-172) collapsed. Until an operator check separates the two, these rows are a site fact (trainer
+doc), not playbook experience.
+
+## v15-moved-numbers
+
+PLAYBOOK v15 (2026-10-24, Rulin's rule: the playbook holds testable method experience; result numbers live here) removed these
+numbers from the items named. v14 text: `git show 703cc605:skills/shared/PLAYBOOK.md`.
+
+| v15 item | number removed | source |
+|---|---|---|
+| 1 | shaped reward: 10 runs in 8 sessions ended at 0-3/100 on the 0% task | #shaped-0pct |
+| 2 | shaped restack side effects: lift 67->84, stack 51->64, wipe 16->35 in one session, lowered in another; an adapter loaded unchecked lost 37 of 100 on another task | #shaped-side-effects; v1 sources (commit 8404da64 message) |
+| 4 | an 8B pair dropped wipe to 0 (alone 43 and 26); hidden totals: pairs 170-172, singles 156-189, base 118 | #pair-collapse; #hidden |
+| 5 | gains by about step 120, flat after | v1 sources (commit 8404da64 message: start_rate, e4/e5/e7 RESULTS, hyak transcripts) |
+| did not work | put-down task from cube in hand: 1 of 640 rollouts succeeded | v1 sources (commit 8404da64) |
+| did not work | training-only note: 22% of training rollouts completed, 0/100 at eval | batch3a-46b913b/b3a_q8fix_M_s1 (8B policy); commit b7a3844d |
+
+## fair-sc-3-trace (2026-10-27, #10/#9; behind PLAYBOOK v16 items 2, 4, 10)
+
+v15->v16 map: old 6 (continue-vs-fresh) folded into item 4; 7->6, 8->7, 9->8, 10->9; new 10 (headroom), 11 (second train with signal), 12 (no-count eval rerun).
+
+Dev-seed/RESULT.json totals from the fair-sc-3 m86 batch (27B, 9 tasks). These are OTHER sessions' numbers (EVIDENCE only; the main claim stays on playbook-off). The gains are per-task lift/stack/wipe.
+
+Item 10 (highest-headroom task) + item 4 (pairs / chaining):
+| cell | total | lift | stack | wipe | arm / pb | how | source |
+|---|---|---|---|---|---|---|---|
+| c09 | 234 | 77 | 59 | 88 | min / ON | chain: stack30 then wipe20 on top; wipe 14->90 | rmin_dev_m86/c09 RESULT.json + transcript T9/T12/T16 |
+| d07 | 168 | 81 | 55 | 30 | min / off | chain v1->v3 (short lift/stack steps), rejected over-specialized v4 | rmin_dev_m86/d07 T15/T23/T38 |
+| c04 | 191 | 81 | 46 | 61 | fixed / off | pair stack15+wipe13 (clean, non-collapsing); pre-committed stack>=42 revert | rmin_dev_m86/c04 T6/T44 |
+| c08 | 175 | 41 | 62 | 62 | fixed / off | v2 chain stack->wipe; lift regressed 67->41 (shipped) | rmin_dev_m86/c08 T107 |
+| d02 | 153 | 86 | 48 | 18 | fixed / ON | trained only lift1+stack1 (two fresh adapters), never wipe; pair collapsed -> shipped lift1 single | rmin_dev_m86/d02 T9/T11/T14/T31 |
+
+Item 2 (eval the final served stack on every task, incl eval-only):
+| cell | submitted | never-evaluated task | outcome | source |
+|---|---|---|---|---|
+| c07 | base+stack30 (served on all 9 tasks) | revstack (dev base 0; SCOREBOARD "untested") | the global adapter regressed the hidden revstack base to 0 (per-task revstack=0) | rmin_dev_m86/c07 SCOREBOARD.md; hidden "35" is task-provided, not re-verified here |
+
+Reading: wipe is the differentiator across the 6 DONE cells (correlation, n=6, not a controlled result) — c09 wipe88->234 top, d02 wipe18->153 bottom. Pair-collapse is adapter-specific (c04's stack15+wipe13 pair did not collapse; d02's lift1+stack1 did), so item 4 keeps "evaluate each alone AND the pair," with chaining unconfirmed (hyak found 8B pairs collapse under an init-adapter confound; 27B pairs did not).
+
+## hyak-trace (2026-10-27, #9; behind PLAYBOOK v16 header and items 1, 4, 5, 7, 11, 12)
+
+hyak trace review of 11 model sessions + the scripted control (digest: issue #9). Each v16 edit, the behaviour it answers and the
+sessions that show it (dev rows: `workspace/jobs/<id>.json`, n=100 unless stated; hidden: `session/RESULT.json`). Session roots:
+`pin2S-45f1a1d/`, `pin2seeds-45f1a1d/` under rmin_out; `fl40a-378c108/`, `fl40l-378c108/`, `p3fl48-9fc16e6/` under
+`…/<user>/rmin_out_zlab`.
+
+| v16 item | behaviour | sessions and rows |
+|---|---|---|
+| header | other sessions' hidden totals read as this session's target; stopped with budget left | pin2seeds/p2_min_M_on_s10 (4.91 GPU-h unspent, "reference pairs scored lower than the single"), pin2seeds/p2_min_M_on_s12 (4.84 unspent, cites the 189 single-mode row) |
+| 1 | shaped/hybrid reward on 0%-base tasks read as signal because every rollout scored > 0 (playbook off) | fl40l/fl40l_min_off_s11: restack1, revstack1 (shaped, 10 steps), restack2 (40 steps): revstack 0/20 (job 21), restack 0/20 (job 54); fl40a/fl40a_min_off_s7: nut50, revstack50, restack50 (hybrid, 50 steps): nut 0 (job 23), revstack 3 (job 20). No playbook-on session of the 7 trained a 0%-base task |
+| 4 | pair evaluated before or instead of its parts | fl40l/fl40l_fix_on_s12 (pair sweep before wipe1 alone); p3fl48/p3fl48_min_on_s16 (pair only) |
+| 4 | item read as "avoid pairs" | pin2seeds/p2_min_M_on_s10, pin2seeds/p2_min_M_on_s12 (no pair tried) |
+| 5 | final checkpoint evaluated after the reward had fallen from its peak | fl40a/fl40a_min_off_s7 wipe50: rewards.json peak 0.578 (step 27), 0.031 at step 50; wipe 36 (job 14), lift 4/20 (job 24), stack 0/20 (job 25). Contrast fl40l/fl40l_min_off_s11 wipe1 (40 steps, curve rising): wipe 90 (job 36), stack 73 (job 38) |
+| 7 | many short waits instead of one long one | pin2seeds/p2_fix_M_on_s12: 22 `wait.py --max 9m` polls (believed a 600 s cap); pin2S/p2_fix_S_on_s10: three long waits through an 8.2 h queue |
+| 11 | a second train round on another signal task | pin2S/p2_fix_S_on_s10: v1 (stack) then v2 (wipe from v1): lift 72 -> 83, stack 54 -> 60, wipe 26 -> 60 (jobs 5-7, 18-20); hidden 208. Stopped with a train plus checks still affordable: p2_min_M_on_s10, p2_min_M_on_s12, fl40a_min_off_s7 |
+| 12 | adapter dropped after its only eval of the trained task ended with no count | fl40l/fl40l_fix_on_s12 wipe1 on wipe (job 51: time limit, no seed counted), finished with 2.19 GPU-h left |
+
+
+## pin3-trace (2026-10-28, [trace] pass, pin-3 g-cells; behind PLAYBOOK v16 items 4 + 10)
+
+Dev-seed numbers from the pin-3 8-cell factorial (27B, tree d2c27d11, batch label pin3). **Dev-only** (all cells bricked post-resume → no hidden scores this batch). EVIDENCE only; the main claim stays on playbook-off.
+
+**Item 4 — chain > pair to combine skills** (confirms the v16 "(unconfirmed)" clause):
+| cell | arm / pb | chain or pair | result (dev) | source |
+|---|---|---|---|---|
+| g03 | fix_S / off | chain base->stack10->wipe20 | stack 63 / wipe 88 | rmin_dev_pin3/g03 |
+| g04 | fix_S / on | chain stack1->wipe | stack 61 / wipe 80 | g04 |
+| g05 | min_M / off | pair wipe_a+lift_a | lift 55 (alone 82, base 77) / wipe 50 (alone 60) | g05 |
+| g02 | fix_M / on | pair wipe15+lift15 | wipe 65 (alone 80) | g02 |
+| g01 | fix_M / off | **confound-free, same cell:** chain wipe_a->wipe_b vs pair stack_a+wipe_a | wipe **67 (chain) vs 50 (pair)** | g01 |
+
+Pairs dropped a component in every multi-adapter cell; chains kept both. Caveat: a long 2nd-skill train on a chain erodes the 1st — g08 (min_S/on) v3 (wipe2, 20 steps) dropped stack 60->30; keep chained trains short and re-measure the earlier skill. (Extends #pair-collapse: the 8B pairs collapsed under an init-adapter confound; these 27B dev pairs degrade too.)
+
+**Item 10 — highest-headroom task; stack's revstack tax** (confirms v16 "(unconfirmed)"):
+- **Wipe** (base 20%, highest-headroom trainable cube task) -> **52-95% dev across all 8 cells, no cross-task regression** (g01 67, g03 88, g04 80, g05 60, g06 72, g07 95, g08 90) — drove every top cell.
+- **Stack training carries a measured revstack tax: +~9 stack / -32..-35 revstack** (over-fits the red cube; revstack wants green): g01 T31 (-35, "over-fit to red"), g05 T26 (-35), g06 st30 revstack 35->3. A stack-only adapter can be net below base on the 9-task sum (g06 st30 dev 166 < base 190).
+
+## decomposition — what a practice sub-goal did and did not do (2026-10-29, #10; staged-reward + start-preset + stage-wise curriculum arc)
+
+On the zero-signal tasks (nut, restack) the binary task-completion reward is all-zero across a GRPO group, so there is no gradient. A sub-goal practice reward + a start-state preset can supply one. What the runs showed (DEV / Qwen3.8-27B; all paths under `$R/pskills/rl/capx_rl/runs/`):
+
+**A REACHABLE sub-goal unlocks the tail.** restack trained FROM a lifted start preset (red grasped+lifted; train align->place) under a staged reward on the tail: binary completions 3/64 -> 8/64, nonzero 13 -> 20/64 over 25 GRPO steps (`train_13962063`). The align->place tail is reachable from lifted, so the policy learns it.
+
+**A sub-goal BEYOND the policy does nothing, and aiming at one wastes capacity.** nut trained FROM a grasped start preset (train align->insert) was completely FLAT — binary 0, nonzero 0, mean 0.0 across all 25 steps (`train_13962061`): nut-align is beyond the 27B policy even from the closest (grasped) start. A nut adapter aimed at align also caused FORGETTING (net-negative: dev lift 77->66, stack 54->51, no gain). Lesson: a staged reward needs a REACHABLE sub-goal; aiming beyond the policy wastes capacity and forgets.
+
+**The preset gain does NOT transfer to from-scratch for free.** Continuing from the preset-trained adapter but training FROM SCRATCH (full chain, no preset) gave 0 from-scratch binary on both: restack hill-climbs to the single easiest sub-goal (unstack, depth-1 54/64) and the within-group variance COLLAPSES 0.015 -> 0.006 -> no gradient past the first barrier (`train_13974952`); nut climbs to reach+grasp (staged 0.027 -> 0.301) but never align/insert (`train_13974953`). Standard dev eval confirms: base restack s4v2 0/100 -> from-scratch adapter 0/100; base nut 0/100 -> 1/100 (noise). The tail-knowing init does not help because the tail state is never reached from scratch.
+
+**Keeping variance alive across a depth MIXTURE is the lever.** A mixed start-state pool (per-GRPO-group mixture of lifted/grasped/scratch, full-chain staged reward so scores SPREAD across depths) keeps within-group variance ALIVE where from-scratch collapsed: restack phase A held var ~0.08 (vs 0.006), staged_mean climbed 0.23 -> 0.35, and the grasped start went from 96% -> 54% program-failure (the curriculum taught it, reaching depth 3-4). Scratch-start was still at the unstack barrier (0 from-scratch binary) as of phase A; the shift-toward-scratch schedule (phases B/C) is in progress (`train_13989823`; mixes under `$R/artifacts/start_presets/mixes/`).
+
+**THE KEY TEST-TIME (B2) LESSON: shaping on the privileged reward is NOT a subtask.** Everything above used the DEV-mode privileged path (the simulator's privileged staged reward + registry presets). That path proves the mechanism but is not a capability the model keeps at test time. In hyak records only 22/344 practice calls defined a reward.py, and every sampled one was "task_completed else a small weight on the simulator's STAGED (privileged) reward" = shaping on the privileged signal, never a new sub-goal CHECK; 0/344 used a start preset. The capability exists; the behaviour does not — no session has authored a real subtask with its own verifier. And nothing blocks it: `retrain_min/site/fairsc3_jobs.py` (the hidden-task guard) already FAILS CLOSED on a privileged reward (task_completed/shaped) for a hidden cell, so on hidden cells the ONLY allowed reward is the agent's own `reward.py` (over `log_tail`). The gap is purely authoring friction. A real subtask = the agent's own reward.py parsing the program's PRINTED observations from log_tail + its own start from its own (non-privileged) prefix program + a note naming the sub-goal. The evidence shows decomposition works WHEN the sub-goal is reachable and verified; the non-privileged authoring is what makes it a B2 capability rather than a dev-phase trick. (Gotcha core-dev caught, #9/PR #275: the practice `log_tail` had leaked the runner's trailing `Reward:`/`Task Completed:` verifier lines on hidden cells — a B2 reward.py must parse ONLY the program's own prints, never those; #275 cuts them on the practice path so the self-reward result is clean.)
+
+**Stage-wise mixture result (phases A->B->C complete, 2026-10-29): the barrier MOVES from stage 1 to the final stage, but the final precise manipulation stays the wall — on BOTH tasks.** Running the full shift-toward-scratch schedule (restack lifted/grasped/scratch -> grasped/scratch; nut grasped/reached/scratch -> reached/scratch; full-chain staged reward throughout) moved the from-scratch policy up the chain stage by stage. restack FROM SCRATCH went from the naive depth-1 unstack plateau (54/64, var collapsed 0.015->0.006) to reliably reaching ALIGN (phase C: depth-3 820/1280 = 64%, depth-4 16) — i.e. unstack->grasp->lift->align, 4 of 5 stages, from scratch — but the FINAL place (ON) never completes: 0 from-scratch binary in training AND `restack from-scratch DEV eval 0/100` (base 0/100). nut FROM SCRATCH reaches grasp reliably (phase C depth-2 1049/1281) and NICKED insert twice (2/1281 in-training = 0.16%, noise floor); `nut from-scratch DEV eval 1/100` (base 0/100). The restack(0)/nut(noise-floor) split is NOT "nut unlocks, restack doesn't" — both final precise stages sit right at the edge of crossable, and nut happened to nick it this run. MECHANISM for the residual wall: within-group variance COLLAPSES at the deepest reliably-reached stage (restack phase C var 0.059->0.02 as scores cluster at align=0.6), so the gradient to push the LAST stage weakens exactly where it is needed; and the final phase dropped the deepest preset (lifted/grasped) so the clean-start final-stage skill (the single-preset restack-from-lifted that gave binary 8/64) is no longer reinforced. So: decomposition via a depth-mixture curriculum UNLOCKS the chain up to the last precise manipulation stage from scratch, but the final precise place/insert is the residual barrier.
+
+**Transfer (8-task forgetting, phase-C adapters, DEV):** the restack chain-practice adapter is a BETTER GENERALIST, not a forgetter — wipe 20->49 (+29), stack 54->61 (+7), twolift/handover 1->3, nut 0->0, only lift 77->64 (-13). (Contrast the single-preset nut-align adapter, which was net-negative.) nut phase-C transfer: lift 77->61 (-16), stack 54->59 (+5), wipe 20->29 (+9), restack 0->0 (flat), twolift/handover 1->0 (noise). A weaker generalist than the restack adapter, consistent with nut getting less far up its chain. So chain-practice that unlocks most of a zero-signal task's chain can produce broadly transferable manipulation skill even without the task's own binary.
+=== README ===
+# Shared skills (new line: retrain_min and retrain_fixed)
+
+Optional, agent-facing scripts and notes. Pass this directory with `--skills skills/shared` to either harness: it is
+copied into the workspace as `skills/optional/` (apart from the mandatory tool docs in `skills/tools/` and
+`skills/trainer/`) and the system prompt gains two lines (where they are; append lessons to playbook_suggestions.md).
+`PLAYBOOK.md` (<= 2,500 characters, versioned) is also inlined into the system prompt under "Playbook
+(skills/optional/PLAYBOOK.md: optional advice from earlier sessions; you may follow or ignore it)"; the session records the version
+(RESULT.json `skills_version`, SCOREBOARD.md header). Nothing else changes; the agent may use, edit or ignore them.
+A skill is a directory with a SKILL.md and, optionally, scripts that run in the workspace with no other service.
+
+| skill | what it does |
+|---|---|
+| `EVIDENCE.md` | the session paths and eval rows behind each confirmed PLAYBOOK.md item, by section |
+| `reward_check/` | `check_reward.py REWARD [--results FILE]`: runs your reward(result) on example (or your own) sim replies and prints the scores |
+
+The other directories under `skills/` (decompose, library, reward_check, snapshot, train_grpo, write_practice,
+write_skill, gateway.py, README.md, ADAPTERS.md) are the frozen old loop's seed skills: they call `skills/gateway.py`,
+which only `retrain/` serves, and they stay in place because `retrain/workspace.py` (SEED) and `envs/` job scripts read
+them by path. See `../OLD_LOOP.md`.
+=== reward_check ===
+skills/optional/reward_check:
+SKILL.md
+check_reward.py

@@ -1,0 +1,8 @@
+{
+  "task": "revstack",
+  "name": "rev1",
+  "steps": 1,
+  "batch": 8,
+  "reward": "task_completed",
+  "seed_start": 830001
+}

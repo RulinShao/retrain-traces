@@ -1,0 +1,7 @@
+{
+  "task": "stack",
+  "name": "st",
+  "steps": 40,
+  "reward": "task_completed",
+  "note": "Implement the 0.1 m z-approach with ordinary calls (move first to the target xy at z_target+0.1, then descend to z_target) because the listed APIs have no z_approach parameter, and reuse the grasp orientation for the placement."
+}

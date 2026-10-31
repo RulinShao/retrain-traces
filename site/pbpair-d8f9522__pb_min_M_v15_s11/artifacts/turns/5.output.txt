@@ -1,0 +1,94 @@
+rc=0
+=====STACK PROMPT (head)=====
+=== system ===
+You are a helpful assistant that generates Python code to directly solve the task.
+
+=== user ===
+
+You are controlling a Franka Emika robot with the API described below.
+Goal: Pick up the red cube and gently stack it on top of the green cube, then release it.
+
+Key rules:
+- The extent from get_object_pose(..., return_bbox_extent=True) is the FULL side length. Use extent[2]/2 for half-height.
+- For placement orientation, reuse the grasp quaternion from sample_grasp_pose. Do NOT use the quaternion from get_object_pose (it is unreliable for orientation).
+- Always use z_approach=0.1 when approaching an object for grasping or placing.
+- After grasping, lift the cube to a safe height (at least +0.2m in Z) before moving laterally to the placement location.
+- The stacking height formula is: place_z = green_center_z + green_extent[2]/2 + red_extent[2]/2
+- Nothing should be dropped from a height. Always approach with z_approach for controlled descent.
+
+Write ONLY executable Python code (no code fences). Import numpy if needed.
+
+APIs:
+
+get_observation() -> dict[str, typing.Any]
+  Doc:
+    Get the observation of the environment.
+    Returns:
+        observation:
+            A dictionary containing the observation of the environment.
+            The dictionary contains the following keys:
+            - ["robot0_robotview"]["images"]["rgb"]: Current color camera image as a numpy array of shape (H, W, 3), dtype uint8.
+            - ["robot0_robotview"]["images"]["depth"]: Current depth camera image as a numpy array of shape (H, W), dtype float32.
+            - ["robot0_robotview"]["intrinsics"]: Camera intrinsic matrix as a numpy array of shape (3, 3), dtype float64.
+            - ["robot0_robotview"]["pose_mat"]: Camera extrinsic matrix as a numpy array of shape (4, 4), dtype float64.
+
+point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+  Doc:
+    Use Molmo to point to a coordinate in the image based on a text prompt.
+    
+    Args:
+        image: np.ndarray: The RGB image to process. Shape: (H, W, 3), dtype uint8.
+        text_prompt: str: The text prompt to point to.
+    
+=====LIFT PROMPT (head)=====
+=== system ===
+You are a helpful assistant that generates Python code to directly solve the task.
+
+=== user ===
+
+You are controlling a Franka Emika robot with API described below.
+Goal: pick up the red cube and lift it.
+You may write python code comments for reasoning but ONLY write the executable Python code and do not write it in code fences.
+The functions (APIs) below are already imported to the environment. If you want to use numpy, you need to import it explicitly.
+
+APIs:
+
+get_observation() -> dict[str, typing.Any]
+  Doc:
+    Get the observation of the environment.
+    Returns:
+        observation:
+            A dictionary containing the observation of the environment.
+            The dictionary contains the following keys:
+            - ["robot0_robotview"]["images"]["rgb"]: Current color camera image as a numpy array of shape (H, W, 3), dtype uint8.
+            - ["robot0_robotview"]["images"]["depth"]: Current depth camera image as a numpy array of shape (H, W), dtype float32.
+            - ["robot0_robotview"]["intrinsics"]: Camera intrinsic matrix as a numpy array of shape (3, 3), dtype float64.
+            - ["robot0_robotview"]["pose_mat"]: Camera extrinsic matrix as a numpy array of shape (4, 4), dtype float64.
+
+point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+=====WORKSPACE LS=====
+total 1429
+drwxr-sr-x  5 root nobody 8192 Oct 27 00:42 .
+drwxr-xr-x  4 root root     80 Oct 27 00:42 ..
+-rw-r--r--  1 root nobody  947 Oct 27 00:29 ENVIRONMENT.json
+-rw-r--r--  1 root nobody 1090 Oct 27 00:34 SCOREBOARD.md
+-rw-r--r--  1 root nobody  295 Oct 27 00:34 STATUS.json
+-rw-r--r--  1 root nobody  741 Oct 27 00:29 _submit.py
+lrwxrwxrwx  1 root nobody   19 Oct 27 00:29 adapters -> ../session/adapters
+-rw-r--r--  1 root nobody  396 Oct 27 00:29 cancel.py
+-rw-r--r--  1 root nobody  447 Oct 27 00:29 eval.py
+-rw-r--r--  1 root nobody 1401 Oct 27 00:29 finish.py
+drwxr-sr-x  2 root nobody  512 Oct 27 00:29 jobs
+-rw-r--r--  1 root nobody  559 Oct 27 00:29 load.py
+drwxr-sr-x  5 root nobody  512 Oct 27 00:29 skills
+-rw-r--r--  1 root nobody  795 Oct 27 00:29 status.py
+drwxr-sr-x 11 root nobody  512 Oct 27 00:29 tasks
+-rw-r--r--  1 root nobody 1309 Oct 27 00:29 tasks.json
+-rw-r--r--  1 root nobody  595 Oct 27 00:29 train.py
+-rw-r--r--  1 root nobody  568 Oct 27 00:29 wait.py
+=====TRAIN HELP (head)=====
+---
+name: trainer
+description: The hyak trainer contract: every field train.py reads, what each failure returns, costs, and what a train produces.
+---
+# Trainer on this site (hyak, CaP-X Robosuite, GRPO LoRA)

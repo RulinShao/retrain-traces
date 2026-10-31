@@ -1,0 +1,7 @@
+{
+  "task": ["wipe", "nut", "restack"],
+  "name": "hard3",
+  "reward": "shaped",
+  "batch": 12,
+  "steps": 10
+}

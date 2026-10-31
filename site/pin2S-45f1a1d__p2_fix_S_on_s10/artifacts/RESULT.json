@@ -1,0 +1,49 @@
+{
+ "status": "DONE",
+ "turns": 34,
+ "gpu_hours": 15.444,
+ "final_score": {
+  "loaded": "v2",
+  "per_task": {
+   "lift": 80,
+   "stack": 64,
+   "nut": 1,
+   "wipe": 61,
+   "restack": 0,
+   "twolift": 0,
+   "handover": 0,
+   "revstack": 0,
+   "stackv2": 2
+  },
+  "total": 208,
+  "n_per_task": 100,
+  "submission": "b56994",
+  "confirmed": true
+ },
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 14.7226,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "b56994",
+  "how": "default-loaded-stack",
+  "turn": 32,
+  "confirmed": true,
+  "confirmed_turn": 33,
+  "ended_by": "DONE",
+  "note": "Score v2 (sha e99ad52c7994), single-adapter, lineage base->v1(stack,10)->v2(wipe,10). Best held-out dev across all 9 tasks: signal total lift+stack+wipe = 203 (v2) vs 152 (v1) vs 134 (base). v2 held-out dev eval jobs: lift 83/100 (j18), stack 60/100 (j19), wipe 60/100 (j20); low tasks ~0/20: twolift 0 (j23), handover 0 (j24), revstack 0 (j25), restack 0 (j22); nut (j21) and stackv2 (j26) in flight (~0; v1 measured 0/20 each, base 0/1). Broad gain over v1 on every signal task with no low-task regression; kept max(v1,v2).",
+  "policy": "base + v2 (v2, sha e99ad52c7994)"
+ },
+ "skills_version": "87f49efe-f045ba05",
+ "initial_skills_digest": "7cd63d5c89c36451eab7fe81992b0583d9643dc30627d19a74ad75c77ec559f0",
+ "artifacts": {
+  "registry": "…/pin2S-45f1a1d/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

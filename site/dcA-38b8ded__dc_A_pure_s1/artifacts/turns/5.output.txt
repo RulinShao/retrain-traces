@@ -1,0 +1,27 @@
+rc=0
+A policy whose name carries `+init:<sha>` (SCOREBOARD.md's `policy:` line) is the model plus that init adapter: its base is
+served with the init, every train without `init` starts from it, so each trained adapter already contains the init's change,
+and a stack of two such adapters applies that change twice.
+
+## Spec fields (a spec with any other field fails; see Failures)
+| field | type | default | accepted |
+|---|---|---|---|
+| `task` | string or list | required unless `data` | a trainable task (see workspace/tasks/INDEX.md), or a list of them: one call practising all, every batch split equally across them (`batch` a multiple of their number; no `note` / `goal`); revstack practises alone |
+| `name` | string | `a<job id>` | letters, digits, `_ . -`, at most 48; not already taken, not `base` / `loaded`. Single-adapter mode: omit it (or `current`) |
+| `steps` | integer | 1 | any positive integer (cost grows with it, see below) |
+| `batch` | integer | 8 | prompts per step (each x 8 rollouts) |
+| `lr` | float | 2e-5 | learning rate |
+| `init` | string | none (fresh LoRA) | an adapter name produced by an earlier train of this session (`base` is not one: omit `init` to start from the policy). Single-adapter mode: omit it (or `current`); every train continues `current`. The new adapter is the init adapter continued (it already holds init's change): loading both stacks that change twice |
+| `start_preset` | string | none | a named start-state preset (core/start_presets.py: `restack_grasped`/`restack_lifted`/`restack_aligned`, `nut_grasped`/`nut_aligned`) to begin practice from an intermediate scene (e.g. object already grasped) so the agent trains the hard tail; the staged reward then scores only the stages after that sub-goal; fails loudly if the preset has not been built. With hidden tasks (B2): also the name of a preset you built with `preset.py` (`presets/<name>.json`), on the task it was built on; on a hidden task only such a preset |
+| `start_mix` | string | none | a mixed start-state pool (core/mix_presets.py, built with `build_mix`): seeds split across presets of one task at a ratio, some from scratch; the staged reward scores the full chain; not with `start_preset`; fails loudly if not built; refused on a hidden task (B2) |
+| `reward` | string | `task_completed` | `task_completed` (1.0 if the task's own success check passes, else 0.0); `shaped` (the simulator's staged reward); Python source containing `def reward(r)`; or the path of a `.py` file (relative paths: the workspace) defining `reward(r)`. `r` is the simulator's reply: `task_completed`, `reward`, `sandbox_rc`, `seed`, `log_tail` (keys or attributes); return a float |
+| `seed_start` | integer | 810001 | rollout k of the call runs on seed `seed_start + k`; must not reach seeds 1-100 |
+| `note` | string | none | one sentence inserted after the training prompt's Goal line (not a comment: the rollouts see it; evaluation prompts never have it) |
+| `goal` | string | none | replaces the training prompt's Goal line (evaluation prompts keep theirs) |
+| `time` | string | set by the site: 1 GPU 25 min + 13 min x steps, 2 GPUs 85 min + 17 min x steps, 3 GPUs 30 min + 14 min x steps, at least 2 h (whole minutes, rounded up; the job record's `config` shows the value used) | wall limit of each Slurm job of the call, `HH:MM:SS`; a call whose job reaches it continues from its last saved step (below); once it has continued 3 times it keeps the adapter of its last saved step, as a cancel (result `time_limit`; a preempted or node-failed call likewise, result `preempted` / `node_fail`), or ends `failed` with the fact if none was saved |
+| `data` | string | none | a JSONL file of training prompts in your workspace: see Training data below. With `data`, the tasks, seeds, order and steps come from its rows |
+| `objective` | string | `grpo` | `grpo` (the practice call above) or `sft` (supervised fine-tuning on your own demonstrations: see SFT below; its spec has `data` and the fields of that section only) |
+| `epochs` | integer | 1 | `objective: sft` only: passes over the kept rows |
+| `min_reward` | number | 1.0 | `objective: sft` only: rows with `reward` >= this are trained on, the others dropped (a filter, never a weight) |
+
+## Training data (`data`)

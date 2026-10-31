@@ -1,0 +1,53 @@
+{
+ "status": "DONE",
+ "turns": 34,
+ "gpu_hours": 15.277999999999999,
+ "final_score": {
+  "loaded": "stack1+wipe1",
+  "per_task": {
+   "lift": 79,
+   "stack": 69,
+   "nut": 0,
+   "wipe": 45,
+   "restack": 0,
+   "twolift": 0,
+   "handover": 0,
+   "revstack": 1,
+   "stackv2": 4
+  },
+  "total": 198,
+  "n_per_task": 100,
+  "submission": "687faf",
+  "confirmed": true
+ },
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 7.5414,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "687faf",
+  "how": "default-loaded-stack",
+  "turn": 23,
+  "confirmed": true,
+  "confirmed_turn": 33,
+  "ended_by": "DONE",
+  "note": null,
+  "policy": "base + stack1 (sha a8d6314f3b43) + wipe1 (sha 01ec4ee0468a)"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "781c03e45fecb8c2c7fda12acde4d3af26ee19397bbd0ec40bfa787d3fd61737",
+ "artifacts": {
+  "registry": "…/batch3b-090a96a/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ },
+ "resumed": {
+  "count": 2,
+  "log": "session/resumes.jsonl"
+ }
+}

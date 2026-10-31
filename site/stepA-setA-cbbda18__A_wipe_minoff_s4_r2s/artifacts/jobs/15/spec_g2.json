@@ -1,0 +1,9 @@
+{
+  "task": "wipe",
+  "name": "wipe_g2",
+  "steps": 1,
+  "batch": 8,
+  "lr": 2e-5,
+  "seed_start": 811001,
+  "reward": "task_completed"
+}

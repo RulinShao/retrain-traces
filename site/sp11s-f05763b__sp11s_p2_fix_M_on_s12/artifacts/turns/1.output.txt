@@ -1,0 +1,110 @@
+rc=0
+---
+name: trainer
+description: The hyak trainer contract: every field train.py reads, what each failure returns, costs, and what a train produces.
+---
+# Trainer on this site (hyak, CaP-X Robosuite, GRPO LoRA)
+
+`python3 train.py SPEC` submits one practice call; SPEC is a JSON or YAML file in the workspace. `python3 train.py --help` prints this file.
+Relative paths in SPEC (a reward file, an init adapter path, data files) resolve against the workspace, where `train.py` runs, wherever SPEC itself is.
+The programs can call exactly the functions listed under `APIs:` in the task's eval_prompt.txt. The Key rules of the stack,
+revstack, stackv2 and handover prompts also name `get_object_pose`, `sample_grasp_pose`, `goto_pose_arm*` and a `z_approach`
+parameter: none of these exists in these cells (the rules text is shared with the tasks' privileged-API variant). The prompts
+are the benchmark's cells of record and are scored as they are.
+A stack (`eval.py --adapter A,B`, `load.py stack`) holds at most 4 adapters: each is rank 32 and the serving's maximum
+LoRA rank is 128; a larger stack ends `failed` with `stack rank 160 > 128 (the serving's --max-lora-rank): at most 4 adapters of rank 32`.
+Your shell on this site writes only in the workspace and has no network (pip, curl and similar fail) and no Slurm client;
+all compute goes through train.py and eval.py.
+
+## What a practice call is
+GRPO on LoRA adapters of the policy model named in SCOREBOARD.md's `policy:` line (LoRA rank 32, alpha 64, on q,k,v,o,out,gate,up,down
+projections for Qwen3.8-27B; other policies have no `out`).
+Each step: `batch` prompts x 8 rollouts. GRPO's update comes from reward differences among a prompt's 8 rollouts: a prompt whose rollouts all get the same reward adds nothing to it. A rollout is one program written by the model for the task, run once in the task's simulator
+on one seed; its score is the reward below. The training prompt is the task's evaluation prompt, byte for byte (checked before training), unless the spec sets `note` or `goal`:
+those are part of the training prompt only. Every eval, including the final hidden-seed score, uses the task's
+`tasks/<task>/eval_prompt.txt` in the workspace verbatim, without any note or goal.
+Sampling during practice: temperature 1.0, top_p 0.95, top_k 20; at most 8192 generated tokens per program.
+Sampling during evaluation (eval.py and the final score): temperature 0.7, top_p 0.8, top_k 20, presence_penalty 1.5, thinking
+off; at most 8192 generated tokens per program (envs/capx/config_of_record_v4.yaml). For lift, stack, wipe and nut the practice
+unit and the eval cell run the same task config (`*_reduced_api_exampleless.yaml` is the s4:paper cell's config).
+
+A policy whose name carries `+init:<sha>` (SCOREBOARD.md's `policy:` line) is the model plus that init adapter: its base is
+served with the init, every train without `init` starts from it, so each trained adapter already contains the init's change,
+and a stack of two such adapters applies that change twice.
+
+## Spec fields (a spec with any other field fails; see Failures)
+| field | type | default | accepted |
+|---|---|---|---|
+| `task` | string | required | a trainable task; trainable tasks: see workspace/tasks/INDEX.md |
+| `name` | string | `a<job id>` | letters, digits, `_ . -`, at most 48; not already taken, not `base` / `loaded`. Single-adapter mode: omit it (or `current`) |
+| `steps` | integer | 1 | any positive integer (cost grows with it, see below) |
+| `batch` | integer | 8 | prompts per step (each x 8 rollouts) |
+| `lr` | float | 2e-5 | learning rate |
+| `init` | string | none (fresh LoRA) | an adapter name produced by an earlier train of this session (`base` is not one: omit `init` to start from the policy). Single-adapter mode: omit it (or `current`); every train continues `current`. The new adapter is the init adapter continued (it already holds init's change): loading both stacks that change twice |
+| `reward` | string | `task_completed` | `task_completed` (1.0 if the task's own success check passes, else 0.0); `shaped` (the simulator's staged reward); Python source containing `def reward(r)`; or the path of a `.py` file (relative paths: the workspace) defining `reward(r)`. `r` is the simulator's reply: `task_completed`, `reward`, `sandbox_rc`, `seed`, `log_tail` (keys or attributes); return a float |
+| `seed_start` | integer | 810001 | rollout k of the call runs on seed `seed_start + k`; must not reach seeds 1-100 |
+| `note` | string | none | one sentence inserted after the training prompt's Goal line (not a comment: the rollouts see it; evaluation prompts never have it) |
+| `goal` | string | none | replaces the training prompt's Goal line (evaluation prompts keep theirs) |
+| `time` | string | set by the site: 1 GPU 25 min + 13 min x steps, 2 GPUs 85 min + 17 min x steps, 3 GPUs 30 min + 14 min x steps, at least 2 h (whole minutes, rounded up; the job record's `config` shows the value used) | wall limit of each Slurm job of the call, `HH:MM:SS`; a call whose job reaches it continues from its last saved step (below); once it has continued 3 times it keeps the adapter of its last saved step, as a cancel (result `time_limit`; a preempted or node-failed call likewise, result `preempted` / `node_fail`), or ends `failed` with the fact if none was saved |
+
+## Failures
+A request this site cannot run as written ends `failed` in `jobs/<id>.json` with this text; nothing is charged:
+- `train: unsupported spec field(s) ['<field>', ...]; this site reads only: steps, lr, batch, seed_start, reward, init, note, goal, time, task, name`
+- `train: task must be one of ['lift', 'nut', 'restack', 'revstack', 'stack', 'wipe'], got '<task>'` (twolift, handover, stackv2 have no practice unit here)
+- `train: init adapter not found: <path>`
+- `train: reward must be 'task_completed', 'shaped' or the path of a .py file defining reward(result) -> float`
+- `train: reward file <path> is outside your workspace; a reward file must be a file in your workspace` (a symlink is not followed either)
+- `train: name: letters, digits, _ . - (max 48)`
+- `train: your reward function raised <Error>: <message> (reward.py line N); ...` / `train: your reward function tried to <action> (<detail>), which the reward sandbox refuses; ...` / `train: your reward function ran longer than 120 s on one rollout ...`: a custom `reward(r)` runs in a sandbox, once per rollout: plain Python and the interpreter's libraries (math, json, numpy), files only in its working directory (temporary), no other files, no network, no subprocesses, 60 s CPU and 4 GiB per call. The train stops at the first such failure.
+- `train: seeds 1-100 are reserved for the final score; use dev seeds >= 800001`
+A failure inside the trainer or the simulator (crash, missing adapter files, a hidden seed used) ends the session as an infrastructure
+fault. An all-zero update is a training outcome, shown on the scoreboard: the adapter's change is zero, so it behaves as its init (base or the init adapter).
+
+## Progress and cancel
+While a train runs, its record shows completed steps, the latest step's mean reward, the fraction of rollouts with reward > 0
+and canonical GPU-hours of the steps done so far (read from the trainer's per-step output about once a minute). A checkpoint is saved every
+step. A call stopped by the cluster (time limit, preemption, node failure) continues from its last checkpoint in a new Slurm job, at most 3 times; its status then says `continued from step k in job J`, and its result lists every Slurm job (`jobs`) and each continuation (`continued`: `job` stopped, `cause`, `from` step, `of` steps, `continued_in` job), as it lists site retries.
+`cancel.py ID` stops the job and keeps the adapter of the last saved step (registered with the steps it ran), or ends the
+job `failed` if none was saved; either way the job is charged the canonical cost of the steps it completed (see Cost).
+
+## Cost (canonical GPU-hours)
+The budget is charged a canonical cost per call, the same whatever hardware the site runs the call on. The tables below are
+the Qwen3.8-27B policy's; with another policy the costs differ, and SCOREBOARD.md's "Expected cost per call" line gives them.
+
+| call | canonical cost |
+|---|---|
+| train, 1 step | 2.76 |
+| train, 10 steps | 4.03 |
+| train, 30 steps | 6.84 |
+| train, N steps | 2 x (1.31 + 0.0703 x N x batch / 8) |
+
+| eval of one task on | 5 seeds | 20 seeds | 100 seeds |
+|---|---|---|---|
+| canonical cost | 0.36 | 0.38 | 0.48 |
+
+An eval's cost is mostly its fixed part, so 100 seeds cost little more than 5. A call that fails or is cancelled is charged the
+canonical cost of the steps it completed, or less if it ran only briefly. The cost is also the admission estimate.
+
+## Output
+A finished train writes `adapters/<name>/` (read-only to you): `adapter_model.safetensors`, `adapter_config.json`,
+`rewards.json` (per step: `step`, `score_mean` over that step's rollouts), `call.json` (job ids, `gpu_hours` = the canonical charge to
+your budget, `gpu_hours_actual` = measured hardware time, not charged, nonzero LoRA-B count, rollout seed range) and `training.json` (`resolved_spec`: the controls actually used). The adapter can then be named in `eval.py --adapter`, `load.py`, or as `init` of another train.
+Each `rewards.json` step also has `zero_variance_frac` (the share of that step's prompt groups whose rollouts all got one reward) and `failure_stages` (failed rollouts by stage: `sim`, `timeout`, `program`, `grader`, `task`); the running job's status line shows them for the latest step and the train's result lists them per step (`step_facts`).
+----
+# Probe (pass 1)
+
+## Evidence
+Base column already filled on 100 dev seeds per task (precomputed, uncharged). Counts I trust (n=100 each):
+- lift 67/100 = 67%
+- stack 51/100 = 51%
+- nut 0/100 = 0%
+- wipe 16/100 = 16%
+- restack 0/100 = 0%
+- twolift 1/100 = 1%
+- handover 2/100 = 2%
+- revstack 0/100 = 0%
+- stackv2 1/100 = 1%
+
+## Unknowns
+None — every task is counted on 100 seeds, no probe evals needed or submitted.
+Open questions for diagnose (not probe): which of the near-zero tasks (nut, restack, revstack, twolift, handover, stackv2) actually has a learnable completion signal, and what steps/cost budget to allocate given train costs (10 steps ≈ 4.03, 50 steps ≈ 9.65) and eval cost ≈ 0.48/task at 100 seeds.

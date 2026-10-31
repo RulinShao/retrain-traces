@@ -1,0 +1,8 @@
+{
+  "task": "lift",
+  "name": "lift_a",
+  "steps": 30,
+  "batch": 8,
+  "reward": "task_completed",
+  "seed_start": 810001
+}

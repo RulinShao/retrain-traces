@@ -1,0 +1,451 @@
+rc=0
+===jobs dir===
+total 42
+drwxr-sr-x 2 root nobody 8192 Oct 31 06:46 .
+drwxr-sr-x 8 root nobody 8192 Oct 31 07:54 ..
+-rw-r--r-- 1 root nobody  250 Oct 31 04:09 1.json
+-rw-r--r-- 1 root nobody  107 Oct 31 04:07 1.request.json
+-rw-r--r-- 1 root nobody  293 Oct 31 07:54 10.json
+-rw-r--r-- 1 root nobody   61 Oct 31 06:46 10.request.json
+-rw-r--r-- 1 root nobody  258 Oct 31 04:09 2.json
+-rw-r--r-- 1 root nobody  111 Oct 31 04:07 2.request.json
+-rw-r--r-- 1 root nobody  260 Oct 31 04:09 3.json
+-rw-r--r-- 1 root nobody  112 Oct 31 04:07 3.request.json
+-rw-r--r-- 1 root nobody  252 Oct 31 04:09 4.json
+-rw-r--r-- 1 root nobody  108 Oct 31 04:07 4.request.json
+-rw-r--r-- 1 root nobody  115 Oct 31 04:09 5.json
+-rw-r--r-- 1 root nobody   65 Oct 31 04:08 5.request.json
+-rw-r--r-- 1 root nobody  252 Oct 31 04:15 6.json
+-rw-r--r-- 1 root nobody  108 Oct 31 04:14 6.request.json
+-rw-r--r-- 1 root nobody  254 Oct 31 04:15 7.json
+-rw-r--r-- 1 root nobody  109 Oct 31 04:14 7.request.json
+-rw-r--r-- 1 root nobody  115 Oct 31 04:15 8.json
+-rw-r--r-- 1 root nobody   65 Oct 31 04:14 8.request.json
+-rw-r--r-- 1 root nobody  294 Oct 31 07:54 9.json
+-rw-r--r-- 1 root nobody   60 Oct 31 04:50 9.request.json
+--- jobs/1.json ---
+{
+ "id": 1,
+ "kind": "policy_sample",
+ "state": "done",
+ "result": {
+  "samples": "samples/1.jsonl",
+  "n": 2,
+  "task": "nut",
+  "seeds": [
+   800001,
+   800002
+  ],
+  "adapters": [],
+  "rollout": false
+ },
+ "progress": null,
+ "progress_line": null,
+ "jobs": null,
+ "slurm_job": null,
+ "sacct": null,
+ "gpu": null,
+ "gpus": null,
+ "estimate": null,
+ "reserved": null,
+ "requested": null,
+ "time": null
+}
+--- jobs/1.request.json ---
+{
+ "id": 1,
+ "kind": "policy_sample",
+ "state": null,
+ "result": null,
+ "progress": null,
+ "progress_line": null,
+ "jobs": null,
+ "slurm_job": null,
+ "sacct": null,
+ "gpu": null,
+ "gpus": null,
+ "estimate": null,
+ "reserved": null,
+ "requested": null,
+ "time": null
+}
+--- jobs/10.json ---
+{
+ "id": 10,
+ "kind": "train",
+ "state": "running",
+ "result": null,
+ "progress": {
+  "state": "queued",
+  "queued_min": 68.4
+ },
+ "progress_line": "queued (not started), 68 min in queue",
+ "jobs": null,
+ "slurm_job": null,
+ "sacct": null,
+ "gpu": null,
+ "gpus": null,
+ "estimate": null,
+ "reserved": null,
+ "requested": null,
+ "time": null
+}
+--- jobs/10.request.json ---
+{
+ "id": 10,
+ "kind": "train",
+ "state": null,
+ "result": null,
+ "progress": null,
+ "progress_line": null,
+ "jobs": null,
+ "slurm_job": null,
+ "sacct": null,
+ "gpu": null,
+ "gpus": null,
+ "estimate": null,
+ "reserved": null,
+ "requested": null,
+ "time": null
+}
+--- jobs/2.json ---
+{
+ "id": 2,
+ "kind": "policy_sample",
+ "state": "done",
+ "result": {
+  "samples": "samples/2.jsonl",
+  "n": 2,
+  "task": "restack",
+  "seeds": [
+   800003,
+   800004
+  ],
+  "adapters": [],
+  "rollout": false
+ },
+ "progress": null,
+ "progress_line": null,
+ "jobs": null,
+ "slurm_job": null,
+ "sacct": null,
+ "gpu": null,
+ "gpus": null,
+ "estimate": null,
+ "reserved": null,
+ "requested": null,
+ "time": null
+}
+--- jobs/2.request.json ---
+{
+ "id": 2,
+ "kind": "policy_sample",
+ "state": null,
+ "result": null,
+ "progress": null,
+ "progress_line": null,
+ "jobs": null,
+ "slurm_job": null,
+ "sacct": null,
+ "gpu": null,
+ "gpus": null,
+ "estimate": null,
+ "reserved": null,
+ "requested": null,
+ "time": null
+}
+--- jobs/3.json ---
+{
+ "id": 3,
+ "kind": "policy_sample",
+ "state": "done",
+ "result": {
+  "samples": "samples/3.jsonl",
+  "n": 2,
+  "task": "revstack",
+  "seeds": [
+   800005,
+   800006
+  ],
+  "adapters": [],
+  "rollout": false
+ },
+ "progress": null,
+ "progress_line": null,
+ "jobs": null,
+ "slurm_job": null,
+ "sacct": null,
+ "gpu": null,
+ "gpus": null,
+ "estimate": null,
+ "reserved": null,
+ "requested": null,
+ "time": null
+}
+--- jobs/3.request.json ---
+{
+ "id": 3,
+ "kind": "policy_sample",
+ "state": null,
+ "result": null,
+ "progress": null,
+ "progress_line": null,
+ "jobs": null,
+ "slurm_job": null,
+ "sacct": null,
+ "gpu": null,
+ "gpus": null,
+ "estimate": null,
+ "reserved": null,
+ "requested": null,
+ "time": null
+}
+--- jobs/4.json ---
+{
+ "id": 4,
+ "kind": "policy_sample",
+ "state": "done",
+ "result": {
+  "samples": "samples/4.jsonl",
+  "n": 2,
+  "task": "wipe",
+  "seeds": [
+   800007,
+   800008
+  ],
+  "adapters": [],
+  "rollout": false
+ },
+ "progress": null,
+ "progress_line": null,
+ "jobs": null,
+ "slurm_job": null,
+ "sacct": null,
+ "gpu": null,
+ "gpus": null,
+ "estimate": null,
+ "reserved": null,
+ "requested": null,
+ "time": null
+}
+--- jobs/4.request.json ---
+{
+ "id": 4,
+ "kind": "policy_sample",
+ "state": null,
+ "result": null,
+ "progress": null,
+ "progress_line": null,
+ "jobs": null,
+ "slurm_job": null,
+ "sacct": null,
+ "gpu": null,
+ "gpus": null,
+ "estimate": null,
+ "reserved": null,
+ "requested": null,
+ "time": null
+}
+--- jobs/5.json ---
+{
+ "id": 5,
+ "kind": "wait",
+ "state": "done",
+ "result": "waited for 4 job(s)",
+ "progress": null,
+ "progress_line": null,
+ "jobs": null,
+ "slurm_job": null,
+ "sacct": null,
+ "gpu": null,
+ "gpus": null,
+ "estimate": null,
+ "reserved": null,
+ "requested": null,
+ "time": null
+}
+--- jobs/5.request.json ---
+{
+ "id": 5,
+ "kind": "wait",
+ "state": null,
+ "result": null,
+ "progress": null,
+ "progress_line": null,
+ "jobs": null,
+ "slurm_job": null,
+ "sacct": null,
+ "gpu": null,
+ "gpus": null,
+ "estimate": null,
+ "reserved": null,
+ "requested": null,
+ "time": null
+}
+--- jobs/6.json ---
+{
+ "id": 6,
+ "kind": "policy_sample",
+ "state": "done",
+ "result": {
+  "samples": "samples/6.jsonl",
+  "n": 2,
+  "task": "lift",
+  "seeds": [
+   800009,
+   800010
+  ],
+  "adapters": [],
+  "rollout": false
+ },
+ "progress": null,
+ "progress_line": null,
+ "jobs": null,
+ "slurm_job": null,
+ "sacct": null,
+ "gpu": null,
+ "gpus": null,
+ "estimate": null,
+ "reserved": null,
+ "requested": null,
+ "time": null
+}
+--- jobs/6.request.json ---
+{
+ "id": 6,
+ "kind": "policy_sample",
+ "state": null,
+ "result": null,
+ "progress": null,
+ "progress_line": null,
+ "jobs": null,
+ "slurm_job": null,
+ "sacct": null,
+ "gpu": null,
+ "gpus": null,
+ "estimate": null,
+ "reserved": null,
+ "requested": null,
+ "time": null
+}
+--- jobs/7.json ---
+{
+ "id": 7,
+ "kind": "policy_sample",
+ "state": "done",
+ "result": {
+  "samples": "samples/7.jsonl",
+  "n": 2,
+  "task": "stack",
+  "seeds": [
+   800011,
+   800012
+  ],
+  "adapters": [],
+  "rollout": false
+ },
+ "progress": null,
+ "progress_line": null,
+ "jobs": null,
+ "slurm_job": null,
+ "sacct": null,
+ "gpu": null,
+ "gpus": null,
+ "estimate": null,
+ "reserved": null,
+ "requested": null,
+ "time": null
+}
+--- jobs/7.request.json ---
+{
+ "id": 7,
+ "kind": "policy_sample",
+ "state": null,
+ "result": null,
+ "progress": null,
+ "progress_line": null,
+ "jobs": null,
+ "slurm_job": null,
+ "sacct": null,
+ "gpu": null,
+ "gpus": null,
+ "estimate": null,
+ "reserved": null,
+ "requested": null,
+ "time": null
+}
+--- jobs/8.json ---
+{
+ "id": 8,
+ "kind": "wait",
+ "state": "done",
+ "result": "waited for 2 job(s)",
+ "progress": null,
+ "progress_line": null,
+ "jobs": null,
+ "slurm_job": null,
+ "sacct": null,
+ "gpu": null,
+ "gpus": null,
+ "estimate": null,
+ "reserved": null,
+ "requested": null,
+ "time": null
+}
+--- jobs/8.request.json ---
+{
+ "id": 8,
+ "kind": "wait",
+ "state": null,
+ "result": null,
+ "progress": null,
+ "progress_line": null,
+ "jobs": null,
+ "slurm_job": null,
+ "sacct": null,
+ "gpu": null,
+ "gpus": null,
+ "estimate": null,
+ "reserved": null,
+ "requested": null,
+ "time": null
+}
+--- jobs/9.json ---
+{
+ "id": 9,
+ "kind": "train",
+ "state": "running",
+ "result": null,
+ "progress": {
+  "state": "queued",
+  "queued_min": 184.0
+ },
+ "progress_line": "queued (not started), 184 min in queue",
+ "jobs": null,
+ "slurm_job": null,
+ "sacct": null,
+ "gpu": null,
+ "gpus": null,
+ "estimate": null,
+ "reserved": null,
+ "requested": null,
+ "time": null
+}
+--- jobs/9.request.json ---
+{
+ "id": 9,
+ "kind": "train",
+ "state": null,
+ "result": null,
+ "progress": null,
+ "progress_line": null,
+ "jobs": null,
+ "slurm_job": null,
+ "sacct": null,
+ "gpu": null,
+ "gpus": null,
+ "estimate": null,
+ "reserved": null,
+ "requested": null,
+ "time": null
+}

@@ -1,0 +1,121 @@
+rc=0
+# Playbook
+version: 16 (2026-10-27; fair-sc-3 + hyak trace reviews #9/#10)
+Past-session experience (with its condition) to test here; not this session's facts (see tool docs). Numbers/sources: skills/shared/EVIDENCE.md (other sessions and settings: not targets). Gate: one session = unconfirmed; a 2nd session or a hidden-seed score confirms; dropped after two testable batches. Edits -> playbook_suggestions.md.
+
+Observations to test:
+1. A base-0 task gave no completion signal and shaped reward never lifted one (confirmed); count task_completed rollouts (shaped>0 is not a completion) before spending on it.
+2. Training one task shifts others; and the submitted adapter serves EVERY task, so it can regress one you never evaluated (incl. eval-only, base 0). Eval a candidate and the FINAL stack on every task before submitting.
+3. On equal-reward rollouts, changing the start state or reward beat training longer.
+4. Adapter pairs combined well and badly -- evaluate each adapter alone AND the pair in one batch. One session chained (train B from A's adapter) to compound gains where fresh adapters only paired (unconfirmed).
+5. Gains flattened after moderate steps -- read the curve before extending. One run kept past its peak (reward falling) lost its gain and hurt other tasks (unconfirmed); cancel keeps the last saved step.
+6. Training-seed scores and held-out dev evals have differed; prefer the held-out number.
+7. Queues took hours; submit the jobs wanted together then wait in LONG windows (waiting isn't charged), not short re-polls.
+8. Keep the best checked stack loaded as you go, so a cut-short session still has one.
+9. Plan the budget up front (reserve checking evals/loads); commit early to tasks with signal.
+10. The biggest gain came from training the highest-HEADROOM task (low base, real signal), not the strong ones (unconfirmed).
+11. A second train on another signal-bearing task added to the first; stopping while a train+checks still fit left it untested (unconfirmed).
+12. An eval that ended with no count says nothing about the adapter; a rerun cost less than dropping it (unconfirmed).
+
+Did not work in earlier sessions:
+- A practice start state the evaluation never uses (cube already in hand): almost no successful rollouts.
+- A training-only note did not carry to evaluation; it edits only the prompt text (trainer doc), not the task trained.
+
+Changelog v16 (fair-sc-3+hyak): old 6->4; 7-10 ->6-9; +10/11/12; 1/4/5 extended. See EVIDENCE #v16. v14=703cc605.
+===
+EVIDENCE.md
+HINTS_POOL.md
+PLAYBOOK.md
+PLAYBOOK_v17a.md
+PLAYBOOK_v17b.md
+PLAYBOOK_v17c.md
+README.md
+reward_check
+===
+# Task index
+
+Written by the environment from tasks.json, tasks/<task>/eval_prompt.txt and the session's base scores.
+
+## lift
+
+- Goal: pick up the red cube and lift it.
+- Seeds: dev seeds from 800001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 67/100 (seeds 800001-800100)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper
+
+## stack
+
+- Goal: Pick up the red cube and gently stack it on top of the green cube, then release it.
+- Seeds: dev seeds from 800001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 51/100 (seeds 800001-800100)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper
+- Key rules:
+  - The extent from get_object_pose(..., return_bbox_extent=True) is the FULL side length. Use extent[2]/2 for half-height.
+  - For placement orientation, reuse the grasp quaternion from sample_grasp_pose. Do NOT use the quaternion from get_object_pose (it is unreliable for orientation).
+  - Always use z_approach=0.1 when approaching an object for grasping or placing.
+  - After grasping, lift the cube to a safe height (at least +0.2m in Z) before moving laterally to the placement location.
+  - The stacking height formula is: place_z = green_center_z + green_extent[2]/2 + red_extent[2]/2
+  - Nothing should be dropped from a height. Always approach with z_approach for controlled descent.
+
+## nut
+
+- Goal: grasp and insert the `brown square nut` onto the `brown square block`.
+- Seeds: dev seeds from 800001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 0/100 (seeds 800001-800100)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper
+
+## wipe
+
+- Goal: wipe up the 'brown spill'.
+- Seeds: dev seeds from 800001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 16/100 (seeds 800001-800100)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, solve_ik, move_to_joints
+
+## restack
+
+- Goal: Gently place the red cube on top of the green cube and then open the gripper. Nothing should be dropped from a height.
+- Seeds: dev seeds from 800001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 0/100
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper
+
+## twolift
+
+- Goal: The two arms should coordinate to lift a pot. Arm 0 should grasp handle 0, and Arm 1 should grasp handle 1. Then both arms should lift the pot up at the same height.
+- Seeds: dev seeds from 800001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 1/100 (seeds 800001-800100)
+- APIs: get_observation, point_prompt_molmo, detect_object_owlvit, segment_sam2, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik_arm0, solve_ik_arm1, move_to_joints_both, move_to_joints_arm0, move_to_joints_arm1, open_gripper_arm0, close_gripper_arm0, open_gripper_arm1, close_gripper_arm1
+
+## handover
+
+- Goal: Arm 0 should pick up the hammer, lift it, and hand it over to Arm 1. Arm 1 should then grasp the hammer handle (not hammer head). The z-value of hammer must be between 0.15 and 0.20 during the handover to count as a success.
+- Seeds: dev seeds from 800001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 2/100 (seeds 800001-800100)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik_arm0, solve_ik_arm1, move_to_joints_both, move_to_joints_arm0, move_to_joints_arm1, open_gripper_arm0, close_gripper_arm0, open_gripper_arm1, close_gripper_arm1
+
+## revstack
+
+- Goal: Pick up the green cube and gently stack it on top of the red cube, then release it.
+- Seeds: dev seeds from 800001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 0/100
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper
+- Key rules:
+  - Always use z_approach=0.1 when approaching an object for grasping or placing.
+  - After grasping, lift the cube to a safe height (at least +0.2m in Z) before moving laterally to the placement location.
+  - The stacking height formula is: place_z = red_center_z + red_extent[2]/2 + green_extent[2]/2
+  - Nothing should be dropped from a height. Always approach with z_approach for controlled descent.
+
+## stackv2
+
+- Goal: Pick up the red cube and gently stack it on top of the green cube, then release it.
+- Seeds: dev seeds from 800001 upward (eval.py draws fresh ones); hidden seeds 1-100 are reserved for the final score
+- Base: 1/100 (seeds 800001-800100)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper
+- Key rules:
+  - Always use z_approach=0.1 when approaching an object for grasping or placing.
+  - After grasping, lift the cube to a safe height (at least +0.2m in Z) before moving laterally to the placement location.
+  - The stacking height formula is: place_z = green_center_z + green_extent[2]/2 + red_extent[2]/2
+  - Nothing should be dropped from a height. Always approach with z_approach for controlled descent.
+===
+optional
+tools
+trainer

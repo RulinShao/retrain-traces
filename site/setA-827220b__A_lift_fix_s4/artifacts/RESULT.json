@@ -1,0 +1,109 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "eval_failed: InfraError('eval job 42593105: n_scored 98/100 void 0 http_error 0')",
+ "gpu_hours": 12.118,
+ "final_score": null,
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 8.3676,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "58c11e",
+  "how": "default-loaded-stack",
+  "turn": 76,
+  "confirmed": true,
+  "confirmed_turn": 77,
+  "ended_by": "DONE",
+  "note": "submit lift_g1 for lift: eval job 46 (100 dev seeds 800001-800100) = 91/100 vs base 67/100 at same n (+24pts, ~4.4SE); trained by job 1 (30 steps, seeds 810xxx, held-out relative to eval); only task is lift.",
+  "policy": "base + lift_g1 (sha 81a1b7992bb7)"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "5fe18e4eae22797fe3860e6493daa340bbd7c90e5d154d43a73748765971e840",
+ "suite": {
+  "name": "A-lift",
+  "version": 1,
+  "hash": "sha256:e7e657ad43456c4f",
+  "train": [
+   "lift"
+  ],
+  "eval": [
+   {
+    "cell": "lift",
+    "split": "id"
+   },
+   {
+    "cell": "t1_lift_wide",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_big",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_far",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_small",
+    "split": "near"
+   },
+   {
+    "cell": "stack",
+    "split": "retain"
+   },
+   {
+    "cell": "nut",
+    "split": "retain"
+   },
+   {
+    "cell": "wipe",
+    "split": "retain"
+   },
+   {
+    "cell": "restack",
+    "split": "retain"
+   },
+   {
+    "cell": "twolift",
+    "split": "retain"
+   },
+   {
+    "cell": "handover",
+    "split": "retain"
+   },
+   {
+    "cell": "revstack",
+    "split": "retain"
+   },
+   {
+    "cell": "stackv2",
+    "split": "retain"
+   }
+  ],
+  "splits": {
+   "lift": "id",
+   "t1_lift_wide": "near",
+   "t1_lift_big": "near",
+   "t1_lift_far": "near",
+   "t1_lift_small": "near",
+   "stack": "retain",
+   "nut": "retain",
+   "wipe": "retain",
+   "restack": "retain",
+   "twolift": "retain",
+   "handover": "retain",
+   "revstack": "retain",
+   "stackv2": "retain"
+  }
+ },
+ "artifacts": {
+  "registry": "…/setA-827220b/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

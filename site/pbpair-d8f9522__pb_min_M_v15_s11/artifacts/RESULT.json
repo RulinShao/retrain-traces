@@ -1,0 +1,22 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "eval_failed: InfraError('eval job 42562469: n_scored 98/100 void 0 http_error 0')",
+ "gpu_hours": 11.158,
+ "final_score": null,
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 10.1494,
+ "gpu_hours_charging": "canonical",
+ "skills_version": "nogit-f045ba05",
+ "initial_skills_digest": "eadef22d754bd6bb5bfe92156839e634bc012be99b7979e49e54c5394951e201",
+ "artifacts": {
+  "registry": "…/pbpair-d8f9522/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

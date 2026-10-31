@@ -1,0 +1,1 @@
+{"seq": 0, "t": "2026-10-31T14:09:47.865Z", "kind": "job.submit", "payload": {"job_id": "1", "type": "eval", "task": "lift", "seeds": [800001, 800006], "n": 6, "adapter": null, "slurm_jobs": ["42659098"], "policy_model": "Qwen3.8-27B"}, "files": []}

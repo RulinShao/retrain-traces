@@ -1,0 +1,74 @@
+rc=0
+=== sft_rows.py (head) ===
+"""Build SFT rows (objective: sft; SKILL.md "SFT data") from your practice calls or your rollout.py rows. Run it in your workspace:
+
+  python3 skills/trainer/sft_rows.py practice adapters/l1 [adapters/l2 ...] [--min-reward R] [--steps 3-5] > sft.jsonl
+  python3 skills/trainer/sft_rows.py rollouts rollouts/12.jsonl [rollouts/15.jsonl ...] [--min-reward R] > sft.jsonl
+
+practice: every rollout of a finished practice call (its adapter dir's practice_rows.jsonl, prompts in practice_prompts.json);
+  reward = the score GRPO gave it (your reward when the spec set one); --steps keeps only those steps of the call.
+rollouts: every row of rollout.py's output with a program and a self_reward; prompt = tasks/<task>/eval_prompt.txt; reward =
+  self_reward.
+Each SFT row is {task, seed, prompt, program, reward}. Dropped, each counted with its reason on stderr: rows without a program or a
+reward, rows below --min-reward, rows outside --steps, and rows on a seed the trainer refuses (hidden 1-100, dev eval
+800001-809999; the trainer applies the same rule). The train spec's min_reward filters again when the call runs. Stdlib only.
+"""
+import argparse, collections, json, os, re, sys
+
+SFT_SEED_RESERVED = ((1, 100), (800001, 809999))   # as retrain_min/site/sft_data.py SFT_SEED_RESERVED
+EVAL_PROMPT_HEADER = re.compile(r"^=== (system|user) ===\n", re.M)
+PRACTICE_ROWS, PRACTICE_PROMPTS = "practice_rows.jsonl", "practice_prompts.json"   # site/practice_rows.py ROWS_FILE / PROMPTS_FILE
+SEED_RESERVED = "seed reserved (hidden 1-100 or dev eval 800001-809999)"
+
+
+def eval_prompt_messages(text: str) -> list:
+    """tasks/<task>/eval_prompt.txt ("=== <role> ===\n<content>" blocks joined by a blank line) -> its chat messages
+    (as retrain_min/site/sft_data.py eval_prompt_messages)."""
+    parts = EVAL_PROMPT_HEADER.split(text)
+    if parts[0] or len(parts) < 3:
+        raise ValueError("an eval prompt starts with '=== system ===' or '=== user ===' and has at least one block")
+    blocks = list(zip(parts[1::2], parts[2::2]))
+    messages = []
+    for i, (role, body) in enumerate(blocks):
+        tail = "\n\n" if i + 1 < len(blocks) else "\n"
+        messages.append({"role": role, "content": body[:-len(tail)] if body.endswith(tail) else body})
+    return messages
+
+
+def reserved(seed) -> bool:
+    return isinstance(seed, int) and any(lo <= seed <= hi for lo, hi in SFT_SEED_RESERVED)
+
+
+def is_number(value) -> bool:
+=== train.py ===
+"""python3 train.py SPEC  -- train an adapter from your spec file (JSON or YAML; any keys). The environment reads
+`name` (adapter name, default a<job id>), `init` (an adapter name to start from) and `steps`; the site's trainer reads the rest."""
+import sys
+from _submit import submit
+
+if len(sys.argv) != 2 or sys.argv[1] in ("-h", "--help"):
+    import os
+    doc = os.path.join(os.path.dirname(os.path.abspath(__file__)), "skills", "trainer", "SKILL.md")   # the site's trainer contract
+    sys.exit(open(doc).read() if os.path.isfile(doc) else __doc__)
+submit("train", {"spec": sys.argv[1]})
+=== eval.py ===
+"""python3 eval.py --adapter A[,B...]|base|loaded --task T --seeds N  -- success count of that adapter stack on N fresh dev seeds."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("--adapter", required=True)
+p.add_argument("--task", required=True)
+p.add_argument("--seeds", type=int, required=True)
+a = p.parse_args()
+submit("eval", {"adapter": a.adapter, "task": a.task, "seeds": a.seeds})
+=== load.py ===
+"""python3 load.py load A [B...] | stack A [B...] | unload [A...]  -- set, extend or shrink the adapter stack on your own
+serving endpoint (unload with no names = base). Free; always allowed. `python3 finish.py` with no arguments submits the
+loaded stack for scoring; a load cancels a pending submission; the unload result states what finishing now would score."""
+import sys
+from _submit import submit
+
+if len(sys.argv) < 2 or sys.argv[1] not in ("load", "stack", "unload"):
+    sys.exit(__doc__)
+submit("load", {"verb": sys.argv[1], "names": sys.argv[2:]})

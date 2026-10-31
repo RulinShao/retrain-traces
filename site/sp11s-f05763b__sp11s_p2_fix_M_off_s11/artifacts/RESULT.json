@@ -1,0 +1,32 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "eval_failed: InfraError(\"system eval eval-e0046b3d8dd0: outcome=infra_error InfraError('eval job 42522881041: n_scored 96/100 void 0 http_error 0')\")",
+ "gpu_hours": 18.14,
+ "final_score": null,
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 0,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "78f22c",
+  "how": "default-loaded-stack",
+  "turn": 24,
+  "confirmed": true,
+  "confirmed_turn": 25,
+  "ended_by": "DONE",
+  "note": "Scored stack: r1_stack + r1_wipe (trained GRPO, 10 steps each, task_completed reward). Evidence: combo evals job 10 lift 14/20=70% (base 67%), job 11 stack 13/20=65% (base 51%), job 12 wipe 12/20=60% (base 16%), job 15 stackv2 0/20 (base 1%); isolating lift jobs 13 (r1_stack alone 17/20) and 14 (r1_wipe alone 12/20). Measured gains stack +14, wipe +44; untested tasks nut/restack/twolift/handover/revstack all base 0-2% (regression capped <=3 pts, no eval budget remained: 0.26 GPU-h left).",
+  "policy": "base + r1_stack (sha 328eb37e82e7) + r1_wipe (sha 1720a34aca5f)"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "3501bb654713e3caa250b4ddc4ca8e18e68a272a586a3736377f035c8c1530cc",
+ "artifacts": {
+  "registry": "…/sp11s-f05763b/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

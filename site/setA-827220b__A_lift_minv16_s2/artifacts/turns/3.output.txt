@@ -1,0 +1,193 @@
+rc=0
+=== system ===
+You are a helpful assistant that generates Python code to directly solve the task.
+
+=== user ===
+
+You are controlling a Franka Emika robot with API described below.
+Goal: pick up the red cube and lift it.
+You may write python code comments for reasoning but ONLY write the executable Python code and do not write it in code fences.
+The functions (APIs) below are already imported to the environment. If you want to use numpy, you need to import it explicitly.
+
+APIs:
+
+get_observation() -> dict[str, typing.Any]
+  Doc:
+    Get the observation of the environment.
+    Returns:
+        observation:
+            A dictionary containing the observation of the environment.
+            The dictionary contains the following keys:
+            - ["robot0_robotview"]["images"]["rgb"]: Current color camera image as a numpy array of shape (H, W, 3), dtype uint8.
+            - ["robot0_robotview"]["images"]["depth"]: Current depth camera image as a numpy array of shape (H, W), dtype float32.
+            - ["robot0_robotview"]["intrinsics"]: Camera intrinsic matrix as a numpy array of shape (3, 3), dtype float64.
+            - ["robot0_robotview"]["pose_mat"]: Camera extrinsic matrix as a numpy array of shape (4, 4), dtype float64.
+
+point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+  Doc:
+    Use Molmo to point to a coordinate in the image based on a text prompt.
+    
+    Args:
+        image: np.ndarray: The RGB image to process. Shape: (H, W, 3), dtype uint8.
+        text_prompt: str: The text prompt to point to.
+    
+    Returns:
+        dict[str, tuple[int | None, int | None]]: Pixel coordinates for each
+        object query; (None, None) if parsing failed.
+
+segment_sam3_text_prompt(rgb: numpy.ndarray, text_prompt: str) -> list[dict[str, typing.Any]]
+  Doc:
+    Run SAM3 segmentation on an RGB image conditioned on a text prompt.
+    
+    Args:
+        rgb:
+            RGB image array of shape (H, W, 3), dtype uint8.
+        text_prompt:
+            Text prompt for SAM3 segmentation.
+    
+    Returns:
+        masks:
+            A list of dictionaries. Each dict may contain:
+    
+              - "mask":  np.ndarray of shape (H, W), dtype bool,
+                          where True means the pixel belongs to the instance.
+              - "box": list [x1, y1, x2, y2] in pixel coordinates.
+              - "score": float confidence score.
+
+segment_sam3_point_prompt(rgb: numpy.ndarray, point_coords: tuple[float, float]) -> list[dict[str, typing.Any]]
+  Doc:
+    Run SAM3 segmentation on an RGB image, optionally conditioned on an image coordinate point prompt.
+    
+    Args:
+        rgb:
+            RGB image array of shape (H, W, 3), dtype uint8.
+        point_coords:
+            (x, y) pixel coordinates of the point prompt.
+    
+    Returns:
+        masks:
+            A list of dictionaries. Each dict may contain:
+    
+              - "mask":  np.ndarray of shape (H, W), dtype bool,
+                          where True means the pixel belongs to the instance.
+              - "score": float confidence score.
+
+plan_grasp(depth: numpy.ndarray, intrinsics: numpy.ndarray, segmentation: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+  Doc:
+    Plan grasp candidates using Contact-GraspNet for a single instance.
+    
+    This is a thin wrapper around the Contact-GraspNet planner. It does not
+    apply any camera/world transforms or TCP offsets: the caller is
+    responsible for transforming the resulting grasp poses into the desired
+    frame and applying TCP offsets if necessary.
+    
+    Args:
+        depth:
+            Depth image in meters.
+            Shape: (H, W), dtype float32/float64.
+        intrinsics:
+            Camera intrinsic matrix.
+            Shape: (3, 3), dtype float64.
+        segmentation:
+            Instance segmentation map where each integer > 0 corresponds to a
+            unique object instance ID.
+            Shape: (H, W) or (H, W, 1), dtype int32/int64.
+    
+    Returns:
+        grasp_poses:
+            np.ndarray of shape (K, 4, 4), dtype float64.
+            Homogeneous transforms for each candidate grasp IN THE CAMERA FRAME.
+        grasp_scores:
+            np.ndarray of shape (K,), dtype float64.
+            Confidence score for each candidate grasp.
+
+get_oriented_bounding_box_from_3d_points(points: numpy.ndarray) -> dict[str, typing.Any]
+  Doc:
+    Get the oriented bounding box from 3D points.
+    
+    Args:
+        points: np.ndarray: The 3D points to get the oriented bounding box from.
+            Shape: (N, 3), dtype float64.
+    
+    Returns:
+        dict[str, Any]: The oriented bounding box. The dictionary contains the following keys:
+            - "center": np.ndarray: The center of the oriented bounding box in point cloud frame.
+            - "extent": np.ndarray: The extent of the oriented bounding box.
+            - "R": np.ndarray: The rotation matrix of the oriented bounding box in point cloud frame.
+
+solve_ik(position: numpy.ndarray, quaternion_wxyz: numpy.ndarray) -> numpy.ndarray
+  Doc:
+    Solve inverse kinematics for the panda_hand link.
+    
+    Args:
+        position:
+            Target position in world frame.
+            Shape: (3,), dtype float64.
+        quaternion_wxyz:
+            Target orientation as a unit quaternion in world frame.
+            Shape: (4,), [w, x, y, z], dtype float64.
+    
+    Returns:
+        joints:
+            np.ndarray of shape (7,), dtype float64.
+            Joint angles for the 7 DoF Franka arm.
+
+move_to_joints(joints: numpy.ndarray) -> None
+  Doc:
+    Move the robot to a given joint configuration in a blocking manner.
+    
+    Args:
+        joints:
+            Target joint angles for the 7-DoF Franka arm.
+            Shape: (7,), dtype float64.
+    
+    Returns:
+        None
+
+open_gripper() -> None
+  Doc:
+    Open gripper fully.
+    
+    Args:
+        None
+
+close_gripper() -> None
+  Doc:
+    Close gripper fully.
+    
+    Args:
+        None
+=====PLAYBOOK=====
+# Playbook
+version: 16 (2026-10-27; fair-sc-3 + hyak trace reviews #9/#10)
+Past-session experience (with its condition) to test here; not this session's facts (see tool docs). Numbers/sources: skills/shared/EVIDENCE.md (other sessions and settings: not targets). Gate: one session = unconfirmed; a 2nd session or a hidden-seed score confirms; dropped after two testable batches. Edits -> playbook_suggestions.md.
+
+Observations to test:
+1. A base-0 task gave no completion signal and shaped reward never lifted one (confirmed); count task_completed rollouts (shaped>0 is not a completion) before spending on it.
+2. Training one task shifts others; and the submitted adapter serves EVERY task, so it can regress one you never evaluated (incl. eval-only, base 0). Eval a candidate and the FINAL stack on every task before submitting.
+3. On equal-reward rollouts, changing the start state or reward beat training longer.
+4. Adapter pairs combined well and badly -- evaluate each adapter alone AND the pair in one batch. One session chained (train B from A's adapter) to compound gains where fresh adapters only paired (unconfirmed).
+5. Gains flattened after moderate steps -- read the curve before extending. One run kept past its peak (reward falling) lost its gain and hurt other tasks (unconfirmed); cancel keeps the last saved step.
+6. Training-seed scores and held-out dev evals have differed; prefer the held-out number.
+7. Queues took hours; submit the jobs wanted together then wait in LONG windows (waiting isn't charged), not short re-polls.
+8. Keep the best checked stack loaded as you go, so a cut-short session still has one.
+9. Plan the budget up front (reserve checking evals/loads); commit early to tasks with signal.
+10. The biggest gain came from training the highest-HEADROOM task (low base, real signal), not the strong ones (unconfirmed).
+11. A second train on another signal-bearing task added to the first; stopping while a train+checks still fit left it untested (unconfirmed).
+12. An eval that ended with no count says nothing about the adapter; a rerun cost less than dropping it (unconfirmed).
+
+Did not work in earlier sessions:
+- A practice start state the evaluation never uses (cube already in hand): almost no successful rollouts.
+- A training-only note did not carry to evaluation; it edits only the prompt text (trainer doc), not the task trained.
+
+Changelog v16 (fair-sc-3+hyak): old 6->4; 7-10 ->6-9; +10/11/12; 1/4/5 extended. See EVIDENCE #v16. v14=703cc605.
+=====optional ls=====
+skills/optional/:
+EVIDENCE.md
+PLAYBOOK.md
+README.md
+reward_check
+
+skills/optional/reward_check:
+SKILL.md
+check_reward.py

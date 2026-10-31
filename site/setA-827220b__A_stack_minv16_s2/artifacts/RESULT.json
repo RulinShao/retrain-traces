@@ -1,0 +1,124 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "eval_failed: JobFailed('eval reached its Slurm time limit before the cell runner wrote results (it writes them only when all 100 seeds finish); no seed counted (job 42600661); charged 0.350 GPU-h')",
+ "gpu_hours": 12.948,
+ "final_score": null,
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 16.1966,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "66f598",
+  "how": "default-loaded-stack",
+  "turn": 15,
+  "confirmed": true,
+  "confirmed_turn": 17,
+  "ended_by": "DONE",
+  "note": null,
+  "policy": "base + stack30 (sha 85a072fb134e)"
+ },
+ "skills_version": "7b74a5fa-a57a4058",
+ "initial_skills_digest": "35fd877aa68272c0a5495f5af586cf3d2e74fce96d898c90777cc86aa397d22d",
+ "suite": {
+  "name": "A-stack",
+  "version": 1,
+  "hash": "sha256:2973e8164cb46bd9",
+  "train": [
+   "stack"
+  ],
+  "eval": [
+   {
+    "cell": "stack",
+    "split": "id"
+   },
+   {
+    "cell": "t1_stack_wide",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_big",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_d1",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_d3",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_small",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_wider_big",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_wider_small_d3",
+    "split": "far"
+   },
+   {
+    "cell": "lift",
+    "split": "retain"
+   },
+   {
+    "cell": "nut",
+    "split": "retain"
+   },
+   {
+    "cell": "wipe",
+    "split": "retain"
+   },
+   {
+    "cell": "restack",
+    "split": "retain"
+   },
+   {
+    "cell": "twolift",
+    "split": "retain"
+   },
+   {
+    "cell": "handover",
+    "split": "retain"
+   },
+   {
+    "cell": "revstack",
+    "split": "retain"
+   },
+   {
+    "cell": "stackv2",
+    "split": "retain"
+   }
+  ],
+  "splits": {
+   "stack": "id",
+   "t1_stack_wide": "near",
+   "t1_stack_big": "near",
+   "t1_stack_d1": "near",
+   "t1_stack_d3": "near",
+   "t1_stack_small": "near",
+   "t1_stack_wider_big": "near",
+   "t1_stack_wider_small_d3": "far",
+   "lift": "retain",
+   "nut": "retain",
+   "wipe": "retain",
+   "restack": "retain",
+   "twolift": "retain",
+   "handover": "retain",
+   "revstack": "retain",
+   "stackv2": "retain"
+  }
+ },
+ "artifacts": {
+  "registry": "…/setA-827220b/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

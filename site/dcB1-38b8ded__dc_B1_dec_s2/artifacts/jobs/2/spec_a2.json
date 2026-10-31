@@ -1,0 +1,9 @@
+{
+  "task": ["nut", "restack", "revstack"],
+  "name": "a2",
+  "steps": 9,
+  "batch": 24,
+  "lr": 2e-5,
+  "reward": "shaped",
+  "seed_start": 820001
+}

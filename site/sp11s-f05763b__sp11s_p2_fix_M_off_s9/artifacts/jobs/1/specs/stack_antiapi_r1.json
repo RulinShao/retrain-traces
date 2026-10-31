@@ -1,0 +1,7 @@
+{
+  "task": "stack",
+  "name": "stack_antiapi_r1",
+  "steps": 30,
+  "batch": 8,
+  "note": "Some of the Key rules below name a function or parameter (get_object_pose, sample_grasp_pose, z_approach) that is NOT in the API list - treat exactly those rules as invalid and instead obtain the grasp pose with plan_grasp, the cube extents with get_oriented_bounding_box_from_3d_points, and place the red cube gently by lifting it well above the green cube and then lowering it slowly in small steps."
+}

@@ -1,0 +1,49 @@
+{
+ "status": "DONE",
+ "turns": 52,
+ "gpu_hours": 9.752,
+ "final_score": {
+  "loaded": "stack_v1",
+  "per_task": {
+   "lift": 82,
+   "stack": 62,
+   "nut": 0,
+   "wipe": 25,
+   "restack": 1,
+   "twolift": 2,
+   "handover": 0,
+   "revstack": 3,
+   "stackv2": 0
+  },
+  "total": 175,
+  "n_per_task": 100,
+  "submission": "5c697c",
+  "confirmed": true
+ },
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 12.3876,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "5c697c",
+  "how": "default-loaded-stack",
+  "turn": 50,
+  "confirmed": true,
+  "confirmed_turn": 51,
+  "ended_by": "DONE",
+  "note": null,
+  "policy": "base + stack_v1 (sha 0133ce37ecff)"
+ },
+ "skills_version": "7b74a5fa-a57a4058",
+ "initial_skills_digest": "664c7af4ffa10e9d81f46f46045cdb9aa81bfd4f9906f11e2f7f5756f124d98e",
+ "artifacts": {
+  "registry": "…/pbpair-d8f9522/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

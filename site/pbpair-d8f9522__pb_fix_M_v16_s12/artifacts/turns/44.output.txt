@@ -1,0 +1,71 @@
+rc=0
+=== design ===
+# Design (pass 1)
+
+## Change
+Two FRESH adapters (no init, so the final stack sums distinct deltas), reward = `task_completed` (the exact eval reward, so training and eval align; no `note`/`goal` since training-only notes do not carry to eval and wipe has no Key rules to add):
+- `specs/w1.json` — task **wipe** (base 16/100, highest headroom among signal tasks, the #fair-sc-3 differentiator), 25 steps, batch 8, dev seeds from 810001.
+- `specs/s1.json` — task **stack** (base 51/100, reliable high-variance signal, next-highest headroom), 15 steps, batch 8, dev seeds from 830001.
+
+Both run in parallel (different tasks, library mode). Final candidate = pair `s1+w1`; fallback = the better single.
+
+## Expected observation (if the hypothesis holds)
+- w1 `rewards.json`: `score_mean` rises from ~0.16 and plateaus over 25 steps; `zero_variance_frac` falls (fewer all-zero prompt-groups). Dev eval `w1` on wipe (100 seeds) well above base 16, targeting ~50-90 (best cells hit wipe 88-90). Side effects on lift/stack shift modestly up or down (items 2, 7) — checked at 20 seeds each.
+- s1 on stack (100 seeds) above base 51, targeting ~55-70.
+- Pair `s1+w1` on 27B: expect to COMBINE (27B pairs did not collapse, hidden 170-172), not collapse. Pair/stack >= better single; pair/wipe ~= w1 (stack training should not hurt wipe). If pair < better single on a key task, ship the best single.
+- Guard: watch `rewards.json` for a falling curve (overtraining past peak, #hyak wipe50); cancel keeps the last saved step.
+
+## Budget (16.0 GPU-h)
+- Trains: w1 25 steps @batch8 = 2x(1.31+0.0703x25) = 6.14; s1 15 steps = 2x(1.31+0.0703x15) = 4.73. Subtotal 10.87.
+- Checking evals (7): w1/wipe100 0.48, w1/stack20 0.38, w1/lift20 0.38, s1/stack100 0.48, pair/stack100 0.48, pair/wipe100 0.48, pair/lift20 0.38 = 3.06.
+- Total 13.93; remaining ~2.07 (buffer for no-count eval reruns per item 12, and/or one eval-only-task spot check).
+- Not evaluated (bounded, near-0 base, cannot lose <0): nut, restack, revstack, twolift, handover, stackv2 — residual risk that the global adapter perturbs them (item 2); monitored if budget allows.
+=== train ===
+=== probe ===
+# Probe (pass 1)
+
+## Evidence
+Base column already filled on 100 seeds for all 9 tasks (precomputed dev counts, SCOREBOARD.md):
+lift 67/100, stack 51/100, nut 0/100, wipe 16/100, restack 0/100, twolift 1/100, handover 2/100, revstack 0/100, stackv2 1/100.
+Total base = 138/900 dev successes.
+
+## Unknowns
+No base count is uncertain; no probe evals submitted. (Trainer doc read; tasks known to be trainable: lift, stack, nut, wipe, restack, revstack; twolift/handover/stackv2 have no practice unit.)
+=== scoreboard ===
+# SCOREBOARD
+
+playbook: 7b74a5fa-a57a4058
+agent: local
+mode: dev
+dev seeds: from 800001
+policy: Qwen3.8-27B
+
+Dev-seed success count per task x adapter stack (k/n = rate): the eval with the most seeds (equal n: the newest); smaller evals are in History and the job records. Adapter cells also give the base column's rate at the same n; `untested` = no eval of that stack on that task yet.
+
+| task | base | w1 |
+|---|---|---|
+| lift | 67/100 = 67% | untested |
+| stack | 51/100 = 51% | untested |
+| nut | 0/100 = 0% | untested |
+| wipe | 16/100 = 16% | untested |
+| restack | 0/100 = 0% | untested |
+| twolift | 1/100 = 1% | untested |
+| handover | 2/100 = 2% | untested |
+| revstack | 0/100 = 0% | untested |
+| stackv2 | 1/100 = 1% | untested |
+
+GPU-hours: 6.135 spent, 5.136 remaining of 16.0 (1 job(s) running)
+Expected cost per call (the estimate checked against what remains): train.py (1 step 2.76, 10 steps 4.03, 50 steps 9.65) GPU-h; eval.py per task (5 seeds 0.36, 20 seeds 0.38, 100 seeds 0.48) GPU-h
+Loaded on your serving endpoint: base
+Submitted: none (python3 finish.py submits a policy)
+Job 2 (train s1): queued (not started), 1936 min in queue
+
+## Adapters
+
+| name | init | steps | spec | state |
+|---|---|---|---|---|
+| w1 | base | 25 | specs/w1.json | trained |
+
+## History (latest 30)
+
+- train w1 (init base, steps 25): trained

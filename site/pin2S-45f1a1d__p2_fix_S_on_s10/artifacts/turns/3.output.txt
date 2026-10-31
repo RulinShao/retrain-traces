@@ -1,0 +1,174 @@
+rc=0
+=== PLAYBOOK ===
+# Playbook
+version: 15 (2026-10-24; split by kind, mapping below)
+What this is: experience from earlier sessions, with the condition it held under, to test here. Not facts about this session (tasks, model, budget, site may differ); those are in the tool docs. Numbers and sources: skills/shared/EVIDENCE.md. Gate: an item from one session is "unconfirmed"; a second session or a hidden-seed score confirms it; one still unconfirmed after two batches that could test it is dropped. Propose edits in playbook_suggestions.md.
+
+Observations to test:
+1. Practice on a task whose base never succeeded gave no completion signal, and shaped reward did not lift such a task in any recorded run (confirmed). Check your rewards for completions before spending on it.
+2. Training on one task has changed other tasks' scores, up or down. Measure a candidate on every task before deciding.
+3. When rollouts got equal rewards, changing the practice start state or reward helped more than training longer.
+4. Adapter pairs for different tasks combined well and badly (one pair dropped a task to 0; unconfirmed). Evaluate the combination itself, not only its parts.
+5. On tasks that improved, gains flattened after a moderate number of steps. Read your learning curve before extending a run.
+6. Continuing from an earlier adapter versus starting fresh showed no consistent difference; compare both if it matters.
+7. Training-seed scores (rewards.json) and held-out dev evals have differed; prefer the held-out number.
+8. On a shared cluster, queues took hours; submitting the jobs already wanted together, then waiting, saved time.
+9. Keeping the best checked stack loaded as you go left a checked stack in place when a session was cut short.
+10. Planning the budget up front, with checking evals and loads reserved, let early commitment to tasks with signal pay off.
+
+Did not work in earlier sessions:
+- A practice start state the evaluation never uses (cube already in hand): almost no successful rollouts.
+- A training-only note did not carry over to evaluation (unconfirmed; another note-trained adapter gained).
+
+Changelog v15: v14 split by kind. To tool docs: GRPO's signal is reward differences within a group (v14 3); all-zero update = unchanged adapter (v14 4); score = loaded stack on every task (v14 6, in the system text). To EVIDENCE.md only: all result numbers. Map v14->v15: 1->1, 2+7->2, 3->3, 5->6, 6->4, 8->5, 9->9, 10->8, 11->7, 12->10, did-not-work kept. v14 = commit 703cc605.
+=== EVIDENCE ===
+# Evidence behind PLAYBOOK.md items
+
+Each confirmed playbook item names its section here. Rows are dev-seed evals from the sessions' `workspace/jobs/<id>.json`,
+or hidden-seed rows from a batch `RESULTS.md`; session roots are under `…/<user>/rmin_out` unless written
+in full.
+
+## shaped-0pct
+
+Shaped reward on a task whose base succeeds 0/100. Every recorded run left that task at 0-3/100.
+
+| session | adapter (reward) | task | result | source |
+|---|---|---|---|---|
+| …/batch2/b2min_M_s1 | nut10 (shaped, 10 steps) | nut | 0/100 dev | job 5 |
+| same | restack10 (shaped, 10 steps) | restack | 0/100 dev | job 9 |
+| batch3a-46b913b/b3a_fix_M_s1 | rev1 (shaped, 10 steps) | revstack | 0/20 dev; 3/100 hidden | job 3; batch3a-46b913b/RESULTS.md row b3a_fix_M_s1 |
+| batch3a-46b913b/b3a_fix_M_s2 | revstack_pilot (shaped, 12 steps) | revstack | 2/100 dev | job 3 |
+| batch3a-46b913b/b3a_q8fix_M_s1 (Qwen3-8B policy, base 0 everywhere) | stack1 (shaped + note, 10 steps) | stack | 0/100 dev | job 3 |
+| batch3b-090a96a/b3b_fix_M_s1 | restack1 (shaped + note) | restack | 0/100 dev | job 5 |
+| batch3b-090a96a/b3b_min_S_s1 | v1 (shaped, 50 steps) | restack | 0/100 dev | job 3 |
+| batch3a-redo-090a96a/b3r_fix_M_s2 | restack1 (shaped, 30 steps) | restack | 0/100 dev | job 5 |
+| fastloop-85ee471/fl_fix_s1 (8B profile) | restack_a1 (shaped) | restack | 0/100 dev | job 16 |
+| same | restack_a2 (shaped + note, 50 steps) | restack | 0/100 dev | job 20 |
+
+The same b3b_min_S_s1 adapter raised lift, stack and wipe on dev seeds (PLAYBOOK item 2, unconfirmed: one session).
+
+## hidden
+
+Hidden-set results of earlier sessions, operator-provided (seeds 1-100, 9 tasks; base 118 = rmin_out/base_hidden_27b/base_hidden_27b.json),
+from each batch's RESULTS.md, next to the dev-seed total that session measured for the same stack (its own evals of each task, base
+row for tasks it did not evaluate). The counterfactual row is operator-side, not that agent's score.
+
+| session | loaded at the end | hidden total | dev total (seeds) | source |
+|---|---|---|---|---|
+| batch3b-090a96a/b3b_fix_M_s1 | stack1+restack1 (pair) | 172 | 187 (100) | batch3b-090a96a/RESULTS.md |
+| batch3b-090a96a/b3b_fix_M_s2 | lift_v1+wipe_v1 (pair) | 172 | 197 (100) | batch3b-090a96a/RESULTS.md |
+| batch3a-46b913b/b3a_min_M_s1 | lift30+stack30 (pair, verified then unloaded: counterfactual) | 170 | 157 (100) | rmin_out/counterfactual_b3a_min_M_s1/results.json |
+| batch3a-46b913b/b3a_fix_M_s1 | stk1 (single adapter) | 165 | 195 (20) | batch3a-46b913b/RESULTS.md |
+| batch3b-090a96a/b3b_fix_S_s2 | v1 (single-adapter mode, stack 30 steps) | 189 | 171 (100) | batch3b-090a96a/RESULTS.md |
+| batch3b-090a96a/b3b_fix_S_s1 | v1 (single-adapter mode, rolled back from v2) | 156 | 163 (100) | batch3b-090a96a/RESULTS.md |
+
+## shaped-side-effects (unconfirmed)
+
+| session | adapter | trained task | other tasks, dev 100 seeds (base) | source |
+|---|---|---|---|---|
+| batch3b-090a96a/b3b_min_S_s1 | v1 (shaped, 50 steps) | restack 0 | lift 84 (67), stack 64 (51), wipe 35 (16) | jobs 4-6 |
+| set1023-a23f1b3/set_fix_S_off_s1 | v1 (shaped, 15 steps) | restack 0 | lift 65 (67), stack 45 (51), wipe 11 (16) | jobs 4-6 |
+
+## pair-collapse (unconfirmed)
+
+| session | pair | task | pair vs alone (dev, 100 seeds) | source |
+|---|---|---|---|---|
+| fastloop-85ee471/fl_fix_s1 (8B profile) | stack_a1+wipe_a1 | wipe | 0 vs stack_a1 43, wipe_a1 26 | jobs 25, 27 |
+
+## v15-moved-numbers
+
+PLAYBOOK v15 (2026-10-24, Rulin's rule: the playbook holds testable method experience; result numbers live here) removed these
+numbers from the items named. v14 text: `git show 703cc605:skills/shared/PLAYBOOK.md`.
+
+| v15 item | number removed | source |
+|---|---|---|
+| 1 | shaped reward: 10 runs in 8 sessions ended at 0-3/100 on the 0% task | #shaped-0pct |
+| 2 | shaped restack side effects: lift 67->84, stack 51->64, wipe 16->35 in one session, lowered in another; an adapter loaded unchecked lost 37 of 100 on another task | #shaped-side-effects; v1 sources (commit 8404da64 message) |
+| 4 | an 8B pair dropped wipe to 0 (alone 43 and 26); hidden totals: pairs 170-172, singles 156-189, base 118 | #pair-collapse; #hidden |
+| 5 | gains by about step 120, flat after | v1 sources (commit 8404da64 message: start_rate, e4/e5/e7 RESULTS, hyak transcripts) |
+| did not work | put-down task from cube in hand: 1 of 640 rollouts succeeded | v1 sources (commit 8404da64) |
+| did not work | training-only note: 22% of training rollouts completed, 0/100 at eval | batch3a-46b913b/b3a_q8fix_M_s1 (8B policy); commit b7a3844d |
+=== reward_check ===
+total 258
+drwxr-sr-x 2 root nobody  512 Oct 24 17:47 .
+drwxr-sr-x 3 root nobody  512 Oct 24 17:47 ..
+-rw-r--r-- 1 root nobody  809 Oct 24 17:47 SKILL.md
+-rw-r--r-- 1 root nobody 2810 Oct 24 17:47 check_reward.py
+--- skills/optional/reward_check/SKILL.md ---
+# reward_check: run your reward function before you pay for training
+
+`python3 skills/optional/reward_check/check_reward.py REWARD [--results FILE]` loads `reward(result)` from a .py file or from
+your train spec (inline `def reward` source, or a .py path) and prints its score on three example sim replies (task
+completed, not completed, program crashed), or on replies you provide (`--results`, a JSON list or JSONL).
+
+`result` is the sim service's reply for one rollout: `task_completed`, `reward` (the simulator's staged reward),
+`sandbox_rc`, `seed`, `secs`, `wall_s`, `log_tail`, `task` (also readable as attributes). During training an exception
+in reward() fails the train job. A reward that gives every rollout the same score gives GRPO nothing to learn from.
+Free: it runs locally and sends nothing.
+--- skills/optional/reward_check/check_reward.py ---
+"""usage: python3 skills/optional/reward_check/check_reward.py REWARD [--results FILE]
+
+REWARD: a .py file defining reward(result), or your train spec (JSON or YAML) whose `reward` is inline `def reward`
+source or a .py path. Runs reward(result) on three example sim replies (task completed / not completed / program
+crashed), or on your own replies (--results: a JSON list or JSONL of dicts), and prints each score or the exception.
+Nothing is sent anywhere and nothing is judged: the output is the scores.
+"""
+import argparse, json, os, traceback
+
+EXAMPLES = [   # the keys of the sim service's /run reply, which is what reward(result) receives during training
+    {"case": "completed", "task_completed": True, "reward": 1.0, "sandbox_rc": 0, "seed": 0, "secs": 30.0,
+     "wall_s": 31.0, "log_tail": "", "task": "T"},
+    {"case": "not completed", "task_completed": False, "reward": 0.25, "sandbox_rc": 0, "seed": 1, "secs": 30.0,
+     "wall_s": 31.0, "log_tail": "", "task": "T"},
+    {"case": "program crashed", "task_completed": False, "reward": 0.0, "sandbox_rc": 1, "seed": 2, "secs": 2.0,
+     "wall_s": 3.0, "log_tail": "Traceback (most recent call last): ...", "task": "T"},
+]
+
+
+class Result(dict):
+    """result["task_completed"] or result.task_completed, as during training."""
+    __getattr__ = dict.__getitem__
+
+
+def reward_source(path):
+    if path.endswith(".py"):
+        return open(path).read()
+    text = open(path).read()
+    try:
+        spec = json.loads(text)
+    except json.JSONDecodeError:
+        import yaml
+        spec = yaml.safe_load(text)
+    r = spec.get("reward") if isinstance(spec, dict) else None
+    if isinstance(r, str) and "def reward" in r:
+        return r
+    if isinstance(r, str) and r.endswith(".py"):
+        return open(os.path.join(os.path.dirname(os.path.abspath(path)), r)).read()
+    raise SystemExit(f"no reward source in {path}: `reward` is {r!r} (a built-in name, or missing)")
+
+
+def load_results(path):
+    text = open(path).read().strip()
+    return json.loads(text) if text.startswith("[") else [json.loads(line) for line in text.splitlines() if line.strip()]
+
+
+def main():
+    p = argparse.ArgumentParser(usage=__doc__)
+    p.add_argument("reward")
+    p.add_argument("--results")
+    a = p.parse_args()
+    scope = {}
+    exec(compile(reward_source(a.reward), a.reward, "exec"), scope)
+    if "reward" not in scope:
+        raise SystemExit("the source defines no function named reward")
+    rows = load_results(a.results) if a.results else EXAMPLES
+    for i, row in enumerate(rows):
+        label = row.get("case", f"result {i}")
+        try:
+            print(f"{label}: {scope['reward'](Result(row))!r}")
+        except Exception:
+            print(f"{label}: raised\n{traceback.format_exc(limit=2)}")
+
+
+if __name__ == "__main__":
+    main()

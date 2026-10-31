@@ -1,0 +1,7 @@
+{
+ "task": "restack",
+ "name": "restack1",
+ "steps": 12,
+ "reward": "shaped",
+ "seed_start": 830001
+}

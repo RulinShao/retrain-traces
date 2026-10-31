@@ -1,0 +1,72 @@
+rc=2
+=== status.py all ===
+{"id": 1, "kind": "train", "args": {"spec": "wipe_spec1.json"}, "state": "running", "result": null, "skills_digest": "eef3f71161d0e4869fd03d33159c968cf1a6175f0d4f5d8253880bf5b2a3881b"}
+{"id": 2, "kind": "wait", "args": {"ids": ["1"], "max": "50m"}, "state": "done", "result": "no job finished in 50m; job 1 (train): running"}
+{"id": 3, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running"}
+{"id": 4, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running"}
+{"id": 5, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running"}
+{"id": 6, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running"}
+{"id": 7, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running"}
+{"id": 8, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running"}
+{"id": 9, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running"}
+{"id": 10, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running"}
+{"id": 11, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running"}
+{"id": 12, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running"}
+{"id": 13, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running"}
+{"id": 14, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running"}
+{"id": 15, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running"}
+{"id": 16, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running"}
+{"id": 17, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running"}
+{"id": 18, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running"}
+{"id": 19, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running"}
+{"id": 20, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running"}
+If you finish now, the scored policy is: base (`python3 finish.py` submits the loaded stack)
+=== jobs dir ===
+total 52
+drwxr-sr-x 2 root nobody 8192 Oct 30 19:27 .
+drwxr-sr-x 6 root nobody 8192 Oct 30 19:28 ..
+-rw-r--r-- 1 root nobody  184 Oct 30 02:03 1.json
+-rw-r--r-- 1 root nobody   63 Oct 30 02:03 1.request.json
+-rw-r--r-- 1 root nobody  141 Oct 30 10:15 10.json
+-rw-r--r-- 1 root nobody   64 Oct 30 09:20 10.request.json
+-rw-r--r-- 1 root nobody  141 Oct 30 11:10 11.json
+-rw-r--r-- 1 root nobody   64 Oct 30 10:15 11.request.json
+-rw-r--r-- 1 root nobody  141 Oct 30 12:05 12.json
+-rw-r--r-- 1 root nobody   64 Oct 30 11:10 12.request.json
+-rw-r--r-- 1 root nobody  141 Oct 30 13:00 13.json
+-rw-r--r-- 1 root nobody   64 Oct 30 12:05 13.request.json
+-rw-r--r-- 1 root nobody  141 Oct 30 13:56 14.json
+-rw-r--r-- 1 root nobody   64 Oct 30 13:01 14.request.json
+-rw-r--r-- 1 root nobody  141 Oct 30 14:51 15.json
+-rw-r--r-- 1 root nobody   64 Oct 30 13:56 15.request.json
+-rw-r--r-- 1 root nobody  141 Oct 30 15:46 16.json
+-rw-r--r-- 1 root nobody   64 Oct 30 14:51 16.request.json
+-rw-r--r-- 1 root nobody  141 Oct 30 16:41 17.json
+-rw-r--r-- 1 root nobody   64 Oct 30 15:46 17.request.json
+-rw-r--r-- 1 root nobody  141 Oct 30 17:37 18.json
+-rw-r--r-- 1 root nobody   64 Oct 30 16:42 18.request.json
+-rw-r--r-- 1 root nobody  141 Oct 30 18:32 19.json
+-rw-r--r-- 1 root nobody   64 Oct 30 17:37 19.request.json
+-rw-r--r-- 1 root nobody  140 Oct 30 02:54 2.json
+-rw-r--r-- 1 root nobody   63 Oct 30 02:04 2.request.json
+-rw-r--r-- 1 root nobody  141 Oct 30 19:27 20.json
+-rw-r--r-- 1 root nobody   64 Oct 30 18:32 20.request.json
+-rw-r--r-- 1 root nobody  140 Oct 30 03:49 3.json
+-rw-r--r-- 1 root nobody   63 Oct 30 02:54 3.request.json
+-rw-r--r-- 1 root nobody  140 Oct 30 04:44 4.json
+-rw-r--r-- 1 root nobody   63 Oct 30 03:49 4.request.json
+-rw-r--r-- 1 root nobody  140 Oct 30 05:39 5.json
+-rw-r--r-- 1 root nobody   63 Oct 30 04:44 5.request.json
+-rw-r--r-- 1 root nobody  140 Oct 30 06:34 6.json
+-rw-r--r-- 1 root nobody   63 Oct 30 05:39 6.request.json
+-rw-r--r-- 1 root nobody  140 Oct 30 07:29 7.json
+-rw-r--r-- 1 root nobody   63 Oct 30 06:34 7.request.json
+-rw-r--r-- 1 root nobody  140 Oct 30 08:24 8.json
+-rw-r--r-- 1 root nobody   63 Oct 30 07:29 8.request.json
+-rw-r--r-- 1 root nobody  140 Oct 30 09:20 9.json
+-rw-r--r-- 1 root nobody   63 Oct 30 08:25 9.request.json
+=== adapters dir ===
+total 1
+drwxr-sr-x 2 root nobody 512 Oct 30 01:50 .
+drwxr-xr-x 3 root root    60 Oct 30 19:28 ..
+=== adapter wipe_a1 ===

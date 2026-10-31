@@ -1,0 +1,111 @@
+rc=0
+=====finish.py=====
+"""python3 finish.py [--policy base | --adapters A[@VERSION][,B...]] [--note TEXT]  |  python3 finish.py --confirm TOKEN
+End the session in two steps. Step one submits the policy to score (no policy arguments: the loaded stack) and the next
+observation states exactly what will be scored and a token; the session continues. Step two, in a later turn,
+`--confirm TOKEN` ends the session and that submission is scored on the hidden seeds. A load.py or train.py request between
+the two steps cancels the submission (submit again)."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("--policy", choices=["base"], help="submit the base policy (no adapters)")
+p.add_argument("--adapters", help="comma-separated adapter names; single mode: current, v<k> or current@<k>")
+p.add_argument("--note", help="free text kept with the submission")
+p.add_argument("--confirm", metavar="TOKEN", help="step two: end the session with the pending submission")
+a = p.parse_args()
+if a.confirm is not None and (a.policy or a.adapters or a.note):
+    p.error("--confirm takes no other arguments")
+if a.policy and a.adapters:
+    p.error("give either --policy base or --adapters, not both")
+submit("finish", {"confirm": a.confirm} if a.confirm is not None else
+       {k: v for k, v in (("policy", a.policy), ("adapters", a.adapters), ("note", a.note)) if v is not None})
+=====train.py=====
+"""python3 train.py SPEC  -- train an adapter from your spec file (JSON or YAML; any keys). The environment reads
+`name` (adapter name, default a<job id>), `init` (an adapter name to start from) and `steps`; the site's trainer reads the rest."""
+import sys
+from _submit import submit
+
+if len(sys.argv) != 2 or sys.argv[1] in ("-h", "--help"):
+    import os
+    doc = os.path.join(os.path.dirname(os.path.abspath(__file__)), "skills", "trainer", "SKILL.md")   # the site's trainer contract
+    sys.exit(open(doc).read() if os.path.isfile(doc) else __doc__)
+submit("train", {"spec": sys.argv[1]})
+=====eval.py=====
+"""python3 eval.py --adapter A[,B...]|base|loaded --task T --seeds N  -- success count of that adapter stack on N fresh dev seeds."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("--adapter", required=True)
+p.add_argument("--task", required=True)
+p.add_argument("--seeds", type=int, required=True)
+a = p.parse_args()
+submit("eval", {"adapter": a.adapter, "task": a.task, "seeds": a.seeds})
+=====load.py=====
+"""python3 load.py load A [B...] | stack A [B...] | unload [A...]  -- set, extend or shrink the adapter stack on your own
+serving endpoint (unload with no names = base). Free; always allowed. `python3 finish.py` with no arguments submits the
+loaded stack for scoring; a load cancels a pending submission; the unload result states what finishing now would score."""
+import sys
+from _submit import submit
+
+if len(sys.argv) < 2 or sys.argv[1] not in ("load", "stack", "unload"):
+    sys.exit(__doc__)
+submit("load", {"verb": sys.argv[1], "names": sys.argv[2:]})
+=====wait.py=====
+"""python3 wait.py all | ID [ID...] [--max DURATION]  -- after this command, block until those jobs finish before your next
+turn, at most DURATION (hours or minutes: 4h, 90m; default 2h). If none of them finished by then, the result states each one's
+queue state, reason, position and time pending, and "no job finished"."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("ids", nargs="+")
+p.add_argument("--max")
+a = p.parse_args()
+submit("wait", {"ids": a.ids, **({"max": a.max} if a.max is not None else {})})
+=====status.py=====
+"""python3 status.py [ID...]  -- print the state and result of jobs (all jobs if no ID), then what finishing now would score."""
+import glob, json, os, sys
+
+if {"-h", "--help"} & set(sys.argv[1:]):
+    sys.exit(__doc__)
+here = os.path.dirname(os.path.abspath(__file__))
+jobs = os.path.join(here, "jobs")
+ids = sys.argv[1:] or sorted((os.path.basename(p)[:-5] for p in glob.glob(f"{jobs}/*.json") if ".request" not in p), key=int)
+for i in ids:
+    path = os.path.join(jobs, f"{i}.json")
+    print(open(path).read().strip() if os.path.exists(path) else json.dumps({"id": i, "state": "requested"}))
+try:   # STATUS.json is rewritten by the environment after every command
+    print(json.load(open(os.path.join(here, "STATUS.json")))["finish_now"])
+except (OSError, ValueError, KeyError):
+    pass
+=====cancel.py=====
+"""python3 cancel.py ID  -- stop a running train or eval job. A train keeps the adapter of its last saved step (if any),
+registered like a finished train with the steps it actually ran; the job is charged the GPU time it actually used."""
+import sys
+from _submit import submit
+
+if len(sys.argv) != 2 or sys.argv[1] in ("-h", "--help"):
+    sys.exit(__doc__)
+submit("cancel", {"id": sys.argv[1]})
+=====_submit.py=====
+"""Shared by train.py, eval.py, load.py, wait.py, cancel.py, finish.py: write one request file to jobs/; the environment picks it up when
+the current shell command finishes, and writes jobs/<id>.json with its state and result."""
+import json, os
+
+JOBS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "jobs")
+
+
+def submit(kind, args):
+    os.makedirs(JOBS, exist_ok=True)
+    n = 1
+    while True:
+        try:
+            f = open(os.path.join(JOBS, f"{n}.request.json"), "x")
+            break
+        except FileExistsError:
+            n += 1
+    with f:
+        json.dump({"id": n, "kind": kind, "args": args}, f)
+    print(f"job {n}: {kind} requested; it is picked up when this command finishes (see python3 status.py {n})")

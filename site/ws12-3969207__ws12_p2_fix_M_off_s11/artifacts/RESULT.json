@@ -1,0 +1,22 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "eval_failed: InfraError(\"system eval eval-bbea23159ea0: outcome=infra_error InfraError('eval job 42599103006 state FAILED: 0 cell summaries')\")",
+ "gpu_hours": 5.784,
+ "final_score": null,
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 4.2572,
+ "gpu_hours_charging": "canonical",
+ "skills_version": null,
+ "initial_skills_digest": "e6ee78206a8d307657906fc8c657f8fe66b394fc0e5453a1e9f9b2e50c78705e",
+ "artifacts": {
+  "registry": "…/ws12-3969207/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

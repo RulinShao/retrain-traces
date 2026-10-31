@@ -1,0 +1,9 @@
+{
+  "task": "lift",
+  "name": "lift_grpo1",
+  "steps": 25,
+  "batch": 8,
+  "lr": 2e-5,
+  "reward": "task_completed",
+  "seed_start": 810001
+}

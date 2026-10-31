@@ -1,0 +1,109 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "eval_failed: InfraError('system eval eval-8b7209f89029: outcome=infra_error ValueError(\"task must be one of [\\'handover\\', \\'lift\\', \\'nut\\', \\'restack\\', \\'revstack\\', \\'stack\\', \\'stackv2\\', \\'twolift\\', \\'wipe\\']\")')",
+ "gpu_hours": 7.798,
+ "final_score": null,
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 5.8705,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "f170b0",
+  "how": "default-loaded-stack",
+  "turn": 18,
+  "confirmed": true,
+  "confirmed_turn": 19,
+  "ended_by": "DONE",
+  "note": "lift_a: 30-step GRPO on lift (task_completed), held-out dev 89/100 vs base 67/100; program failures 10->0, completions 0.45->0.95 over training seeds. Gating held out: ship only if dev > base.",
+  "policy": "base + lift_a (sha f55a51464239)"
+ },
+ "skills_version": "nogit-2c1f89cd",
+ "initial_skills_digest": "eef3f71161d0e4869fd03d33159c968cf1a6175f0d4f5d8253880bf5b2a3881b",
+ "suite": {
+  "name": "A-lift",
+  "version": 1,
+  "hash": "sha256:e7e657ad43456c4f",
+  "train": [
+   "lift"
+  ],
+  "eval": [
+   {
+    "cell": "lift",
+    "split": "id"
+   },
+   {
+    "cell": "t1_lift_wide",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_big",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_far",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_small",
+    "split": "near"
+   },
+   {
+    "cell": "stack",
+    "split": "retain"
+   },
+   {
+    "cell": "nut",
+    "split": "retain"
+   },
+   {
+    "cell": "wipe",
+    "split": "retain"
+   },
+   {
+    "cell": "restack",
+    "split": "retain"
+   },
+   {
+    "cell": "twolift",
+    "split": "retain"
+   },
+   {
+    "cell": "handover",
+    "split": "retain"
+   },
+   {
+    "cell": "revstack",
+    "split": "retain"
+   },
+   {
+    "cell": "stackv2",
+    "split": "retain"
+   }
+  ],
+  "splits": {
+   "lift": "id",
+   "t1_lift_wide": "near",
+   "t1_lift_big": "near",
+   "t1_lift_far": "near",
+   "t1_lift_small": "near",
+   "stack": "retain",
+   "nut": "retain",
+   "wipe": "retain",
+   "restack": "retain",
+   "twolift": "retain",
+   "handover": "retain",
+   "revstack": "retain",
+   "stackv2": "retain"
+  }
+ },
+ "artifacts": {
+  "registry": "…/stepA-lift-cbbda18/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

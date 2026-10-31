@@ -1,0 +1,35 @@
+rc=0
+84:## What a practice call is
+85:GRPO on LoRA adapters of the policy model named in SCOREBOARD.md's `policy:` line (LoRA rank 32, alpha 64, on q,k,v,o,out,gate,up,down
+86:projections for Qwen3.8-27B; other policies have no `out`).
+87:Each step: `batch` prompts x 8 rollouts. GRPO's update comes from reward differences among a prompt's 8 rollouts: a prompt whose rollouts all get the same reward adds nothing to it. A rollout is one program written by the model for the task, run once in the task's simulator
+88:on one seed; its score is the reward below. The training prompt is the task's evaluation prompt, byte for byte (checked before training), unless the spec sets `note` or `goal` or a `data` row sets `prompt`:
+89:those are part of the training prompt only. Every eval, including the final hidden-seed score, uses the task's
+90:`tasks/<task>/eval_prompt.txt` in the workspace verbatim, without any note or goal.
+91:Sampling during practice: temperature 1.0, top_p 0.95, top_k 20; at most 8192 generated tokens per program.
+92:Sampling during evaluation (eval.py and the final score): temperature 0.7, top_p 0.8, top_k 20, presence_penalty 1.5, thinking
+93:off; at most 8192 generated tokens per program (envs/capx/config_of_record_v4.yaml). For lift, stack, wipe and nut the practice
+94:unit and the eval cell run the same task config (`*_reduced_api_exampleless.yaml` is the s4:paper cell's config).
+95:
+96:A policy whose name carries `+init:<sha>` (SCOREBOARD.md's `policy:` line) is the model plus that init adapter: its base is
+97:served with the init, every train without `init` starts from it, so each trained adapter already contains the init's change,
+98:and a stack of two such adapters applies that change twice.
+99:
+100:## Spec fields (a spec with any other field fails; see Failures)
+101:| field | type | default | accepted |
+102:|---|---|---|---|
+103:| `task` | string or list | required unless `data` | a trainable task (see workspace/tasks/INDEX.md), or a list of them: one call practising all, every batch split equally across them (`batch` a multiple of their number; no `note` / `goal`); revstack practises alone |
+104:| `name` | string | `a<job id>` | letters, digits, `_ . -`, at most 48; not already taken, not `base` / `loaded`. Single-adapter mode: omit it (or `current`) |
+105:| `steps` | integer | 1 | any positive integer (cost grows with it, see below) |
+106:| `batch` | integer | 8 | prompts per step (each x 8 rollouts) |
+107:| `lr` | float | 2e-5 | learning rate |
+108:| `init` | string | none (fresh LoRA) | an adapter name produced by an earlier train of this session (`base` is not one: omit `init` to start from the policy). Single-adapter mode: omit it (or `current`); every train continues `current`. The new adapter is the init adapter continued (it already holds init's change): loading both stacks that change twice |
+109:| `start_preset` | string | none | a named start-state preset (core/start_presets.py: `restack_grasped`/`restack_lifted`/`restack_aligned`, `nut_grasped`/`nut_aligned`) to begin practice from an intermediate scene (e.g. object already grasped) so the agent trains the hard tail; the staged reward then scores only the stages after that sub-goal; fails loudly if the preset has not been built. With hidden tasks (B2): also the name of a preset you built with `preset.py` (`presets/<name>.json`), on the task it was built on; on a hidden task only such a preset |
+110:| `start_mix` | string | none | a mixed start-state pool (core/mix_presets.py, built with `build_mix`): seeds split across presets of one task at a ratio, some from scratch; the staged reward scores the full chain; not with `start_preset`; fails loudly if not built; refused on a hidden task (B2) |
+111:| `reward` | string | `task_completed` | `task_completed` (1.0 if the task's own success check passes, else 0.0); `shaped` (the simulator's staged reward); Python source containing `def reward(r)`; or the path of a `.py` file (relative paths: the workspace) defining `reward(r)`. `r` is the simulator's reply: `task_completed`, `reward`, `sandbox_rc`, `seed`, `log_tail` (keys or attributes); return a float |
+112:| `seed_start` | integer | 810001 | rollout k of the call runs on seed `seed_start + k`; must not reach seeds 1-100 |
+113:| `note` | string | none | one sentence inserted after the training prompt's Goal line (not a comment: the rollouts see it; evaluation prompts never have it) |
+114:| `goal` | string | none | replaces the training prompt's Goal line (evaluation prompts keep theirs) |
+115:| `time` | string | set by the site: 1 GPU 25 min + 13 min x steps, 2 GPUs 85 min + 17 min x steps, 3 GPUs 30 min + 14 min x steps, at least 2 h (whole minutes, rounded up; the job record's `config` shows the value used) | wall limit of each Slurm job of the call, `HH:MM:SS`; a call whose job reaches it continues from its last saved step (below); once it has continued 3 times it keeps the adapter of its last saved step, as a cancel (result `time_limit`; a preempted or node-failed call likewise, result `preempted` / `node_fail`), or ends `failed` with the fact if none was saved |
+116:| `data` | string | none | a JSONL file of training prompts in your workspace: see Training data below. With `data`, the tasks, seeds, order and steps come from its rows |
+117:| `objective` | string | `grpo` | `grpo` (the practice call above) or `sft` (supervised fine-tuning on your own demonstrations: see SFT below; its spec has `data` and the fields of that section only) |

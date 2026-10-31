@@ -1,0 +1,28 @@
+rc=0
+job 17: eval requested; it is picked up when this command finishes (see python3 status.py 17)
+job 18: eval requested; it is picked up when this command finishes (see python3 status.py 18)
+job 19: eval requested; it is picked up when this command finishes (see python3 status.py 19)
+job 20: eval requested; it is picked up when this command finishes (see python3 status.py 20)
+job 21: eval requested; it is picked up when this command finishes (see python3 status.py 21)
+job 22: eval requested; it is picked up when this command finishes (see python3 status.py 22)
+job 23: eval requested; it is picked up when this command finishes (see python3 status.py 23)
+job 24: eval requested; it is picked up when this command finishes (see python3 status.py 24)
+job 25: eval requested; it is picked up when this command finishes (see python3 status.py 25)
+job 26: eval requested; it is picked up when this command finishes (see python3 status.py 26)
+job 27: eval requested; it is picked up when this command finishes (see python3 status.py 27)
+submitted 11 evals
+{"id": 2, "kind": "wait", "args": {"ids": ["1"], "max": "45m"}, "state": "done", "result": "no job finished in 45m; job 1 (train): running"}
+{"id": 3, "kind": "wait", "args": {"ids": ["1"], "max": "50m"}, "state": "done", "result": "no job finished in 50m; job 1 (train): running"}
+{"id": 4, "kind": "wait", "args": {"ids": ["1"], "max": "50m"}, "state": "done", "result": "no job finished in 50m; job 1 (train): running"}
+{"id": 5, "kind": "train", "args": {"spec": "specs/stack.json"}, "state": "done", "result": {"adapter": "stack1", "path": "adapters/stack1", "state": "trained", "skills_digest": "879adc4a7b6c1f9a570be59590bbd49c4a26f476740c6e6ec0e72192b8ecd19c", "training": "adapters/stack1/training.json", "sha": "9df57f3efbca", "jobs": ["42608444004"], "policy": "Qwen3.8-27B", "simulator": "7fda1bef602c", "config": {"task": "stack", "steps": 12, "lr": 2e-05, "batch": 8, "seed_start": 810001, "reward": "shaped", "time": "04:49:00"}, "timing_s": {"queued": null, "run": null, "steps": 3647, "outside_steps": null}, "step_facts": {"steps": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "zero_variance_frac": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.125, 0.0, 0.0], "failure_stages": {"program": [12, 10, 8, 17, 7, 11, 6, 3, 5, 4, 10, 2], "task": [23, 30, 29, 18, 32, 23, 22, 27, 21, 24, 25, 26]}}}, "skills_digest": "879adc4a7b6c1f9a570be59590bbd49c4a26f476740c6e6ec0e72192b8ecd19c"}
+{"id": 6, "kind": "wait", "args": {"ids": ["1", "5"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running; job 5 (train): running"}
+{"id": 7, "kind": "wait", "args": {"ids": ["1", "5"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running; job 5 (train): running"}
+{"id": 8, "kind": "wait", "args": {"ids": ["1", "5"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running; job 5 (train): running"}
+{"id": 9, "kind": "wait", "args": {"ids": ["1", "5"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running; job 5 (train): running"}
+{"id": 10, "kind": "wait", "args": {"ids": ["1", "5"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running; job 5 (train): running"}
+{"id": 11, "kind": "wait", "args": {"ids": ["1", "5"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running; job 5 (train): running"}
+{"id": 12, "kind": "wait", "args": {"ids": ["1", "5"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running; job 5 (train): running"}
+{"id": 13, "kind": "wait", "args": {"ids": ["1", "5"], "max": "55m"}, "state": "done", "result": "waited for 2 job(s)"}
+{"id": 14, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running"}
+{"id": 15, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): running"}
+{"id": 16, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "waited for 1 job(s)"}

@@ -1,0 +1,78 @@
+rc=0
+skills/:
+optional
+tools
+trainer
+
+skills/optional/:
+EVIDENCE.md
+PLAYBOOK.md
+README.md
+reward_check
+---
+# Evidence behind PLAYBOOK.md items
+
+Each confirmed playbook item names its section here. Rows are dev-seed evals from the sessions' `workspace/jobs/<id>.json`,
+or hidden-seed rows from a batch `RESULTS.md`; session roots are under `…/<user>/rmin_out` unless written
+in full.
+
+## shaped-0pct
+
+Shaped reward on a task whose base succeeds 0/100. Every recorded run left that task at 0-3/100.
+
+| session | adapter (reward) | task | result | source |
+|---|---|---|---|---|
+| …/batch2/b2min_M_s1 | nut10 (shaped, 10 steps) | nut | 0/100 dev | job 5 |
+| same | restack10 (shaped, 10 steps) | restack | 0/100 dev | job 9 |
+| batch3a-46b913b/b3a_fix_M_s1 | rev1 (shaped, 10 steps) | revstack | 0/20 dev; 3/100 hidden | job 3; batch3a-46b913b/RESULTS.md row b3a_fix_M_s1 |
+| batch3a-46b913b/b3a_fix_M_s2 | revstack_pilot (shaped, 12 steps) | revstack | 2/100 dev | job 3 |
+| batch3a-46b913b/b3a_q8fix_M_s1 (Qwen3-8B policy, base 0 everywhere) | stack1 (shaped + note, 10 steps) | stack | 0/100 dev | job 3 |
+| batch3b-090a96a/b3b_fix_M_s1 | restack1 (shaped + note) | restack | 0/100 dev | job 5 |
+| batch3b-090a96a/b3b_min_S_s1 | v1 (shaped, 50 steps) | restack | 0/100 dev | job 3 |
+| batch3a-redo-090a96a/b3r_fix_M_s2 | restack1 (shaped, 30 steps) | restack | 0/100 dev | job 5 |
+| fastloop-85ee471/fl_fix_s1 (8B profile) | restack_a1 (shaped) | restack | 0/100 dev | job 16 |
+| same | restack_a2 (shaped + note, 50 steps) | restack | 0/100 dev | job 20 |
+
+The same b3b_min_S_s1 adapter raised lift, stack and wipe on dev seeds (PLAYBOOK item 2, unconfirmed: one session).
+
+## hidden
+
+Hidden-set results of earlier sessions, operator-provided (seeds 1-100, 9 tasks; base 118 = rmin_out/base_hidden_27b/base_hidden_27b.json),
+from each batch's RESULTS.md, next to the dev-seed total that session measured for the same stack (its own evals of each task, base
+row for tasks it did not evaluate). The counterfactual row is operator-side, not that agent's score.
+
+| session | loaded at the end | hidden total | dev total (seeds) | source |
+|---|---|---|---|---|
+| batch3b-090a96a/b3b_fix_M_s1 | stack1+restack1 (pair) | 172 | 187 (100) | batch3b-090a96a/RESULTS.md |
+| batch3b-090a96a/b3b_fix_M_s2 | lift_v1+wipe_v1 (pair) | 172 | 197 (100) | batch3b-090a96a/RESULTS.md |
+| batch3a-46b913b/b3a_min_M_s1 | lift30+stack30 (pair, verified then unloaded: counterfactual) | 170 | 157 (100) | rmin_out/counterfactual_b3a_min_M_s1/results.json |
+| batch3a-46b913b/b3a_fix_M_s1 | stk1 (single adapter) | 165 | 195 (20) | batch3a-46b913b/RESULTS.md |
+| batch3b-090a96a/b3b_fix_S_s2 | v1 (single-adapter mode, stack 30 steps) | 189 | 171 (100) | batch3b-090a96a/RESULTS.md |
+| batch3b-090a96a/b3b_fix_S_s1 | v1 (single-adapter mode, rolled back from v2) | 156 | 163 (100) | batch3b-090a96a/RESULTS.md |
+
+## shaped-side-effects (unconfirmed)
+
+| session | adapter | trained task | other tasks, dev 100 seeds (base) | source |
+|---|---|---|---|---|
+| batch3b-090a96a/b3b_min_S_s1 | v1 (shaped, 50 steps) | restack 0 | lift 84 (67), stack 64 (51), wipe 35 (16) | jobs 4-6 |
+| set1023-a23f1b3/set_fix_S_off_s1 | v1 (shaped, 15 steps) | restack 0 | lift 65 (67), stack 45 (51), wipe 11 (16) | jobs 4-6 |
+
+## pair-collapse (unconfirmed)
+
+| session | pair | task | pair vs alone (dev, 100 seeds) | source |
+|---|---|---|---|---|
+| fastloop-85ee471/fl_fix_s1 (8B profile) | stack_a1+wipe_a1 | wipe | 0 vs stack_a1 43, wipe_a1 26 | jobs 25, 27 |
+
+## v15-moved-numbers
+
+PLAYBOOK v15 (2026-10-24, Rulin's rule: the playbook holds testable method experience; result numbers live here) removed these
+numbers from the items named. v14 text: `git show 703cc605:skills/shared/PLAYBOOK.md`.
+
+| v15 item | number removed | source |
+|---|---|---|
+| 1 | shaped reward: 10 runs in 8 sessions ended at 0-3/100 on the 0% task | #shaped-0pct |
+| 2 | shaped restack side effects: lift 67->84, stack 51->64, wipe 16->35 in one session, lowered in another; an adapter loaded unchecked lost 37 of 100 on another task | #shaped-side-effects; v1 sources (commit 8404da64 message) |
+| 4 | an 8B pair dropped wipe to 0 (alone 43 and 26); hidden totals: pairs 170-172, singles 156-189, base 118 | #pair-collapse; #hidden |
+| 5 | gains by about step 120, flat after | v1 sources (commit 8404da64 message: start_rate, e4/e5/e7 RESULTS, hyak transcripts) |
+| did not work | put-down task from cube in hand: 1 of 640 rollouts succeeded | v1 sources (commit 8404da64) |
+| did not work | training-only note: 22% of training rollouts completed, 0/100 at eval | batch3a-46b913b/b3a_q8fix_M_s1 (8B policy); commit b7a3844d |

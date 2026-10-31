@@ -1,0 +1,57 @@
+rc=0
+## Training data (`data`)
+`data` names a JSONL file in your workspace (a path relative to the workspace, or absolute inside it): one line per training
+prompt, `{"task": ..., "seed": ..., "variant": ..., "prompt": ...}` (`variant` and `prompt` optional, no other keys):
+- `task`: a trainable task. `variant`: another trainable task of the same simulator task (e.g. `stack` with variant `revstack`; revstack runs under a scene shift and practises alone, so a dataset with revstack rows has no rows of any other task); the row then
+  trains on `variant`. Any mixture of tasks and variants is allowed.
+- `seed`: an integer >= 810001 (seeds 1-100 are the final score's, 800001-809999 are eval.py's dev seeds); all 8 rollouts
+  of the row run on that seed.
+- `prompt`: replaces the task's user message for that row only (the system message stays). A row without `prompt` trains on
+  the task's eval prompt, checked byte for byte before training; a row with `prompt` is not checked and counts as a prompt
+  override, a method choice recorded with the adapter (`data.prompt_overrides` and `data.label` in training.json).
+- Rows train in file order, `batch` rows per step: the row count must be a multiple of `batch`, and the call runs
+  rows / batch steps (omit `steps`, or give that number). The call's tasks come from the rows (omit `task`); `note` and
+  `goal` are not accepted with `data`. At most 4096 rows, 16 MB, 65536 characters per `prompt`.
+- The file is copied when the call starts; training.json's `resolved_spec.data` and the train's result (`config.data`) record
+  its `sha256`, `rows`, rows per task (`tasks`) and `prompt_overrides`.
+
+## SFT (`objective: sft`)
+A spec `{"objective": "sft", "data": "<file>.jsonl"}` (optional: `name`, `init`, `epochs` (1), `batch` (16 rows per step), `lr`
+(1e-4), `min_reward` (1.0), `time`; no other field) trains the policy's LoRA by supervised fine-tuning (cross-entropy on the program's
+tokens only; LoRA rank 32 / alpha 64 on the policy's modules, or `init` continued; without `init` it continues the policy's own init,
+as a practice call does). It runs on the small policy profiles (SCOREBOARD.md's `policy:` line names one, e.g. Qwen3-8B).
+- Each line of `data` is `{"task": ..., "seed": ..., "prompt": [{"role": "system" | "user", "content": ...}, ...], "program": ..., "reward": ...}`
+  (exactly these keys): `task` a trainable task (a hidden task by the name you see), `prompt` the chat the program answers (the user
+  message last; `tasks/<task>/eval_prompt.txt` as messages is the eval prompt of record), `program` the response trained on, `reward`
+  a number used only as the `min_reward` filter.
+- `seed` is the scene the program ran on: seeds 1-100 (the final score's) and 800001-809999 (eval.py's dev seeds) are refused, so
+  no reading you or the final score take is on a scene the policy was fitted on.
+- A kept row whose prompt is not the task's eval prompt of record is a prompt override (a method choice): counted in
+  `data.prompt_overrides` and labelled, as `note`/`goal` are.
+- Steps = ceil(kept rows x epochs / batch); rows train in a fixed shuffled order; a row longer than 4096 tokens is dropped (`call.json`
+  `sft_facts.dropped_too_long`). At most 20000 rows, 256 MB, 65536 characters per message or program.
+- Building the file: `python3 skills/trainer/sft_rows.py practice adapters/<name> [--min-reward 1] [--steps 3-5] > sft.jsonl` takes a
+  finished practice call's rollouts (Output below); `python3 skills/trainer/sft_rows.py rollouts rollouts/<id>.jsonl [--min-reward 1] > sft.jsonl`
+  takes rollout.py rows (reward = your self_reward). Both print why each dropped row was dropped.
+- Output: `adapters/<name>/` with the adapter, `sft_log.json` (per step: `step`, `loss`, `grad_norm`, `tokens`), `call.json` and
+  `training.json` (`resolved_spec.data`: `sha256` of your file, `rows`, `kept`, rows per task, `min_reward`, `prompt_overrides`); the
+  train's result shows the same under `config.data`. A cancel or a cluster stop keeps nothing (the adapter is saved at the end).
+- Cost: 1 GPU x (0.05 + 0.000695 x steps x batch) canonical GPU-hours (the admission estimate counts every row of the file).
+
+## Failures
+A request this site cannot run as written ends `failed` in `jobs/<id>.json` with this text; nothing is charged:
+- `train: unsupported spec field(s) ['<field>', ...]; this site reads only: steps, lr, batch, seed_start, reward, init, start_preset, start_mix, note, goal, time, task, name, data, objective, epochs, min_reward`
+- `train: task must be one of ['lift', 'nut', 'restack', 'revstack', 'stack', 'wipe'], got '<task>'` (twolift, handover, stackv2 have no practice unit here)
+- `train: init adapter not found: <path>`
+- `train: reward must be 'task_completed', 'shaped' or the path of a .py file defining reward(result) -> float`
+- `train: reward file <path> is outside your workspace; a reward file must be a file in your workspace` (a symlink is not followed either)
+- `train: name: letters, digits, _ . - (max 48)`
+- sft: `train: data line <N>: <rule>` (a row's keys, task, seed reserved, prompt, program or reward), `train: no row has reward >= min_reward <m> ...`, `train: field(s) [...] have no meaning with objective 'sft'; ...`, `train: objective 'sft' needs data: ...`, `train: objective 'sft' trains the small policy profiles on this site ...`, `train: steps <s> != ceil(kept rows x epochs / batch) = <n>; omit steps`, `train: task: an sft spec trains the tasks of its kept rows (...); omit task`
+- `train: data line <N>: <rule>` for a row that breaks a rule above (not a JSON object; unsupported key(s); task must be one of ...; seed must be an integer; seed <s> is reserved ...; variant of '<task>' must be one of ...; prompt must be a non-empty string; prompt has <n> characters), or `train: data file has no rows` / `data has more than 4096 rows` / `data file is <n> bytes; at most 16777216`
+- `train: data has <rows> rows, not a multiple of batch <batch>: ...` / `train: steps <s> != data rows / batch = ...; omit steps` / `train: task: a spec with data trains the tasks its rows name (...); omit task` / `train: note cannot be set with data; ...`
+- `train: data file <path> is outside your workspace; a data file must be a file in your workspace` (a symlink is not followed either)
+- `train: batch <b> does not split equally across <n> tasks [...]; use a multiple of <n>` / `train: task: each task at most once, got [...]` / `train: note edit one task's training prompt; a spec naming several tasks cannot set them` (a `task` list)
+- `train: task 'revstack' runs its simulator under a scene shift and practises alone; name it in a spec of its own`
+- `train: your reward function raised <Error>: <message> (reward.py line N); ...` / `train: your reward function tried to <action> (<detail>), which the reward sandbox refuses; ...` / `train: your reward function ran longer than 120 s on one rollout ...`: a custom `reward(r)` runs in a sandbox, once per rollout: plain Python and the interpreter's libraries (math, json, numpy), files only in its working directory (temporary), no other files, no network, no subprocesses, 60 s CPU and 4 GiB per call. The train stops at the first such failure.
+- `train: seeds 1-100 are reserved for the final score; use dev seeds >= 800001`
+- B2: `train: start_preset '<p>' is a registry preset, built with the privileged oracle; on a hidden task build your own start states with preset.py ...` / `train: start_preset '<p>' was built on task another task, not <task>`

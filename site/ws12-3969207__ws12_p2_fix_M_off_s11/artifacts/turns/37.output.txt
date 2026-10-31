@@ -1,0 +1,59 @@
+rc=0
+7-`python3 train.py SPEC` submits one practice call; SPEC is a JSON or YAML file in the workspace. `python3 train.py --help` prints this file.
+8:Relative paths in SPEC (a reward file, an init adapter path, data files) resolve against the workspace, where `train.py` runs, wherever SPEC itself is.
+9-The programs can call exactly the functions listed under `APIs:` in the task's eval_prompt.txt. The Key rules of the stack,
+10-revstack, stackv2 and handover prompts also name `get_object_pose`, `sample_grasp_pose`, `goto_pose_arm*` and a `z_approach`
+11-parameter: none of these exists in these cells (the rules text is shared with the tasks' privileged-API variant). The prompts
+--
+20-projections for Qwen3.8-27B; other policies have no `out`).
+21:Each step: `batch` prompts x 8 rollouts. GRPO's update comes from reward differences among a prompt's 8 rollouts: a prompt whose rollouts all get the same reward adds nothing to it. A rollout is one program written by the model for the task, run once in the task's simulator
+22:on one seed; its score is the reward below. The training prompt is the task's evaluation prompt, byte for byte (checked before training), unless the spec sets `note` or `goal` or a `data` row sets `prompt`:
+23-those are part of the training prompt only. Every eval, including the final hidden-seed score, uses the task's
+24-`tasks/<task>/eval_prompt.txt` in the workspace verbatim, without any note or goal.
+25-Sampling during practice: temperature 1.0, top_p 0.95, top_k 20; at most 8192 generated tokens per program.
+--
+42-| `init` | string | none (fresh LoRA) | an adapter name produced by an earlier train of this session (`base` is not one: omit `init` to start from the policy). Single-adapter mode: omit it (or `current`); every train continues `current`. The new adapter is the init adapter continued (it already holds init's change): loading both stacks that change twice |
+43:| `start_preset` | string | none | a named start-state preset (core/start_presets.py: `restack_grasped`/`restack_lifted`/`restack_aligned`, `nut_grasped`/`nut_aligned`) to begin practice from an intermediate scene (e.g. object already grasped) so the agent trains the hard tail; the staged reward then scores only the stages after that sub-goal; fails loudly if the preset has not been built |
+44:| `reward` | string | `task_completed` | `task_completed` (1.0 if the task's own success check passes, else 0.0); `shaped` (the simulator's staged reward); Python source containing `def reward(r)`; or the path of a `.py` file (relative paths: the workspace) defining `reward(r)`. `r` is the simulator's reply: `task_completed`, `reward`, `sandbox_rc`, `seed`, `log_tail` (keys or attributes); return a float |
+45-| `seed_start` | integer | 810001 | rollout k of the call runs on seed `seed_start + k`; must not reach seeds 1-100 |
+46-| `note` | string | none | one sentence inserted after the training prompt's Goal line (not a comment: the rollouts see it; evaluation prompts never have it) |
+47-| `goal` | string | none | replaces the training prompt's Goal line (evaluation prompts keep theirs) |
+--
+51-| `epochs` | integer | 1 | `objective: sft` only: passes over the kept rows |
+52:| `min_reward` | number | 1.0 | `objective: sft` only: rows with `reward` >= this are trained on, the others dropped (a filter, never a weight) |
+53-
+54-## Training data (`data`)
+55-`data` names a JSONL file in your workspace (a path relative to the workspace, or absolute inside it): one line per training
+--
+71-A spec `{"objective": "sft", "data": "<file>.jsonl"}` (optional: `name`, `init`, `epochs` (1), `batch` (16 rows per step), `lr`
+72:(1e-4), `min_reward` (1.0), `time`; no other field) trains the policy's LoRA by supervised fine-tuning (cross-entropy on the program's
+73-tokens only; LoRA rank 32 / alpha 64 on the policy's modules, or `init` continued; without `init` it continues the policy's own init,
+74-as a practice call does). It runs on the small policy profiles (SCOREBOARD.md's `policy:` line names one, e.g. Qwen3-8B).
+75:- Each line of `data` is `{"task": ..., "seed": ..., "prompt": [{"role": "system" | "user", "content": ...}, ...], "program": ..., "reward": ...}`
+76-  (exactly these keys): `task` a trainable task (a hidden task by the name you see), `prompt` the chat the program answers (the user
+77:  message last; `tasks/<task>/eval_prompt.txt` as messages is the eval prompt of record), `program` the response trained on, `reward`
+78:  a number used only as the `min_reward` filter.
+79-- `seed` is the scene the program ran on: seeds 1-100 (the final score's) and 800001-809999 (eval.py's dev seeds) are refused, so
+80-  no reading you or the final score take is on a scene the policy was fitted on.
+81-- A kept row whose prompt is not the task's eval prompt of record is a prompt override (a method choice): counted in
+--
+84-  `sft_facts.dropped_too_long`). At most 20000 rows, 256 MB, 65536 characters per message or program.
+85:- Building the file: `python3 skills/trainer/sft_rows.py practice adapters/<name> [--min-reward 1] [--steps 3-5] > sft.jsonl` takes a
+86:  finished practice call's rollouts (Output below); `python3 skills/trainer/sft_rows.py rollouts rollouts/<id>.jsonl [--min-reward 1] > sft.jsonl`
+87:  takes rollout.py rows (reward = your self_reward). Both print why each dropped row was dropped.
+88-- Output: `adapters/<name>/` with the adapter, `sft_log.json` (per step: `step`, `loss`, `grad_norm`, `tokens`), `call.json` and
+89:  `training.json` (`resolved_spec.data`: `sha256` of your file, `rows`, `kept`, rows per task, `min_reward`, `prompt_overrides`); the
+90-  train's result shows the same under `config.data`. A cancel or a cluster stop keeps nothing (the adapter is saved at the end).
+91-- Cost: 1 GPU x (0.05 + 0.000695 x steps x batch) canonical GPU-hours (the admission estimate counts every row of the file).
+92-
+--
+94-A request this site cannot run as written ends `failed` in `jobs/<id>.json` with this text; nothing is charged:
+95:- `train: unsupported spec field(s) ['<field>', ...]; this site reads only: steps, lr, batch, seed_start, reward, init, start_preset, note, goal, time, task, name, data, objective, epochs, min_reward`
+=== seed_start row ===
+45:| `seed_start` | integer | 810001 | rollout k of the call runs on seed `seed_start + k`; must not reach seeds 1-100 |
+46-| `note` | string | none | one sentence inserted after the training prompt's Goal line (not a comment: the rollouts see it; evaluation prompts never have it) |
+47-| `goal` | string | none | replaces the training prompt's Goal line (evaluation prompts keep theirs) |
+--
+95:- `train: unsupported spec field(s) ['<field>', ...]; this site reads only: steps, lr, batch, seed_start, reward, init, start_preset, note, goal, time, task, name, data, objective, epochs, min_reward`
+96-- `train: task must be one of ['lift', 'nut', 'restack', 'revstack', 'stack', 'wipe'], got '<task>'` (twolift, handover, stackv2 have no practice unit here)
+97-- `train: init adapter not found: <path>`

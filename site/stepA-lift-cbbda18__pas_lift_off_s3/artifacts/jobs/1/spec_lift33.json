@@ -1,0 +1,1 @@
+{"task": "lift", "name": "lift33", "steps": 33, "batch": 8, "reward": "reward_lift.py"}

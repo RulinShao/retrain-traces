@@ -1,0 +1,2 @@
+{"seq": 0, "t": "2026-10-31T08:06:06.807Z", "kind": "job.submit", "payload": {"job_id": "4", "type": "eval", "task": "lift", "seeds": [800011, 800020], "n": 10, "adapter": null, "slurm_jobs": ["42640499"], "policy_model": "Qwen3.8-27B"}, "files": []}
+{"seq": 1, "t": "2026-10-31T10:16:47.477Z", "kind": "job.done", "payload": {"job_id": "4", "state": "failed", "summary": {"state": "CANCELLED by 1387877", "n": 10, "infra_error": "eval job 42640499 state CANCELLED by 1387877: 0 cell summaries"}, "gpu_hours": {"actual": 0.0}}, "files": []}

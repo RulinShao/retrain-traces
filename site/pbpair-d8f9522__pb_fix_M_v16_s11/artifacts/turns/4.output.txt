@@ -1,0 +1,40 @@
+rc=0
+
+v15->v16 map: old 6 (continue-vs-fresh) folded into item 4; 7->6, 8->7, 9->8, 10->9; new 10 (headroom), 11 (second train with signal), 12 (no-count eval rerun).
+
+Dev-seed/RESULT.json totals from the fair-sc-3 m86 batch (27B, 9 tasks). These are OTHER sessions' numbers (EVIDENCE only; the main claim stays on playbook-off). The gains are per-task lift/stack/wipe.
+
+Item 10 (highest-headroom task) + item 4 (pairs / chaining):
+| cell | total | lift | stack | wipe | arm / pb | how | source |
+|---|---|---|---|---|---|---|---|
+| c09 | 234 | 77 | 59 | 88 | min / ON | chain: stack30 then wipe20 on top; wipe 14->90 | rmin_dev_m86/c09 RESULT.json + transcript T9/T12/T16 |
+| d07 | 168 | 81 | 55 | 30 | min / off | chain v1->v3 (short lift/stack steps), rejected over-specialized v4 | rmin_dev_m86/d07 T15/T23/T38 |
+| c04 | 191 | 81 | 46 | 61 | fixed / off | pair stack15+wipe13 (clean, non-collapsing); pre-committed stack>=42 revert | rmin_dev_m86/c04 T6/T44 |
+| c08 | 175 | 41 | 62 | 62 | fixed / off | v2 chain stack->wipe; lift regressed 67->41 (shipped) | rmin_dev_m86/c08 T107 |
+| d02 | 153 | 86 | 48 | 18 | fixed / ON | trained only lift1+stack1 (two fresh adapters), never wipe; pair collapsed -> shipped lift1 single | rmin_dev_m86/d02 T9/T11/T14/T31 |
+
+Item 2 (eval the final served stack on every task, incl eval-only):
+| cell | submitted | never-evaluated task | outcome | source |
+|---|---|---|---|---|
+| c07 | base+stack30 (served on all 9 tasks) | revstack (dev base 0; SCOREBOARD "untested") | the global adapter regressed the hidden revstack base to 0 (per-task revstack=0) | rmin_dev_m86/c07 SCOREBOARD.md; hidden "35" is task-provided, not re-verified here |
+
+Reading: wipe is the differentiator across the 6 DONE cells (correlation, n=6, not a controlled result) — c09 wipe88->234 top, d02 wipe18->153 bottom. Pair-collapse is adapter-specific (c04's stack15+wipe13 pair did not collapse; d02's lift1+stack1 did), so item 4 keeps "evaluate each alone AND the pair," with chaining unconfirmed (hyak found 8B pairs collapse under an init-adapter confound; 27B pairs did not).
+
+## hyak-trace (2026-10-27, #9; behind PLAYBOOK v16 header and items 1, 4, 5, 7, 11, 12)
+
+hyak trace review of 11 model sessions + the scripted control (digest: issue #9). Each v16 edit, the behaviour it answers and the
+sessions that show it (dev rows: `workspace/jobs/<id>.json`, n=100 unless stated; hidden: `session/RESULT.json`). Session roots:
+`pin2S-45f1a1d/`, `pin2seeds-45f1a1d/` under rmin_out; `fl40a-378c108/`, `fl40l-378c108/`, `p3fl48-9fc16e6/` under
+`…/<user>/rmin_out_zlab`.
+
+| v16 item | behaviour | sessions and rows |
+|---|---|---|
+| header | other sessions' hidden totals read as this session's target; stopped with budget left | pin2seeds/p2_min_M_on_s10 (4.91 GPU-h unspent, "reference pairs scored lower than the single"), pin2seeds/p2_min_M_on_s12 (4.84 unspent, cites the 189 single-mode row) |
+| 1 | shaped/hybrid reward on 0%-base tasks read as signal because every rollout scored > 0 (playbook off) | fl40l/fl40l_min_off_s11: restack1, revstack1 (shaped, 10 steps), restack2 (40 steps): revstack 0/20 (job 21), restack 0/20 (job 54); fl40a/fl40a_min_off_s7: nut50, revstack50, restack50 (hybrid, 50 steps): nut 0 (job 23), revstack 3 (job 20). No playbook-on session of the 7 trained a 0%-base task |
+| 4 | pair evaluated before or instead of its parts | fl40l/fl40l_fix_on_s12 (pair sweep before wipe1 alone); p3fl48/p3fl48_min_on_s16 (pair only) |
+| 4 | item read as "avoid pairs" | pin2seeds/p2_min_M_on_s10, pin2seeds/p2_min_M_on_s12 (no pair tried) |
+| 5 | final checkpoint evaluated after the reward had fallen from its peak | fl40a/fl40a_min_off_s7 wipe50: rewards.json peak 0.578 (step 27), 0.031 at step 50; wipe 36 (job 14), lift 4/20 (job 24), stack 0/20 (job 25). Contrast fl40l/fl40l_min_off_s11 wipe1 (40 steps, curve rising): wipe 90 (job 36), stack 73 (job 38) |
+| 7 | many short waits instead of one long one | pin2seeds/p2_fix_M_on_s12: 22 `wait.py --max 9m` polls (believed a 600 s cap); pin2S/p2_fix_S_on_s10: three long waits through an 8.2 h queue |
+| 11 | a second train round on another signal task | pin2S/p2_fix_S_on_s10: v1 (stack) then v2 (wipe from v1): lift 72 -> 83, stack 54 -> 60, wipe 26 -> 60 (jobs 5-7, 18-20); hidden 208. Stopped with a train plus checks still affordable: p2_min_M_on_s10, p2_min_M_on_s12, fl40a_min_off_s7 |
+| 12 | adapter dropped after its only eval of the trained task ended with no count | fl40l/fl40l_fix_on_s12 wipe1 on wipe (job 51: time limit, no seed counted), finished with 2.19 GPU-h left |
+

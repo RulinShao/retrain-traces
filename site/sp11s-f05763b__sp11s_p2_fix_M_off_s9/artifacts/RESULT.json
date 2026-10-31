@@ -1,0 +1,49 @@
+{
+ "status": "DONE",
+ "turns": 43,
+ "gpu_hours": 15.664,
+ "final_score": {
+  "loaded": "wipe_r2",
+  "per_task": {
+   "lift": 80,
+   "stack": 62,
+   "nut": 0,
+   "wipe": 28,
+   "restack": 0,
+   "twolift": 0,
+   "handover": 2,
+   "revstack": 0,
+   "stackv2": 2
+  },
+  "total": 174,
+  "n_per_task": 100,
+  "submission": "503f0a",
+  "confirmed": true
+ },
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 0,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "503f0a",
+  "how": "default-loaded-stack",
+  "turn": 41,
+  "confirmed": true,
+  "confirmed_turn": 42,
+  "ended_by": "DONE",
+  "note": "wipe_r2 alone (= stack_antiapi_r1's change continued + 10 wipe steps; trainer init semantics: contains init's change, do not stack both). Evidence: eval job 26 wipe_r2 wipe 28/100 (seeds 800901-801000) vs r1's 25 (job 10) and base 16; r1 measured on all 9 tasks n=100, jobs 7-15, total 151 vs base 138 (lift 68, stack 52, nut 0, wipe 25, restack 0, twolift 0, handover 1, revstack 3, stackv2 2); train job 21 step_facts wipe task-failures 34->14/64. Remaining 8 tasks estimated from r1's row (budget 0.336 < 0.36 min eval cost).",
+  "policy": "base + wipe_r2 (sha 62685560ea18)"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "3501bb654713e3caa250b4ddc4ca8e18e68a272a586a3736377f035c8c1530cc",
+ "artifacts": {
+  "registry": "…/sp11s-f05763b/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

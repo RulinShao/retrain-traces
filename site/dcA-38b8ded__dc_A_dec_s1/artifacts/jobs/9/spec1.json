@@ -1,0 +1,1 @@
+{"task": "lift", "name": "lift1", "steps": 30, "batch": 8, "lr": 2e-05, "seed_start": 810001}

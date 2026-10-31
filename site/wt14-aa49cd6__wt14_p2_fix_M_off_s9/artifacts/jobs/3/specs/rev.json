@@ -1,0 +1,8 @@
+{
+  "task": "revstack",
+  "name": "rev",
+  "steps": 6,
+  "batch": 8,
+  "reward": "shaped",
+  "note": "Only call the functions listed in the API section below (get_object_pose, sample_grasp_pose and z_approach do not exist in this environment); approach and place the cube in small vertical steps."
+}

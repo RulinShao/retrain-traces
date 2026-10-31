@@ -1,0 +1,5 @@
+{
+  "task": "stack",
+  "steps": 10,
+  "reward": "task_completed"
+}

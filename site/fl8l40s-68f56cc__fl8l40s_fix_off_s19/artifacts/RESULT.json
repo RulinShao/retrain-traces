@@ -1,0 +1,49 @@
+{
+ "status": "DONE",
+ "turns": 39,
+ "gpu_hours": 11.896,
+ "final_score": {
+  "loaded": "wp",
+  "per_task": {
+   "lift": 90,
+   "stack": 50,
+   "nut": 0,
+   "wipe": 70,
+   "restack": 0,
+   "twolift": 0,
+   "handover": 0,
+   "revstack": 3,
+   "stackv2": 5
+  },
+  "total": 218,
+  "n_per_task": 100,
+  "submission": "c387ce",
+  "confirmed": true
+ },
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3-8B+init:79fbddb55dd8",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 48.1294,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "c387ce",
+  "how": "default-loaded-stack",
+  "turn": 37,
+  "confirmed": true,
+  "confirmed_turn": 38,
+  "ended_by": "DONE",
+  "note": null,
+  "policy": "base + wp (sha a6582e6c90e3)"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "3501bb654713e3caa250b4ddc4ca8e18e68a272a586a3736377f035c8c1530cc",
+ "artifacts": {
+  "registry": "…/fl8l40s-68f56cc/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

@@ -1,0 +1,7 @@
+{
+  "task": "stack",
+  "name": "stack1",
+  "steps": 10,
+  "batch": 8,
+  "reward": "task_completed"
+}

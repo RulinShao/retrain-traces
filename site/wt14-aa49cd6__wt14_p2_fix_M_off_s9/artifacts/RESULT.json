@@ -1,0 +1,50 @@
+{
+ "status": "DONE",
+ "turns": 34,
+ "gpu_hours": 15.77,
+ "final_score": {
+  "loaded": "core3",
+  "per_task": {
+   "lift": 73,
+   "stack": 53,
+   "nut": 0,
+   "wipe": 34,
+   "restack": 0,
+   "twolift": 0,
+   "handover": 1,
+   "revstack": 1,
+   "stackv2": 5
+  },
+  "total": 167,
+  "n_per_task": 100,
+  "submission": "f67405",
+  "confirmed": true
+ },
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 8.7051,
+ "gpu_hours_charging": "canonical",
+ "agent_gpu_h": 0.6245,
+ "submission": {
+  "token": "f67405",
+  "how": "default-loaded-stack",
+  "turn": 32,
+  "confirmed": true,
+  "confirmed_turn": 33,
+  "ended_by": "DONE",
+  "note": "Submit [core3]: GRPO lift/stack/wipe adapter. Dev n=5 eval jobs 12 lift 2/5, 13 stack 4/5 (gain), 14 wipe 2/5 (gain), 15 nut 0/5, 16 restack 0/5, 17 twolift 0/5, 18 handover 0/5, 19 revstack 0/5 (all at base floor); stackv2 untested (~base). Training job 1: reward 0.31->0.51, program fails 45->18.",
+  "policy": "base + core3 (sha f3941afcb6e1)"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "a63d33bba9c2a0141f6b8244b896ed23a7e4afde9919a7c1eb5a3a37fc0fa3c4",
+ "artifacts": {
+  "registry": "…/wt14-aa49cd6/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

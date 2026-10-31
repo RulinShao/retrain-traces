@@ -1,0 +1,8 @@
+{
+  "task": "wipe",
+  "name": "wipe_r2",
+  "init": "stack_antiapi_r1",
+  "steps": 10,
+  "batch": 8,
+  "note": "To fully wipe the brown spill, sweep the ENTIRE spill bounding box (min/max x and y from its oriented bbox) with a dense zig-zag, keeping the gripper at z=0.0 with the downward (0,0,1,0) orientation the whole time and using only small joint moves so each IK step is short."
+}

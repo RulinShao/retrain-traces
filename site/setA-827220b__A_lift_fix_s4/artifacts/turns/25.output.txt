@@ -1,0 +1,91 @@
+rc=0
+total 47
+drwxr-sr-x 2 root nobody 8192 Oct 28 07:15 .
+drwxr-sr-x 8 root nobody 8192 Oct 28 07:17 ..
+-rw-r--r-- 1 root nobody  300 Oct 28 07:16 1.json
+-rw-r--r-- 1 root nobody   66 Oct 27 18:41 1.request.json
+-rw-r--r-- 1 root nobody  156 Oct 28 02:39 10.json
+-rw-r--r-- 1 root nobody   64 Oct 28 01:44 10.request.json
+-rw-r--r-- 1 root nobody  156 Oct 28 03:34 11.json
+-rw-r--r-- 1 root nobody   64 Oct 28 02:39 11.request.json
+-rw-r--r-- 1 root nobody  156 Oct 28 04:29 12.json
+-rw-r--r-- 1 root nobody   64 Oct 28 03:34 12.request.json
+-rw-r--r-- 1 root nobody  157 Oct 28 05:24 13.json
+-rw-r--r-- 1 root nobody   64 Oct 28 04:29 13.request.json
+-rw-r--r-- 1 root nobody  217 Oct 28 06:19 14.json
+-rw-r--r-- 1 root nobody   64 Oct 28 05:24 14.request.json
+-rw-r--r-- 1 root nobody  217 Oct 28 07:15 15.json
+-rw-r--r-- 1 root nobody   64 Oct 28 06:20 15.request.json
+-rw-r--r-- 1 root nobody  153 Oct 27 19:31 2.json
+-rw-r--r-- 1 root nobody   63 Oct 27 18:41 2.request.json
+-rw-r--r-- 1 root nobody  155 Oct 27 20:21 3.json
+-rw-r--r-- 1 root nobody   63 Oct 27 19:31 3.request.json
+-rw-r--r-- 1 root nobody  155 Oct 27 21:11 4.json
+-rw-r--r-- 1 root nobody   63 Oct 27 20:21 4.request.json
+-rw-r--r-- 1 root nobody  155 Oct 27 22:01 5.json
+-rw-r--r-- 1 root nobody   63 Oct 27 21:11 5.request.json
+-rw-r--r-- 1 root nobody  155 Oct 27 22:57 6.json
+-rw-r--r-- 1 root nobody   63 Oct 27 22:02 6.request.json
+-rw-r--r-- 1 root nobody  155 Oct 27 23:52 7.json
+-rw-r--r-- 1 root nobody   63 Oct 27 22:57 7.request.json
+-rw-r--r-- 1 root nobody  155 Oct 28 00:47 8.json
+-rw-r--r-- 1 root nobody   63 Oct 27 23:52 8.request.json
+-rw-r--r-- 1 root nobody  155 Oct 28 01:42 9.json
+-rw-r--r-- 1 root nobody   63 Oct 28 00:47 9.request.json
+===
+--- jobs/1.json ---
+{"id": 1, "kind": "train", "args": {"spec": "specs/lift_g1.json"}, "state": "running", "result": null, "skills_digest": "5fe18e4eae22797fe3860e6493daa340bbd7c90e5d154d43a73748765971e840", "progress": {"state": "queued", "queued_min": 755.2}, "progress_line": "queued (not started), 755 min in queue"}
+--- jobs/1.request.json ---
+{"id": 1, "kind": "train", "args": {"spec": "specs/lift_g1.json"}}
+--- jobs/10.json ---
+{"id": 10, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): PENDING, pending 7h58m"}
+--- jobs/10.request.json ---
+{"id": 10, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}}
+--- jobs/11.json ---
+{"id": 11, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): PENDING, pending 8h53m"}
+--- jobs/11.request.json ---
+{"id": 11, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}}
+--- jobs/12.json ---
+{"id": 12, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): PENDING, pending 9h48m"}
+--- jobs/12.request.json ---
+{"id": 12, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}}
+--- jobs/13.json ---
+{"id": 13, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): PENDING, pending 10h43m"}
+--- jobs/13.request.json ---
+{"id": 13, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}}
+--- jobs/14.json ---
+{"id": 14, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): PENDING, queue position 383 of 1868 pending in ckpt-all by priority, pending 11h38m"}
+--- jobs/14.request.json ---
+{"id": 14, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}}
+--- jobs/15.json ---
+{"id": 15, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): PENDING, queue position 376 of 1879 pending in ckpt-all by priority, pending 12h34m"}
+--- jobs/15.request.json ---
+{"id": 15, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}}
+--- jobs/2.json ---
+{"id": 2, "kind": "wait", "args": {"ids": ["1"], "max": "50m"}, "state": "done", "result": "no job finished in 50m; job 1 (train): PENDING, pending 50m"}
+--- jobs/2.request.json ---
+{"id": 2, "kind": "wait", "args": {"ids": ["1"], "max": "50m"}}
+--- jobs/3.json ---
+{"id": 3, "kind": "wait", "args": {"ids": ["1"], "max": "50m"}, "state": "done", "result": "no job finished in 50m; job 1 (train): PENDING, pending 1h40m"}
+--- jobs/3.request.json ---
+{"id": 3, "kind": "wait", "args": {"ids": ["1"], "max": "50m"}}
+--- jobs/4.json ---
+{"id": 4, "kind": "wait", "args": {"ids": ["1"], "max": "50m"}, "state": "done", "result": "no job finished in 50m; job 1 (train): PENDING, pending 2h30m"}
+--- jobs/4.request.json ---
+{"id": 4, "kind": "wait", "args": {"ids": ["1"], "max": "50m"}}
+--- jobs/5.json ---
+{"id": 5, "kind": "wait", "args": {"ids": ["1"], "max": "50m"}, "state": "done", "result": "no job finished in 50m; job 1 (train): PENDING, pending 3h20m"}
+--- jobs/5.request.json ---
+{"id": 5, "kind": "wait", "args": {"ids": ["1"], "max": "50m"}}
+--- jobs/6.json ---
+{"id": 6, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): PENDING, pending 4h16m"}
+--- jobs/6.request.json ---
+{"id": 6, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}}
+--- jobs/7.json ---
+{"id": 7, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): PENDING, pending 5h11m"}
+--- jobs/7.request.json ---
+{"id": 7, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}}
+--- jobs/8.json ---
+{"id": 8, "kind": "wait", "args": {"ids": ["1"], "max": "55m"}, "state": "done", "result": "no job finished in 55m; job 1 (train): PENDING, pending 6h06m"}
+--- jobs/8.request.json ---
+{"id": 8, "kind": "

@@ -1,0 +1,9 @@
+{
+  "task": "lift",
+  "name": "lift1",
+  "steps": 30,
+  "batch": 8,
+  "lr": 2e-5,
+  "reward": "task_completed",
+  "note": "Produce a robust pick program: if segmentation or grasp planning returns empty, retry using a Molmo point prompt with the SAM3 point-prompt segmentation; convert the camera-frame grasp pose to the world frame using the camera intrinsics and extrinsics; open the gripper and move directly above the grasp target with a safe height margin before descending onto it, then close the gripper and lift; keep all motion within the arm workspace and collision-free."
+}

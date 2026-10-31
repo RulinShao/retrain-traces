@@ -1,0 +1,207 @@
+rc=0
+"""Shared by train.py, eval.py, load.py, wait.py, cancel.py, finish.py: write one request file to jobs/; the environment picks it up when
+the current shell command finishes, and writes jobs/<id>.json with its state and result."""
+import json, os
+
+JOBS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "jobs")
+
+
+def submit(kind, args):
+    os.makedirs(JOBS, exist_ok=True)
+    n = 1
+    while True:
+        try:
+            f = open(os.path.join(JOBS, f"{n}.request.json"), "x")
+            break
+        except FileExistsError:
+            n += 1
+    with f:
+        json.dump({"id": n, "kind": kind, "args": args}, f)
+    print(f"job {n}: {kind} requested; it is picked up when this command finishes (see python3 status.py {n})")
+"""python3 train.py SPEC  -- train an adapter from your spec file (JSON or YAML; any keys). The environment reads
+`name` (adapter name, default a<job id>), `init` (an adapter name to start from) and `steps`; the site's trainer reads the rest."""
+import sys
+from _submit import submit
+
+if len(sys.argv) != 2 or sys.argv[1] in ("-h", "--help"):
+    import os
+    doc = os.path.join(os.path.dirname(os.path.abspath(__file__)), "skills", "trainer", "SKILL.md")   # the site's trainer contract
+    sys.exit(open(doc).read() if os.path.isfile(doc) else __doc__)
+submit("train", {"spec": sys.argv[1]})
+"""python3 eval.py --adapter A[,B...]|base|loaded --task T --seeds N  -- success count of that adapter stack on N fresh dev seeds."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("--adapter", required=True)
+p.add_argument("--task", required=True)
+p.add_argument("--seeds", type=int, required=True)
+a = p.parse_args()
+submit("eval", {"adapter": a.adapter, "task": a.task, "seeds": a.seeds})
+"""python3 load.py load A [B...] | stack A [B...] | unload [A...]  -- set, extend or shrink the adapter stack on your own
+serving endpoint (unload with no names = base). Free; always allowed. `python3 finish.py` with no arguments submits the
+loaded stack for scoring; a load cancels a pending submission; the unload result states what finishing now would score."""
+import sys
+from _submit import submit
+
+if len(sys.argv) < 2 or sys.argv[1] not in ("load", "stack", "unload"):
+    sys.exit(__doc__)
+submit("load", {"verb": sys.argv[1], "names": sys.argv[2:]})
+"""python3 wait.py all | ID [ID...] [--max DURATION]  -- after this command, block until those jobs finish before your next
+turn, at most DURATION (hours or minutes: 4h, 90m; default 2h). If none of them finished by then, the result states each one's
+queue state, reason, position and time pending, and "no job finished"."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("ids", nargs="+")
+p.add_argument("--max")
+a = p.parse_args()
+submit("wait", {"ids": a.ids, **({"max": a.max} if a.max is not None else {})})
+"""python3 cancel.py ID  -- stop a running train or eval job. A train keeps the adapter of its last saved step (if any),
+registered like a finished train with the steps it actually ran; the job is charged the GPU time it actually used."""
+import sys
+from _submit import submit
+
+if len(sys.argv) != 2 or sys.argv[1] in ("-h", "--help"):
+    sys.exit(__doc__)
+submit("cancel", {"id": sys.argv[1]})
+"""python3 finish.py [--policy base | --adapters A[@VERSION][,B...]] [--note TEXT]  |  python3 finish.py --confirm TOKEN
+End the session in two steps. Step one submits the policy to score (no policy arguments: the loaded stack) and the next
+observation states exactly what will be scored and a token; the session continues. Step two, in a later turn,
+`--confirm TOKEN` ends the session and that submission is scored on the hidden seeds. A load.py or train.py request between
+the two steps cancels the submission (submit again)."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("--policy", choices=["base"], help="submit the base policy (no adapters)")
+p.add_argument("--adapters", help="comma-separated adapter names; single mode: current, v<k> or current@<k>")
+p.add_argument("--note", help="free text kept with the submission")
+p.add_argument("--confirm", metavar="TOKEN", help="step two: end the session with the pending submission")
+a = p.parse_args()
+if a.confirm is not None and (a.policy or a.adapters or a.note):
+    p.error("--confirm takes no other arguments")
+if a.policy and a.adapters:
+    p.error("give either --policy base or --adapters, not both")
+submit("finish", {"confirm": a.confirm} if a.confirm is not None else
+       {k: v for k, v in (("policy", a.policy), ("adapters", a.adapters), ("note", a.note)) if v is not None})
+"""python3 status.py [ID...]  -- print the state and result of jobs (all jobs if no ID), then what finishing now would score."""
+import glob, json, os, sys
+
+if {"-h", "--help"} & set(sys.argv[1:]):
+    sys.exit(__doc__)
+here = os.path.dirname(os.path.abspath(__file__))
+jobs = os.path.join(here, "jobs")
+ids = sys.argv[1:] or sorted((os.path.basename(p)[:-5] for p in glob.glob(f"{jobs}/*.json") if ".request" not in p), key=int)
+for i in ids:
+    path = os.path.join(jobs, f"{i}.json")
+    print(open(path).read().strip() if os.path.exists(path) else json.dumps({"id": i, "state": "requested"}))
+try:   # STATUS.json is rewritten by the environment after every command
+    print(json.load(open(os.path.join(here, "STATUS.json")))["finish_now"])
+except (OSError, ValueError, KeyError):
+    pass
+EVIDENCE.md
+PLAYBOOK.md
+README.md
+reward_check
+# Evidence behind PLAYBOOK.md items
+
+Each confirmed playbook item names its section here. Rows are dev-seed evals from the sessions' `workspace/jobs/<id>.json`,
+or hidden-seed rows from a batch `RESULTS.md`; session roots are under `…/<user>/rmin_out` unless written
+in full.
+
+These numbers come from other sessions, with their own policy, adapter mode, budget, GPU class and seeds. They show where an
+item came from; they are not targets or expected scores for another session.
+
+## shaped-0pct
+
+Shaped reward on a task whose base succeeds 0/100. Every recorded run left that task at 0-3/100.
+
+| session | adapter (reward) | task | result | source |
+|---|---|---|---|---|
+| …/batch2/b2min_M_s1 | nut10 (shaped, 10 steps) | nut | 0/100 dev | job 5 |
+| same | restack10 (shaped, 10 steps) | restack | 0/100 dev | job 9 |
+| batch3a-46b913b/b3a_fix_M_s1 | rev1 (shaped, 10 steps) | revstack | 0/20 dev; 3/100 hidden | job 3; batch3a-46b913b/RESULTS.md row b3a_fix_M_s1 |
+| batch3a-46b913b/b3a_fix_M_s2 | revstack_pilot (shaped, 12 steps) | revstack | 2/100 dev | job 3 |
+| batch3a-46b913b/b3a_q8fix_M_s1 (Qwen3-8B policy, base 0 everywhere) | stack1 (shaped + note, 10 steps) | stack | 0/100 dev | job 3 |
+| batch3b-090a96a/b3b_fix_M_s1 | restack1 (shaped + note) | restack | 0/100 dev | job 5 |
+| batch3b-090a96a/b3b_min_S_s1 | v1 (shaped, 50 steps) | restack | 0/100 dev | job 3 |
+| batch3a-redo-090a96a/b3r_fix_M_s2 | restack1 (shaped, 30 steps) | restack | 0/100 dev | job 5 |
+| fastloop-85ee471/fl_fix_s1 (8B profile) | restack_a1 (shaped) | restack | 0/100 dev | job 16 |
+| same | restack_a2 (shaped + note, 50 steps) | restack | 0/100 dev | job 20 |
+
+The same b3b_min_S_s1 adapter raised lift, stack and wipe on dev seeds (PLAYBOOK item 2, unconfirmed: one session).
+
+## hidden
+
+Hidden-set results of earlier sessions, operator-provided (seeds 1-100, 9 tasks; base 118 = rmin_out/base_hidden_27b/base_hidden_27b.json),
+from each batch's RESULTS.md, next to the dev-seed total that session measured for the same stack (its own evals of each task, base
+row for tasks it did not evaluate). The counterfactual row is operator-side, not that agent's score.
+
+| session | loaded at the end | hidden total | dev total (seeds) | source |
+|---|---|---|---|---|
+| batch3b-090a96a/b3b_fix_M_s1 | stack1+restack1 (pair) | 172 | 187 (100) | batch3b-090a96a/RESULTS.md |
+| batch3b-090a96a/b3b_fix_M_s2 | lift_v1+wipe_v1 (pair) | 172 | 197 (100) | batch3b-090a96a/RESULTS.md |
+| batch3a-46b913b/b3a_min_M_s1 | lift30+stack30 (pair, verified then unloaded: counterfactual) | 170 | 157 (100) | rmin_out/counterfactual_b3a_min_M_s1/results.json |
+| batch3a-46b913b/b3a_fix_M_s1 | stk1 (single adapter) | 165 | 195 (20) | batch3a-46b913b/RESULTS.md |
+| batch3b-090a96a/b3b_fix_S_s2 | v1 (single-adapter mode, stack 30 steps) | 189 | 171 (100) | batch3b-090a96a/RESULTS.md |
+| batch3b-090a96a/b3b_fix_S_s1 | v1 (single-adapter mode, rolled back from v2) | 156 | 163 (100) | batch3b-090a96a/RESULTS.md |
+
+## shaped-side-effects (unconfirmed)
+
+| session | adapter | trained task | other tasks, dev 100 seeds (base) | source |
+|---|---|---|---|---|
+| batch3b-090a96a/b3b_min_S_s1 | v1 (shaped, 50 steps) | restack 0 | lift 84 (67), stack 64 (51), wipe 35 (16) | jobs 4-6 |
+| set1023-a23f1b3/set_fix_S_off_s1 | v1 (shaped, 15 steps) | restack 0 | lift 65 (67), stack 45 (51), wipe 11 (16) | jobs 4-6 |
+
+## pair-collapse (unconfirmed)
+
+| session | pair | task | pair vs alone (dev, 100 seeds) | source |
+|---|---|---|---|---|
+| fastloop-85ee471/fl_fix_s1 (8B profile) | stack_a1+wipe_a1 | wipe | 0 vs stack_a1 43, wipe_a1 26 | jobs 25, 27 |
+| …/fl40a-378c108/fl40a_fix_on_s8 (8B profile) | stack50+wipe50 | lift / stack | 11 / 0 vs stack50 lift 92, wipe50 stack 56 | jobs 24, 25 vs 10, 17 |
+| …/fl40l-378c108/fl40l_fix_on_s12 (8B profile) | wipe1+stack1 | lift / stack | 1 / 0 vs stack1 lift 80 | jobs 36, 37 vs 11 |
+| …/p3fl48-9fc16e6/p3fl48_min_on_s16 (8B profile) | stack1+wipe1 | lift / stack | 0 / 0 (singles not evaluated) | jobs 4, 5 |
+
+All four collapsed pairs ran on the distilled 8B profile (`RMIN_POLICY_INIT`), where every trained adapter already contains the
+profile's init adapter (retrain_min/site/README_hyak.md "Distilled DEV policy"; hyak_jobs `INIT_PEFT`), so a pair applies that init
+twice. No 27B pair (#hidden: 170-172) collapsed. Until an operator check separates the two, these rows are a site fact (trainer
+doc), not playbook experience.
+
+## v15-moved-numbers
+
+PLAYBOOK v15 (2026-10-24, Rulin's rule: the playbook holds testable method experience; result numbers live here) removed these
+numbers from the items named. v14 text: `git show 703cc605:skills/shared/PLAYBOOK.md`.
+
+| v15 item | number removed | source |
+|---|---|---|
+| 1 | shaped reward: 10 runs in 8 sessions ended at 0-3/100 on the 0% task | #shaped-0pct |
+| 2 | shaped restack side effects: lift 67->84, stack 51->64, wipe 16->35 in one session, lowered in another; an adapter loaded unchecked lost 37 of 100 on another task | #shaped-side-effects; v1 sources (commit 8404da64 message) |
+| 4 | an 8B pair dropped wipe to 0 (alone 43 and 26); hidden totals: pairs 170-172, singles 156-189, base 118 | #pair-collapse; #hidden |
+| 5 | gains by about step 120, flat after | v1 sources (commit 8404da64 message: start_rate, e4/e5/e7 RESULTS, hyak transcripts) |
+| did not work | put-down task from cube in hand: 1 of 640 rollouts succeeded | v1 sources (commit 8404da64) |
+| did not work | training-only note: 22% of training rollouts completed, 0/100 at eval | batch3a-46b913b/b3a_q8fix_M_s1 (8B policy); commit b7a3844d |
+
+## fair-sc-3-trace (2026-10-27, #10/#9; behind PLAYBOOK v16 items 2, 4, 10)
+
+v15->v16 map: old 6 (continue-vs-fresh) folded into item 4; 7->6, 8->7, 9->8, 10->9; new 10 (headroom), 11 (second train with signal), 12 (no-count eval rerun).
+
+Dev-seed/RESULT.json totals from the fair-sc-3 m86 batch (27B, 9 tasks). These are OTHER sessions' numbers (EVIDENCE only; the main claim stays on playbook-off). The gains are per-task lift/stack/wipe.
+
+Item 10 (highest-headroom task) + item 4 (pairs / chaining):
+| cell | total | lift | stack | wipe | arm / pb | how | source |
+|---|---|---|---|---|---|---|---|
+| c09 | 234 | 77 | 59 | 88 | min / ON | chain: stack30 then wipe20 on top; wipe 14->90 | rmin_dev_m86/c09 RESULT.json + transcript T9/T12/T16 |
+| d07 | 168 | 81 | 55 | 30 | min / off | chain v1->v3 (short lift/stack steps), rejected over-specialized v4 | rmin_dev_m86/d07 T15/T23/T38 |
+| c04 | 191 | 81 | 46 | 61 | fixed / off | pair stack15+wipe13 (clean, non-collapsing); pre-committed stack>=42 revert | rmin_dev_m86/c04 T6/T44 |
+| c08 | 175 | 41 | 62 | 62 | fixed / off | v2 chain stack->wipe; lift regressed 67->41 (shipped) | rmin_dev_m86/c08 T107 |
+| d02 | 153 | 86 | 48 | 18 | fixed / ON | trained only lift1+stack1 (two fresh adapters), never wipe; pair collapsed -> shipped lift1 single | rmin_dev_m86/d02 T9/T11/T14/T31 |
+
+Item 2 (eval the final served stack on every task, incl eval-only):
+| cell | submitted | never-evaluated task | outcome | source |
+|---|---|---|---|---|
+| c07 | base+stack30 (served on all 9 tasks) | revstack (dev base 0; SCOREBOARD "untested") | the global adapter regressed the hidden revstack base to 0 (per-task revstack=0) | rmin_dev_m86/c07 SCOREBOARD.md; hidden "35" is task-provided, not re-verified here |
+
+Reading: wipe is the differentiator across the 6 DONE cells (correlation, n=6, not a controlled result) — c09 wipe88->234 top, d02 wipe18->153 bottom. Pair-collapse is adapter-specific (c04's stack15+wipe13 pair did not collapse; d02's lift1+stack1 did), so item 4 keeps "evaluate each alone AND the pair," with chaining unconfirmed (hyak found 8B pairs collapse under an init-adapter confound; 27B pairs did not).
+

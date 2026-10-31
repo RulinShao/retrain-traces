@@ -1,0 +1,8 @@
+{
+  "task": "wipe",
+  "name": "wipe1",
+  "steps": 30,
+  "batch": 8,
+  "seed_start": 810001,
+  "note": "Segment the brown spill, convert its mask to a world x/y extent using the depth image and camera pose, then wipe the entire extent at z = 0.0 with the downward-facing orientation using many short, overlapping back-and-forth strokes in both directions, keeping every movement small."
+}

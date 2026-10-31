@@ -1,0 +1,7 @@
+{
+  "task": "revstack",
+  "name": "rv",
+  "steps": 40,
+  "reward": "shaped",
+  "note": "Use only the listed APIs (there is no z_approach parameter); grasp the green cube, lift it at least 0.2 m above the table, then place it on the red cube at z = red_center_z + red_extent[2]/2 + green_extent[2]/2 with a two-stage descent and finish with open_gripper()."
+}

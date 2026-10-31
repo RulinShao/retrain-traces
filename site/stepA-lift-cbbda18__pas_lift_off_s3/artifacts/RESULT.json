@@ -1,0 +1,109 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "eval_failed: InfraError(\"system eval eval-ef42afc48f49: outcome=infra_error InfraError('eval job 42630376015 state FAILED: 0 cell summaries; ABORT: xid gpu: bus e3:00 on g3128 has 56 kernel Xid 109/31 events; eval cells are EGL-only (EVAL_CELL=1) -> not run here (site retries: job 42630376013 xid on g3128; job 42630376014 xid on g3128) (continued: job 42630376010 xid at 0 of 100 -> job 42630376011; job 42630376011 xid at 0 of 100 -> job 42630376012; job 42630376012 xid at 0 of 100 -> job 42630376013)')\")",
+ "gpu_hours": 11.1,
+ "final_score": null,
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 8.0739,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "0b10c3",
+  "how": "default-loaded-stack",
+  "turn": 15,
+  "confirmed": true,
+  "confirmed_turn": 16,
+  "ended_by": "DONE",
+  "note": "lift33: 33-step GRPO on lift, shaped reward (1.0 task_completed + 0.25*staged partial), dev 86/100 vs base 67/100 on seeds 800001-800100",
+  "policy": "base + lift33 (sha 966a1bfaf09d)"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "2183de583536dbaeb94e225f8c35bee89c66f2cb995a01283990304f2e05e3d7",
+ "suite": {
+  "name": "A-lift",
+  "version": 1,
+  "hash": "sha256:e7e657ad43456c4f",
+  "train": [
+   "lift"
+  ],
+  "eval": [
+   {
+    "cell": "lift",
+    "split": "id"
+   },
+   {
+    "cell": "t1_lift_wide",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_big",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_far",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_small",
+    "split": "near"
+   },
+   {
+    "cell": "stack",
+    "split": "retain"
+   },
+   {
+    "cell": "nut",
+    "split": "retain"
+   },
+   {
+    "cell": "wipe",
+    "split": "retain"
+   },
+   {
+    "cell": "restack",
+    "split": "retain"
+   },
+   {
+    "cell": "twolift",
+    "split": "retain"
+   },
+   {
+    "cell": "handover",
+    "split": "retain"
+   },
+   {
+    "cell": "revstack",
+    "split": "retain"
+   },
+   {
+    "cell": "stackv2",
+    "split": "retain"
+   }
+  ],
+  "splits": {
+   "lift": "id",
+   "t1_lift_wide": "near",
+   "t1_lift_big": "near",
+   "t1_lift_far": "near",
+   "t1_lift_small": "near",
+   "stack": "retain",
+   "nut": "retain",
+   "wipe": "retain",
+   "restack": "retain",
+   "twolift": "retain",
+   "handover": "retain",
+   "revstack": "retain",
+   "stackv2": "retain"
+  }
+ },
+ "artifacts": {
+  "registry": "…/stepA-lift-cbbda18/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

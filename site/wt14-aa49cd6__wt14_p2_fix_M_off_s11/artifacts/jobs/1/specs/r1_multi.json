@@ -1,0 +1,1 @@
+{"task": ["lift","nut","restack","stack","wipe"], "name": "r1_multi", "steps": 10, "batch": 10, "reward": "shaped", "seed_start": 810001}

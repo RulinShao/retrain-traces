@@ -1,0 +1,67 @@
+rc=0
+# Shared skills (new line: retrain_min and retrain_fixed)
+
+Optional, agent-facing scripts and notes. Pass this directory with `--skills skills/shared` to either harness: it is
+copied into the workspace as `skills/optional/` (apart from the mandatory tool docs in `skills/tools/` and
+`skills/trainer/`) and the system prompt gains two lines (where they are; append lessons to playbook_suggestions.md).
+`PLAYBOOK.md` (<= 2,500 characters, versioned) is also inlined into the system prompt under "Playbook
+(skills/optional/PLAYBOOK.md: optional advice from earlier sessions; you may follow or ignore it)"; the session records the version
+(RESULT.json `skills_version`, SCOREBOARD.md header). Nothing else changes; the agent may use, edit or ignore them.
+A skill is a directory with a SKILL.md and, optionally, scripts that run in the workspace with no other service.
+
+| skill | what it does |
+|---|---|
+| `EVIDENCE.md` | the session paths and eval rows behind each confirmed PLAYBOOK.md item, by section |
+| `reward_check/` | `check_reward.py REWARD [--results FILE]`: runs your reward(result) on example (or your own) sim replies and prints the scores |
+
+The other directories under `skills/` (decompose, library, reward_check, snapshot, train_grpo, write_practice,
+write_skill, gateway.py, README.md, ADAPTERS.md) are the frozen old loop's seed skills: they call `skills/gateway.py`,
+which only `retrain/` serves, and they stay in place because `retrain/workspace.py` (SEED) and `envs/` job scripts read
+them by path. See `../OLD_LOOP.md`.
+===REWARD_CHECK===
+SKILL.md
+check_reward.py
+# reward_check: run your reward function before you pay for training
+
+`python3 skills/optional/reward_check/check_reward.py REWARD [--results FILE]` loads `reward(result)` from a .py file or from
+your train spec (inline `def reward` source, or a .py path) and prints its score on three example sim replies (task
+completed, not completed, program crashed), or on replies you provide (`--results`, a JSON list or JSONL).
+
+`result` is the sim service's reply for one rollout: `task_completed`, `reward` (the simulator's staged reward),
+`sandbox_rc`, `seed`, `secs`, `wall_s`, `log_tail`, `task` (also readable as attributes). During training an exception
+in reward() fails the train job. A reward that gives every rollout the same score gives GRPO nothing to learn from.
+Free: it runs locally and sends nothing.
+===PLAYBOOK===
+# Playbook v17a (bet: author a real subtask — own verifier + reachable start)
+version: 17a (2026-10-29; diverse-hints arm #9/#10)
+Hints to TRY, not rules: observation + what to try + a cheap check. Numbers in EVIDENCE.md (not targets); facts in tool docs. Scored vs other arms; losers retire. Edits -> playbook_suggestions.md.
+
+Hints to try:
+1. Shaping the privileged/staged reward hasn't lifted a base-0 task in the recorded runs; most reward.py calls shaped that signal, none authored a new CHECK (EVIDENCE #shaped-0pct, #decomposition). Try one small subtask: your own reward.py over the printed log_tail, from your own prefix-program start; count task_completed before scaling.
+2. On hidden cells only your reward(result) over log_tail is accepted (tools); a silent program scores nothing. Make programs PRINT the poses/observations your sub-goal needs; check the spread with rollout.py --reward first.
+3. A sub-goal lifts the tail only if REACHABLE from your start (EVIDENCE #decomposition). First roll out a few from your start; if none reach the sub-goal state, pick a closer start or easier sub-goal.
+4. A sub-goal beyond the policy stayed flat and the adapter forgot other tasks (EVIDENCE #decomposition). On an all-zero group after a few steps, re-pick instead of training longer, and re-measure earlier skills.
+5. A start-depth MIXTURE per group kept variance alive where one hard start collapsed (EVIDENCE #decomposition). On a sparse task mix easy+hard starts so some rollouts are scorable; check group variance stays nonzero.
+6. reward_check drops a reward paying on an untouched/knocked-over scene or never on a checked success (tools). Run it before paying; a reward equal on every rollout teaches GRPO nothing.
+7. decompose names the failing step, but sub-goals that LEARN have a nonzero base rate (tools). Use it for ideas (free, ~10/session); prefer one already showing a few completions.
+8. A preset-trained skill didn't transfer to from-scratch for free; eval starts from scratch (EVIDENCE #decomposition). Train from a preset only with a schedule shifting starts toward scratch; check from-scratch completions.
+9. A note added only to the training prompt didn't carry to eval (edits prompt text, not the task; EVIDENCE #v15-moved-numbers). Bake it into weights or a sub-goal reward; confirm on held-out dev.
+10. The submitted adapter serves EVERY task; check the final stack on each, incl eval-only/base-0, before finishing (EVIDENCE #fair-sc-3-trace).
+===TASKDIR===
+eval_prompt.txt
+ENVIRONMENT.json
+SCOREBOARD.md
+STATUS.json
+_submit.py
+adapters
+cancel.py
+eval.py
+finish.py
+jobs
+load.py
+skills
+status.py
+tasks
+tasks.json
+train.py
+wait.py

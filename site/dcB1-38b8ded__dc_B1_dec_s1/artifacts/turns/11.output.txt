@@ -1,0 +1,122 @@
+rc=0
+=====dense reward test=====
+"""Dense practice reward (retrain/dense_reward.py; experiments/dense_reward/PREREG.md; WL ruling R-1016-AM).
+usage: python tests/test_dense_reward.py <short scratch path> [--ref REV]
+Offline: stub backend, scripted LLM, no GPU, no simulator, no Slurm. REV (default origin/main) = a build before the switch.
+A. value(): success -> 1.0; otherwise 1 - open_frac clipped to [0, 1 - 0.05]; no reward state -> 0.0 with an error.
+B. verl driver (envs/robocasa/practice/verl_reward.py score_state): a target unit without retrain_dense scores exactly as REV
+   (binary task_completed) on every row; with retrain_dense it scores value(); a reward_fn unit is unchanged by the key.
+C. Session config: RETRAIN_DENSE_REWARD=1 valid for CFD open2 + verl; refused for Tinker, for a target without a registered
+   function, for CaP-X, for the text-only arm, for a stream segment. Every INSTANCES config hash equals REV's (old hashes kept).
+D. Session (closefridgedrawer, open2, stub, RETRAIN_TRAINER_KIND=verl; scripted agent: one practice call on target):
+   switch unset and =0 are byte-identical to REV (request bodies incl. the system prompt, seed files, state.json keys,
+   units/spec.json). ON: request bodies byte-identical to OFF (the system prompt and the policy-facing text do not change);
+   only skills/train_grpo/SKILL.md differs (capability statement, label "dense practice reward"); state.json dense_reward =
+   {version dense-v1, label}.
+E. make_unit('target') of a CFD env (plain and notes-tagged unit): OFF spec.json == REV; ON = the same unit name, its entry =
+   OFF + retrain_dense only (the stub trainer never builds units, so D cannot show this)."""
+import hashlib, importlib.util, json, os, shutil, subprocess, sys
+
+HERE = os.path.dirname(os.path.abspath(__file__)); REPO = os.path.dirname(HERE)
+for _k in ("http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY"):   # the fake LLM listens on 127.0.0.1
+    os.environ.pop(_k, None)
+FAILS = []
+SENTENCE_SHA256 = "ff0991ccdd65cec5358cb95917963fb4004a717784b3aaac3009f077b9ecaf14"   # retrain/dense_reward.py SENTENCE (PREREG)
+CLEAN = ("RETRAIN_DENSE_REWARD", "RETRAIN_GRADED_REWARD", "RETRAIN_STREAM_JSON", "RETRAIN_STREAM_K", "RETRAIN_INHERIT",
+         "RETRAIN_TEXT_CAP", "RETRAIN_HOTSWAP", "RETRAIN_CTX_FILE", "RETRAIN_STATE_ONCE", "RETRAIN_TRAINER_KIND")
+
+
+def check(c, what):
+    print(("PASS " if c else "FAIL ") + what, flush=True)
+    if not c:
+        FAILS.append(what)
+
+
+def tree_sha(d):
+    out = {}
+    for r, _, fs in os.walk(d):
+        for f in fs:
+            p = os.path.join(r, f)
+            if os.path.isfile(p) and "__pycache__" not in p and ".gw.sock" not in p and not f.endswith(".safetensors"):
+                out[os.path.relpath(p, d)] = hashlib.sha256(open(p, "rb").read()).hexdigest()[:16]
+    return dict(sorted(out.items()))
+
+
+# ---------------------------------------------------------------- children (run in REPO or in a worktree of REV)
+def child_solo(scr, out):
+    sys.argv = [sys.argv[0], scr]
+    sys.path.insert(0, HERE); sys.path.insert(0, REPO)
+    import test_stream as TS
+    TS.setup(scr)
+    from test_offline import LLM, args, run_new, tc
+    subprocess.run = TS.fake_validate_rc(); TS.stub_with_peft()
+    root = f"{TS.SCR}/sessions"
+    llm = LLM([TS.R("python3 skills/train_grpo/practice.py --task target --init new --max-steps 1 --out sub1"),
+               TS.R("python3 skills/train_grpo/practice.py wait all"), tc("finish")])
+    rc = run_new(args("rcd", llm.url, root, mode="open2", target="closefridgedrawer", env="robocasa", budget="3840,20"))
+    sd = f"{root}/rcd"; S = json.load(open(f"{sd}/state.json"))
+    D = {"rc": rc, "bodies": llm.bodies, "skills": tree_sha(f"{sd}/ws/skills"), "state_keys": sorted(S),
+         "dense_state": S.get("dense_reward"), "trainer": S.get("trainer"),
+         "spec": json.load(open(f"{sd}/units/spec.json")) if os.path.exists(f"{sd}/units/spec.json") else None,
+         "train_grpo": open(f"{sd}/ws/skills/train_grpo/SKILL.md").read()}
+    open(out, "w").write(json.dumps(D, sort_keys=True, default=str).replace(REPO, "<repo>").replace(TS.SCR, "<scr>"))
+
+
+ROWS = [{"task_completed": True, "state": {"drawer": {"open_frac": 0.01}}},
+        {"task_completed": False, "state": {"drawer": {"open_frac": 0.3}}},
+        {"task_completed": False, "state": {"drawer": {"open_frac": 0.9}}},
+        {"task_completed": False, "state": {"drawer": {"open_frac": 0.02}}},
+        {"task_completed": False, "state": {"drawer": {"open_frac": 1.3}}},
+        {"task_completed": False, "state": None, "state_error": "x"},
+        {"task_completed": True, "state": None, "state_error": "x"}]
+
+
+def child_drivers(scr, out, dense):
+    sys.path.insert(0, REPO)
+    spec = {"CloseFridgeDrawer": {"base": "CloseFridgeDrawer", "description": None, "reward_src": None,
+                                  **({"retrain_dense": "dense-v1"} if dense else {})},
+            "u_rf": {"base": "CloseFridgeDrawer", "reward_src": "def reward_fn(state):\n    return 1 if state['drawer']['open_frac'] < 0.5 else 0\n",
+                     **({"retrain_dense": "dense-v1"} if dense else {})}}
+    sp = f"{scr}/spec_{int(dense)}.json"; json.dump(spec, open(sp, "w"))
+    D = {}
+    for unit in ("CloseFridgeDrawer", "u_rf"):
+        os.environ.update(UNIT=unit, SPEC=sp)
+        m = importlib.util.spec_from_file_location(f"vr_{unit}_{int(dense)}", f"{REPO}/envs/robocasa/practice/verl_reward.py")
+        mod = importlib.util.module_from_spec(m); m.loader.exec_module(mod)
+        D[unit] = [list(mod.score_state(r)) for r in ROWS]
+    open(out, "w").write(json.dumps(D, sort_keys=True))
+
+
+def child_units(scr, out, dense):
+    """make_unit('target') of a CFD env (stub), plain and with notes (tagged target unit): units/spec.json after each."""
+    sys.path.insert(0, REPO)
+    from envs.robocasa import env as RE
+    D = {}
+    for notes in ("", "Push the drawer front with the open gripper."):
+        d = f"{scr}/u_{int(dense)}_{len(notes)}/e9_test_000001"; shutil.rmtree(d, ignore_errors=True); os.makedirs(d)
+        e = RE.RoboCasaEnv("closefridgedrawer", d, mode="stub"); e.bind({}); e.notes = notes
+        if dense:
+            e.dense = True
+        u = e.make_unit("target", None); u2 = e.make_unit("target", None)
+        D[str(len(notes))] = {"unit": u, "again": u2 == u, "spec": json.load(open(e.spec_path))}
+    open(out, "w").write(json.dumps(D, sort_keys=True).replace(REPO, "<repo>"))
+
+
+def child_hashes(scr, out):
+    sys.path.insert(0, REPO)
+    from retrain import session_config as SC
+    D = {}
+    # derived.probe_example (WL R-1017-AT(1)) is versioned explicitly: new configurations hash with it; the comparison with REV is
+    # on the derived keys REV has (the comparison session_config create makes against an existing manifest)
+    _sv = getattr(SC, "SEED_VERSION_KEYS", ("probe_example",))   # + practice_ctl_seed (10-18): seed versions added after REV
+    _h = lambda cfg: SC.config_hash(dict(cfg, derived={k: v for k, v in cfg["derived"].items() if k not in _sv}))
+    for name, (_, a, sw) in sorted(SC.INSTANCES.items()):
+        cfg, errs = SC.build(dict(sw), backend="real", **a)
+        D[name] = _h(cfg) if cfg else ["refused"] + errs
+    open(out, "w").write(json.dumps(D, sort_keys=True))
+
+
+# ---------------------------------------------------------------- parent
+def run_child(repo, kind, scr, out, env=None, *extra):
+    e = {k: v for k, v in os.environ.items() if k not in CLEAN}; e.update(env or {})
+    me = f"{repo}/tests/test_dense_reward.py"

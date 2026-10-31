@@ -1,0 +1,135 @@
+{
+ "status": "DONE",
+ "turns": 43,
+ "gpu_hours": 5.912,
+ "final_score": {
+  "loaded": "lift20",
+  "per_task": {
+   "lift": 90,
+   "t1_lift_wide": 85,
+   "t1_lift_big": 84,
+   "t1_lift_far": 82,
+   "t1_lift_small": 82,
+   "stack": 58,
+   "nut": 0,
+   "wipe": 12,
+   "restack": 0,
+   "twolift": 0,
+   "handover": 2,
+   "revstack": 0,
+   "stackv2": 4
+  },
+  "total": 499,
+  "n_per_task": 100,
+  "submission": "36e1d3",
+  "confirmed": true,
+  "per_split": {
+   "id": 90,
+   "near": 333,
+   "retain": 76
+  }
+ },
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 7.7868,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "36e1d3",
+  "how": "default-loaded-stack",
+  "turn": 41,
+  "confirmed": true,
+  "confirmed_turn": 42,
+  "ended_by": "DONE",
+  "note": null,
+  "policy": "base + lift20 (sha a94b9771930b)"
+ },
+ "skills_version": "7b74a5fa-a57a4058",
+ "initial_skills_digest": "35fd877aa68272c0a5495f5af586cf3d2e74fce96d898c90777cc86aa397d22d",
+ "suite": {
+  "name": "A-lift",
+  "version": 1,
+  "hash": "sha256:e7e657ad43456c4f",
+  "train": [
+   "lift"
+  ],
+  "eval": [
+   {
+    "cell": "lift",
+    "split": "id"
+   },
+   {
+    "cell": "t1_lift_wide",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_big",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_far",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_small",
+    "split": "near"
+   },
+   {
+    "cell": "stack",
+    "split": "retain"
+   },
+   {
+    "cell": "nut",
+    "split": "retain"
+   },
+   {
+    "cell": "wipe",
+    "split": "retain"
+   },
+   {
+    "cell": "restack",
+    "split": "retain"
+   },
+   {
+    "cell": "twolift",
+    "split": "retain"
+   },
+   {
+    "cell": "handover",
+    "split": "retain"
+   },
+   {
+    "cell": "revstack",
+    "split": "retain"
+   },
+   {
+    "cell": "stackv2",
+    "split": "retain"
+   }
+  ],
+  "splits": {
+   "lift": "id",
+   "t1_lift_wide": "near",
+   "t1_lift_big": "near",
+   "t1_lift_far": "near",
+   "t1_lift_small": "near",
+   "stack": "retain",
+   "nut": "retain",
+   "wipe": "retain",
+   "restack": "retain",
+   "twolift": "retain",
+   "handover": "retain",
+   "revstack": "retain",
+   "stackv2": "retain"
+  }
+ },
+ "artifacts": {
+  "registry": "…/setA-827220b/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

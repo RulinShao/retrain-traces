@@ -1,0 +1,36 @@
+rc=0
+# Playbook v17c (bet: measure before you spend — cheap checks + sdft + mixtures)
+version: 17c (2026-10-29; diverse-hints arm #9/#10)
+Hints to TRY, not rules: observation + what to try + a cheap check. Numbers in EVIDENCE.md (not targets); facts in tool docs. Scored vs other arms; losers retire. Edits -> playbook_suggestions.md.
+
+Hints to try:
+1. A base-0 task gives GRPO no gradient; shaping the privileged reward hasn't lifted one (EVIDENCE #shaped-0pct). Before spending, COUNT task_completed (shaped>0 is not a completion); if zero, try a reachable own-verifier subtask or sdft (below), not more shaped steps.
+2. rollout.py --reward FILE gives self_reward per seed for an N-seed eval's cost (tools). Use it to test a reward and measure a sub-goal BEFORE training, and to spot-check an adapter on the task you fear it taxed; a no-count eval says nothing, so rerun a few seeds before dropping an adapter (EVIDENCE #hyak-trace).
+3. The submitted adapter serves EVERY task and can regress one you never evaluated, incl eval-only/base-0 (EVIDENCE #fair-sc-3-trace). Check the FINAL stack on every task before finishing.
+4. Training one task shifts others, and some adapters tax a sibling (EVIDENCE #pin3-trace, #shaped-side-effects). Measure a candidate on the task it most likely taxes before committing.
+5. The trainer has a 2nd objective, sdft (self-distill a text skill; no reward, signal even with no successes) (tools). On a base-0 task try sdft-ing a short text skill of the maneuver, then measure completions; or chain sdft->grpo vs grpo-from-base on equal budget.
+6. sdft runs fixed max steps and reads kl_curve, not a reward (tools). Budget the steps up front; read kl_curve for convergence, not an early stop.
+7. A start-depth MIXTURE per group kept variance alive where a single start collapsed (EVIDENCE #decomposition). On a sparse task mix starts and a graded reward so scores spread; check variance stays nonzero.
+8. Gains flatten; past the peak a run lost its gain (v16 item 5). Read the curve; use --patience/--delta/--target-success/--window so a plateau stops itself.
+9. A preset-start skill didn't transfer to from-scratch eval, and a training-only note didn't carry (edits prompt, not the task; EVIDENCE #decomposition, #v15-moved-numbers). Verify a claimed gain on held-out dev from the eval's own start.
+10. Prefer held-out dev over training-seed scores (v16 item 6); keep the best checked stack loaded so a cut-short session still ships one (v16 item 8).
+=== README ===
+# Shared skills (new line: retrain_min and retrain_fixed)
+
+Optional, agent-facing scripts and notes. Pass this directory with `--skills skills/shared` to either harness: it is
+copied into the workspace as `skills/optional/` (apart from the mandatory tool docs in `skills/tools/` and
+`skills/trainer/`) and the system prompt gains two lines (where they are; append lessons to playbook_suggestions.md).
+`PLAYBOOK.md` (<= 2,500 characters, versioned) is also inlined into the system prompt under "Playbook
+(skills/optional/PLAYBOOK.md: optional advice from earlier sessions; you may follow or ignore it)"; the session records the version
+(RESULT.json `skills_version`, SCOREBOARD.md header). Nothing else changes; the agent may use, edit or ignore them.
+A skill is a directory with a SKILL.md and, optionally, scripts that run in the workspace with no other service.
+
+| skill | what it does |
+|---|---|
+| `EVIDENCE.md` | the session paths and eval rows behind each confirmed PLAYBOOK.md item, by section |
+| `reward_check/` | `check_reward.py REWARD [--results FILE]`: runs your reward(result) on example (or your own) sim replies and prints the scores |
+
+The other directories under `skills/` (decompose, library, reward_check, snapshot, train_grpo, write_practice,
+write_skill, gateway.py, README.md, ADAPTERS.md) are the frozen old loop's seed skills: they call `skills/gateway.py`,
+which only `retrain/` serves, and they stay in place because `retrain/workspace.py` (SEED) and `envs/` job scripts read
+them by path. See `../OLD_LOOP.md`.

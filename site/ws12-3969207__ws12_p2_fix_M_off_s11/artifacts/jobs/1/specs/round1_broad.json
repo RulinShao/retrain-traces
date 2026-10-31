@@ -1,0 +1,8 @@
+{
+  "name": "broad1",
+  "task": ["lift", "stack", "wipe"],
+  "steps": 15,
+  "batch": 12,
+  "reward": "task_completed",
+  "seed_start": 810001
+}

@@ -1,0 +1,89 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "eval_failed: InfraError(\"system eval eval-6b05e4c43491: outcome=infra_error InfraError('eval job 42608146010 state FAILED: 0 cell summaries; ABORT: xid gpu: bus c3:00 on g3126 has 662 kernel Xid 109/31 events; eval cells are EGL-only (EVAL_CELL=1) -> not run here (site retries: job 42608146008 xid on g3126; job 42608146009 xid on g3126) (continued: job 42608146005 xid at 0 of 100 -> job 42608146006; job 42608146006 xid at 0 of 100 -> job 42608146007; job 42608146007 xid at 0 of 100 -> job 42608146008)')\")",
+ "gpu_hours": 7.798,
+ "final_score": null,
+ "agent": "local",
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 7.5792,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "497b96",
+  "how": "default-loaded-stack",
+  "turn": 24,
+  "confirmed": true,
+  "confirmed_turn": 25,
+  "ended_by": "DONE",
+  "note": null,
+  "policy": "base + w1 (sha a69bf70a189c)"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "2183de583536dbaeb94e225f8c35bee89c66f2cb995a01283990304f2e05e3d7",
+ "suite": {
+  "name": "A-wipe",
+  "version": 1,
+  "hash": "sha256:4fb8a45ea23da069",
+  "train": [
+   "wipe"
+  ],
+  "eval": [
+   {
+    "cell": "wipe",
+    "split": "id"
+   },
+   {
+    "cell": "lift",
+    "split": "retain"
+   },
+   {
+    "cell": "stack",
+    "split": "retain"
+   },
+   {
+    "cell": "nut",
+    "split": "retain"
+   },
+   {
+    "cell": "restack",
+    "split": "retain"
+   },
+   {
+    "cell": "twolift",
+    "split": "retain"
+   },
+   {
+    "cell": "handover",
+    "split": "retain"
+   },
+   {
+    "cell": "revstack",
+    "split": "retain"
+   },
+   {
+    "cell": "stackv2",
+    "split": "retain"
+   }
+  ],
+  "splits": {
+   "wipe": "id",
+   "lift": "retain",
+   "stack": "retain",
+   "nut": "retain",
+   "restack": "retain",
+   "twolift": "retain",
+   "handover": "retain",
+   "revstack": "retain",
+   "stackv2": "retain"
+  }
+ },
+ "artifacts": {
+  "registry": "…/stepA-cbbda18/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

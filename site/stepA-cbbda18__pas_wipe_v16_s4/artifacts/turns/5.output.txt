@@ -1,0 +1,91 @@
+rc=0
+## pin3-trace (2026-10-28, [trace] pass, pin-3 g-cells; behind PLAYBOOK v16 items 4 + 10)
+
+Dev-seed numbers from the pin-3 8-cell factorial (27B, tree d2c27d11, batch label pin3). **Dev-only** (all cells bricked post-resume → no hidden scores this batch). EVIDENCE only; the main claim stays on playbook-off.
+
+**Item 4 — chain > pair to combine skills** (confirms the v16 "(unconfirmed)" clause):
+| cell | arm / pb | chain or pair | result (dev) | source |
+|---|---|---|---|---|
+| g03 | fix_S / off | chain base->stack10->wipe20 | stack 63 / wipe 88 | rmin_dev_pin3/g03 |
+| g04 | fix_S / on | chain stack1->wipe | stack 61 / wipe 80 | g04 |
+| g05 | min_M / off | pair wipe_a+lift_a | lift 55 (alone 82, base 77) / wipe 50 (alone 60) | g05 |
+| g02 | fix_M / on | pair wipe15+lift15 | wipe 65 (alone 80) | g02 |
+| g01 | fix_M / off | **confound-free, same cell:** chain wipe_a->wipe_b vs pair stack_a+wipe_a | wipe **67 (chain) vs 50 (pair)** | g01 |
+
+Pairs dropped a component in every multi-adapter cell; chains kept both. Caveat: a long 2nd-skill train on a chain erodes the 1st — g08 (min_S/on) v3 (wipe2, 20 steps) dropped stack 60->30; keep chained trains short and re-measure the earlier skill. (Extends #pair-collapse: the 8B pairs collapsed under an init-adapter confound; these 27B dev pairs degrade too.)
+
+**Item 10 — highest-headroom task; stack's revstack tax** (confirms v16 "(unconfirmed)"):
+- **Wipe** (base 20%, highest-headroom trainable cube task) -> **52-95% dev across all 8 cells, no cross-task regression** (g01 67, g03 88, g04 80, g05 60, g06 72, g07 95, g08 90) — drove every top cell.
+- **Stack training carries a measured revstack tax: +~9 stack / -32..-35 revstack** (over-fits the red cube; revstack wants green): g01 T31 (-35, "over-fit to red"), g05 T26 (-35), g06 st30 revstack 35->3. A stack-only adapter can be net below base on the 9-task sum (g06 st30 dev 166 < base 190).
+
+## decomposition — what a practice sub-goal did and did not do (2026-10-29, #10; staged-reward + start-preset + stage-wise curriculum arc)
+
+On the zero-signal tasks (nut, restack) the binary task-completion reward is all-zero across a GRPO group, so there is no gradient. A sub-goal practice reward + a start-state preset can supply one. What the runs showed (DEV / Qwen3.8-27B; all paths under `$R/pskills/rl/capx_rl/runs/`):
+
+**A REACHABLE sub-goal unlocks the tail.** restack trained FROM a lifted start preset (red grasped+lifted; train align->place) under a staged reward on the tail: binary completions 3/64 -> 8/64, nonzero 13 -> 20/64 over 25 GRPO steps (`train_13962063`). The align->place tail is reachable from lifted, so the policy learns it.
+
+**A sub-goal BEYOND the policy does nothing, and aiming at one wastes capacity.** nut trained FROM a grasped start preset (train align->insert) was completely FLAT — binary 0, nonzero 0, mean 0.0 across all 25 steps (`train_13962061`): nut-align is beyond the 27B policy even from the closest (grasped) start. A nut adapter aimed at align also caused FORGETTING (net-negative: dev lift 77->66, stack 54->51, no gain). Lesson: a staged reward needs a REACHABLE sub-goal; aiming beyond the policy wastes capacity and forgets.
+
+**The preset gain does NOT transfer to from-scratch for free.** Continuing from the preset-trained adapter but training FROM SCRATCH (full chain, no preset) gave 0 from-scratch binary on both: restack hill-climbs to the single easiest sub-goal (unstack, depth-1 54/64) and the within-group variance COLLAPSES 0.015 -> 0.006 -> no gradient past the first barrier (`train_13974952`); nut climbs to reach+grasp (staged 0.027 -> 0.301) but never align/insert (`train_13974953`). Standard dev eval confirms: base restack s4v2 0/100 -> from-scratch adapter 0/100; base nut 0/100 -> 1/100 (noise). The tail-knowing init does not help because the tail state is never reached from scratch.
+
+**Keeping variance alive across a depth MIXTURE is the lever.** A mixed start-state pool (per-GRPO-group mixture of lifted/grasped/scratch, full-chain staged reward so scores SPREAD across depths) keeps within-group variance ALIVE where from-scratch collapsed: restack phase A held var ~0.08 (vs 0.006), staged_mean climbed 0.23 -> 0.35, and the grasped start went from 96% -> 54% program-failure (the curriculum taught it, reaching depth 3-4). Scratch-start was still at the unstack barrier (0 from-scratch binary) as of phase A; the shift-toward-scratch schedule (phases B/C) is in progress (`train_13989823`; mixes under `$R/artifacts/start_presets/mixes/`).
+
+**THE KEY TEST-TIME (B2) LESSON: shaping on the privileged reward is NOT a subtask.** Everything above used the DEV-mode privileged path (the simulator's privileged staged reward + registry presets). That path proves the mechanism but is not a capability the model keeps at test time. In hyak records only 22/344 practice calls defined a reward.py, and every sampled one was "task_completed else a small weight on the simulator's STAGED (privileged) reward" = shaping on the privileged signal, never a new sub-goal CHECK; 0/344 used a start preset. The capability exists; the behaviour does not — no session has authored a real subtask with its own verifier. And nothing blocks it: `retrain_min/site/fairsc3_jobs.py` (the hidden-task guard) already FAILS CLOSED on a privileged reward (task_completed/shaped) for a hidden cell, so on hidden cells the ONLY allowed reward is the agent's own `reward.py` (over `log_tail`). The gap is purely authoring friction. A real subtask = the agent's own reward.py parsing the program's PRINTED observations from log_tail + its own start from its own (non-privileged) prefix program + a note naming the sub-goal. The evidence shows decomposition works WHEN the sub-goal is reachable and verified; the non-privileged authoring is what makes it a B2 capability rather than a dev-phase trick. (Gotcha core-dev caught, #9/PR #275: the practice `log_tail` had leaked the runner's trailing `Reward:`/`Task Completed:` verifier lines on hidden cells — a B2 reward.py must parse ONLY the program's own prints, never those; #275 cuts them on the practice path so the self-reward result is clean.)
+
+**Stage-wise mixture result (phases A->B->C complete, 2026-10-29): the barrier MOVES from stage 1 to the final stage, but the final precise manipulation stays the wall — on BOTH tasks.** Running the full shift-toward-scratch schedule (restack lifted/grasped/scratch -> grasped/scratch; nut grasped/reached/scratch -> reached/scratch; full-chain staged reward throughout) moved the from-scratch policy up the chain stage by stage. restack FROM SCRATCH went from the naive depth-1 unstack plateau (54/64, var collapsed 0.015->0.006) to reliably reaching ALIGN (phase C: depth-3 820/1280 = 64%, depth-4 16) — i.e. unstack->grasp->lift->align, 4 of 5 stages, from scratch — but the FINAL place (ON) never completes: 0 from-scratch binary in training AND `restack from-scratch DEV eval 0/100` (base 0/100). nut FROM SCRATCH reaches grasp reliably (phase C depth-2 1049/1281) and NICKED insert twice (2/1281 in-training = 0.16%, noise floor); `nut from-scratch DEV eval 1/100` (base 0/100). The restack(0)/nut(noise-floor) split is NOT "nut unlocks, restack doesn't" — both final precise stages sit right at the edge of crossable, and nut happened to nick it this run. MECHANISM for the residual wall: within-group variance COLLAPSES at the deepest reliably-reached stage (restack phase C var 0.059->0.02 as scores cluster at align=0.6), so the gradient to push the LAST stage weakens exactly where it is needed; and the final phase dropped the deepest preset (lifted/grasped) so the clean-start final-stage skill (the single-preset restack-from-lifted that gave binary 8/64) is no longer reinforced. So: decomposition via a depth-mixture curriculum UNLOCKS the chain up to the last precise manipulation stage from scratch, but the final precise place/insert is the residual barrier.
+
+**Transfer (8-task forgetting, phase-C adapters, DEV):** the restack chain-practice adapter is a BETTER GENERALIST, not a forgetter — wipe 20->49 (+29), stack 54->61 (+7), twolift/handover 1->3, nut 0->0, only lift 77->64 (-13). (Contrast the single-preset nut-align adapter, which was net-negative.) nut phase-C transfer: lift 77->61 (-16), stack 54->59 (+5), wipe 20->29 (+9), restack 0->0 (flat), twolift/handover 1->0 (noise). A weaker generalist than the restack adapter, consistent with nut getting less far up its chain. So chain-practice that unlocks most of a zero-signal task's chain can produce broadly transferable manipulation skill even without the task's own binary.
+===
+SKILL.md
+---
+name: retrain-tools
+description: Submit training and evaluation jobs, inspect results, and select the policy to score.
+---
+
+# Environment tools
+
+Read `ENVIRONMENT.json` for the site's policy, adapter composition and enforced constraints, and `tasks.json`
+for task details. `STATUS.json` contains the latest budget, loaded stack, adapters and running job IDs.
+`SCOREBOARD.md` has dev scores and lineage. While a train or eval is submitted, `jobs/<id>.json` (`progress`, `progress_line`; `status.py`),
+STATUS.json (`job_progress`) and the scoreboard show whether it is queued (not started, with its queue time so far) or running, and for a
+running train its completed steps, latest mean reward and GPU-hours so far, as the site reports them. `tasks/<task>/eval_prompt.txt` (when
+the site provides it) is the prompt the policy receives at evaluation; training prompts are checked against it. `tasks/INDEX.md` lists each task's goal line, dev and
+hidden seed ranges, recorded base score, API names and key rules, taken from tasks.json, the eval prompts and the base scores. State comes from the environment; this skill is editable guidance.
+
+| Command | Effect |
+| --- | --- |
+| `python3 train.py SPEC` | Submit JSON/YAML spec to the installed trainer; see `skills/trainer/SKILL.md`. |
+| `python3 eval.py --adapter A[,B...]\|base\|loaded --task T --seeds N` | Evaluate on the next N unused dev seeds (the result lists them; the base column has its own) with the task's `tasks/<task>/eval_prompt.txt` verbatim (no training `note`/`goal`; the final score uses the same prompt). A stack's score on a task is known only from an eval of that stack (`--adapter A,B`); neither the scoreboard nor the environment derives it from its adapters' single scores. `loaded` is the stack loaded when the request is picked up, so not an adapter whose train is still running. Results are written only when all seeds finish, so an eval that reaches its time limit usually fails with no count (rarely: a count over the seeds that finished, with `partial`). Where the site can resume an eval (eval port dq-t1v2), an eval stopped by the cluster (time limit, preemption, node failure) continues its remaining seeds in a new Slurm job, at most 3 times; its status then says `continued from seed k in job J`, and its result lists every Slurm job (`jobs`) and each continuation (`continued`: `job` stopped, `cause`, `from` seed, `of` seeds, `continued_in` job), as it lists site retries. |
+| `python3 load.py load A [B...]` | Replace the loaded stack (names separated by spaces; eval.py separates them by commas). |
+| `python3 load.py stack A [B...]` | Append to the loaded stack. |
+| `python3 load.py unload [A...]` | Remove names, or return to base with no names. |
+| `python3 status.py [ID...]` | Read job states and results; no IDs shows all jobs. The last line states what finishing now would score. |
+| `python3 wait.py all\|ID... [--max 4h\|90m]` | Submit a wait barrier: your next turn starts when those jobs finish or after `--max` (default 2h), whichever comes first. If the bound comes first, the result states each job's queue state, reason, position and time pending, and "no job finished". The barrier runs in the environment after your command returns, so `--max` is not limited by the per-command time limit. |
+| `python3 finish.py [--policy base \| --adapters A[,B...]] [--note TEXT]` | Step one of ending the session: submit the policy to score (no policy arguments: the loaded stack; single mode: `current`, `v<k>` or `current@<k>`). The result states exactly what will be scored and a token. |
+| `python3 finish.py --confirm TOKEN` | Step two, in a later turn: end the session; the submission is scored. |
+| `python3 cancel.py ID` | Stop a running train or eval. A train keeps the adapter of its last saved step (if the site saved one), registered with the steps it ran; the job is charged the GPU time it used. |
+
+Scripts submit request files and return IDs. Shell success means submission, not job success. In the chat backend,
+requests are handled only after the entire command returns: `train.py spec.json; wait.py all; load.py load a1`
+queues a dependency chain, but reading status later in that same shell still sees the old state. The Codex backend has a background executor; request processing and status refresh happen independently.
+Read `jobs/<id>.json` or the next observation to distinguish done, failed and refused requests.
+
+Training names are reserved while pending. Training does not load an adapter in library mode; single mode automatically
+replaces and loads `current`. When ENVIRONMENT.json `constraint` names versions, every successful train is a new version
+v1, v2, ... (`current` = the latest) and becomes active; `load.py load v<k>` makes an earlier version active again,
+`eval.py --adapter v<k>` evaluates one, the next train starts from the active version, and versions are never stacked.
+Adapter composition depends on the site. Load calls are free. Train/dev calls reserve the
+site's cost estimate at admission and are charged the site's cost per call (skills/trainer/SKILL.md, Cost); the
+reservation is admission control, not a hard runtime cutoff.
+
+Successful training returns an adapter path, a skills digest, and site-provided training metadata when available.
+`training.json` in the adapter contains site-resolved parameters and artifact names. `site_sources` identifies the site
+code, not the complete external GPU/software environment. A skill edit alone does not change the installed trainer.
+
+Ending the session takes two steps: `finish.py` submits a policy and its result states exactly what will be scored
+(adapters with version and weights sha, eval-prompt hash) and a token; `finish.py --confirm TOKEN` in a later turn ends the
+session. Until then the session goes on; a `load.py` or `train.py` request in between cancels the submission (submit
+again). An unknown adapter name refuses the submission. The submission is scored even if a different stack is loaded at
+the end. If the session ends without a confirmation (budget, caps), the pending submission is scored, else the loaded
+stack. Submitted jobs finish before the score. A file named `DONE` starts the two-step finish like `finish.py` with no
+arguments: it submits the loaded stack (the file is removed); the session ends only after `finish.py --confirm TOKEN`.

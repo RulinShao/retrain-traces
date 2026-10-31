@@ -1,0 +1,215 @@
+rc=0
+=== lift_a rewards.json ===
+[
+ {
+  "step": 1,
+  "score_mean": 0.5,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 14,
+   "task": 18
+  }
+ },
+ {
+  "step": 2,
+  "score_mean": 0.65625,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 9,
+   "task": 13
+  }
+ },
+ {
+  "step": 3,
+  "score_mean": 0.515625,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 3,
+   "task": 28
+  }
+ },
+ {
+  "step": 4,
+  "score_mean": 0.59375,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 1,
+   "task": 25
+  }
+ },
+ {
+  "step": 5,
+  "score_mean": 0.625,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 4,
+   "task": 20
+  }
+ },
+ {
+  "step": 6,
+  "score_mean": 0.671875,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 4,
+   "task": 17
+  }
+ }
+]
+=== stack_a rewards.json ===
+[
+ {
+  "step": 1,
+  "score_mean": 0.328125,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 12,
+   "task": 31
+  }
+ },
+ {
+  "step": 2,
+  "score_mean": 0.359375,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 15,
+   "task": 26
+  }
+ },
+ {
+  "step": 3,
+  "score_mean": 0.453125,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 9,
+   "task": 26
+  }
+ },
+ {
+  "step": 4,
+  "score_mean": 0.40625,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 15,
+   "task": 23
+  }
+ },
+ {
+  "step": 5,
+  "score_mean": 0.421875,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 3,
+   "task": 34
+  }
+ },
+ {
+  "step": 6,
+  "score_mean": 0.46875,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 8,
+   "task": 25,
+   "timeout": 1
+  }
+ },
+ {
+  "step": 7,
+  "score_mean": 0.4375,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 7,
+   "task": 29
+  }
+ },
+ {
+  "step": 8,
+  "score_mean": 0.421875,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 5,
+   "task": 32
+  }
+ },
+ {
+  "step": 9,
+  "score_mean": 0.546875,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 5,
+   "task": 24
+  }
+ },
+ {
+  "step": 10,
+  "score_mean": 0.515625,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 3,
+   "task": 28
+  }
+ },
+ {
+  "step": 11,
+  "score_mean": 0.578125,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 6,
+   "task": 21
+  }
+ },
+ {
+  "step": 12,
+  "score_mean": 0.546875,
+  "zero_variance_frac": 0.0,
+  "failure_stages": {
+   "program": 3,
+   "task": 26
+  }
+ }
+]
+=== call.json gpu charge / LoRA-B ===
+-- lift_a --
+gpu_hours(canonical): 3.464 | actual: 1.2783 | nonzero_lora_b: None | keys: ['jobs', 'gpu_hours', 'gpu_hours_actual', 'train_gpus', 'lora_b', 'sim_seeds', 'adapter']
+-- stack_a --
+gpu_hours(canonical): 4.307 | actual: 2.5361 | nonzero_lora_b: None | keys: ['jobs', 'gpu_hours', 'gpu_hours_actual', 'train_gpus', 'lora_b', 'sim_seeds', 'adapter']
+
+=== SCOREBOARD (head) ===
+# SCOREBOARD
+
+playbook: none
+agent: local
+mode: dev
+dev seeds: from 800001
+policy: Qwen3.8-27B
+
+Dev-seed success count per task x adapter stack (k/n = rate): the eval with the most seeds (equal n: the newest); smaller evals are in History and the job records. Adapter cells also give the base column's rate at the same n; `untested` = no eval of that stack on that task yet.
+
+| task | base | lift_a | stack_a |
+|---|---|---|---|
+| lift | 67/100 = 67% | untested | untested |
+| stack | 51/100 = 51% | untested | untested |
+| nut | 0/100 = 0% | untested | untested |
+| wipe | 16/100 = 16% | untested | untested |
+| restack | 0/100 = 0% | untested | untested |
+| twolift | 1/100 = 1% | untested | untested |
+| handover | 2/100 = 2% | untested | untested |
+| revstack | 0/100 = 0% | untested | untested |
+| stackv2 | 1/100 = 1% | untested | untested |
+
+GPU-hours: 7.771 spent, 3.922 remaining of 16.0 (1 job(s) running)
+Expected cost per call (the estimate checked against what remains): train.py (1 step 2.76, 10 steps 4.03, 50 steps 9.65) GPU-h; eval.py per task (5 seeds 0.36, 20 seeds 0.38, 100 seeds 0.48) GPU-h
+Loaded on your serving endpoint: base
+Submitted: none (python3 finish.py submits a policy)
+
+## Adapters
+
+| name | init | steps | spec | state |
+|---|---|---|---|---|
+| lift_a | base | 6 | specs/lift_a.json | trained |
+| stack_a | base | 12 | specs/stack_a.json | trained |
+
+## History (latest 30)
+
+- train lift_a (init base, steps 6): trained
+- train stack_a (init base, steps 12): trained

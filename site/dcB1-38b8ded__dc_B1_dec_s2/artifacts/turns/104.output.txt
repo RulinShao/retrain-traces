@@ -1,0 +1,65 @@
+rc=0
+===TOOLS SKILL===
+---
+name: retrain-tools
+description: Submit training and evaluation jobs, inspect results, and select the policy to score.
+---
+
+# Environment tools
+
+Read `ENVIRONMENT.json` for the site's policy, adapter composition and enforced constraints, and `tasks.json`
+for task details. `STATUS.json` contains the latest budget, loaded stack, adapters and running job IDs.
+`SCOREBOARD.md` has dev scores and lineage. While a train or eval is submitted, `jobs/<id>.json` (`progress`, `progress_line`; `status.py`),
+STATUS.json (`job_progress`) and the scoreboard show whether it is queued (not started, with its queue time so far) or running, and for a
+running train its completed steps, latest mean reward and GPU-hours so far, as the site reports them. `tasks/<task>/eval_prompt.txt` (when
+the site provides it) is the prompt the policy receives at evaluation; training prompts are checked against it. `tasks/INDEX.md` lists each task's goal line, dev and
+hidden seed ranges, recorded base score, API names and key rules, taken from tasks.json, the eval prompts and the base scores. State comes from the environment; this skill is editable guidance.
+
+| Command | Effect |
+| --- | --- |
+| `python3 train.py SPEC` | Submit JSON/YAML spec to the installed trainer; see `skills/trainer/SKILL.md`. |
+| `python3 eval.py --adapter A[,B...]\|base\|loaded --task T --seeds N` | Evaluate on the next N unused dev seeds (the result lists them; the base column has its own) with the task's `tasks/<task>/eval_prompt.txt` verbatim (no training `note`/`goal`; the final score uses the same prompt). A stack's score on a task is known only from an eval of that stack (`--adapter A,B`); neither the scoreboard nor the environment derives it from its adapters' single scores. `loaded` is the stack loaded when the request is picked up, so not an adapter whose train is still running. Results are written only when all seeds finish, so an eval that reaches its time limit usually fails with no count (rarely: a count over the seeds that finished, with `partial`). Where the site can resume an eval (eval port dq-t1v2), an eval stopped by the cluster (time limit, preemption, node failure) continues its remaining seeds in a new Slurm job, at most 3 times; its status then says `continued from seed k in job J`, and its result lists every Slurm job (`jobs`) and each continuation (`continued`: `job` stopped, `cause`, `from` seed, `of` seeds, `continued_in` job), as it lists site retries. |
+| `python3 load.py load A [B...]` | Replace the loaded stack (names separated by spaces; eval.py separates them by commas). |
+| `python3 load.py stack A [B...]` | Append to the loaded stack. |
+| `python3 load.py unload [A...]` | Remove names, or return to base with no names. |
+| `python3 status.py [ID...]` | Read job states and results; no IDs shows all jobs. The last line states what finishing now would score. |
+| `python3 wait.py all\|ID... [--max 4h\|90m]` | Submit a wait barrier: your next turn starts when those jobs finish or after `--max` (default 2h), whichever comes first. If the bound comes first, the result states each job's queue state, reason, position and time pending, and "no job finished". The barrier runs in the environment after your command returns, so `--max` is not limited by the per-command time limit. |
+| `python3 finish.py [--policy base \| --adapters A[,B...]] [--note TEXT]` | Step one of ending the session: submit the policy to score (no policy arguments: the loaded stack; single mode: `current`, `v<k>` or `current@<k>`). The result states exactly what will be scored and a token. |
+| `python3 finish.py --confirm TOKEN` | Step two, in a later turn: end the session; the submission is scored. |
+| `python3 cancel.py ID` | Stop a running train or eval. A train keeps the adapter of its last saved step (if the site saved one), registered with the steps it ran; the job is charged the GPU time it used. |
+
+Scripts submit request files and return IDs. Shell success means submission, not job success. In the chat backend,
+requests are handled only after the entire command returns: `train.py spec.json; wait.py all; load.py load a1`
+queues a dependency chain, but reading status later in that same shell still sees the old state. The Codex backend has a background executor; request processing and status refresh happen independently.
+Read `jobs/<id>.json` or the next observation to distinguish done, failed and refused requests.
+
+Training names are reserved while pending. Training does not load an adapter in library mode; single mode automatically
+replaces and loads `current`. When ENVIRONMENT.json `constraint` names versions, every successful train is a new version
+v1, v2, ... (`current` = the latest) and becomes active; `load.py load v<k>` makes an earlier version active again,
+`eval.py --adapter v<k>` evaluates one, the next train starts from the active version, and versions are never stacked.
+Adapter composition depends on the site. Load calls are free. Train/dev calls reserve the
+site's cost estimate at admission and are charged the site's cost per call (skills/trainer/SKILL.md, Cost); the
+reservation is admission control, not a hard runtime cutoff.
+
+Successful training returns an adapter path, a skills digest, and site-provided training metadata when available.
+`training.json` in the adapter contains site-resolved parameters and artifact names. `site_sources` identifies the site
+code, not the complete external GPU/software environment. A skill edit alone does not change the installed trainer.
+
+Ending the session takes two steps: `finish.py` submits a policy and its result states exactly what will be scored
+(adapters with version and weights sha, eval-prompt hash) and a token; `finish.py --confirm TOKEN` in a later turn ends the
+session. Until then the session goes on; a `load.py` or `train.py` request in between cancels the submission (submit
+again). An unknown adapter name refuses the submission. The submission is scored even if a different stack is loaded at
+the end. If the session ends without a confirmation (budget, caps), the pending submission is scored, else the loaded
+stack. Submitted jobs finish before the score. A file named `DONE` starts the two-step finish like `finish.py` with no
+arguments: it submits the loaded stack (the file is removed); the session ends only after `finish.py --confirm TOKEN`.
+
+## policy_sample.py (this session)
+
+`python3 policy_sample.py --task T --n N [--adapters loaded|A,B...] [--rollout] [--seed S]` samples N programs the policy writes
+for task T, each from the request an eval sends (the task's `tasks/T/eval_prompt.txt`, thinking off, the eval's sampling) on one
+seed; `--adapters` is the loaded stack (default) or a stack of trained adapters served for this call only. Without `--rollout`
+it returns the programs on seeds S..S+N-1 (default: the next N unused dev seeds) and is not charged; with `--rollout` each
+program runs once in the simulator on the next N unused dev seeds, charged as an eval of N seeds and never part of the
+scoreboard or the final score. It writes `samples/<id>.jsonl`, one row per seed: `task`, `adapters`, `prompt_ref`, `seed`,
+`program`, and with `--rollout` also `reward` (the eval's success on that seed, 0 or 1) and `log_tail` (the tail of what the
+program printed).
