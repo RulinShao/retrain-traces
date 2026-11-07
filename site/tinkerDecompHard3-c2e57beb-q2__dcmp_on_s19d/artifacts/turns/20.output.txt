@@ -1,0 +1,66 @@
+rc=0
+| `objective` | string | `grpo` | `grpo` (the practice call above) or `sft` (supervised fine-tuning on your own demonstrations: see SFT below; its spec has `data` and the fields of that section only) |
+| `epochs` | integer | 1 | `objective: sft` only: passes over the kept rows |
+| `min_reward` | number | 1.0 | `objective: sft` only: rows with `reward` >= this are trained on, the others dropped (a filter, never a weight) |
+| `stop_when` | object | none (all `steps` run) | optional early stop: see Early stop below |
+
+A continuation (`init` = an earlier adapter) practises on fresh seeds by default: its lineage's next unused block, recorded in `call.json` as `lineage`, `seed_cursor` (the block allocated) and `seeds_consumed` (the seeds the rollouts actually used). Fresh means the next draw from the same seed space, not a chosen difficulty; set `seed_start` or `seeds` to replay.
+
+Scenes of a call: one train already covers steps×batch×rollouts distinct scenes; set `seeds` to spread scenes or `seed_start` past the parent's range when continuing; sequential continuation remains allowed. `call.json` of a call with `seeds` records them as `seeds` in range form.
+
+## Training data (`data`)
+`data` names a JSONL file in your workspace (a path relative to the workspace, or absolute inside it): one line per training
+prompt, `{"task": ..., "seed": ..., "variant": ..., "prompt": ...}` (`variant` and `prompt` optional, no other keys):
+- `task`: a trainable task. `variant`: another trainable task of the same simulator task (e.g. `stack` with variant `revstack`; revstack runs under a scene shift and practises alone, so a dataset with revstack rows has no rows of any other task); the row then
+  trains on `variant`. Any mixture of tasks and variants is allowed.
+- `seed`: an integer >= 810001 (seeds 1-100 are the final score's, 800001-809999 are eval.py's dev seeds); all `rollouts`
+  rollouts of the row run on that seed.
+- `prompt`: replaces the task's user message for that row only (the system message stays). A row without `prompt` trains on
+  the task's eval prompt, checked byte for byte before training; a row with `prompt` is not checked and counts as a prompt
+  override, a method choice recorded with the adapter (`data.prompt_overrides` and `data.label` in training.json).
+- Rows train in file order, `batch` rows per step: the row count must be a multiple of `batch`, and the call runs
+  rows / batch steps (omit `steps`, or give that number). The call's tasks come from the rows (omit `task`); `note` and
+  `goal` are not accepted with `data`. At most 4096 rows, 16 MB, 65536 characters per `prompt`.
+- The file is copied when the call starts; training.json's `resolved_spec.data` and the train's result (`config.data`) record
+  its `sha256`, `rows`, rows per task (`tasks`) and `prompt_overrides`.
+
+## SFT (`objective: sft`)
+A spec `{"objective": "sft", "data": "<file>.jsonl"}` (optional: `name`, `init`, `epochs` (1), `batch` (16 rows per step), `lr`
+(1e-4), `min_reward` (1.0), `time`; no other field) trains the policy's LoRA by supervised fine-tuning (cross-entropy on the program's
+tokens only; LoRA rank 32 / alpha 64 on the policy's modules, or `init` continued; without `init` it continues the policy's own init,
+as a practice call does). It runs on the small policy profiles (SCOREBOARD.md's `policy:` line names one, e.g. Qwen3-8B).
+Availability is per policy profile: the session's turn-0 facts state it (`train objectives for this session's policy (...)`).
+- Each line of `data` is `{"task": ..., "seed": ..., "prompt": [{"role": "system" | "user", "content": ...}, ...], "program": ..., "reward": ...}`
+  (exactly these keys): `task` a trainable task (a hidden task by the name you see), `prompt` the chat the program answers (the user
+  message last; `tasks/<task>/eval_prompt.txt` as messages is the eval prompt of record), `program` the response trained on, `reward`
+  a number used only as the `min_reward` filter.
+- `seed` is the scene the program ran on: seeds 1-100 (the final score's) and 800001-809999 (eval.py's dev seeds) are refused, so
+  no reading you or the final score take is on a scene the policy was fitted on.
+- A kept row whose prompt is not the task's eval prompt of record is a prompt override (a method choice): counted in
+  `data.prompt_overrides` and labelled, as `note`/`goal` are.
+- Steps = ceil(kept rows x epochs / batch); rows train in a fixed shuffled order; a row longer than 4096 tokens is dropped (`call.json`
+  `sft_facts.dropped_too_long`). At most 20000 rows, 256 MB, 65536 characters per message or program.
+- Building the file: `python3 skills/trainer/sft_rows.py practice adapters/<name> [--min-reward 1] [--steps 3-5] > sft.jsonl` takes a
+  finished practice call's rollouts (Output below); `python3 skills/trainer/sft_rows.py rollouts rollouts/<id>.jsonl [--min-reward 1] > sft.jsonl`
+  takes rollout.py rows (reward = your self_reward). Both print why each dropped row was dropped.
+- Output: `adapters/<name>/` with the adapter, `sft_log.json` (per step: `step`, `loss`, `grad_norm`, `tokens`), `call.json` and
+  `training.json` (`resolved_spec.data`: `sha256` of your file, `rows`, `kept`, rows per task, `min_reward`, `prompt_overrides`); the
+  train's result shows the same under `config.data`. A cancel or a cluster stop keeps nothing (the adapter is saved at the end).
+- Cost: 1 GPU x (0.05 + 0.000695 x steps x batch) canonical GPU-hours (the admission estimate counts every row of the file).
+
+## Early stop (`stop_when`)
+Optional. `{"plateau_steps": K, "min_gain": g}` stops the call once K steps in a row pass without the smoothed reward rising more
+than g above its best so far; `{"reward_at_least": r}` stops it once the smoothed reward reaches r; with both, the first that
+holds stops it. The smoothed reward is the mean `score_mean` of the last 3 steps, so neither can stop a call before step 3
+(a call of fewer than 3 steps, or with 3 + K > `steps`, is refused). It is checked after every step. The adapter is the step it
+held at (`stop_step`); the call is charged the steps it completed (`steps_run`, which can include a step that finished before the
+stop took effect), and `training.json` / `call.json` record `stopped_early: true`, `stop_step`, `stop_reason` (`plateau` or
+`target_reward`) and `steps_run`; the call's `state` is `STOPPED` (a finished call, not a failure). Without it, all `steps` run.
+
+## Defaults (identity-v2)
+A spec with no fields (`{}`) continues your lineage on the whole task set with fresh seeds for the rest of your budget. A field you omit takes its default: `task` = this session's tasks (tasks.json) in one call, an equal split per batch; tasks with no practice unit here, and, in a set of several, tasks that practise alone (revstack; hidden tasks), are left out and listed with the reason; `batch` of a task list = the smallest number >= 8 that splits as asked; `steps` = as many steps as your remaining GPU-hour budget affords at this call's cost (budget minus GPU-hours charged minus the estimates of your running calls), at most what the Tinker spend cap affords when trainer=tinker; with no session budget, 1; not one step affordable: the call is refused, naming `steps` and the GPU-hours remaining (`data` and `init_mode: resume` set the steps themselves); `init` = the adapter this session trained last (none yet: a fresh LoRA); seeds = the lineage's next unused block. Every field can be set to override its default. Each `call.json`, `training.json` and job result carries `train_defaults`: `defaults` (`identity-v2`), `defaulted` (the fields that took their default), when `task` did, `task_set` (`source`, `tasks`, `left_out`), and when `steps` did, `steps_default` (`available`, `per_step`, `fixed`, `cap`, `steps`).
+- resume: `init_mode: resume` + `init` (same lineage, the parent's full state)
+- branch: `init_mode: branch` + `init` (a new lineage from the parent's weights)
+- fresh: `init_mode: fresh` (a new LoRA, a new lineage)
+
+## Continuation

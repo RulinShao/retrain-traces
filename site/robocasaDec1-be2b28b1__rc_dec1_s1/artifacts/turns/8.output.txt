@@ -1,0 +1,319 @@
+rc=0
+================================================================================
+seed 800071 rc 0 secs None completed False sim_reward None
+STAGES: null
+--- PROGRAM (first 2500 chars) ---
+# Code block 0
+import numpy as np
+
+# Step 1: Navigate to the counter to pick up the corn
+navigate_to("counter")
+
+# Step 2: Get observation at counter
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 3: Segment the corn
+masks = segment_sam3_text_prompt(rgb, "corn")
+
+if not masks:
+    # Try alternative prompts
+    masks = segment_sam3_text_prompt(rgb, "corn on the counter")
+
+if not masks:
+    # Try pointing
+    point_result = point_prompt_molmo(rgb, "corn")
+    if point_result and "corn" in point_result:
+        coords = point_result["corn"]
+        if coords[0] is not None and coords[1] is not None:
+            masks = segment_sam3_point_prompt(rgb, (float(coords[0]), float(coords[1])))
+
+if not masks:
+    # Fallback: use the whole image region where depth is valid
+    masks = [{"mask": depth > 0.05, "score": 0.5}]
+
+# Get the best mask
+best_mask = masks[0]["mask"]
+
+# Create segmentation map for plan_grasp
+segmentation = np.zeros(depth.shape, dtype=np.int32)
+segmentation[best_mask] = 1
+
+# Step 4: Plan grasp
+grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, segmentation)
+
+if len(grasp_poses) == 0:
+    # No grasp found, try with a broader region
+    segmentation = np.zeros(depth.shape, dtype=np.int32)
+    valid_depth = (depth > 0.05) & (depth < 3.0)
+    segmentation[valid_depth] = 1
+    grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, segmentation)
+
+if len(grasp_poses) == 0:
+    # Still no grasp, try to use the center of the mask
+    ys, xs = np.where(best_mask)
+    if len(xs) > 0:
+        u = np.mean(xs)
+        v = np.mean(ys)
+        d = depth[int(v), int(u)]
+        if d > 0.05 and d < 3.0:
+            # Create a simple grasp pose at the center
+            cam_point = np.array([
+                (u - intrinsics[0, 2]) * d / intrinsics[0, 0],
+                (v - intrinsics[1, 2]) * d / intrinsics[1, 1],
+                d
+            ])
+            # Create a grasp pose with fingers pointing down
+            R_cam = np.array([
+                [0, 0, -1],
+                [0, 1, 0],
+                [1, 0, 0]
+            ])
+            T_cam = np.eye(4)
+            T_cam[:3, :3] = R_cam
+            T_cam[:3, 3] = cam_point
+            grasp_poses = T_cam.reshape(1, 4, 4)
+            grasp_scores = np.array([0.5])
+
+if len(grasp_poses) == 0:
+    # Cannot proceed without a
+================================================================================
+seed 800072 rc 0 secs None completed False sim_reward None
+STAGES: null
+--- PROGRAM (first 2500 chars) ---
+# Code block 0
+import numpy as np
+
+# Step 1: Navigate to the counter to pick up the potato
+navigate_to("counter")
+
+# Step 2: Get observation to find the potato
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 3: Segment the potato
+masks = segment_sam3_text_prompt(rgb, "potato")
+if not masks:
+    # Try alternative prompts
+    masks = segment_sam3_text_prompt(rgb, "food")
+    if not masks:
+        masks = segment_sam3_text_prompt(rgb, "object")
+
+if masks:
+    # Use the first mask with highest score
+    best_mask = max(masks, key=lambda m: m.get("score", 0))
+    segmentation = best_mask["mask"].astype(np.int32)
+    
+    # Step 4: Plan grasp
+    grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, segmentation)
+    
+    if grasp_poses.shape[0] > 0:
+        # Get the best grasp
+        best_idx = np.argmax(grasp_scores)
+        grasp_pose_cam = grasp_poses[best_idx]
+        
+        # Transform from camera frame to world (robot base) frame
+        # pose_mat maps camera coords to robot base frame
+        grasp_pose_world = pose_mat @ grasp_pose_cam
+        
+        # Extract position and orientation
+        pos = grasp_pose_world[:3, 3]
+        rot_mat = grasp_pose_world[:3, :3]
+        
+        # Convert rotation matrix to quaternion
+        def rotmat_to_quat(R):
+            tr = np.trace(R)
+            if tr > 0:
+                S = np.sqrt(tr + 1.0) * 2
+                w = 0.25 * S
+                x = (R[2, 1] - R[1, 2]) / S
+                y = (R[0, 2] - R[2, 0]) / S
+                z = (R[1, 0] - R[0, 1]) / S
+            elif (R[0, 0] > R[1, 1]) and (R[0, 0] > R[2, 2]):
+                S = np.sqrt(1.0 + R[0, 0] - R[1, 1] - R[2, 2]) * 2
+                w = (R[2, 1] - R[1, 2]) / S
+                x = 0.25 * S
+                y = (R[0, 1] + R[1, 0]) / S
+                z = (R[0, 2] + R[2, 0]) / S
+            elif R[1, 1] > R[2, 2]:
+                S = np.sqrt(1.0 + R[1, 1] - R[0, 0] - R[2, 2]) * 2
+                w = (R[0, 2] - R[2, 0]) / S
+                x = (R[0, 1] + R[1, 0]) / S
+                y = 0.25 * S
+                z = (R[1, 2] + R[2, 1]) / S
+            else:
+                S = np.sqrt(1.0 + R[2, 2] - R[0, 0] - R[1, 1]) * 2
+                w = (R[1, 0] - R[0, 1]) / S
+                x = (R[0, 2] + R[2, 0]) / S
+                y = (R[1, 2] + R[2, 1]) / S
+         
+================================================================================
+seed 800073 rc 0 secs None completed False sim_reward None
+STAGES: null
+--- PROGRAM (first 2500 chars) ---
+# Code block 0
+import numpy as np
+
+# Step 1: Navigate to the counter where the squash is
+navigate_to("counter")
+
+# Step 2: Get observation to find the squash
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 3: Segment the squash
+masks = segment_sam3_text_prompt(rgb, "squash")
+if not masks:
+    # Try alternative prompts
+    masks = segment_sam3_text_prompt(rgb, "food")
+    if not masks:
+        masks = segment_sam3_text_prompt(rgb, "vegetable")
+
+if not masks:
+    raise Exception("Could not find squash")
+
+# Use the first mask with highest score
+best_mask = max(masks, key=lambda m: m.get("score", 0))
+segmentation = best_mask["mask"].astype(np.int32)
+
+# Step 4: Plan grasp
+grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, segmentation)
+
+if len(grasp_poses) == 0:
+    raise Exception("No grasp candidates found")
+
+# Select the best grasp
+best_idx = np.argmax(grasp_scores)
+grasp_pose_cam = grasp_poses[best_idx]  # 4x4 in camera frame
+
+# Step 5: Transform grasp pose from camera frame to world (base) frame
+grasp_pose_world = pose_mat @ grasp_pose_cam
+
+# Extract position and orientation
+grasp_pos = grasp_pose_world[:3, 3]
+grasp_rot = grasp_pose_world[:3, :3]
+
+# Convert rotation matrix to quaternion (WXYZ)
+def rotmat_to_quat_wxyz(R):
+    tr = np.trace(R)
+    if tr > 0:
+        S = np.sqrt(tr + 1.0) * 2
+        w = 0.25 * S
+        x = (R[2, 1] - R[1, 2]) / S
+        y = (R[0, 2] - R[2, 0]) / S
+        z = (R[1, 0] - R[0, 1]) / S
+    elif (R[0, 0] > R[1, 1]) and (R[0, 0] > R[2, 2]):
+        S = np.sqrt(1.0 + R[0, 0] - R[1, 1] - R[2, 2]) * 2
+        w = (R[2, 1] - R[1, 2]) / S
+        x = 0.25 * S
+        y = (R[0, 1] + R[1, 0]) / S
+        z = (R[0, 2] + R[2, 0]) / S
+    elif R[1, 1] > R[2, 2]:
+        S = np.sqrt(1.0 + R[1, 1] - R[0, 0] - R[2, 2]) * 2
+        w = (R[0, 2] - R[2, 0]) / S
+        x = (R[0, 1] + R[1, 0]) / S
+        y = 0.25 * S
+        z = (R[1, 2] + R[2, 1]) / S
+    else:
+        S = np.sqrt(1.0 + R[2, 2] - R[0, 0] - R[1, 1]) * 2
+        w = (R[1, 0] - R[0, 1]) / S
+        x = (R[0, 2] + R[2, 0]) / S
+        y = (R[1, 2] + R[2, 1]) / S
+        z = 0.25 * S
+    q = np.array([w, x, y, z])
+    return q / np.linalg.norm(q)
+
+grasp_quat = rotmat_to_quat_wxyz(grasp_rot)
+
+# Step 6: Move to a position above the grasp point (approach)
+approach_pos = grasp_pos.copy()
+approach_pos[
+================================================================================
+seed 800074 rc 0 secs None completed False sim_reward None
+STAGES: null
+--- PROGRAM (first 2500 chars) ---
+# Code block 0
+import numpy as np
+
+# Step 1: Navigate to the counter to pick up the shrimp
+navigate_to("counter")
+
+# Step 2: Get observation to find the shrimp
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 3: Segment the shrimp using SAM3
+masks = segment_sam3_text_prompt(rgb, "shrimp")
+
+if not masks:
+    # Try alternative prompts
+    masks = segment_sam3_text_prompt(rgb, "food")
+    if not masks:
+        masks = segment_sam3_text_prompt(rgb, "shrimp on counter")
+
+if masks:
+    # Use the first mask
+    mask = masks[0]["mask"]
+    
+    # Create segmentation map (1 for shrimp, 0 otherwise)
+    segmentation = mask.astype(np.int32)
+    
+    # Plan grasp
+    grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, segmentation)
+    
+    if len(grasp_poses) > 0:
+        # Get the best grasp
+        best_idx = np.argmax(grasp_scores)
+        grasp_pose_cam = grasp_poses[best_idx]
+        
+        # Transform grasp pose from camera frame to world frame
+        grasp_pose_world = pose_mat @ grasp_pose_cam
+        
+        # Extract position and orientation
+        position = grasp_pose_world[:3, 3]
+        
+        # Convert rotation matrix to quaternion
+        R = grasp_pose_world[:3, :3]
+        
+        # Convert rotation matrix to quaternion (WXYZ)
+        trace = R[0, 0] + R[1, 1] + R[2, 2]
+        if trace > 0:
+            S = 2.0 * np.sqrt(trace + 1.0)
+            w = 0.25 * S
+            x = (R[2, 1] - R[1, 2]) / S
+            y = (R[0, 2] - R[2, 0]) / S
+            z = (R[1, 0] - R[0, 1]) / S
+        elif R[0, 0] > R[1, 1] and R[0, 0] > R[2, 2]:
+            S = 2.0 * np.sqrt(1.0 + R[0, 0] - R[1, 1] - R[2, 2])
+            w = (R[2, 1] - R[1, 2]) / S
+            x = 0.25 * S
+            y = (R[0, 1] + R[1, 0]) / S
+            z = (R[0, 2] + R[2, 0]) / S
+        elif R[1, 1] > R[2, 2]:
+            S = 2.0 * np.sqrt(1.0 + R[1, 1] - R[0, 0] - R[2, 2])
+            w = (R[0, 2] - R[2, 0]) / S
+            x = (R[0, 1] + R[1, 0]) / S
+            y = 0.25 * S
+            z = (R[1, 2] + R[2, 1]) / S
+        else:
+            S = 2.0 * np.sqrt(1.0 + R[2, 2] - R[0, 0] - R[1, 1])
+            w = (R[1, 0] - R[0, 1]) / S
+            x = (R[0, 2] + R[2, 0]) / S
+            y = (R[1, 2] + R[2, 1]) / S
+            z = 0.25 * S
+        
+        quaternion = np.array([w, x, y, z])
+        
+       

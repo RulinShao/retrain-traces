@@ -1,0 +1,1 @@
+{"task": "OrganizeMetallicUtensils", "steps": 1, "batch": 8, "reward": "rewards/p_utensil.py", "init_mode": "fresh", "name": "p_utensil", "seed_start": 900401}

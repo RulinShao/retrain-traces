@@ -1,0 +1,9 @@
+{
+  "name": "a_nr20",
+  "task": ["nut", "restack"],
+  "init": "a_nr10",
+  "reward": "shaped",
+  "steps": 10,
+  "batch": 8,
+  "rollouts": 16
+}

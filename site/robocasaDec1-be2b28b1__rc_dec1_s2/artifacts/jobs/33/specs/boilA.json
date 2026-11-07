@@ -1,0 +1,11 @@
+{
+  "name": "boilA_fixh",
+  "task": "BoilPot",
+  "steps": 1,
+  "batch": 8,
+  "reward": "rewards/boil_pot_touches_stove.py",
+  "goal": "Take the pot filled with water and place it on the stove.",
+  "note": "SKILL GUIDE (practice only). Goal now: put the pot ON the stove cooking surface.\n1) navigate_to('stove'); then get_observation() AGAIN (the base frame moved).\n2) The stove cooking surface is UP HIGH, about 0.85 m above the base origin: in the post-navigate base frame the target point is roughly T=(0.45, 0.0, 0.85). The stove top is NOT near the floor (z=0.05) -- do not place the pot on the floor.\n3) Perceive and grasp the pot: m=segment_sam3_text_prompt(img,'pot'); smap=its best mask (0/1); g,s=plan_grasp(depth,K,smap); if len(g): gp=pose_mat@g[argmax(s)]; p=gp[:3,3]; q=rotm_wxyz(gp[:3,:3]); move_to_joints(solve_ik(p,q)); close_gripper(); move_to_joints(solve_ik(p+[0,0,0.15],[0,0,1,0])).\n4) Place on the stove: move_to_joints(solve_ik(T+[0,0,0.20],[0,0,1,0])); move_to_joints(solve_ik(T,[0,0,1,0])); open_gripper(). Lower the pot to the stove-top height ~0.85 m so it rests on the stove.\nrotm_wxyz(R): rotation matrix to unit quaternion [w,x,y,z]. Write plain Python only.",
+  "init_mode": "fresh",
+  "time": "01:00:00"
+}

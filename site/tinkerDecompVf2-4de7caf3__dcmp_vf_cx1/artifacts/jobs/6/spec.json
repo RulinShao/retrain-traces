@@ -1,0 +1,10 @@
+{
+ "name": "mixed12",
+ "task": [
+  "nut",
+  "restack"
+ ],
+ "steps": 12,
+ "init_mode": "fresh",
+ "reward": "rewards/progress.py"
+}

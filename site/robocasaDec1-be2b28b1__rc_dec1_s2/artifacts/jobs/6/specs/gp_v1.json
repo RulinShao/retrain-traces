@@ -1,0 +1,10 @@
+{
+  "name": "gp_v1",
+  "task": "GarnishPancake",
+  "steps": 3,
+  "batch": 8,
+  "reward": "task_completed",
+  "init_mode": "fresh",
+  "note": "SKILL GUIDE (follow exactly):\n1. AFTER EVERY navigate_to(fixture): the base frame moved. Call get_observation() again and recompute every pose in the NEW base frame. Never reuse a pose from before a navigate_to.\n2. GRASP ORIENTATION (the most common failure): plan_grasp returns poses in the CAMERA frame. World pose G = pose_mat @ grasp_pose_cam. Use G[:3,3] for the position, and build the gripper quaternion from the WORLD rotation R_world = pose_mat[:3,:3] @ grasp_pose_cam[:3,:3]. Do NOT convert the camera-frame rotation grasp_pose_cam[:3,:3] directly to a quaternion; that orients the gripper wrongly and the grasp fails.\n3. GRIPPER: open_gripper() BEFORE descending to grasp; move to the grasp point; close_gripper(); lift 0.15-0.2 m. After placing, open_gripper() and move away.\n4. MOTION: approach 0.1-0.15 m above the grasp point with fingers down (quat [0,0,1,0]); then move to the grasp point with the grasp orientation; then lift. Keep the hand within 0.6-0.8 m of the base (out of reach means IK silently fails).\n5. PERCEPTION: if segment_sam3_text_prompt gives no mask, try a different text prompt, then point_prompt_molmo + segment_sam3_point_prompt. If plan_grasp returns zero poses, re-observe and retry.\n6. PLACING: navigate_to the target; re-observe; segment the target container/object; get its world centre from mask pixels + depth + pose_mat (back-project pixels to 3D then multiply by pose_mat); move above it, lower the held object, open the gripper to release.\n7. Keep motions collision-free: lift before long horizontal moves; prefer vertical lowers over horizontal pushes.\n",
+  "time": "03:00:00"
+}

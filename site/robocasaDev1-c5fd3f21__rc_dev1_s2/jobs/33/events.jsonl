@@ -1,0 +1,2 @@
+{"seq": 0, "t": "2026-11-06T15:07:45.153Z", "kind": "job.submit", "payload": {"job_id": "33", "type": "eval", "task": "BoilPot", "seeds": [800119, 800138], "n": 20, "adapter": "…/adapters/sg_bp_burner", "slurm_jobs": ["42997254"], "policy_model": "Qwen3.8-27B"}, "files": []}
+{"seq": 1, "t": "2026-11-06T16:32:48.518Z", "kind": "job.done", "payload": {"job_id": "33", "state": "failed", "summary": {"state": "CANCELLED by 1387877", "n": 20, "infra_error": "eval job 42997254 state CANCELLED by 1387877: 0 cell summaries"}, "gpu_hours": {"actual": 0.0}}, "files": []}

@@ -1,0 +1,194 @@
+{
+ "status": "DONE",
+ "turns": 29,
+ "gpu_hours": 15.3481,
+ "final_score": {
+  "loaded": "success_clean",
+  "per_task": {
+   "nut": 0,
+   "restack": 0,
+   "revstack": 2,
+   "t2_ss": 3,
+   "t2_spl": 1
+  },
+  "total": 6,
+  "n_per_task": 50,
+  "submission": "eb941a",
+  "confirmed": true,
+  "per_split": {
+   "id": 2,
+   "far": 4
+  }
+ },
+ "codex_resumes": [
+  {
+   "exit_s": 1524.2,
+   "jobs_pending": 0,
+   "results_unseen": true,
+   "resumed_s": 1524.2,
+   "mode": "resume"
+  },
+  {
+   "exit_s": 4906.7,
+   "jobs_pending": 0,
+   "results_unseen": true,
+   "resumed_s": 4906.7,
+   "mode": "resume"
+  },
+  {
+   "exit_s": 8254.6,
+   "jobs_pending": 0,
+   "results_unseen": true,
+   "resumed_s": 8254.6,
+   "mode": "resume"
+  },
+  {
+   "exit_s": 9198.8,
+   "jobs_pending": 0,
+   "results_unseen": true,
+   "resumed_s": 9198.8,
+   "mode": "resume"
+  },
+  {
+   "exit_s": 14914.9,
+   "jobs_pending": 0,
+   "results_unseen": true,
+   "resumed_s": 14914.9,
+   "mode": "resume"
+  },
+  {
+   "exit_s": 21760.0,
+   "jobs_pending": 0,
+   "results_unseen": true,
+   "resumed_s": 21760.0,
+   "mode": "resume"
+  },
+  {
+   "exit_s": 36216.3,
+   "jobs_pending": 3,
+   "results_unseen": true,
+   "resumed_s": 41180.7,
+   "mode": "resume"
+  },
+  {
+   "exit_s": 55609.6,
+   "jobs_pending": 3,
+   "results_unseen": true,
+   "resumed_s": 58705.2,
+   "mode": "resume"
+  },
+  {
+   "exit_s": 58754.3,
+   "jobs_pending": 0,
+   "results_unseen": true,
+   "resumed_s": 58754.3,
+   "mode": "resume"
+  }
+ ],
+ "agent": "codex:gpt-6-astra",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": 262144
+ },
+ "mode": "dev",
+ "final_episodes": 50,
+ "agent_usage": {
+  "output_tokens": 29419,
+  "input_tokens": 13408902,
+  "reasoning_output_tokens": 4179,
+  "cached_input_tokens": 12692864,
+  "cache_write_input_tokens": 0,
+  "commands": 29,
+  "events": 113,
+  "codex_exit": -15,
+  "codex_runs": 10
+ },
+ "policy_model": "Qwen3.8-27B",
+ "eval_backend": "tinker, decode=tinker(no_presence_penalty) (DEV backend only: dev/checkpoint evals of Tinker-trained adapters sample on Tinker; hidden evals and other adapters run locally)",
+ "trainer": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B charge=canonical sim=l40s",
+ "tinker": {
+  "calls": 23,
+  "usd": 112.2224,
+  "tinker_s": 26001.47
+ },
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 13.7275,
+ "gpu_hours_charging": "canonical",
+ "cost_model": "v2",
+ "gpu_hours_lost": 0.2672,
+ "measured_vs_canonical": 0.818,
+ "agent_gpu_h": null,
+ "measured_cost": {
+  "train_gpu_h": 0.0,
+  "reason_gpu_h": null,
+  "sandbox_gpu_h": 10.8935,
+  "usd_tinker": 112.2224,
+  "charged_gpu_h": 15.3481,
+  "tokens": {
+   "prompt": 0,
+   "completion": 0
+  },
+  "unmeasured_calls": 0
+ },
+ "submission": {
+  "token": "eb941a",
+  "how": "explicit",
+  "turn": 3985,
+  "confirmed": true,
+  "confirmed_turn": 3992,
+  "ended_by": "DONE",
+  "note": "Selected highest observed 100-seed revstack dev count: 7/100; nut and restack each 0/20. Hidden performance unknown; dev Tinker decoding differs from final decoding.",
+  "policy": "base + success_clean (sha 5caabbd1a22c)"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "b9f2f44d16224cd754a6e355deb58d07283d0d178324dd94a7cd9482329381a6",
+ "suite": {
+  "name": "hard3",
+  "version": 1,
+  "hash": "sha256:aaa90816430a9221",
+  "train": [
+   "nut",
+   "restack",
+   "revstack"
+  ],
+  "eval": [
+   {
+    "cell": "nut",
+    "split": "id"
+   },
+   {
+    "cell": "restack",
+    "split": "id"
+   },
+   {
+    "cell": "revstack",
+    "split": "id"
+   },
+   {
+    "cell": "t2_ss",
+    "split": "far"
+   },
+   {
+    "cell": "t2_spl",
+    "split": "far"
+   }
+  ],
+  "splits": {
+   "nut": "id",
+   "restack": "id",
+   "revstack": "id",
+   "t2_ss": "far",
+   "t2_spl": "far"
+  }
+ },
+ "env_text": "v2",
+ "artifacts": {
+  "registry": "…/tinkerDecompVf2-4de7caf3/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

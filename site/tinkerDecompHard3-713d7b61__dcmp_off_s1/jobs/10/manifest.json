@@ -1,0 +1,15 @@
+{
+ "format_version": "1",
+ "trajectory_id": "traj",
+ "created": "2026-11-05T11:23:34.244Z",
+ "producer": {
+  "name": "trajectory.producers.capx_jobs",
+  "version": null,
+  "git_sha": "713d7b61ba60406be8ef4d9ff3c2eb497080e2f3"
+ },
+ "tags": {
+  "kind": "train",
+  "job_id": "10",
+  "capx_version": "7fda1bef602c"
+ }
+}

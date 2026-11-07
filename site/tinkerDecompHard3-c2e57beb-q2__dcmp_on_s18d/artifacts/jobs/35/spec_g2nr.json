@@ -1,0 +1,11 @@
+{
+  "objective": "grpo",
+  "task": ["nut", "restack"],
+  "name": "g2nr",
+  "steps": 20,
+  "batch": 8,
+  "rollouts": 8,
+  "reward": "shaped",
+  "init_mode": "fresh",
+  "seed_start": 812000
+}

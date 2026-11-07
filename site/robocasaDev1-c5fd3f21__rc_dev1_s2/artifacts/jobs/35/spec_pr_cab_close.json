@@ -1,0 +1,1 @@
+{"name": "pr_cab_close", "task": "CerealAndBowl", "steps": 8, "batch": 8, "reward": "rewards/door_closed_r.py", "goal": "Close the cabinet door.", "init_mode": "fresh", "seed_start": 921001, "time": "03:30:00"}

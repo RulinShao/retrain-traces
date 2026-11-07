@@ -1,0 +1,10 @@
+{
+  "task": "revstack",
+  "init": "t1_shaped_rev",
+  "name": "t2_revstack",
+  "steps": 22,
+  "batch": 8,
+  "rollouts": 8,
+  "lr": 3e-5,
+  "reward": "shaped"
+}

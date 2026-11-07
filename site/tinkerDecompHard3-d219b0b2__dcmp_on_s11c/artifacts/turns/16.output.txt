@@ -1,0 +1,65 @@
+rc=0
+"""python3 preset.py --task T --name NAME ( --program FILE --seeds N | --from rollouts/<job>.jsonl --where "<predicate over r>" )
+
+Build start states for practice on task T, saved per source seed and kept only if every state restores. Then a train spec with
+"start_preset": "NAME" on task T starts each practice rollout from those states. Two ways to pick the states:
+  * prefix program (--program FILE --seeds N): your prefix program (a .py in your workspace, written with the task's own API, the
+    functions in its eval prompt) runs once on each of N fresh dev seeds (1-32) on T's simulator, and the state it reaches is saved.
+  * from rollouts (--from rollouts/<job>.jsonl --where "<predicate>"): the end state of each episode of a prior rollout job of
+    yours on T that the predicate matches (at most 32) is saved, at that episode's own dev seed. The rollout itself kept no
+    restorable state, so each matched episode's program is run again at its seed on T's practice simulator and the state it
+    reaches is the one saved (compare the record's log_tail with the rollout's stdout_tail to see whether the re-run went the
+    same way). --where is a python expression over each rollout row r, e.g. "not r['task_completed']"; it is evaluated in the
+    reward box (never imported).
+The record (per seed: seed, sandbox_rc, secs, wall_s, log_tail, restorable, drift_mm, error; and your program, or the --from /
+--where source) is written to presets/NAME.json. Charged as an eval of the seeds built. Refused before anything runs: a program
+that names a privileged API or the simulator's objects; a --from whose matched rows include a hidden seed."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("--task", required=True)
+p.add_argument("--name", required=True, help="the preset's name (letters, digits, _ . -)")
+p.add_argument("--program", help="prefix-program mode: a .py file in your workspace (the prefix program)")
+p.add_argument("--seeds", type=int, help="prefix-program mode: number of fresh dev seeds (1-32)")
+p.add_argument("--from", dest="from_rollouts", metavar="rollouts/<job>.jsonl",
+               help="from-rollouts mode: a prior rollout job's rows (use with --where)")
+p.add_argument("--where", help="from-rollouts mode: a python predicate over each rollout row r, e.g. \"not r['task_completed']\"")
+a = p.parse_args()
+if a.from_rollouts:
+    if a.program or a.seeds is not None:
+        p.error("--from (from-rollouts mode) and --program/--seeds (prefix-program mode) are mutually exclusive")
+    if not a.where:
+        p.error("--from needs --where \"<predicate over each rollout row r>\"")
+    submit("preset", {"task": a.task, "name": a.name, "from": a.from_rollouts, "where": a.where})
+else:
+    if not a.program or a.seeds is None:
+        p.error("prefix-program mode needs --program and --seeds (or use --from with --where)")
+    submit("preset", {"task": a.task, "program": a.program, "name": a.name, "seeds": a.seeds})
+"""python3 unit.py register NAME --task T --reward FILE [--start-preset P] [--done FILE]  -- a subtask unit of task T: afterwards
+NAME works as a task in train.py (a spec with "task": "NAME" trains on T with reward FILE, from your preset P when given),
+rollout.py --task NAME (T's practice simulator, from P's states when given; rows scored by FILE and, with --done, `unit_done`) and
+eval.py --task NAME (the same, counted: successes = done(r) holds, or reward(r) >= 1.0 without --done; the unit's own SCOREBOARD
+row, never a final score). FILE defines reward(r) -> float, --done a file defining done(r) -> bool (both .py in your workspace,
+r = the rollout row's keys); P is a preset you built with preset.py on T. Record: units/NAME.json. Nothing is charged.
+python3 unit.py list  -- the session's units."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+sub = p.add_subparsers(dest="action", required=True)
+r = sub.add_parser("register")
+r.add_argument("name")
+r.add_argument("--task", required=True)
+r.add_argument("--reward", required=True, help="a .py file in your workspace defining reward(r) -> float")
+r.add_argument("--start-preset", help="a preset you built with preset.py on the task")
+r.add_argument("--done", help="a .py file in your workspace defining done(r) -> bool")
+sub.add_parser("list")
+a = p.parse_args()
+args = {"action": a.action}
+if a.action == "register":
+    args.update(name=a.name, task=a.task, reward=a.reward, **{k: v for k, v in (("start_preset", a.start_preset), ("done", a.done)) if v})
+submit("unit", args)
+{"id": 6, "kind": "train", "args": {"spec": "spec_b.json"}, "state": "running", "result": null, "skills_digest": "4f258411617d8bc455b612b9fa8b1aed24b40a6365108c8f953a0bcac8de3cfe", "progress": {"state": "queued", "queued_min": 123.8, "reserve_hold": {"position": 480, "of": 514, "as_of": "2026-11-05T14:58:44Z", "every_min": 10}}, "progress_line": "queued (not started), 124 min in queue; held by the lab's shared-GPU reserve queue (a guard that keeps this project's running jobs on the lab-owned GPU pool at or under a cap and releases held jobs in its own order as running jobs finish): position 480 of 514 held as of 2026-11-05T14:58:44Z, re-planned every 10 min; a cancelled job leaves this queue; a resubmission is a new job with a later submit time, which the guard plans at its next pass and orders behind the waiting jobs of its priority class submitted before it"}
+{"id": 7, "kind": "train", "args": {"spec": "spec_a.json"}, "state": "running", "result": null, "skills_digest": "4f258411617d8bc455b612b9fa8b1aed24b40a6365108c8f953a0bcac8de3cfe", "progress": {"state": "queued", "queued_min": 123.7, "reserve_hold": {"position": 481, "of": 514, "as_of": "2026-11-05T14:58:44Z", "every_min": 10}}, "progress_line": "queued (not started), 124 min in queue; held by the lab's shared-GPU reserve queue (a guard that keeps this project's running jobs on the lab-owned GPU pool at or under a cap and releases held jobs in its own order as running jobs finish): position 481 of 514 held as of 2026-11-05T14:58:44Z, re-planned every 10 min; a cancelled job leaves this queue; a resubmission is a new job with a later submit time, which the guard plans at its next pass and orders behind the waiting jobs of its priority class submitted before it"}
+If you finish now, the scored policy is: base (`python3 finish.py` submits the loaded stack)

@@ -1,0 +1,282 @@
+rc=0
+# Code block 0
+import numpy as np
+
+# Step 1: Navigate to the sink to find the pot with water
+navigate_to("sink")
+
+# Get observation
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Segment the pot
+masks = segment_sam3_text_prompt(rgb, "pot")
+if not masks:
+    masks = segment_sam3_text_prompt(rgb, "metal pot")
+if not masks:
+    masks = segment_sam3_text_prompt(rgb, "pot with water")
+
+# Get the best mask
+best_mask = None
+best_score = 0
+for m in masks:
+    if m.get("score", 0) > best_score:
+        best_score = m["score"]
+        best_mask = m["mask"]
+
+if best_mask is None:
+    # Try point prompt as fallback
+    point_result = point_prompt_molmo(rgb, "pot")
+    pot_point = point_result.get("pot", (None, None))
+    if pot_point[0] is not None and pot_point[1] is not None:
+        masks = segment_sam3_point_prompt(rgb, (pot_point[0], pot_point[1]))
+        if masks:
+            best_mask = masks[0]["mask"]
+
+if best_mask is None:
+    # Can't find pot, try to just navigate to stove and place pot there
+    navigate_to("stove")
+    # We'll need to find the pot at the stove or assume it's already there
+    # For now, let's just try to turn on the stove
+    # But first we need to get the pot. Let's try again at sink with different prompt
+    navigate_to("sink")
+    obs = get_observation()
+    rgb = obs["robot0_robotview"]["images"]["rgb"]
+    depth = obs["robot0_robotview"]["images"]["depth"]
+    intrinsics = obs["robot0_robotview"]["intrinsics"]
+    pose_mat = obs["robot0_robotview"]["pose_mat"]
+    
+    masks = segment_sam3_text_prompt(rgb, "cooking pot")
+    if not masks:
+        masks = segment_sam3_text_prompt(rgb, "kettle")
+    if not masks:
+        masks = segment_sam3_text_prompt(rgb, "vessel")
+    
+    if masks:
+        best_mask = max(masks, key=lambda x: x.get("score", 0))["mask"]
+
+if best_mask is None:
+    # Fallback: try to just navigate to stove and assume pot is there
+    navigate_to("stove")
+    # Try to turn on stove
+    # We need to find the burner knob
+    obs = get_observation()
+    rgb = obs["robot0_robotview"]["images"]["rgb"]
+    depth = obs["robot0_robotview"]["images"]["depth"]
+    intrinsics = obs["robot0_robotview"]["intrinsics"]
+    pose_mat = obs["robot0_robotview"]["pose_mat"]
+    
+    # Try to find and interact with stove knob
+    point_result = point_prompt_molmo(rgb, "stove knob")
+    knob_point = point_result.get("stove knob", (None, None))
+    if knob_point[0] is not None and knob_point[1] is not None:
+        # Try to grasp/turn the knob - this is tricky without a specific turn action
+        # For now, just navigate and hope the pot is already placed
+        pass
+else:
+    # Create segmentation for plan_grasp
+    segmentation = np.zeros((rgb.shape[0], rgb.shape[1]), dtype=np.int32)
+    segmentation[best_mask] = 1
+    
+    # Plan grasp
+    grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, segmentation)
+    
+    if len(grasp_poses) > 0:
+        # Get best grasp
+        best_idx = np.argmax(grasp_scores)
+        grasp_pose_cam = grasp_poses[best_idx]
+        
+        # Transform grasp pose from camera frame to world frame
+        grasp_pose_world = pose_mat @ grasp_pose_cam
+        
+        # Extract position and orientation
+        pos = grasp_pose_world[:3, 3]
+        R = grasp_pose_world[:3, :3]
+        
+        # Convert rotation matrix to quaternion
+        trace = R[0, 0] + R[1, 1] + R[2, 2]
+        if trace > 0:
+            S = np.sqrt(trace + 1.0) * 2
+            w = 0.25 * S
+            x = (R[2, 1] - R[1, 2]) / S
+            y = (R[0, 2] - R[2, 0]) / S
+            z = (R[1, 0] - R[0, 1]) / S
+        elif (R[0, 0] > R[1, 1]) and (R[0, 0] > R[2, 2]):
+            S = np.sqrt(1.0 + R[0, 0] - R[1, 1] - R[2, 2]) * 2
+            w = (R[2, 1] - R[1, 2]) / S
+            x = 0.25 * S
+            y = (R[0, 1] + R[1, 0]) / S
+            z = (R[0, 2] + R[2, 0]) / S
+        elif R[1, 1] > R[2, 2]:
+            S = np.sqrt(1.0 + R[1, 1] - R[0, 0] - R[2, 2]) * 2
+            w = (R[0, 2] - R[2, 0]) / S
+            x = (R[0, 1] + R[1, 0]) / S
+            y = 0.25 * S
+            z = (R[1, 2] + R[2, 1]) / S
+        else:
+            S = np.sqrt(1.0 + R[2, 2] - R[0, 0] - R[1, 1]) * 2
+            w = (R[1, 0] - R[0, 1]) / S
+            x = (R[0, 2] + R[2, 0]) / S
+            y = (R[1, 2] + R[2, 1]) / S
+            z = 0.25 * S
+        
+        quat = np.array([w, x, y, z])
+        quat = quat / np.linalg.norm(quat)
+        
+        # Move to grasp position (slightly above to avoid collision)
+        lift_pos = pos.copy()
+        lift_pos[2] += 0.15
+        
+        joints_lift = solve_ik(lift_pos, quat)
+        move_to_joints(joints_lift)
+        open_gripper()
+        
+        # Move down to grasp
+        joints_grasp = solve_ik(pos, quat)
+        move_to_joints(joints_grasp)
+        close_gripper()
+        
+        # Lift pot
+        lift_pos2 = pos.copy()
+        lift_pos2[2] += 0.25
+        joints_lift2 = solve_ik(lift_pos2, quat)
+        move_to_joints(joints_lift2)
+        
+        # Navigate to stove
+        navigate_to("stove")
+        
+        # Get new observation
+        obs = get_observation()
+        rgb = obs["robot0_robotview"]["images"]["rgb"]
+        depth = obs["robot0_robotview"]["images"]["depth"]
+        intrinsics = obs["robot0_robotview"]["intrinsics"]
+        pose_mat = obs["robot0_robotview"]["pose_mat"]
+        
+        # Find the stove surface to place the pot
+        masks_stove = segment_sam3_text_prompt(rgb, "stove")
+        if not masks_stove:
+            masks_stove = segment_sam3_text_prompt(rgb, "stove top")
+        
+        if masks_stove:
+            best_stove_mask = max(masks_stove, key=lambda x: x.get("score", 0))["mask"]
+            
+            # Get 3D points from the stove surface
+            valid_depth = (depth > 0.05) & (depth <= 3.0) & best_stove_mask
+            if np.any(valid_depth):
+                ys, xs = np.where(valid_depth)
+                # Sample some points
+                indices = np.random.choice(len(xs), min(1000, len(xs)), replace=False)
+                xs_sample = xs[indices]
+                ys_sample = ys[indices]
+                depths_sample = depth[ys_sample, xs_sample]
+                
+                # Convert to camera coordinates
+                cam_points = np.column_stack([
+                    (xs_sample - intrinsics[0, 2]) * depths_sample / intrinsics[0, 0],
+                    (ys_sample - intrinsics[1, 2]) * depths_sample / intrinsics[1, 1],
+                    depths_sample
+                ])
+                
+                # Transform to world frame
+                cam_points_h = np.column_stack([cam_points, np.ones(len(cam_points))])
+                world_points = (pose_mat @ cam_points_h.T).T[:, :3]
+                
+                # Get oriented bounding box
+                obb = get_oriented_bounding_box_from_3d_points(world_points)
+                stove_center = obb["center"]
+                
+                # Place pot on stove center
+                place_pos = stove_center.copy()
+                place_pos[2] += 0.05  # Slightly above the surface
+                
+                # Use the same orientation as when grasping
+                joints_place = solve_ik(place_pos, quat)
+                move_to_joints(joints_place)
+                
+                # Open gripper to release pot
+                open_gripper()
+                
+                # Lift up
+                lift_pos3 = place_pos.copy()
+                lift_pos3[2] += 0.15
+                joints_lift3 = solve_ik(lift_pos3, quat)
+                move_to_joints(joints_lift3)
+        
+        # Now turn on the stove burner
+        # Find the stove knob
+        point_result = point_prompt_molmo(rgb, "stove knob")
+        knob_point = point_result.get("stove knob", (None, None))
+        
+        if knob_point[0] is not None and knob_point[1] is not None:
+            # Try to segment the knob
+            masks_knob = segment_sam3_point_prompt(rgb, (knob_point[0], knob_point[1]))
+            if masks_knob:
+                best_knob_mask = max(masks_knob, key=lambda x: x.get("score", 0))["mask"]
+                
+                # Get 3D position of knob
+                valid_depth = (depth > 0.05) & (depth <= 3.0) & best_knob_mask
+                if np.any(valid_depth):
+                    ys, xs = np.where(valid_depth)
+                    indices = np.random.choice(len(xs), min(100, len(xs)), replace=False)
+                    xs_sample = xs[indices]
+                    ys_sample = ys[indices]
+                    depths_sample = depth[ys_sample, xs_sample]
+                    
+                    cam_points = np.column_stack([
+                        (xs_sample - intrinsics[0, 2]) * depths_sample / intrinsics[0, 0],
+                        (ys_sample - intrinsics[1, 2]) * depths_sample / intrinsics[1, 1],
+                        depths_sample
+                    ])
+                    
+                    cam_points_h = np.column_stack([cam_points, np.ones(len(cam_points))])
+                    world_points = (pose_mat @ cam_points_h.T).T[:, :3]
+                    
+                    knob_center = np.mean(world_points, axis=0)
+                    
+                    # Move to knob position
+                    # We need to figure out how to turn the knob - this is complex
+                    # For now, just move close to it
+                    joints_knob = solve_ik(knob_center, np.array([1, 0, 0, 0]))
+                    move_to_joints(joints_knob)
+    
+    # If we couldn't grasp the pot, just navigate to stove and try to turn it on
+    else:
+        navigate_to("stove")
+        obs = get_observation()
+        rgb = obs["robot0_robotview"]["images"]["rgb"]
+        depth = obs["robot0_robotview"]["images"]["depth"]
+        intrinsics = obs["robot0_robotview"]["intrinsics"]
+        pose_mat = obs["robot0_robotview"]["pose_mat"]
+        
+        point_result = point_prompt_molmo(rgb, "stove knob")
+        knob_point = point_result.get("stove knob", (None, None))
+        
+        if knob_point[0] is not None and knob_point[1] is not None:
+            masks_knob = segment_sam3_point_prompt(rgb, (knob_point[0], knob_point[1]))
+            if masks_knob:
+                best_knob_mask = max(masks_knob, key=lambda x: x.get("score", 0))["mask"]
+                
+                valid_depth = (depth > 0.05) & (depth <= 3.0) & best_knob_mask
+                if np.any(valid_depth):
+                    ys, xs = np.where(valid_depth)
+                    indices = np.random.choice(len(xs), min(100, len(xs)), replace=False)
+                    xs_sample = xs[indices]
+                    ys_sample = ys[indices]
+                    depths_sample = depth[ys_sample, xs_sample]
+                    
+                    cam_points = np.column_stack([
+                        (xs_sample - intrinsics[0, 2]) * depths_sample / intrinsics[0, 0],
+                        (ys_sample - intrinsics[1, 2]) * depths_sample / intrinsics[1, 1],
+                        depths_sample
+                    ])
+                    
+                    cam_points_h = np.column_stack([cam_points, np.ones(len(cam_points))])
+                    world_points = (pose_mat @ cam_points_h.T).T[:, :3]
+                    
+                    knob_center = np.mean(world_points, axis=0)
+                    
+                    joints_knob = solve_ik(knob_center, np.array([1, 0, 0, 0]))
+                    move_to_joints(joints_knob)

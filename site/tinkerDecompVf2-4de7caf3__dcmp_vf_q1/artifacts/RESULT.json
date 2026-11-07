@@ -1,0 +1,121 @@
+{
+ "status": "DONE",
+ "turns": 51,
+ "gpu_hours": 13.2289,
+ "final_score": {
+  "loaded": "t2_revstack",
+  "per_task": {
+   "nut": 0,
+   "restack": 0,
+   "revstack": 2,
+   "t2_ss": 2,
+   "t2_spl": 0
+  },
+  "total": 4,
+  "n_per_task": 50,
+  "submission": "d5481f",
+  "confirmed": true,
+  "per_split": {
+   "id": 2,
+   "far": 2
+  }
+ },
+ "agent": "local",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": 262144
+ },
+ "mode": "dev",
+ "final_episodes": 50,
+ "policy_model": "Qwen3.8-27B",
+ "eval_backend": "tinker, decode=tinker(no_presence_penalty) (DEV backend only: dev/checkpoint evals of Tinker-trained adapters sample on Tinker; hidden evals and other adapters run locally)",
+ "trainer": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B charge=canonical sim=l40s",
+ "tinker": {
+  "calls": 8,
+  "usd": 107.0941,
+  "tinker_s": 8915.1
+ },
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 10.7133,
+ "gpu_hours_charging": "canonical",
+ "cost_model": "v2",
+ "gpu_hours_lost": 0.6328,
+ "measured_vs_canonical": 0.717,
+ "agent_gpu_h": 1.3557,
+ "measured_cost": {
+  "train_gpu_h": 0.0,
+  "reason_gpu_h": 1.3557,
+  "sandbox_gpu_h": 8.0625,
+  "usd_tinker": 107.0941,
+  "charged_gpu_h": 13.2289,
+  "tokens": {
+   "prompt": 2165759,
+   "completion": 119525
+  },
+  "unmeasured_calls": 0
+ },
+ "submission": {
+  "token": "d5481f",
+  "how": "default-loaded-stack",
+  "turn": 49,
+  "confirmed": true,
+  "confirmed_turn": 50,
+  "ended_by": "DONE",
+  "note": "GRPO-trained LoRA (shaped dense reward) focused on revstack: t1_shaped_rev(16 steps) -> t2_revstack(22 steps continuation, best practice success rate 1.7%, 24 successes). Restack & nut remained unsolved (0 successes across hundreds of rollouts; stuck at grasp/insert).",
+  "policy": "base + t2_revstack (sha aa34f89dd73f)"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "b9f2f44d16224cd754a6e355deb58d07283d0d178324dd94a7cd9482329381a6",
+ "suite": {
+  "name": "hard3",
+  "version": 1,
+  "hash": "sha256:aaa90816430a9221",
+  "train": [
+   "nut",
+   "restack",
+   "revstack"
+  ],
+  "eval": [
+   {
+    "cell": "nut",
+    "split": "id"
+   },
+   {
+    "cell": "restack",
+    "split": "id"
+   },
+   {
+    "cell": "revstack",
+    "split": "id"
+   },
+   {
+    "cell": "t2_ss",
+    "split": "far"
+   },
+   {
+    "cell": "t2_spl",
+    "split": "far"
+   }
+  ],
+  "splits": {
+   "nut": "id",
+   "restack": "id",
+   "revstack": "id",
+   "t2_ss": "far",
+   "t2_spl": "far"
+  }
+ },
+ "env_text": "v2",
+ "turns_before_first_action": 17,
+ "tokens_before_first_action": 35680,
+ "first_action": "train",
+ "artifacts": {
+  "registry": "…/tinkerDecompVf2-4de7caf3/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

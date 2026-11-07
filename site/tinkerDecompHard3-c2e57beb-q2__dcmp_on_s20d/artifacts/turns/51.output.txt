@@ -1,0 +1,52 @@
+rc=0
+===== rollouts/1.jsonl =====
+restack seed 800001 completed False reward 0.031841438292149124 rc 0 secs 9.7
+   stages {'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+restack seed 800002 completed False reward 0.011841424388744914 rc 0 secs 9.7
+   stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+restack seed 800003 completed False reward 0.00758977231127822 rc 0 secs 9.9
+   stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+restack seed 800004 completed False reward 0.00713775897001348 rc 0 secs 10.0
+   stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+restack seed 800005 completed False reward 0.05290369241596689 rc 0 secs 5.5
+   stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+restack seed 800006 completed False reward 0.008316932154918771 rc 0 secs 5.3
+   stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+restack seed 800007 completed False reward 0.002188850434222872 rc 1 secs 0.2
+   stages {'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+restack seed 800008 completed False reward 0.019367281837966585 rc 0 secs 5.4
+   stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+===== rollouts/2.jsonl =====
+revstack seed 800009 completed False reward 0.005911420847557969 rc 0 secs 18.4
+   stages {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+revstack seed 800010 completed False reward 0.00015281036676798032 rc 1 secs 8.2
+   stages {'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+revstack seed 800011 completed False reward 0.0007468998925193732 rc 0 secs 18.3
+   stages {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+revstack seed 800012 completed False reward 1.6847439861938929e-06 rc 0 secs 17.3
+   stages {'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+revstack seed 800013 completed False reward 0.0013247620215122158 rc 1 secs 4.3
+   stages {'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+revstack seed 800014 completed False reward 0.08304293164179766 rc 0 secs 7.1
+   stages {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+revstack seed 800015 completed False reward 0.03725587282015354 rc 0 secs 8.1
+   stages {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': True, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+revstack seed 800016 completed False reward 0.0012205732024362231 rc 0 secs 7.9
+   stages {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+===== rollouts/3.jsonl =====
+nut seed 800017 completed False reward 0.0002693809994682716 rc 0 secs 13.5
+   stages {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+nut seed 800018 completed False reward 0.0003230761479690036 rc 1 secs 4.2
+   stages {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+nut seed 800019 completed False reward 0.00028030952872581944 rc 0 secs 12.1
+   stages {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+nut seed 800020 completed False reward 0.00042176028975402505 rc 1 secs 0.9
+   stages {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+nut seed 800021 completed False reward 0.0004146768139350553 rc 1 secs 0.8
+   stages {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+nut seed 800022 completed False reward 0.000333873223510106 rc 1 secs 0.9
+   stages {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+nut seed 800023 completed False reward 0.0002796546697236834 rc 1 secs 0.9
+   stages {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+nut seed 800024 completed False reward 0.00039230696809064983 rc 1 secs 3.4
+   stages {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}

@@ -1,0 +1,1 @@
+{"name": "pr_pickup_ssm", "task": "SteamInMicrowave", "steps": 8, "batch": 8, "reward": "rewards/pickup_r.py", "goal": "Pick up an object and move it to a new location.", "init_mode": "fresh", "seed_start": 922001, "time": "03:30:00"}

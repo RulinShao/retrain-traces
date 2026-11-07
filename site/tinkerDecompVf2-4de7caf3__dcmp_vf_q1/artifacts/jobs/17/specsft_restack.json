@@ -1,0 +1,1 @@
+{"objective":"sft","data":"sft_restack_probe.jsonl","name":"probe_restack","batch":16,"epochs":1}

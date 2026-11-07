@@ -1,0 +1,464 @@
+rc=0
+===TOOLS SKILL===
+---
+name: retrain-tools
+description: Submit training and evaluation jobs, inspect results, and select the policy to score.
+---
+
+# Environment tools
+
+Read `ENVIRONMENT.json` for the site's policy, adapter composition and enforced constraints, and `tasks.json`
+for task details. `STATUS.json` contains the latest budget, loaded stack, adapters and running job IDs.
+`SCOREBOARD.md` has dev scores and lineage. While a train or eval is submitted, `jobs/<id>.json` (`progress`, `progress_line`; `status.py`),
+STATUS.json (`job_progress`) and the scoreboard show whether it is queued (not started, with its queue time so far) or running, and for a
+running train its completed steps, latest mean reward and GPU-hours so far, as the site reports them. `tasks/<task>/eval_prompt.txt` (when
+the site provides it) is the prompt the policy receives at evaluation; training prompts are checked against it. `tasks/INDEX.md` lists each task's goal line, dev and
+hidden seed ranges, recorded base score, API names and key rules, taken from tasks.json, the eval prompts and the base scores. State comes from the environment; this skill is editable guidance.
+
+| Command | Effect |
+| --- | --- |
+| `python3 train.py SPEC` | Submit JSON/YAML spec to the installed trainer; see `skills/trainer/SKILL.md`. |
+| `python3 eval.py --adapter A[,B...]\|base\|loaded --task T --seeds N` | Evaluate on the next N unused dev seeds (the result lists them; the base column has its own) with the task's `tasks/<task>/eval_prompt.txt` verbatim (no training `note`/`goal`; the final score uses the same prompt). A stack's score on a task is known only from an eval of that stack (`--adapter A,B`); neither the scoreboard nor the environment derives it from its adapters' single scores. `loaded` is the stack loaded when the request is picked up, so not an adapter whose train is still running. Results are written only when all seeds finish, so an eval that reaches its time limit usually fails with no count (rarely: a count over the seeds that finished, with `partial`). Where the site can resume an eval (eval port dq-t1v2), an eval stopped by the cluster (time limit, preemption, node failure) continues its remaining seeds in a new Slurm job, at most 3 times; its status then says `continued from seed k in job J`, and its result lists every Slurm job (`jobs`) and each continuation (`continued`: `job` stopped, `cause`, `from` seed, `of` seeds, `continued_in` job), as it lists site retries. |
+| `python3 load.py load A [B...]` | Replace the loaded stack (names separated by spaces; eval.py separates them by commas). |
+| `python3 load.py stack A [B...]` | Append to the loaded stack. |
+| `python3 load.py unload [A...]` | Remove names, or return to base with no names. |
+| `python3 status.py [ID...]` | Read job states and results; no IDs shows all jobs. The last line states what finishing now would score. |
+| `python3 wait.py all\|ID... [--max 4h\|90m]` | Submit a wait barrier: your next turn starts when those jobs finish or after `--max` (default 2h), whichever comes first. If the bound comes first, the result states each job's queue state, reason, position and time pending, and "no job finished". The barrier runs in the environment after your command returns, so `--max` is not limited by the per-command time limit. |
+| `python3 finish.py [--policy base \| --adapters A[,B...]] [--note TEXT]` | Step one of ending the session: submit the policy to score (no policy arguments: the loaded stack; single mode: `current`, `v<k>` or `current@<k>`). The result states exactly what will be scored and a token. |
+| `python3 finish.py --confirm TOKEN` | Step two, in a later turn: end the session; the submission is scored. |
+| `python3 cancel.py ID` | Stop a running train or eval. A train keeps the adapter of its last saved step (if the site saved one), registered with the steps it ran; the job is charged the GPU time it used. |
+
+Scripts submit request files and return IDs. Shell success means submission, not job success. In the chat backend,
+requests are handled only after the entire command returns: `train.py spec.json; wait.py all; load.py load a1`
+queues a dependency chain, but reading status later in that same shell still sees the old state. The Codex backend has a background executor; request processing and status refresh happen independently.
+Read `jobs/<id>.json` or the next observation to distinguish done, failed and refused requests.
+
+Training names are reserved while pending. Training does not load an adapter in library mode; single mode automatically
+replaces and loads `current`. When ENVIRONMENT.json `constraint` names versions, every successful train is a new version
+v1, v2, ... (`current` = the latest) and becomes active; `load.py load v<k>` makes an earlier version active again,
+`eval.py --adapter v<k>` evaluates one, the next train starts from the active version, and versions are never stacked.
+Adapter composition depends on the site. Load calls are free. Train/dev calls reserve the
+site's cost estimate at admission and are charged the site's cost per call (skills/trainer/SKILL.md, Cost); the
+reservation is admission control, not a hard runtime cutoff.
+
+Successful training returns an adapter path, a skills digest, and site-provided training metadata when available.
+`training.json` in the adapter contains site-resolved parameters and artifact names. `site_sources` identifies the site
+code, not the complete external GPU/software environment. A skill edit alone does not change the installed trainer.
+
+Ending the session takes two steps: `finish.py` submits a policy and its result states exactly what will be scored
+(adapters with version and weights sha, eval-prompt hash) and a token; `finish.py --confirm TOKEN` in a later turn ends the
+session. Until then the session goes on; a `load.py` or `train.py` request in between cancels the submission (submit
+again). An unknown adapter name refuses the submission. The submission is scored even if a different stack is loaded at
+the end. If the session ends without a confirmation (budget, caps), the pending submission is scored, else the loaded
+stack. Submitted jobs finish before the score. A file named `DONE` starts the two-step finish like `finish.py` with no
+arguments: it submits the loaded stack (the file is removed); the session ends only after `finish.py --confirm TOKEN`.
+
+
+## Per-episode feedback (this session)
+
+Each of these runs on the next unused dev seeds, is charged as an eval of N seeds, and writes its rows where you can read them.
+A rollout or eval row carries `program`, `seed`, `sandbox_rc`, `secs`, `wall_s`, `log_tail` (the tail of what the program
+printed), `task` and, on a task whose verifier you can see, `stdout_tail` (= `log_tail`) and `task_completed`. On such a task a
+rollout.py row is also the practice episode record: the policy's program for that seed runs once on the task's practice
+simulator (one attempt, as a practice rollout), so the row adds `sim_reward` (the simulator's own dense reward, the one `shaped` trains on), `stages` (its
+ordered checklist for the task, {name: reached}, where it keeps one), `final_state` (object poses, gripper and contacts at
+the end) and `trace` (the same, every few simulation steps of the episode). eval.py rows come from the evaluation runner, which records no `stages` or `final_state`. A reward file (`--reward
+FILE`, a `.py` in your workspace defining `reward(result) -> float`) sees every row key except `program`. A rollout.py job's result (`signals`) and its History line also state, over its rows, how many reach each stage and how many distinct values `task_completed`, `sim_reward` and each stage flag take (1 = the same on every row).
+
+| Command | Effect |
+| --- | --- |
+| `python3 rollout.py --adapter A[,B...]\|base\|loaded --task T --seeds N [--reward FILE]` | The stack on N dev seeds of T; rows in `rollouts/<id>.jsonl`, with `self_reward` (or `self_reward_error`) per row when `--reward` is given. Example: `python3 rollout.py --adapter loaded --task stack --seeds 8 --reward rewards/lifted.py` |
+| `python3 preset.py --task T --program FILE --name NAME --seeds N` | Your prefix program FILE (only the task's own API) runs once on each of N dev seeds (1-32) of T; each reached state is saved and the preset is kept only if every state restores. Record in `presets/NAME.json`; a train spec `"start_preset": "NAME"` on T then practises from those states. Example: `python3 preset.py --task stack --program prefixes/grasp.py --name stack_grasped --seeds 16` |
+| `python3 eval.py --adapter ... --task T --seeds N --reward FILE` | The eval's success count as without `--reward`, plus its rows in `rollouts/<id>.jsonl` scored by your reward. Example: `python3 eval.py --adapter loaded --task stack --seeds 20 --reward rewards/lifted.py` |
+
+A ```bash block ends at the next ``` anywhere in the reply, including one inside a heredoc or a Python string, so the rest of such a command does not run; a bash tool call, written exactly as `<tool_call>` `<function=bash>` `<parameter=command>`CMD`</parameter>` `</function>` `</tool_call>`, has no such limit (or write the backticks another way, e.g. `chr(96)*3` in Python).
+
+### Worked examples (a task that never succeeds yet)
+
+Sub-goals, their verifiers and the start states of practice are yours to define. The examples below show one way the tools
+fit together on a generic pick-and-place task `T` (object `the cube`); adapt or ignore them. Requests are picked up only after
+your whole command returns, so read a job's files in your next turn.
+
+1. Look at what the policy does. `python3 rollout.py --adapter base --task T --seeds 8` writes `rollouts/<id>.jsonl`: per seed
+   the program it wrote, what it printed (`log_tail`) and whether it succeeded. Reading a few programs and their output often
+   shows where they stop (an exception, a grasp that never closes, a place at the wrong height).
+
+2. Look at the state an episode ended in. Each rollout.py row has it (`stages`, `final_state`), and every train records it for
+   each practice episode: `adapters/<name>/practice_rows.jsonl` (all episodes) and `adapters/<name>/failures.jsonl` (the
+   lowest-reward ones per task), and SCOREBOARD.md shows each train's stage histogram (eval.py rows have neither). `stages` is the simulator's own ordered
+   checklist for the task where it keeps one (names like `reach ...`, `grasp ...`, `lift ...`; true once reached); `final_state` holds object poses
+   (`pos`, `init_pos`, `max_z`), the gripper (`pos`, `opening`, `grasping`) and `contacts`. Print one row to see the keys:
+   `python3 -c "import json; r = json.loads(open('adapters/NAME/failures.jsonl').readline()); print(r['stages']); print(json.dumps(r['final_state'])[:800])"`
+
+3. Write a verifier for a sub-goal you choose, for example "the cube is grasped" (`rewards/grasped.py`):
+   ```python
+   def reward(r):
+       stages = r.get("stages") or {}
+       grasped = any(v for k, v in stages.items() if k.startswith("grasp"))
+       return 1.0 if grasped else 0.0
+   ```
+   A reward may also read `final_state` (e.g. the cube's height above `init_pos`) or what the program printed (`stdout_tail`;
+   practice rows name the simulator's own reward `sim_reward`, a train's reward also sees it as `reward`).
+   Before training on it, score rows you already have: `python3 -c "import json; from rewards.grasped import reward; rows = [json.loads(l) for l in open('adapters/NAME/practice_rows.jsonl')]; print(sum(map(reward, rows)), len(rows))"`.
+   A reward that is 0 (or 1) on every row gives GRPO no signal; one that separates some rows does. The train reward `shaped` is
+   the simulator's own dense reward (a row's `sim_reward`), a different signal from `stages`: count how often each separates
+   your recorded rows before choosing one.
+
+   Three facts about sub-goal rewards (hard3 11-05: a reward with an ungated "red near green" term paid 0.374 to programs that
+   crashed at once, because restack starts with red under green, and 0.19-0.28 to programs that ran; practice drove crashes from
+   61% to 95% of rows):
+   - A stage the episodes never reach (0/n) gives GRPO no signal, and neither does one they always reach (n/n). A rollout's
+     `stages reached` counts show where episodes stop; the first stage near 0/n is the one that blocks the end, and practice on
+     it has signal from start states just before it (`preset.py`).
+   - A distance term (gripper to object, object to target) also scores the start state. Gate each one on the stage before it
+     (e.g. the place distance only once the object is lifted), so that a program that does nothing scores what a crash scores.
+   - A form that has neither problem: 0 for a crashed program (`sandbox_rc != 0`) and for an episode that never moved
+     (`final_state["t"] == 0`), else the fraction of the task's stages reached in order, plus a small term in [0, 1) for the
+     next unreached stage:
+     ```python
+     def reward(r):
+         if r.get("sandbox_rc") not in (0, None) or not (r.get("final_state") or {}).get("t"):
+             return 0.0
+         stages = list((r.get("stages") or {}).values())
+         k = 0
+         while k < len(stages) and stages[k]:
+             k += 1
+         near = 0.0   # e.g. 1 - distance to the next stage's target / its start distance, from final_state; 0 if none
+         return (k + 0.5 * near) / max(1, len(stages))
+     ```
+   train.py also scores every reward file on your recorded rows of the task before it spends anything (see the trainer's
+   Failures).
+
+4. Practise the sub-goal: a train spec with `"reward": "rewards/grasped.py"` (and a `note` naming the sub-goal if you want the
+   prompt to say it). `practice_rows.jsonl` then shows how often the sub-goal was reached per step.
+
+5. Build start states for the next sub-goal. A prefix program (`prefixes/grasp.py`, the task's own API only) that performs the
+   steps you can already do, then `python3 preset.py --task T --program prefixes/grasp.py --name T_grasped --seeds 16`.
+   `presets/T_grasped.json` lists, per seed, whether the state restores and what the prefix printed, and (on a task whose
+   verifier you see) `task_completed`, `stages` and `final_state` of the reached state, so you can check the prefix reached what
+   you meant before practising from it: a train spec with `"start_preset": "T_grasped"` and a reward for the remaining part.
+
+6. Check the whole task again: `python3 eval.py --adapter A[,B] --task T --seeds 20` gives the success count. Its rows (with
+   `--reward`) have no `stages` / `final_state`, so a reward that reads them scores nothing there; one that reads what the
+   program printed (`stdout_tail`) or `task_completed` works on eval rows too. How far the episodes get on the way is in
+   `python3 rollout.py --adapter A[,B] --task T --seeds 8 --reward rewards/grasped.py` (rollout rows carry `stages` and
+   `final_state`) and in the next train's `practice_rows.jsonl` and its stage histogram.
+
+### Subtask units (`unit.py`)
+
+A sub-goal you practise often can be given a name and used like a task. Example on a task `T`, with the files of the examples
+above:
+
+```bash
+python3 unit.py register T_place --task T --reward rewards/placed.py --start-preset T_grasped --done rewards/placed_done.py
+```
+
+Afterwards `"task": "T_place"` in a train spec trains on T from `T_grasped`'s states with `rewards/placed.py` (the spec does not
+set `reward` or `start_preset` then); `python3 rollout.py --adapter A --task T_place --seeds 8` runs T_place's episodes on T's
+practice simulator from those states (rows scored by its reward, plus `unit_done` with a done file); `python3 eval.py --adapter A
+--task T_place --seeds 8` counts the episodes where `done(r)` holds (or the reward reaches 1.0 without a done file) and shows
+them as the scoreboard row `T_place (unit of T)`. From a start preset, a unit's rollouts and evals run on that preset's own seeds
+(at most as many as it has states). A unit never changes T's own score. `python3 unit.py list` shows your units; registering
+charges nothing.
+
+## Magic practice (this session)
+
+DEV practice from an edited start state, on a task whose verifier is shown (never on eval.py, a unit or a hidden task).
+
+| Command | Effect |
+| --- | --- |
+| `python3 rollout.py ... --magic "prefix:<stage>=set FILE.json\|attach OBJECT" [--magic-presets NAME]` | DEV practice: each seed's scene is edited at reset so the checklist's stages up to `<stage>` are done (set: object poses / arm joints / gripper from FILE, plus optionally `"attach": OBJECT` after the poses; attach: OBJECT in the closed gripper), checked (settle, 5 mm / 10 deg, penetration, the stages hold, the task not already done), then the program runs from there. Rows add `magic` (`valid`, `reason`, `signature`) and `label: "privileged practice (magic)"`; they are never success data for a train, and eval.py has no magic. `--magic-presets NAME` saves the states before / after each valid edit as presets `NAME_pre` / `NAME_post`. Example: `python3 rollout.py --adapter loaded --task T --seeds 8 --magic "prefix:grasp the cube=attach cube"` |
+| `python3 rollout.py --adapter A --task T --seeds N --magic-prefix stage=<k\|name> [--suffix policy\|oracle]` | The magic ladder (DEV practice): each seed starts at the boundary of the task's ladder cut k (the environment builds the state; a refusal lists the cuts), then the suffix runs. `policy` (default): the stack's programs, rows as with `--magic`. `oracle`: the task's human-expert oracle tail on the privileged API, a doability probe that returns counts only (`n/N`, label `upper bound / doability`; no rows, never training data). Every ladder call of a task runs on its first ladder call's seeds; the result's `ladder` / `ladder_aggregate` and SCOREBOARD.md give success per cut and the cut where the rate jumps. With the policy suffix, `--magic-presets NAME` saves each seed's cut state as preset `NAME_post` (its start as `NAME_pre`), labelled magic-built. Charged as an eval of N seeds. |
+| `python3 reward_check.py --reward FILE --against NAME` | Your reward on the states of magic presets `NAME_pre` / `NAME_post` and on your crashed rollout rows (`sandbox_rc` not 0): the means and whether it rises from pre to post and scores crashes lowest. Facts only, nothing charged. |
+
+Fact: on a task where the policy succeeds on no seed, a full-task reward pays only partial stages, so its gradient comes from them alone. Before training such a task or a sub-goal of it, bisect the task with the magic ladder: the first atomic action whose suffix the policy fails but the oracle probe passes is the one to train, alone, from that cut saved with `--magic-presets NAME` (a unit start, below); if the probe fails too, report the cut and the facts to the operator instead of training.
+
+Fact: a preset saved by `--magic-presets NAME` is a valid unit start: `unit.py register U --task T --reward FILE --start-preset NAME_post` and a train spec `"task": "U"` train only the actions after the edit, from each seed's frozen post state, scored by FILE; the edit never completes the task, so FILE may check the next atomic action or the whole task. Every row of such a unit (its rollouts, its evals, its train's practice rows) carries the magic label: never success data for a train, never a task score (eval.py on U fills only U's own scoreboard row). A ladder cut saved with `--magic-prefix stage=<k> --magic-presets NAME` is such a preset too. A `verifier.py design` verifier must also pay the task's goal and never fall along the stage checklist, so a sub-goal verifier is accepted only when it also pays every later stage.
+
+Fact: `--magic-prefix stage=` takes the ladder's cut names or indices (listed per task at the end of this section, e.g. `2=align`); `--magic "prefix:<stage>=..."` takes the checklist's stage names as rows show them in `stages` (e.g. `align the red over the green`). A unit's rows start their stage checklist afresh from the preset state, so their `stages` counts are not those of the full task.
+
+### Worked loop (a task T whose policy suffix fails at some cut)
+
+```
+python3 rollout.py --adapter loaded --task T --seeds 8 --magic-prefix stage=<k>                # policy suffix at cut k (cuts: below)
+python3 rollout.py --adapter loaded --task T --seeds 8 --magic-prefix stage=<k> --suffix oracle  # doability, counts only
+# c = the first cut whose policy suffix fails while the oracle passes; if the oracle fails too, report c, do not train
+python3 rollout.py --adapter loaded --task T --seeds 8 --magic-prefix stage=<c> --magic-presets T_c   # saves T_c_pre / T_c_post
+python3 verifier.py design --task T --goal "<T's goal in your words>" --purpose "reward after cut c" --name T_goal
+python3 reward_check.py --reward verifiers/T_goal.py --against T_c                            # rises pre -> post? crashes lowest?
+python3 unit.py register T_after_c --task T --reward verifiers/T_goal.py --start-preset T_c_post
+python3 rollout.py --adapter loaded --task T_after_c --seeds 8                                 # signal = some rows pay, not all
+echo '{"name": "A_c", "task": "T_after_c"}' > spec_c.json && python3 train.py spec_c.json       # reward check runs before any spend
+python3 eval.py --adapter A_c --task T_after_c --seeds 8                                       # the unit's own scoreboard row
+python3 rollout.py --adapter A_c --task T --seeds 8 --magic-prefix stage=<c-1>                 # chain back: the cut before c
+# once A_c passes from cut c-1, repeat from the --magic-presets step at c-1 with "init": "A_c" in the spec
+python3 eval.py --adapter A_c --task T --seeds 20                                              # the task's own count
+```
+A verifier reads `final_state`: use it with rollout.py, unit.py and train specs; eval.py rows carry no `final_state`.
+
+Magic ladder cuts of your tasks (`--magic-prefix stage=<k>` or `stage=<name>`):
+- nut: 0=grasp, 1=lift, 2=align, 3=lower
+- restack: 0=grasp, 1=lift, 2=align, 3=lower
+- revstack: 0=grasp, 1=lift, 2=align, 3=lower
+
+## Verifiers (this session)
+
+| Command | Effect |
+| --- | --- |
+| `python3 verifier.py design --task T --goal TEXT [--unit U] [--purpose TEXT] [--name N]` | A verifier for your goal (or sub-goal) on T, written and reviewed by fresh-context subagents and executed by a lint on states: T's start state scores 0, crashed and no-op rows score 0, goal states score 1, near misses (states that look like the goal but are not: the task's fixed set and the judge's) score 0, and the mean score never falls along T's stage checklist. Writes `verifiers/N.py` (a reward for rollout.py --reward, unit.py and a train spec; eval.py rows carry no `final_state`, so it scores 0 there) and `verifiers/N.audit.json`, or refuses naming the failing check. Uses only your own recorded rows of T: run rollout.py on T first. The subagents' time is charged to your GPU-hour budget (`gpu_hours` in the result). Example: `python3 verifier.py design --task T --goal "sub-goal 1 reached and released" --purpose "reward of sub-goal 1"` |
+
+- A reward you write over stages/task_completed needs no verifier; verifier.py design is for a goal the stage checklist does
+  not name, and is the only path that runs a check against near misses before you train on it.
+- The default reward is a binary current-sub-goal verifier: 1.0 when the sub-goal's predicates hold on `final_state`, else 0.0,
+  with no distance term.
+- Relax only within bounds: a larger tolerance on the same predicate, or an earlier sub-goal. Never drop a necessary predicate;
+  never relax the task's final success.
+- Tighten or move on once a sub-goal passes above ~60%.
+- Before submitting a verifier or reward, write down one end state that passes your predicates without achieving the goal; if
+  you can write one, the predicate set is incomplete.
+- A verifier is a reward, never a score: the eval of record stays the task's own check.
+
+## Budget facts (this session)
+
+Once less than half of the GPU-hour budget remains, every observation ends with one `[environment] budget facts:` line: the
+remaining GPU-hours and their share of the budget, the tasks whose practice success rose in the last train, the tasks with zero
+practice rollouts in the current adapter (the one trained last), and the tasks whose dev count's 95% interval still overlaps
+base's. `finish.py` (step one) with more than 10% of the budget remaining returns the same facts and one sentence that budget
+remains; as always, step one does not end the session, and `finish.py --confirm TOKEN` in a later turn does.
+===TRAINER SKILL===
+---
+name: trainer
+description: The hyak trainer contract: every field train.py reads, what each failure returns, costs, and what a train produces.
+---
+# Trainer on this site (hyak, CaP-X Robosuite, GRPO LoRA)
+
+`python3 train.py SPEC` submits one practice call; SPEC is a JSON or YAML file in the workspace. `python3 train.py --help` prints this file.
+Relative paths in SPEC (a reward file, an init adapter path, data files) resolve against the workspace, where `train.py` runs, wherever SPEC itself is.
+The programs can call exactly the functions listed under `APIs:` in the task's eval_prompt.txt. The Key rules of the stack,
+revstack, stackv2 and handover prompts also name `get_object_pose`, `sample_grasp_pose`, `goto_pose_arm*` and a `z_approach`
+parameter: none of these exists in these cells (the rules text is shared with the tasks' privileged-API variant). The prompts
+are the benchmark's cells of record and are scored as they are.
+A stack (`eval.py --adapter A,B`, `load.py stack`) holds at most 2 adapters: each is rank 32 and the serving's maximum
+LoRA rank is 64; a larger stack ends `failed` with `stack rank 96 > 64 (the serving's --max-lora-rank): at most 2 adapters of rank 32`.
+Your shell on this site writes only in the workspace and has no network (pip, curl and similar fail) and no Slurm client;
+all compute goes through train.py and eval.py.
+
+## What a practice call is
+GRPO on LoRA adapters of the policy model named in SCOREBOARD.md's `policy:` line (LoRA rank 32, alpha 64, on q,k,v,o,out,gate,up,down
+projections for Qwen3.8-27B; other policies have no `out`).
+Each step: `batch` prompts x `rollouts` rollouts (8, or 16 if the spec sets it). GRPO's update comes from reward differences among a prompt's rollouts: a prompt whose rollouts all get the same reward adds nothing to it. A rollout is one program written by the model for the task, run once in the task's simulator
+on one seed; its score is the reward below. The training prompt is the task's evaluation prompt, byte for byte (checked before training), unless the spec sets `note` or `goal` or a `data` row sets `prompt`:
+those are part of the training prompt only. Every eval, including the final hidden-seed score, uses the task's
+`tasks/<task>/eval_prompt.txt` in the workspace verbatim, without any note or goal.
+Sampling during practice: temperature 1.0, top_p 0.95, top_k 20; at most 8192 generated tokens per program.
+Sampling during evaluation (eval.py and the final score): temperature 0.7, top_p 0.8, top_k 20, presence_penalty 1.5, thinking
+off; at most 8192 generated tokens per program (envs/capx/config_of_record_v4.yaml). For lift, stack, wipe and nut the practice
+unit and the eval cell run the same task config (`*_reduced_api_exampleless.yaml` is the s4:paper cell's config).
+
+A policy whose name carries `+init:<sha>` (SCOREBOARD.md's `policy:` line) is the model plus that init adapter: its base is
+served with the init, every train without `init` starts from it, so each trained adapter already contains the init's change,
+and a stack of two such adapters applies that change twice.
+
+## Spec fields (a spec with any other field fails; see Failures)
+| field | type | default | accepted |
+|---|---|---|---|
+| `task` | string or list | this session's task set (see Defaults) | a trainable task (see workspace/tasks/INDEX.md), or a list of them: one call practising all, every batch split equally across them or by `weights` (no `note` / `goal`); revstack practises alone |
+| `name` | string | `a<job id>` | letters, digits, `_ . -`, at most 48; not already taken, not `base` / `loaded`. Single-adapter mode: omit it (or `current`) |
+| `steps` | integer | as many as your remaining budget affords (see Defaults) | any positive integer (cost grows with it, see below) |
+| `batch` | integer | 8 (a task list: the smallest batch >= 8 that splits as asked) | prompts per step (each x `rollouts` rollouts) |
+| `weights` | list of numbers | none: an equal split | with a `task` list: one weight per task, same order, each > 0; task i gets batch x w_i / sum(weights) prompts in every batch, which must be whole numbers (equal weights = the equal split); not with `data` |
+| `rollouts` | integer | 8 | 8 or 16: rollouts per prompt (each prompt's GRPO group; `zero_variance_frac` under Output is the share of groups that added nothing). 16 doubles each step's rollouts and the per-step part of its cost |
+| `lr` | float | 2e-5 | learning rate |
+| `init` | string | none: the adapter this session trained last is continued natively (none yet: a fresh LoRA); see Continuation | an adapter name produced by an earlier train of this session (`base` is not one). Alone it means the site's native continuation: verl starts from its weights with a fresh optimizer; trainer=tinker restores its full state. Single-adapter mode: omit it (or `current`) |
+| `init_mode` | string | none (see `init`) | what the call starts from, exactly: `resume` (same lineage; the parent's full state, weights + optimizer + dataloader, so `steps` is the target total and must exceed the parent's step), `branch` (a new lineage from the parent's weights, fresh optimizer; parent recorded), `fresh` (a new LoRA; no `init`). `resume` / `branch` need `init` |
+| `start_preset` | string | none | a named start-state preset (registry presets exist only where the operator built them (DEV label); presets you build with preset.py are yours, on the task they were built on) to begin practice from an intermediate scene (e.g. object already grasped) so the agent trains the hard tail; the staged reward then scores only the stages after that sub-goal; fails loudly if the preset has not been built. With hidden tasks (B2): also the name of a preset you built with `preset.py` (`presets/<name>.json`), on the task it was built on; on a hidden task only such a preset |
+| `start_mix` | string | none | a mixed start-state pool (core/mix_presets.py, built with `build_mix`): seeds split across presets of one task at a ratio, some from scratch; the staged reward scores the full chain; not with `start_preset`; fails loudly if not built; refused on a hidden task (B2) |
+| `reward` | string | `task_completed` | `task_completed` (1.0 if the task's own success check passes, else 0.0); `shaped` (the simulator's staged reward); Python source containing `def reward(r)`; or the path of a `.py` file (relative paths: the workspace) defining `reward(r)`. `r` is the simulator's reply (keys or attributes): `task_completed`, `reward`, `sandbox_rc`, `seed`, `log_tail` (= `stdout_tail`), `stages` (the simulator's ordered checklist for the task, {name: reached}, on tasks it tracks), `final_state` (object poses, gripper and contacts at the episode's end) and `trace` (the same, every few simulation steps of the episode); return a float |
+| `seed_start` | integer | the lineage's next unused block (`seed_cursor`): the first call of a lineage (no `init`) starts at 810001; a continuation (`init`) starts right after the seeds its lineage has used (`seeds_consumed` in each `adapters/<name>/call.json`); set it to replay seeds | rollout k of the call runs on seed `seed_start + k`; must not reach seeds 1-100 |
+| `seeds` | list of integers, or string | none (`seed_start` applies) | the call's rollout seeds, taken in order across prompts and rollouts, e.g. `"810001-810064,820001-820032"` (a range includes both ends); overrides `seed_start`; at least steps x batch x rollouts seeds, none in 1-100; not with `data`, `start_preset` or `start_mix` |
+| `note` | string | none | one sentence inserted after the training prompt's Goal line (not a comment: the rollouts see it; evaluation prompts never have it) |
+| `goal` | string | none | replaces the training prompt's Goal line (evaluation prompts keep theirs) |
+| `time` | string | set by the site: 1 GPU 25 min + 13 min x steps, 2 GPUs 85 min + 17 min x steps, 3 GPUs 30 min + 14 min x steps, at least 2 h (whole minutes, rounded up; the job record's `config` shows the value used) | wall limit of each Slurm job of the call, `HH:MM:SS`; a call whose job reaches it continues from its last saved step (below); once it has continued 3 times it keeps the adapter of its last saved step, as a cancel (result `time_limit`; a preempted or node-failed call likewise, result `preempted` / `node_fail`), or ends `failed` with the fact if none was saved |
+| `data` | string | none | a JSONL file of training prompts in your workspace: see Training data below. With `data`, the tasks, seeds, order and steps come from its rows |
+| `objective` | string | `grpo` | `grpo` (the practice call above) or `sft` (supervised fine-tuning on your own demonstrations: see SFT below; its spec has `data` and the fields of that section only) |
+| `epochs` | integer | 1 | `objective: sft` only: passes over the kept rows |
+| `min_reward` | number | 1.0 | `objective: sft` only: rows with `reward` >= this are trained on, the others dropped (a filter, never a weight) |
+| `stop_when` | object | none (all `steps` run) | optional early stop: see Early stop below |
+
+A continuation (`init` = an earlier adapter) practises on fresh seeds by default: its lineage's next unused block, recorded in `call.json` as `lineage`, `seed_cursor` (the block allocated) and `seeds_consumed` (the seeds the rollouts actually used). Fresh means the next draw from the same seed space, not a chosen difficulty; set `seed_start` or `seeds` to replay.
+
+Scenes of a call: one train already covers steps×batch×rollouts distinct scenes; set `seeds` to spread scenes or `seed_start` past the parent's range when continuing; sequential continuation remains allowed. `call.json` of a call with `seeds` records them as `seeds` in range form.
+
+## Training data (`data`)
+`data` names a JSONL file in your workspace (a path relative to the workspace, or absolute inside it): one line per training
+prompt, `{"task": ..., "seed": ..., "variant": ..., "prompt": ...}` (`variant` and `prompt` optional, no other keys):
+- `task`: a trainable task. `variant`: another trainable task of the same simulator task (e.g. `stack` with variant `revstack`; revstack runs under a scene shift and practises alone, so a dataset with revstack rows has no rows of any other task); the row then
+  trains on `variant`. Any mixture of tasks and variants is allowed.
+- `seed`: an integer >= 810001 (seeds 1-100 are the final score's, 800001-809999 are eval.py's dev seeds); all `rollouts`
+  rollouts of the row run on that seed.
+- `prompt`: replaces the task's user message for that row only (the system message stays). A row without `prompt` trains on
+  the task's eval prompt, checked byte for byte before training; a row with `prompt` is not checked and counts as a prompt
+  override, a method choice recorded with the adapter (`data.prompt_overrides` and `data.label` in training.json).
+- Rows train in file order, `batch` rows per step: the row count must be a multiple of `batch`, and the call runs
+  rows / batch steps (omit `steps`, or give that number). The call's tasks come from the rows (omit `task`); `note` and
+  `goal` are not accepted with `data`. At most 4096 rows, 16 MB, 65536 characters per `prompt`.
+- The file is copied when the call starts; training.json's `resolved_spec.data` and the train's result (`config.data`) record
+  its `sha256`, `rows`, rows per task (`tasks`) and `prompt_overrides`.
+
+## SFT (`objective: sft`)
+A spec `{"objective": "sft", "data": "<file>.jsonl"}` (optional: `name`, `init`, `epochs` (1), `batch` (16 rows per step), `lr`
+(1e-4), `min_reward` (1.0), `time`; no other field) trains the policy's LoRA by supervised fine-tuning (cross-entropy on the program's
+tokens only; LoRA rank 32 / alpha 64 on the policy's modules, or `init` continued; without `init` it continues the policy's own init,
+as a practice call does). It runs on the small policy profiles (SCOREBOARD.md's `policy:` line names one, e.g. Qwen3-8B).
+Availability is per policy profile: the session's turn-0 facts state it (`train objectives for this session's policy (...)`).
+- Each line of `data` is `{"task": ..., "seed": ..., "prompt": [{"role": "system" | "user", "content": ...}, ...], "program": ..., "reward": ...}`
+  (exactly these keys): `task` a trainable task (a hidden task by the name you see), `prompt` the chat the program answers (the user
+  message last; `tasks/<task>/eval_prompt.txt` as messages is the eval prompt of record), `program` the response trained on, `reward`
+  a number used only as the `min_reward` filter.
+- `seed` is the scene the program ran on: seeds 1-100 (the final score's) and 800001-809999 (eval.py's dev seeds) are refused, so
+  no reading you or the final score take is on a scene the policy was fitted on.
+- A kept row whose prompt is not the task's eval prompt of record is a prompt override (a method choice): counted in
+  `data.prompt_overrides` and labelled, as `note`/`goal` are.
+- Steps = ceil(kept rows x epochs / batch); rows train in a fixed shuffled order; a row longer than 4096 tokens is dropped (`call.json`
+  `sft_facts.dropped_too_long`). At most 20000 rows, 256 MB, 65536 characters per message or program.
+- Building the file: `python3 skills/trainer/sft_rows.py practice adapters/<name> [--min-reward 1] [--steps 3-5] > sft.jsonl` takes a
+  finished practice call's rollouts (Output below); `python3 skills/trainer/sft_rows.py rollouts rollouts/<id>.jsonl [--min-reward 1] > sft.jsonl`
+  takes rollout.py rows (reward = your self_reward). Both print why each dropped row was dropped.
+- Output: `adapters/<name>/` with the adapter, `sft_log.json` (per step: `step`, `loss`, `grad_norm`, `tokens`), `call.json` and
+  `training.json` (`resolved_spec.data`: `sha256` of your file, `rows`, `kept`, rows per task, `min_reward`, `prompt_overrides`); the
+  train's result shows the same under `config.data`. A cancel or a cluster stop keeps nothing (the adapter is saved at the end).
+- Cost: 1 GPU x (0.05 + 0.000695 x steps x batch) canonical GPU-hours (the admission estimate counts every row of the file).
+
+## Early stop (`stop_when`)
+Optional. `{"plateau_steps": K, "min_gain": g}` stops the call once K steps in a row pass without the smoothed reward rising more
+than g above its best so far; `{"reward_at_least": r}` stops it once the smoothed reward reaches r; with both, the first that
+holds stops it. The smoothed reward is the mean `score_mean` of the last 3 steps, so neither can stop a call before step 3
+(a call of fewer than 3 steps, or with 3 + K > `steps`, is refused). It is checked after every step. The adapter is the step it
+held at (`stop_step`); the call is charged the steps it completed (`steps_run`, which can include a step that finished before the
+stop took effect), and `training.json` / `call.json` record `stopped_early: true`, `stop_step`, `stop_reason` (`plateau` or
+`target_reward`) and `steps_run`; the call's `state` is `STOPPED` (a finished call, not a failure). Without it, all `steps` run.
+
+## Defaults (identity-v2)
+A spec with no fields (`{}`) continues your lineage on the whole task set with fresh seeds for the rest of your budget. A field you omit takes its default: `task` = this session's tasks (tasks.json) in one call, an equal split per batch; tasks with no practice unit here, and, in a set of several, tasks that practise alone (revstack; hidden tasks), are left out and listed with the reason; `batch` of a task list = the smallest number >= 8 that splits as asked; `steps` = as many steps as your remaining GPU-hour budget affords at this call's cost (budget minus GPU-hours charged minus the estimates of your running calls), at most what the Tinker spend cap affords when trainer=tinker; with no session budget, 1; not one step affordable: the call is refused, naming `steps` and the GPU-hours remaining (`data` and `init_mode: resume` set the steps themselves); `init` = the adapter this session trained last (none yet: a fresh LoRA); seeds = the lineage's next unused block. Every field can be set to override its default. Each `call.json`, `training.json` and job result carries `train_defaults`: `defaults` (`identity-v2`), `defaulted` (the fields that took their default), when `task` did, `task_set` (`source`, `tasks`, `left_out`), and when `steps` did, `steps_default` (`available`, `per_step`, `fixed`, `cap`, `steps`).
+- resume: `init_mode: resume` + `init` (same lineage, the parent's full state)
+- branch: `init_mode: branch` + `init` (a new lineage from the parent's weights)
+- fresh: `init_mode: fresh` (a new LoRA, a new lineage)
+
+## Continuation
+What a train starts from is one rule across sites (`init`, `init_mode`): without either, the adapter this session trained last is
+continued (its lineage goes on); nothing trained yet means a fresh LoRA. `init` alone is the site's native continuation (stated in
+its row). `init_mode` makes it exact: `resume`, `branch`, `fresh`. Every `call.json` / `training.json` records `continuation`
+(`kind`, `parent`, `state_restored`, `parent_checkpoint_id`, `resume_from_step`), `lineage_id` (minted when a lineage starts, kept by
+resume / continue, new on branch / fresh) and `checkpoint_id` (the weights' digest); the job result's `receipt.lineage` repeats
+them. A `resume` whose parent's full state is gone is refused with that fact (start from its weights with `branch` instead). No
+default picks an adapter by score: "last trained" is the one you trained most recently.
+
+## Failures
+A request this site cannot run as written ends `failed` in `jobs/<id>.json` with this text; nothing is charged:
+- `train: unsupported spec field(s) ['<field>', ...]; this site reads only: steps, lr, batch, seed_start, reward, init, start_preset, start_mix, note, goal, time, rollouts, seeds, init_mode, weights, task, name, data, objective, epochs, min_reward, stop_when, score_center`
+- `train: rollouts must be 8 or 16 (rollouts per prompt, the GRPO group size), got <value>: ...` (an integer; 16.0 or true is refused too)
+- `train: seeds: <reason>` when `seeds` is malformed (`'<part>' is not a seed or a range a-b`, a range that runs backwards, a non-integer entry), names a hidden seed (`<s> is a hidden seed; seeds 1-100 are reserved ...`) or is too short (`<n> seeds for a call of <m> rollouts (steps x batch x rollouts); give at least <m>`); `train: seeds cannot be combined with <field>: <why>` with `data`, `start_preset` or `start_mix`
+- `train: task must be one of ['lift', 'nut', 'restack', 'revstack', 'stack', 'wipe'], got '<task>'` (twolift, handover, stackv2 have no practice unit here)
+- `train: init adapter not found: <path>`
+- `train: reward must be 'task_completed', 'shaped' or the path of a .py file defining reward(result) -> float`
+- `train: reward file <path> is outside your workspace; a reward file must be a file in your workspace` (a symlink is not followed either)
+- `reward check (before any spend): <file> scores its start state / a crashed program at or above the median of programs that ran (start-state <x> (n <k>), crash <y> (n <k>), running median <z> (n <k>)); ...`: a `.py` reward is scored on your own recorded rows of the task (rollouts/*.jsonl and adapters/*/practice_rows.jsonl: rows that never moved, rows that crashed, rows that ran) before the train starts; nothing is charged. `"allow_noop_reward": true` in the spec trains anyway (recorded); otherwise the numbers are in the train's result (`reward_check`).
+- `train: name: letters, digits, _ . - (max 48)`
+- sft: `train: data line <N>: <rule>` (a row's keys, task, seed reserved, prompt, program or reward), `train: no row has reward >= min_reward <m> ...`, `train: field(s) [...] have no meaning with objective 'sft'; ...`, `train: objective 'sft' needs data: ...`, `train: objective 'sft' trains the small policy profiles on this site ...`, `train: steps <s> != ceil(kept rows x epochs / batch) = <n>; omit steps`, `train: task: an sft spec trains the tasks of its kept rows (...); omit task`
+- `train: data line <N>: <rule>` for a row that breaks a rule above (not a JSON object; unsupported key(s); task must be one of ...; seed must be an integer; seed <s> is reserved ...; variant of '<task>' must be one of ...; prompt must be a non-empty string; prompt has <n> characters), or `train: data file has no rows` / `data has more than 4096 rows` / `data file is <n> bytes; at most 16777216`
+- `train: data has <rows> rows, not a multiple of batch <batch>: ...` / `train: steps <s> != data rows / batch = ...; omit steps` / `train: task: a spec with data trains the tasks its rows name (...); omit task` / `train: note cannot be set with data; ...`
+- `train: data file <path> is outside your workspace; a data file must be a file in your workspace` (a symlink is not followed either)
+- `train: batch <b> does not split equally across <n> tasks [...]; use a multiple of <n>` / `train: task: each task at most once, got [...]` / `train: note edit one task's training prompt; a spec naming several tasks cannot set them` (a `task` list)
+- `train: task 'revstack' runs its simulator under a scene shift and practises alone; name it in a spec of its own`
+- `train: your reward function raised <Error>: <message> (reward.py line N); ...` / `train: your reward function tried to <action> (<detail>), which the reward sandbox refuses; ...` / `train: your reward function ran longer than 120 s on one rollout ...`: a custom `reward(r)` runs in a sandbox, once per rollout: plain Python and the interpreter's libraries (math, json, numpy), files only in its working directory (temporary), no other files, no network, no subprocesses, 60 s CPU and 4 GiB per call. The train stops at the first such failure.
+- `train: seeds 1-100 are reserved for the final score; use dev seeds >= 800001`
+- `train: stop_when...` for a `stop_when` that breaks a rule of Early stop above (the message names the rule)
+- B2: `train: start_preset '<p>' is a registry preset, built with the privileged oracle; on a hidden task build your own start states with preset.py ...` / `train: start_preset '<p>' was built on task another task, not <task>`
+A failure inside the trainer or the simulator (crash, missing adapter files, a hidden seed used) ends the session as an infrastructure
+fault. An all-zero update is a training outcome, shown on the scoreboard: the adapter's change is zero, so it behaves as its init (base or the init adapter).
+
+## Progress and cancel
+While a train runs, its record shows completed steps, the latest step's mean reward, the fraction of rollouts with reward > 0
+and canonical GPU-hours of the steps done so far (read from the trainer's per-step output about once a minute). A checkpoint is saved every
+step. A call stopped by the cluster (time limit, preemption, node failure) continues from its last checkpoint in a new Slurm job, at most 3 times; its status then says `continued from step k in job J`, and its result lists every Slurm job (`jobs`) and each continuation (`continued`: `job` stopped, `cause`, `from` step, `of` steps, `continued_in` job), as it lists site retries.
+`cancel.py ID` stops the job and keeps the adapter of the last saved step (registered with the steps it ran), or ends the
+job `failed` if none was saved; either way the job is charged the canonical cost of the steps it completed (see Cost).
+
+## Cost (canonical GPU-hours)
+The budget is charged a canonical cost per call, the same whatever hardware the site runs the call on. The tables below are
+the Qwen3.8-27B policy's; with another policy the costs differ, and SCOREBOARD.md's "Expected cost per call" line gives them.
+
+| call | canonical cost |
+|---|---|
+| train, 1 step | 0.39 |
+| train, 10 steps | 1.98 |
+| train, 30 steps | 5.50 |
+| train, 10 steps, `rollouts` 16 | 3.74 |
+| train, N steps | 2 x (0.1079 + 0.0881 x N x batch / 8 x rollouts / 8) |
+
+| eval of one task on | 5 seeds | 20 seeds | 100 seeds |
+|---|---|---|---|
+| canonical cost | 0.15 | 0.19 | 0.45 |
+
+An eval's cost is mostly its fixed part, so 100 seeds cost little more than 5. A call that fails or is cancelled is charged the
+canonical cost of the steps it completed, or less if it ran only briefly. The cost is also the admission estimate.
+
+The job result of a finished train also carries `cost` (site facts, GPU-hours): `charged_this_call`, `charged_session`, `reserved_running` (the estimates of your calls still running), `available` (budget - charged - reserved), `budget`, `measured_this_call` (hardware time, not charged), `queue_s` / `run_s`, and `marginal_gpu_hours`: `one_more_step` of this call, `eval_first_seed` and `eval_per_additional_seed` of a dev eval. Quotes, not reserves: nothing is set aside for you. `charged_session_by_kind` is `charged_session` split by call kind: `train` (train calls, sft included), `eval` (dev evals and rollout.py calls) and `other` (every other charged call).
+
+## Output
+A finished train writes `adapters/<name>/` (read-only to you): `adapter_model.safetensors`, `adapter_config.json`,
+`rewards.json` (per step: `step`, `score_mean` over that step's rollouts), `call.json` (job ids, `gpu_hours` = the canonical charge to
+your budget, `gpu_hours_actual` = measured hardware time, not charged, nonzero LoRA-B count, rollout seed range) and `training.json` (`resolved_spec`: the controls actually used). The adapter can then be named in `eval.py --adapter`, `load.py`, or as `init` of another train.
+Each `rewards.json` step also has `zero_variance_frac` (the share of that step's prompt groups whose rollouts all got one reward) and `failure_stages` (failed rollouts by stage: `sim`, `timeout`, `program`, `grader`, `task`); the running job's status line shows them for the latest step and the train's result lists them per step (`step_facts`).
+A call of several tasks (a `task` list, or `data` naming several) adds `per_task` to each `rewards.json` step: `{task: {"score_mean", "rollouts"}}`, that step's rollouts of each task and their mean reward (a rollout is attributed by its prompt; one matching no single task is left out).
+Each finished train (and one kept at a stop) also writes `practice_rows.jsonl`: one line per rollout of the call, `{task, seed, prompt_sha, program, reward, step, start}` plus the episode's `stdout_tail`, `sandbox_rc`, `secs`, `task_completed`, `sim_reward` (the reply's `reward`), `stages`, `final_state` and `trace` (reward = the score GRPO gave it; start = the adapter the call started from), with the prompts in `practice_prompts.json` (`{prompt_sha: [chat messages]}`). A rollout whose program was written for two seeds in one step is left out. These are training data you generated yourself; `skills/trainer/sft_rows.py practice adapters/<name>` turns them into SFT rows (see SFT below).
+Each such train also writes `train_data_digest.md` (and the same as `train_data_digest.json`) next to `practice_rows.jsonl`, over its rows: rollouts, unique programs, nonzero-reward share, GRPO groups (the rollouts of one prompt) with the all-zero and zero-variance ones; the same per step and, for a call of several tasks, per task; and the 3 highest- and 3 lowest-reward rollouts with task, step, seed, reward, program and their line in `practice_rows.jsonl`. The train's job result carries `train_data`: the digest's path and those counts.
+
+The job result of a finished train also carries `receipt` (site facts): `curve` (per step: `score_mean`, `zero_variance_frac`, `rollouts_per_step`, and `per_task` curves for a multi-task call), `slopes` (mean change of `score_mean` per step over the last 3 steps and over the whole call; numbers over those windows, nothing more), `stop` (`state`, `reason` = the stop rule's reason, a cluster stop, or `max_steps`; `steps_run`, `steps_declared`, `adapter_step`), `lineage` (`parent` = `init`), `seeds` (the range and count the rollouts used), and `evals` (how many dev evals this adapter and its parent already have in this session; `marker: "not evaluated"` when it has none). It states facts; it does not rank adapters or say when to stop.
+
+On this site the trainer runs on Tinker: every adapter you train has Tinker's module set and LoRA scale, so it stacks only with other adapters trained in this session; a stack mixing it with any other adapter ends `failed` with `Tinker adapters stack only with Tinker adapters (trainer=tinker; different modules and LoRA scale)`.
+
+`score_center` (boolean, default false; this trainer only): true trains each step with score centering (Eq. 8 of arXiv 2609.20807). Sampling also returns the sampler's top 32 token log-probabilities at every sampled position; the update subtracts at every position the sampler's expected score over those 32 tokens, the remaining probability mass modelled by the trainer's distribution rescaled to the sampler's. When the trainer's and the sampler's next-token distributions agree it changes nothing; it differs from the default update when they disagree (a large mean or max |log p - log q| or KL between trainer and sampler).
+===TASKS JSON===
+{
+ "overview": {
+  "robot": "A Franka Emika robot arm in CaP-X Robosuite simulation, driven through the perception and control APIs listed in each task's eval prompt (CaP-X API tier s4).",
+  "program": "Per trial the policy writes one single-turn Python program: executable code only, comments allowed, no code fences.",
+  "success": "Each task's own success check.",
+  "evaluation": "Hidden seeds; the one adapter stack you submit serves every task."
+ },
+ "families": [
+  {
+   "family": "pick-and-place",
+   "example": {
+    "task": "restack",
+    "goal": "Goal: Gently place the red cube on top of the green cube and then open the gripper. Nothing should be dropped from a height.\nUse the extent of the cubes to calculate the exact height for placement."
+   },
+   "tasks_sharing_this_form": "Tasks sharing this form, each differing in: revstack: Pick up the green cube and gently stack it on top of the red cube, then release it."
+  },
+  {
+   "family": "nut-assembly",
+   "example": {
+    "task": "nut",
+    "goal": "Goal: grasp and insert the `brown square nut` onto the `brown square block`.\nNote that you would grasp the nut by its handle. You can segment it with the text prompt `extruded handle of the brown square nut` (segment_sam3_text_prompt) and compute a grasp at the handle from its 3D points (depth and camera intrinsics, then get_oriented_bounding_box_from_3d_points).\nThe brown square nut and the extruded handle of the brown square nut are part of the same rigid body.\nThe nut's center can be segmented with the text prompt `white hollow center of the brown square nut`. The nut center and the handle have a fixed rigid transform, which must be applied correctly when inserting the nut onto the peg."
+   }
+  }
+ ],
+ "tasks": [
+  {
+   "name": "nut",
+   "differs": "example of family nut-assembly",
+   "text_file": "tasks/nut.md"
+  },
+  {
+   "name": "restack",
+   "differs": "example of family pick-and-place",
+   "text_file": "tasks/restack.md"
+  },
+  {
+   "name": "revstack",
+   "differs": "Pick up the green cube and gently stack it on top of the red cube, then release it.",
+   "text_file": "tasks/revstack.md"
+  }
+ ]
+}

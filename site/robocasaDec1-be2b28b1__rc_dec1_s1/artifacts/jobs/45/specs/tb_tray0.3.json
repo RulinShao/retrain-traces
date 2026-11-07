@@ -1,0 +1,1 @@
+{"task": "TongBuffetSetup", "name": "tb_tray0.3", "steps": 1, "batch": 8, "reward": "rewards/tb_tray0.3.py", "init_mode": "fresh", "time": "02:00:00"}

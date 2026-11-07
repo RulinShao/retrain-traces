@@ -1,0 +1,1235 @@
+rc=0
+================================================================================
+rollouts/1.jsonl
+--- 800001 completed= False rc= 0 secs= None
+PROGRAM:
+# Code block 0
+import numpy as np
+from scipy.spatial.transform import Rotation, Slerp
+
+# Step 1: Get observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Point to the extruded handle of the brown square nut
+handle_point_result = point_prompt_molmo(rgb_image, "extruded handle of the brown square nut")
+handle_pixel = handle_point_result.get("extruded handle of the brown square nut", (None, None))
+
+# Step 3: Point to the white hollow center of the brown square nut
+center_point_result = point_prompt_molmo(rgb_image, "white hollow center of the brown square nut")
+center_pixel = center_point_result.get("white hollow center of the brown square nut", (None, None))
+
+# Step 4: Point to the brown square block (peg)
+block_point_result = point_prompt_molmo(rgb_image, "brown square block")
+block_pixel = block_point_result.get("brown square block", (None, None))
+
+print(f"Handle pixel: {handle_pixel}")
+print(f"Center pixel: {center_pixel}")
+print(f"Block pixel: {block_pixel}")
+
+# Step 5: Convert pixel coordinates to 3D points using depth and camera intrinsics
+def pixel_to_3d(pixel_x, pixel_y, depth_map, intrinsics, pose_mat):
+    """Convert pixel coordinates to 3D world coordinates"""
+    if pixel_x is None or pixel_y is None:
+        return None
+    
+    # Get depth at pixel location
+    depth = depth_map[pixel_y, pixel_x]
+    if depth <= 0 or np.isnan(depth):
+        return None
+    
+    # Camera intrinsics
+    fx = intrinsics[0, 0]
+    fy = intrinsics[1, 1]
+    cx = intrinsics[0, 2]
+    cy = intrinsics[1, 2]
+    
+    # Camera frame coordinates
+    x_cam = (pixel_x - cx) * depth / fx
+    y_cam = (pixel_y - cy) * depth / fy
+    z_cam = depth
+    
+    # Transform from camera frame to world frame
+    # pose_mat is camera extrinsic (camera to world)
+    cam_to_world = pose_mat.copy()
+    
+    # Point in camera frame
+    p_cam = np.array([x_cam, y_cam, z_cam, 1.0])
+    
+    # Transform to world frame
+    p_world = cam_to_world @ p_cam
+    
+    return p_world[:3]
+
+# Convert to 3D world coordinates
+handle_3d = pixel_to_3d(handle_pixel[0], handle_pixel[1], depth_image, intrinsics, pose_mat)
+center_3d = pixel_to_3d(center_pixel[0], center_pixel[1], depth_image, intrinsics, pose_mat)
+block_3d = pixel_to_3d(block_pixel[0], block_pixel[1], depth_image, intrinsics, pose_mat)
+
+print(f"Handle 3D: {handle_3d}")
+print(f"Center 3D: {center_3d}")
+print(f"Block 3D: {block_3d}")
+
+# Step 6: Determine the rigid transform between handle and center
+# The vector from handle to center in world frame
+if handle_3d is not None and center_3d is not None:
+    handle_to_center_vec = center_3d - handle_3d
+    print(f"Handle to center vector: {handle_to_center_vec}")
+    
+    # Step 7: Plan the motion
+    # First, move to a safe position above the handle
+    safe_height = 0.15  # 15cm above
+    
+
+TAIL: 446">extruded handle of the brown square nut</points>
+Generated text for 'white hollow center of the brown square nut': <points coords="1 1 702 379">white hollow center of the brown square nut</points>
+Generated text for 'brown square block': <points coords="1 1 611 764">brown square block</points>
+Handle pixel: (345, 228)
+Center pixel: (359, 194)
+Block pixel: (312, 391)
+Handle 3D: [ 0.50744631  0.16704566 -0.0820076 ]
+Center 3D: [ 0.44162542  0.19665455 -0.10200114]
+Block 3D: [0.78935436 0.09513959 0.028001  ]
+Handle to center vector: [-0.06582089  0.02960889 -0.01999354]
+Insertion complete!
+
+--- 800002 completed= False rc= 1 secs= None
+PROGRAM:
+# Code block 0
+Let me break down the task:
+
+1. I need to grasp the brown square nut by its handle
+2. Insert it onto the brown square block (peg)
+3. The key insight is that the grasp pose on the handle and the object center pose have a fixed rigid transform
+
+Here's my approach:
+1. Get the current observation (RGB image)
+2. Use point_prompt_molmo to find the handle of the brown square nut
+3. Use segment_sam3_point_prompt to get a mask for the handle region
+4. Get the 3D points from the depth image using the mask
+5. Calculate the oriented bounding box to get the object's pose
+6. Use solve_ik to move to the grasp position
+7. Grasp the nut
+8. Move to insert it onto the brown square block
+9. Release the nut
+
+Let me think about the coordinate transformations more carefully:
+- The grasp pose query returns an end-effector pose in world frame at the handle
+- The object center pose is obtained via 'white hollow center of the brown square nut'
+- These two poses have a fixed rigid transform between them
+- When inserting, I need to align the nut's center with the block's center while maintaining the correct orientation
+
+Actually, let me reconsider. The problem states that the grasp pose for 'extruded handle of the brown square nut' returns an end-effector pose in world frame located on the handle region. This means when I use this pose for IK, the robot will be positioned to grasp the handle.
+
+For insertion, I need to:
+1. First grasp the nut by its handle
+2. Then move the nut so that its white hollow center aligns with the brown square block's center
+3. The orientation should be such that the nut can slide onto the peg
+
+Since the handle grasp pose and the object center pose have a fixed rigid transform, I can:
+1. Get the handle grasp pose (end-effector pose in world frame)
+2. Apply the inverse of the fixed transform to get where the object center would be relative to the end-effector
+3. For insertion, I want the object center to be at the block's center, so I need to calculate where the end-effector should be
+
+Wait, let me re-read: "The nut's object center pose obtained via 'white hollow center of the brown square nut' and the handle grasp pose obtained via 'extruded handle of the brown square nut' have a fixed rigid transform"
+
+This means if I know the object center pose, I can compute the handle grasp pose, and vice versa. But actually, for grasping, I just need to use the handle grasp pose directly for IK.
+
+For insertion, I need to position the nut so its center is at the block's center with the correct orientation. Since the handle and center have a fixed relationship, I can:
+1. Find the block's center pose
+2. Compute what the handle grasp pose should be when the nut is correctly inserted
+3. Move the end-effector to that pose
+
+But I don't have a direct way to get the "insertion pose" for the handle. Let me think differently.
+
+Perhaps the simplest approach is:
+1. Grasp the nut by its handle (using the handle grasp pose)
+2. Move the nut above the block
+3. Lo
+TAIL: Traceback (most recent call last):
+  File "…/tasks/base.py", line 174, in _exec_user_code
+    exec(code, self._exec_globals, self._exec_globals)
+  File "<string>", line 7
+    Here's my approach:
+        ^
+SyntaxError: unterminated string literal (detected at line 7)
+
+--- 800003 completed= False rc= 0 secs= None
+PROGRAM:
+# Code block 0
+import numpy as np
+from scipy.spatial.transform import Rotation
+
+# Step 1: Get observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+extrinsics = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Locate the extruded handle of the brown square nut
+handle_result = point_prompt_molmo(rgb_image, "extruded handle of the brown square nut")
+handle_pixel = handle_result.get("extruded handle of the brown square nut", (None, None))
+
+# Step 3: Locate the white hollow center of the brown square nut
+center_result = point_prompt_molmo(rgb_image, "white hollow center of the brown square nut")
+center_pixel = center_result.get("white hollow center of the brown square nut", (None, None))
+
+# Step 4: Locate the brown square block
+block_result = point_prompt_molmo(rgb_image, "brown square block")
+block_pixel = block_result.get("brown square block", (None, None))
+
+print(f"Handle pixel: {handle_pixel}")
+print(f"Center pixel: {center_pixel}")
+print(f"Block pixel: {block_pixel}")
+
+# Helper function to convert pixel coordinates to 3D world coordinates
+def pixel_to_world(pixel_x, pixel_y, depth_value, intrinsics, extrinsics):
+    """Convert pixel coordinates to world coordinates."""
+    if depth_value <= 0 or np.isnan(depth_value):
+        return None
+    
+    # Create homogeneous pixel coordinates
+    pixel_h = np.array([pixel_x, pixel_y, 1.0])
+    
+    # Project to camera frame
+    z_cam = depth_value
+    x_cam = (pixel_x - intrinsics[0, 2]) * z_cam / intrinsics[0, 0]
+    y_cam = (pixel_y - intrinsics[1, 2]) * z_cam / intrinsics[1, 1]
+    
+    point_cam = np.array([x_cam, y_cam, z_cam, 1.0])
+    
+    # Transform to world frame
+    point_world = extrinsics @ point_cam
+    return point_world[:3]
+
+# Get depth values at the located pixels
+if handle_pixel[0] is not None and handle_pixel[1] is not None:
+    hx, hy = handle_pixel
+    handle_depth = depth_image[hy, hx]
+    handle_world = pixel_to_world(hx, hy, handle_depth, intrinsics, extrinsics)
+else:
+    handle_world = None
+
+if center_pixel[0] is not None and center_pixel[1] is not None:
+    cx, cy = center_pixel
+    center_depth = depth_image[cy, cx]
+    center_world = pixel_to_world(cx, cy, center_depth, intrinsics, extrinsics)
+else:
+    center_world = None
+
+if block_pixel[0] is not None and block_pixel[1] is not None:
+    bx, by = block_pixel
+    block_depth = depth_image[by, bx]
+    block_world = pixel_to_world(bx, by, block_depth, intrinsics, extrinsics)
+else:
+    block_world = None
+
+print(f"Handle world: {handle_world}")
+print(f"Center world: {center_world}")
+print(f"Block world: {block_world}")
+
+# For now, let's assume we have valid locations
+if handle_world is None or center_world is None or block_world is None:
+    print("Failed to locate one or more objects")
+    exit(1)
+
+# The rigid transform from handle grasp pose to nut center
+# Since both are part of the same 
+TAIL:  text for 'white hollow center of the brown square nut': <points coords="1 1 639 379">white hollow center of the brown square nut</points>
+Generated text for 'brown square block': <points coords="1 1 614 764">brown square block</points>
+Handle pixel: (311, 165)
+Center pixel: (327, 194)
+Block pixel: (314, 391)
+Handle world: [ 0.38920051  0.10323046 -0.0820076 ]
+Center world: [ 0.44162542  0.13555799 -0.10200114]
+Block world: [0.78935436 0.09853743 0.028001  ]
+Handle to center vector: [ 0.05242491  0.03232753 -0.01999354]
+Handle insert position: [0.73692945 0.0662099  0.04799454]
+Task completed
+
+--- 800004 completed= False rc= 1 secs= None
+PROGRAM:
+# Code block 0
+import numpy as np
+from scipy.spatial.transform import Rotation, Quaternion
+
+# Step 1: Get observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+extrinsics = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Find the handle of the brown square nut and the brown square block
+handle_point_result = point_prompt_molmo(rgb_image, "extruded handle of the brown square nut")
+block_point_result = point_prompt_molmo(rgb_image, "brown square block")
+
+handle_px, handle_py = handle_point_result.get("extruded handle of the brown square nut", (None, None))
+block_px, block_py = block_point_result.get("brown square block", (None, None))
+
+if handle_px is None or handle_py is None or block_px is None or block_py is None:
+    raise ValueError("Failed to detect required objects")
+
+# Step 3: Convert pixel coordinates to 3D world coordinates
+def pixel_to_world(px, py, depth_img, intrinsics, extrinsics):
+    """Convert pixel coordinates to world coordinates"""
+    # Get depth at pixel location
+    if py < 0 or py >= depth_img.shape[0] or px < 0 or px >= depth_img.shape[1]:
+        raise ValueError("Pixel coordinates out of bounds")
+    
+    z_cam = depth_img[py, px]
+    if z_cam <= 0:
+        raise ValueError("Invalid depth value")
+    
+    # Camera intrinsics
+    fx = intrinsics[0, 0]
+    fy = intrinsics[1, 1]
+    cx = intrinsics[0, 2]
+    cy = intrinsics[1, 2]
+    
+    # Convert to camera coordinates
+    x_cam = (px - cx) * z_cam / fx
+    y_cam = (py - cy) * z_cam / fy
+    z_cam_val = z_cam
+    
+    # Camera to world transformation
+    R_cam_to_world = extrinsics[:3, :3]
+    t_cam_to_world = extrinsics[:3, 3]
+    
+    # Point in camera frame
+    p_cam = np.array([x_cam, y_cam, z_cam_val])
+    
+    # Transform to world frame
+    p_world = R_cam_to_world @ p_cam + t_cam_to_world
+    
+    return p_world
+
+# Get 3D positions
+handle_pos_3d = pixel_to_world(handle_px, handle_py, depth_image, intrinsics, extrinsics)
+block_pos_3d = pixel_to_world(block_px, block_py, depth_image, intrinsics, extrinsics)
+
+# Step 4: We need to understand the relationship between handle and nut center
+# The problem states there's a fixed rigid transform between them
+# For now, let's assume we can estimate this or use the grasp pose directly
+# The grasp pose query gives us the end-effector pose at the handle
+# When we grasp, the gripper will be at handle_pos_3d with some orientation
+
+# For insertion, we need to move the nut so its center aligns with block center
+# The offset from handle to center needs to be accounted for
+
+# Let's first try to grasp the nut
+# Open gripper
+open_gripper()
+
+# Move to a safe position above the handle
+safe_height = 0.15  # 15cm above
+grasp_position = handle_pos_3d.copy()
+grasp_position[2] += safe_height
+
+# For initial grasp, use identity orientation (or we could estimate from the scene)
+identity_quat = np.array([1.0, 
+TAIL: Traceback (most recent call last):
+  File "…/tasks/base.py", line 174, in _exec_user_code
+    exec(code, self._exec_globals, self._exec_globals)
+  File "<string>", line 2, in <module>
+ImportError: cannot import name 'Quaternion' from 'scipy.spatial.transform' (…/transform/__init__.py)
+
+--- 800005 completed= False rc= 1 secs= None
+PROGRAM:
+# Code block 0
+Let me break down this task step by step:
+
+1. I need to find the brown square nut and grasp it by its handle
+2. I need to find the brown square block (peg) where I need to insert the nut
+3. I need to compute the correct pose for inserting the nut onto the peg, accounting for the rigid transform between the handle grasp point and the nut's center
+4. Move the robot to grasp the nut, lift it, move it over the peg, and insert it
+
+Let me start by getting observations and identifying the objects:
+TAIL: ent call last):
+  File "…/tasks/base.py", line 174, in _exec_user_code
+    exec(code, self._exec_globals, self._exec_globals)
+  File "<string>", line 5
+    3. I need to compute the correct pose for inserting the nut onto the peg, accounting for the rigid transform between the handle grasp point and the nut's center
+                                                                                                                                                           ^
+SyntaxError: unterminated string literal (detected at line 5)
+
+================================================================================
+rollouts/2.jsonl
+--- 800006 completed= False rc= 1 secs= None
+PROGRAM:
+# Code block 0
+Let me break down this task step by step:
+
+1. Get the current observation to see the scene
+2. Identify the red cube and green cube using segmentation
+3. Determine the positions and sizes (extents) of both cubes
+4. Calculate where to place the red cube on top of the green cube
+5. Grasp the red cube
+6. Move it to the position above the green cube
+7. Place it gently (no dropping from height)
+8. Open the gripper
+
+Let me start by getting the observation and identifying the cubes:
+TAIL: Traceback (most recent call last):
+  File "…/tools/suite_launch.py", line 969, in _exec_user_code
+    exec(code, g, g)
+  File "<string>", line 1
+    Let me break down this task step by step:
+        ^^
+SyntaxError: invalid syntax
+
+--- 800007 completed= False rc= 0 secs= None
+PROGRAM:
+# Code block 0
+import numpy as np
+
+# Step 1: Get observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Segment the red cube and green cube
+red_masks = segment_sam3_text_prompt(rgb_image, "red cube")
+green_masks = segment_sam3_text_prompt(rgb_image, "green cube")
+
+if not red_masks or not green_masks:
+    raise Exception("Failed to segment red or green cube")
+
+# Use the first mask for each
+red_mask = red_masks[0]["mask"]
+green_mask = green_masks[0]["mask"]
+
+# Step 3: Get 3D points for both cubes
+def get_3d_points_from_mask(mask, depth, intrinsics, pose_mat):
+    """Convert pixel mask to 3D points in world frame"""
+    # Get pixel coordinates where mask is True
+    ys, xs = np.where(mask)
+    if len(xs) == 0:
+        return np.array([]).reshape(0, 3)
+    
+    # Get depth values at those pixels
+    depths = depth[ys, xs]
+    
+    # Filter out invalid depth values
+    valid = depths > 0
+    xs = xs[valid]
+    ys = ys[valid]
+    depths = depths[valid]
+    
+    if len(xs) == 0:
+        return np.array([]).reshape(0, 3)
+    
+    # Back-project to camera frame
+    # x_cam = (u - cx) * z / fx
+    # y_cam = (v - cy) * z / fy
+    fx = intrinsics[0, 0]
+    fy = intrinsics[1, 1]
+    cx = intrinsics[0, 2]
+    cy = intrinsics[1, 2]
+    
+    x_cam = (xs - cx) * depths / fx
+    y_cam = (ys - cy) * depths / fy
+    z_cam = depths
+    
+    # Stack into homogeneous coordinates in camera frame
+    points_cam = np.stack([x_cam, y_cam, z_cam], axis=1)
+    
+    # Transform to world frame using pose_mat (camera extrinsic)
+    # pose_mat transforms from camera frame to world frame
+    points_world = np.zeros((len(points_cam), 4))
+    points_world[:, :3] = points_cam
+    points_world[:, 3] = 1.0
+    points_world = (pose_mat @ points_world.T).T[:, :3]
+    
+    return points_world
+
+red_points = get_3d_points_from_mask(red_mask, depth_image, intrinsics, pose_mat)
+green_points = get_3d_points_from_mask(green_mask, depth_image, intrinsics, pose_mat)
+
+if len(red_points) == 0 or len(green_points) == 0:
+    raise Exception("Failed to get 3D points for cubes")
+
+# Step 4: Get oriented bounding boxes
+red_oBB = get_oriented_bounding_box_from_3d_points(red_points)
+green_oBB = get_oriented_bounding_box_from_3d_points(green_points)
+
+red_center = red_oBB["center"]
+red_extent = red_oBB["extent"]
+red_R = red_oBB["R"]
+
+green_center = green_oBB["center"]
+green_extent = green_oBB["extent"]
+green_R = green_oBB["R"]
+
+# Step 5: Calculate placement position
+# The red cube should be placed on top of the green cube
+# The bottom face of the red cube should touch the top face of the green cube
+
+# Get the local z-axis of each cube (the axis corresponding to the extent that represents height)
+# We need to figure out which axis is "up" for each cube
+
+# For a cube sitting on a surface, the vertical extent is t
+TAIL: 
+--- 800008 completed= False rc= 0 secs= None
+PROGRAM:
+# Code block 0
+import numpy as np
+
+# Step 1: Get observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Segment the red cube and green cube
+red_cube_masks = segment_sam3_text_prompt(rgb_image, "red cube")
+green_cube_masks = segment_sam3_text_prompt(rgb_image, "green cube")
+
+if not red_cube_masks or not green_cube_masks:
+    raise Exception("Failed to segment red or green cube")
+
+# Get the best mask for each cube (highest score)
+red_mask = max(red_cube_masks, key=lambda x: x.get("score", 0))["mask"]
+green_mask = max(green_cube_masks, key=lambda x: x.get("score", 0))["mask"]
+
+# Step 3: Create segmentation maps for plan_grasp
+# For red cube, assign ID 1
+red_segmentation = np.zeros_like(depth_image, dtype=np.int32)
+red_segmentation[red_mask] = 1
+
+# Step 4: Plan grasp for red cube
+grasp_poses, grasp_scores = plan_grasp(depth_image, intrinsics, red_segmentation)
+
+if len(grasp_poses) == 0:
+    raise Exception("No grasp candidates found for red cube")
+
+# Select the best grasp
+best_grasp_idx = np.argmax(grasp_scores)
+best_grasp_pose_cam = grasp_poses[best_grasp_idx]  # In camera frame
+
+# Step 5: Transform grasp pose from camera frame to world frame
+# The camera extrinsic matrix transforms camera frame to world frame
+# So we need to apply pose_mat to the grasp pose
+grasp_pose_world = pose_mat @ best_grasp_pose_cam
+
+# Extract position and orientation from world-frame grasp pose
+grasp_position_world = grasp_pose_world[:3, 3].copy()
+grasp_orientation_world = grasp_pose_world[:3, :3].copy()
+
+# Convert rotation matrix to quaternion (wxyz format)
+def rotmat_to_quat_wxyz(R):
+    trace = R[0,0] + R[1,1] + R[2,2]
+    if trace > 0:
+        S = np.sqrt(trace + 1.0) * 2
+        w = 0.25 * S
+        x = (R[2,1] - R[1,2]) / S
+        y = (R[0,2] - R[2,0]) / S
+        z = (R[1,0] - R[0,1]) / S
+    elif R[0,0] > R[1,1] and R[0,0] > R[2,2]:
+        S = np.sqrt(1.0 + R[0,0] - R[1,1] - R[2,2]) * 2
+        w = (R[2,1] - R[1,2]) / S
+        x = 0.25 * S
+        y = (R[0,1] + R[1,0]) / S
+        z = (R[0,2] + R[2,0]) / S
+    elif R[1,1] > R[2,2]:
+        S = np.sqrt(1.0 + R[1,1] - R[0,0] - R[2,2]) * 2
+        w = (R[0,2] - R[2,0]) / S
+        x = (R[0,1] + R[1,0]) / S
+        y = 0.25 * S
+        z = (R[1,2] + R[2,1]) / S
+    else:
+        S = np.sqrt(1.0 + R[2,2] - R[0,0] - R[1,1]) * 2
+        w = (R[1,0] - R[0,1]) / S
+        x = (R[0,2] + R[2,0]) / S
+        y = (R[1,2] + R[2,1]) / S
+        z = 0.25 * S
+    
+    quat = np.array([w, x, y, z])
+    return quat / np.linalg.norm(quat)
+
+grasp_quat_world = rotmat_to_quat_wxyz(grasp_orientation_world)
+
+# Step 6: Solve IK for grasp position
+joints_grasp = solve_ik(grasp_position_world, grasp_quat_world)
+move_to_joints(joints_grasp)
+
+# Step 7: Close gripper to grasp red cube
+close_gripper()
+
+# Step 8: Calculate where to place red cube on
+TAIL: 
+--- 800009 completed= False rc= 0 secs= None
+PROGRAM:
+# Code block 0
+import numpy as np
+
+# Step 1: Get observation
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Segment red cube and green cube
+red_masks = segment_sam3_text_prompt(rgb, "red cube")
+green_masks = segment_sam3_text_prompt(rgb, "green cube")
+
+# Get the best mask for each cube
+if not red_masks or not green_masks:
+    raise Exception("Failed to segment cubes")
+
+red_mask = red_masks[0]["mask"]
+green_mask = green_masks[0]["mask"]
+
+# Step 3: Get 3D points for each cube
+def get_3d_points_from_mask(mask, depth, intrinsics, pose_mat):
+    """Convert 2D mask to 3D points in world frame"""
+    H, W = mask.shape
+    # Create pixel coordinate grid
+    v, u = np.where(mask)
+    if len(v) == 0:
+        return None
+    
+    # Get depth values for masked pixels
+    depths = depth[v, u]
+    
+    # Filter out invalid depth values
+    valid = depths > 0
+    v = v[valid]
+    u = u[valid]
+    depths = depths[valid]
+    
+    if len(v) == 0:
+        return None
+    
+    # Convert pixel coordinates to 3D camera coordinates
+    # Using pinhole camera model: x = (u - cx) * z / fx, y = (v - cy) * z / fy
+    fx = intrinsics[0, 0]
+    fy = intrinsics[1, 1]
+    cx = intrinsics[0, 2]
+    cy = intrinsics[1, 2]
+    
+    z = depths
+    x = (u - cx) * z / fx
+    y = (v - cy) * z / fy
+    
+    # Stack into Nx3 array
+    points_cam = np.column_stack([x, y, z])
+    
+    # Transform from camera frame to world frame
+    # pose_mat is camera extrinsic matrix (camera to world)
+    # So world_point = pose_mat @ [cam_point; 1]
+    ones = np.ones((len(points_cam), 1))
+    points_homo_cam = np.hstack([points_cam, ones])
+    points_homo_world = (pose_mat @ points_homo_cam.T).T
+    points_world = points_homo_world[:, :3]
+    
+    return points_world
+
+red_points = get_3d_points_from_mask(red_mask, depth, intrinsics, pose_mat)
+green_points = get_3d_points_from_mask(green_mask, depth, intrinsics, pose_mat)
+
+if red_points is None or green_points is None:
+    raise Exception("Failed to get 3D points for cubes")
+
+# Step 4: Get oriented bounding boxes to find centers and extents
+red_bbox = get_oriented_bounding_box_from_3d_points(red_points)
+green_bbox = get_oriented_bounding_box_from_3d_points(green_points)
+
+red_center = red_bbox["center"]
+red_extent = red_bbox["extent"]
+green_center = green_bbox["center"]
+green_extent = green_bbox["extent"]
+
+# The extent gives the full size along each axis of the OBB
+# For a cube, all extents should be similar
+# Height of red cube is red_extent[2] (assuming z is up in world frame)
+# But we need to check which axis corresponds to vertical
+
+# Let's assume the world frame has z pointing up
+# The top of green cube is at green_center[2] + green_extent[2]/2
+# We want to place red cube so its bottom touches the top of green cube
+# So the center of red cube should be at: green_top_z
+TAIL: 
+--- 800010 completed= False rc= 0 secs= None
+PROGRAM:
+# Code block 0
+import numpy as np
+
+# Step 1: Get observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+extrinsics = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Segment red cube and green cube
+red_cube_masks = segment_sam3_text_prompt(rgb_image, "red cube")
+green_cube_masks = segment_sam3_text_prompt(rgb_image, "green cube")
+
+# Handle case where no masks are found
+if not red_cube_masks or not green_cube_masks:
+    raise ValueError("Could not segment red or green cube")
+
+# Get the best mask for each cube (highest score)
+red_mask_info = max(red_cube_masks, key=lambda x: x.get("score", 0))
+green_mask_info = max(green_cube_masks, key=lambda x: x.get("score", 0))
+
+red_segmentation = red_mask_info["mask"].astype(np.int32)
+green_segmentation = green_mask_info["mask"].astype(np.int32)
+
+# Step 3: Calculate 3D positions of cubes
+def get_3d_points_from_depth_and_mask(depth, mask, intrinsics):
+    """Get 3D points from depth image and binary mask"""
+    H, W = depth.shape
+    y_coords, x_coords = np.where(mask)
+    
+    if len(x_coords) == 0:
+        return None
+    
+    # Get depth values for masked pixels
+    z_values = depth[y_coords, x_coords]
+    
+    # Filter out invalid depth values
+    valid = z_values > 0
+    x_coords = x_coords[valid]
+    y_coords = y_coords[valid]
+    z_values = z_values[valid]
+    
+    if len(x_coords) == 0:
+        return None
+    
+    # Convert pixel coordinates to 3D coordinates in camera frame
+    fx, fy = intrinsics[0, 0], intrinsics[1, 1]
+    cx, cy = intrinsics[0, 2], intrinsics[1, 2]
+    
+    x_cam = (x_coords - cx) * z_values / fx
+    y_cam = (y_coords - cy) * z_values / fy
+    z_cam = z_values
+    
+    points_cam = np.column_stack([x_cam, y_cam, z_cam])
+    return points_cam
+
+# Get 3D points for red cube in camera frame
+red_points_cam = get_3d_points_from_depth_and_mask(depth_image, red_segmentation.astype(bool), intrinsics)
+green_points_cam = get_3d_points_from_depth_and_mask(depth_image, green_segmentation.astype(bool), intrinsics)
+
+if red_points_cam is None or green_points_cam is None:
+    raise ValueError("Could not extract 3D points from depth image")
+
+# Transform from camera frame to world frame
+# The extrinsic matrix transforms from camera frame to world frame
+def transform_points(points_cam, extrinsics):
+    """Transform points from camera frame to world frame"""
+    # Points are in camera frame, need to apply inverse of extrinsics
+    # extrinsics: world_to_cam, so cam_to_world = inverse(extrinsics)
+    R_wc = extrinsics[:3, :3].T  # cam_to_world rotation
+    t_wc = extrinsics[:3, 3]     # translation from world to cam
+    
+    # p_world = R_wc @ p_cam + t_wc
+    points_world = (R_wc @ points_cam.T).T + t_wc
+    return points_world
+
+red_points_world = transform_points(red_points_cam, extrinsics)
+green_points_world = transform_points(green_points_cam, extrinsics)
+
+# Ste
+TAIL: 
+================================================================================
+rollouts/3.jsonl
+--- 800011 completed= False rc= 0 secs= None
+PROGRAM:
+# Code block 0
+import numpy as np
+
+# Step 1: Get observation
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Segment the green cube and red cube
+green_masks = segment_sam3_text_prompt(rgb, "green cube")
+red_masks = segment_sam3_text_prompt(rgb, "red cube")
+
+if not green_masks or not red_masks:
+    raise Exception("Failed to segment green or red cube")
+
+green_mask = green_masks[0]["mask"]
+red_mask = red_masks[0]["mask"]
+
+# Step 3: Get 3D points for green and red cubes from depth image
+def mask_to_3d_points(mask, depth, intrinsics):
+    """Convert a binary mask and depth image to 3D points in camera frame."""
+    H, W = mask.shape
+    ys, xs = np.where(mask)
+    if len(xs) == 0:
+        return np.empty((0, 3))
+    
+    # Filter out invalid depth values
+    valid = depth[ys, xs] > 0
+    xs = xs[valid]
+    ys = ys[valid]
+    zs = depth[ys, xs]
+    
+    if len(xs) == 0:
+        return np.empty((0, 3))
+    
+    # Convert pixel coordinates to 3D camera frame
+    fx = intrinsics[0, 0]
+    fy = intrinsics[1, 1]
+    cx = intrinsics[0, 2]
+    cy = intrinsics[1, 2]
+    
+    x_cam = (xs - cx) * zs / fx
+    y_cam = (ys - cy) * zs / fy
+    z_cam = zs
+    
+    points = np.column_stack([x_cam, y_cam, z_cam])
+    return points
+
+green_points_cam = mask_to_3d_points(green_mask, depth, intrinsics)
+red_points_cam = mask_to_3d_points(red_mask, depth, intrinsics)
+
+if len(green_points_cam) < 10 or len(red_points_cam) < 10:
+    raise Exception("Not enough points for one of the cubes")
+
+# Step 4: Transform points from camera frame to world frame
+def transform_points(points_cam, pose_mat):
+    """Transform points from camera frame to world frame using extrinsic matrix."""
+    # pose_mat is 4x4, points are in camera frame
+    # World point = pose_mat @ [cam_point; 1]
+    N = len(points_cam)
+    ones = np.ones((N, 1))
+    points_h = np.hstack([points_cam, ones])  # (N, 4)
+    points_world = (pose_mat @ points_h.T).T[:, :3]
+    return points_world
+
+green_points_world = transform_points(green_points_cam, pose_mat)
+red_points_world = transform_points(red_points_cam, pose_mat)
+
+# Step 5: Get oriented bounding boxes
+green_bbox = get_oriented_bounding_box_from_3d_points(green_points_world)
+red_bbox = get_oriented_bounding_box_from_3d_points(red_points_world)
+
+green_center = green_bbox["center"]
+green_extent = green_bbox["extent"]
+green_R = green_bbox["R"]
+
+red_center = red_bbox["center"]
+red_extent = red_bbox["extent"]
+red_R = red_bbox["R"]
+
+# Step 6: Plan grasp for green cube
+# Create segmentation map with green cube as instance 1
+seg_map = np.zeros(depth.shape, dtype=np.int32)
+seg_map[green_mask] = 1
+
+grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, seg_map)
+
+if len(grasp_poses) == 0:
+    raise Exception("No grasp candidates found")
+
+# Select best grasp
+best_idx = np.argmax(grasp_scores)
+bes
+TAIL: 
+--- 800012 completed= False rc= 0 secs= None
+PROGRAM:
+# Code block 0
+import numpy as np
+
+# Step 1: Get the observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Segment the green cube and red cube
+green_masks = segment_sam3_text_prompt(rgb_image, "green cube")
+red_masks = segment_sam3_text_prompt(rgb_image, "red cube")
+
+if not green_masks or not red_masks:
+    raise Exception("Failed to segment green or red cube")
+
+green_mask = green_masks[0]["mask"]
+red_mask = red_masks[0]["mask"]
+
+# Step 3: Get 3D points for both cubes
+def get_3d_points_from_mask(mask, depth, intrinsics, pose_mat):
+    ys, xs = np.where(mask)
+    if len(xs) == 0:
+        return None
+    depths = depth[ys, xs]
+    valid = depths > 0
+    xs_valid = xs[valid]
+    ys_valid = ys[valid]
+    depths_valid = depths[valid]
+    
+    # Convert pixel coordinates to camera frame
+    x_cam = (xs_valid - intrinsics[0, 2]) * depths_valid / intrinsics[0, 0]
+    y_cam = (ys_valid - intrinsics[1, 2]) * depths_valid / intrinsics[1, 1]
+    z_cam = depths_valid
+    
+    points_cam = np.stack([x_cam, y_cam, z_cam], axis=1)
+    
+    # Transform from camera frame to world frame
+    R_cam_to_world = pose_mat[:3, :3].T
+    t_cam_to_world = pose_mat[:3, 3]
+    
+    points_world = points_cam @ R_cam_to_world.T + t_cam_to_world
+    return points_world
+
+green_points = get_3d_points_from_mask(green_mask, depth_image, intrinsics, pose_mat)
+red_points = get_3d_points_from_mask(red_mask, depth_image, intrinsics, pose_mat)
+
+if green_points is None or red_points is None:
+    raise Exception("Failed to get 3D points for green or red cube")
+
+# Step 4: Get oriented bounding boxes
+green_bbox = get_oriented_bounding_box_from_3d_points(green_points)
+red_bbox = get_oriented_bounding_box_from_3d_points(red_points)
+
+green_center = green_bbox["center"]
+green_extent = green_bbox["extent"]
+green_R = green_bbox["R"]
+
+red_center = red_bbox["center"]
+red_extent = red_bbox["extent"]
+red_R = red_bbox["R"]
+
+# Step 5: Plan grasp for green cube
+segmentation = np.zeros(depth_image.shape, dtype=np.int32)
+segmentation[green_mask] = 1
+
+grasp_poses, grasp_scores = plan_grasp(depth_image, intrinsics, segmentation)
+
+if len(grasp_poses) == 0:
+    raise Exception("No grasp candidates found")
+
+best_grasp_idx = np.argmax(grasp_scores)
+best_grasp_pose = grasp_poses[best_grasp_idx]
+
+# The grasp pose is in camera frame. We need to transform it to world frame.
+# The grasp pose gives us the position and orientation of the gripper base in camera frame.
+# We'll use the center of the green cube as the target position for grasping.
+# For simplicity, we'll use the green cube's center and a standard top-down grasp orientation.
+
+# Define grasp position: above the green cube by z_approach
+z_approach = 0.1
+grasp_pos = green_center.copy()
+grasp_pos[2] += z_approach
+
+# Orientation: identity (top-down grasp), quaterni
+TAIL: 
+--- 800013 completed= False rc= 0 secs= None
+PROGRAM:
+# Code block 0
+import numpy as np
+
+# Step 1: Get the observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Segment the green cube and red cube using SAM3 with text prompts
+green_masks = segment_sam3_text_prompt(rgb_image, "green cube")
+red_masks = segment_sam3_text_prompt(rgb_image, "red cube")
+
+if not green_masks or not red_masks:
+    raise Exception("Failed to segment the cubes.")
+
+green_mask = green_masks[0]["mask"]
+red_mask = red_masks[0]["mask"]
+
+# Step 3: Compute the 3D points for the green cube and red cube
+def mask_to_3d_points(mask, depth, intrinsics):
+    ys, xs = np.where(mask)
+    if len(xs) == 0:
+        return None
+    zs = depth[ys, xs]
+    valid = zs > 0
+    xs = xs[valid]
+    ys = ys[valid]
+    zs = zs[valid]
+    
+    # Convert pixel coordinates to 3D points in camera frame
+    fx = intrinsics[0, 0]
+    fy = intrinsics[1, 1]
+    cx = intrinsics[0, 2]
+    cy = intrinsics[1, 2]
+    
+    x_cam = (xs - cx) * zs / fx
+    y_cam = (ys - cy) * zs / fy
+    z_cam = zs
+    
+    points_cam = np.stack([x_cam, y_cam, z_cam], axis=1)
+    
+    # Transform from camera frame to world frame
+    R_cam_to_world = pose_mat[:3, :3].T
+    t_cam_to_world = pose_mat[:3, 3]
+    
+    points_world = (R_cam_to_world @ points_cam.T).T + t_cam_to_world
+    return points_world
+
+green_points = mask_to_3d_points(green_mask, depth_image, intrinsics)
+red_points = mask_to_3d_points(red_mask, depth_image, intrinsics)
+
+if green_points is None or red_points is None:
+    raise Exception("Failed to compute 3D points for the cubes.")
+
+# Step 4: Get the oriented bounding boxes for the green and red cubes
+green_bbox = get_oriented_bounding_box_from_3d_points(green_points)
+red_bbox = get_oriented_bounding_box_from_3d_points(red_points)
+
+green_center = green_bbox["center"]
+green_extent = green_bbox["extent"]
+green_R = green_bbox["R"]
+
+red_center = red_bbox["center"]
+red_extent = red_bbox["extent"]
+red_R = red_bbox["R"]
+
+# Step 5: Plan a grasp for the green cube
+# Create a segmentation map for the green cube (single instance)
+segmentation_map = np.zeros(depth_image.shape, dtype=np.int32)
+segmentation_map[green_mask] = 1
+
+grasp_poses, grasp_scores = plan_grasp(depth_image, intrinsics, segmentation_map)
+
+if len(grasp_poses) == 0:
+    raise Exception("No grasp candidates found for the green cube.")
+
+# Select the best grasp candidate
+best_idx = np.argmax(grasp_scores)
+best_grasp_pose_cam = grasp_poses[best_idx]
+
+# Transform the grasp pose from camera frame to world frame
+R_cam_to_world = pose_mat[:3, :3].T
+t_cam_to_world = pose_mat[:3, 3]
+
+# Extract rotation and translation from the grasp pose
+R_grasp_cam = best_grasp_pose_cam[:3, :3]
+t_grasp_cam = best_grasp_pose_cam[:3, 3]
+
+# Transform to world frame
+R_grasp_world = R_cam_to_world @ R_grasp_cam
+t_grasp_world = R_cam_to_world @ t_gra
+TAIL: 
+--- 800014 completed= False rc= 0 secs= None
+PROGRAM:
+# Code block 0
+import numpy as np
+
+# Step 1: Get observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Segment the green cube and red cube
+green_masks = segment_sam3_text_prompt(rgb_image, "green cube")
+red_masks = segment_sam3_text_prompt(rgb_image, "red cube")
+
+if not green_masks or not red_masks:
+    raise ValueError("Failed to segment green or red cube")
+
+green_mask = green_masks[0]["mask"]
+red_mask = red_masks[0]["mask"]
+
+# Step 3: Get 3D points for each cube using depth image
+def get_3d_points_from_mask(mask, depth, intrinsics, pose_mat):
+    ys, xs = np.where(mask)
+    if len(xs) == 0:
+        return None
+    
+    # Filter out invalid depth values
+    valid_depths = depth[ys, xs]
+    valid_mask = (valid_depths > 0) & np.isfinite(valid_depths)
+    xs_valid = xs[valid_mask]
+    ys_valid = ys[valid_mask]
+    depths_valid = valid_depths[valid_mask]
+    
+    if len(xs_valid) == 0:
+        return None
+    
+    # Convert pixel coordinates to 3D points in camera frame
+    fx = intrinsics[0, 0]
+    fy = intrinsics[1, 1]
+    cx = intrinsics[0, 2]
+    cy = intrinsics[1, 2]
+    
+    x_cam = (xs_valid - cx) * depths_valid / fx
+    y_cam = (ys_valid - cy) * depths_valid / fy
+    z_cam = depths_valid
+    
+    points_cam = np.stack([x_cam, y_cam, z_cam], axis=1)
+    
+    # Transform from camera frame to world frame
+    R_cw = pose_mat[:3, :3]
+    t_cw = pose_mat[:3, 3]
+    
+    points_world = points_cam @ R_cw.T + t_cw
+    
+    return points_world
+
+green_points = get_3d_points_from_mask(green_mask, depth_image, intrinsics, pose_mat)
+red_points = get_3d_points_from_mask(red_mask, depth_image, intrinsics, pose_mat)
+
+if green_points is None or red_points is None:
+    raise ValueError("Failed to get 3D points for cubes")
+
+# Step 4: Get oriented bounding boxes
+green_bbox = get_oriented_bounding_box_from_3d_points(green_points)
+red_bbox = get_oriented_bounding_box_from_3d_points(red_points)
+
+green_center = green_bbox["center"]
+green_extent = green_bbox["extent"]
+green_R = green_bbox["R"]
+
+red_center = red_bbox["center"]
+red_extent = red_bbox["extent"]
+red_R = red_bbox["R"]
+
+# Step 5: Plan grasp for green cube
+# Create segmentation map for green cube only
+seg_map = np.zeros(depth_image.shape, dtype=np.int32)
+seg_map[green_mask] = 1
+
+grasp_poses, grasp_scores = plan_grasp(depth_image, intrinsics, seg_map)
+
+if len(grasp_poses) == 0:
+    raise ValueError("No grasp candidates found")
+
+# Select best grasp
+best_idx = np.argmax(grasp_scores)
+grasp_pose_cam = grasp_poses[best_idx]
+
+# Transform grasp pose from camera frame to world frame
+R_cw = pose_mat[:3, :3]
+t_cw = pose_mat[:3, 3]
+
+grasp_pos_world = grasp_pose_cam[:3, 3] @ R_cw.T + t_cw
+grasp_rot_world = grasp_pose_cam[:3, :3] @ R_cw.T
+
+# Convert rotation matrix to quaternion
+def rotmat_to_quat(R):
+    trace = R[0, 0] + 
+TAIL: 
+--- 800015 completed= False rc= 1 secs= None
+PROGRAM:
+# Code block 0
+import numpy as np
+
+# Get observation
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Segment green cube and red cube
+green_masks = segment_sam3_text_prompt(rgb, "green cube")
+red_masks = segment_sam3_text_prompt(rgb, "red cube")
+
+if not green_masks or not red_masks:
+    raise ValueError("Could not segment green or red cube")
+
+green_mask = green_masks[0]["mask"]
+red_mask = red_masks[0]["mask"]
+
+# Create segmentation map for green cube (ID=1)
+seg_green = np.zeros(depth.shape[:2], dtype=np.int32)
+seg_green[green_mask] = 1
+
+# Plan grasp for green cube
+grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, seg_green)
+
+if len(grasp_poses) == 0:
+    raise ValueError("No grasp candidates found for green cube")
+
+# Select best grasp
+best_idx = np.argmax(grasp_scores)
+grasp_pose_cam = grasp_poses[best_idx]
+
+# Transform grasp pose from camera frame to world frame
+grasp_pose_world = pose_mat @ grasp_pose_cam
+grasp_pos_world = grasp_pose_world[:3, 3]
+grasp_quat_wxyz = np.array([1.0, 0.0, 0.0, 0.0])  # Assume identity orientation for now; will refine if needed
+
+# Actually, we need the orientation from the grasp pose
+# Extract rotation matrix and convert to quaternion
+R_cam_to_world = pose_mat[:3, :3]
+R_grasp_cam = grasp_pose_cam[:3, :3]
+R_grasp_world = R_cam_to_world @ R_grasp_cam
+
+# Convert rotation matrix to quaternion (wxyz)
+def rotmat_to_quat(R):
+    tr = np.trace(R)
+    if tr > 0:
+        S = np.sqrt(tr + 1.0) * 2
+        w = 0.25 * S
+        x = (R[2, 1] - R[1, 2]) / S
+        y = (R[0, 2] - R[2, 0]) / S
+        z = (R[1, 0] - R[0, 1]) / S
+    elif (R[0, 0] > R[1, 1]) and (R[0, 0] > R[2, 2]):
+        S = np.sqrt(1.0 + R[0, 0] - R[1, 1] - R[2, 2]) * 2
+        w = (R[2, 1] - R[1, 2]) / S
+        x = 0.25 * S
+        y = (R[0, 1] + R[1, 0]) / S
+        z = (R[0, 2] + R[2, 0]) / S
+    elif R[1, 1] > R[2, 2]:
+        S = np.sqrt(1.0 + R[1, 1] - R[0, 0] - R[2, 2]) * 2
+        w = (R[0, 2] - R[2, 0]) / S
+        x = (R[0, 1] + R[1, 0]) / S
+        y = 0.25 * S
+        z = (R[1, 2] + R[2, 1]) / S
+    else:
+        S = np.sqrt(1.0 + R[2, 2] - R[0, 0] - R[1, 1]) * 2
+        w = (R[1, 0] - R[0, 1]) / S
+        x = (R[0, 2] + R[2, 0]) / S
+        y = (R[1, 2] + R[2, 1]) / S
+        z = 0.25 * S
+    quat = np.array([w, x, y, z])
+    return quat / np.linalg.norm(quat)
+
+grasp_quat_wxyz = rotmat_to_quat(R_grasp_world)
+
+# Move to approach position (z_approach = 0.1 above grasp point)
+approach_pos = grasp_pos_world.copy()
+approach_pos[2] += 0.1
+
+# Solve IK and move
+joints_approach = solve_ik(approach_pos, grasp_quat_wxyz)
+move_to_joints(joints_approach)
+
+# Open gripper
+open_gripper()
+
+# Move down to grasp position
+joints_grasp = solve_ik(grasp_pos_world, grasp_quat_wxyz)
+move_to_joints(joints_grasp)
+
+# Close gripper
+close_gripper()
+
+# Lift to safe height (+0.2m in Z)
+lift_pos = gras
+TAIL: Traceback (most recent call last):
+  File "…/tools/suite_launch.py", line 969, in _exec_user_code
+    exec(code, g, g)
+  File "<string>", line 110, in <module>
+IndexError: arrays used as indices must be of integer (or boolean) type
+

@@ -1,0 +1,41 @@
+rc=0
+seed 800096 rc 0 len 8772 apis: close_gripper get_observation knob move_to_joints navigate_to open_gripper plan_grasp point_prompt_molmo segment_sam3_point_prompt segment_sam3_text_prompt solve_ik
+  tail: 
+seed 800097 rc 0 len 9903 apis: close_gripper get_observation move_to_joints navigate_to open_gripper plan_grasp point_prompt_molmo segment_sam3_point_prompt segment_sam3_text_prompt solve_ik
+  tail: There are none. | No points parsed from model output; skipping visualization. | Generated text for 'stove': <points coords="1 1 486 649">stove</points> | Generated text for 'stove knob': <points coords="1 1 352 742 2 605 742 3 670 742">stove knob</points> | 
+seed 800098 rc 0 len 7809 apis: close_gripper get_observation move_to_joints navigate_to open_gripper plan_grasp point_prompt_molmo rotmat_to_quat_wxyz segment_sam3_point_prompt segment_sam3_text_prompt solve_ik
+  tail: 
+seed 800099 rc 0 len 11838 apis: close_gripper first get_observation knob move_to_joints navigate_to open_gripper plan_grasp point_prompt_molmo rotmat_to_quat segment_sam3_point_prompt solve_ik
+  tail: ">pot filled with water</points> | Generated text for 'the center of the stove': <points coords="1 1 499 623">center of the stove</points> | Generated text for 'the stove knob': There are none. | No points parsed from model output; skipping visualization. | 
+seed 800100 rc 0 len 11687 apis: close_gripper front get_observation move_to_joints navigate_to open_gripper plan_grasp point_prompt_molmo rotmat_to_quat segment_sam3_point_prompt segment_sam3_text_prompt solve_ik
+  tail: Generated text for 'pot': There are none. | No points parsed from model output; skipping visualization. | 
+seed 800101 rc 0 len 9266 apis: close_gripper get_observation move_to_joints navigate_to open_gripper plan_grasp point_prompt_molmo segment_sam3_point_prompt segment_sam3_text_prompt solve_ik stove
+  tail: . | Generated text for 'stove burner': <points coords="1 1 411 632 2 429 555 3 568 555 4 570 632">stove burner</points> | Generated text for 'stove knob': <points coords="1 1 339 729 2 374 729 3 411 729 4 448 729 5 486 729 6 523 729">stove knob</points> | 
+seed 800102 rc 0 len 7287 apis: close_gripper get_observation move_to_joints navigate_to open_gripper plan_grasp point_prompt_molmo rotmat_to_quat segment_sam3_point_prompt solve_ik stove upright
+  tail: Generated text for 'pot': There are none. | No points parsed from model output; skipping visualization. | 
+seed 800103 rc 0 len 7245 apis: close_gripper get_observation knob move_to_joints navigate_to open_gripper plan_grasp point_prompt_molmo segment_sam3_point_prompt segment_sam3_text_prompt solve_ik stove
+  tail: 
+seed 800104 rc 0 len 15903 apis: close_gripper get_observation move_to_joints navigate_to open_gripper plan_grasp point_prompt_molmo rotmat_to_quat_wxyz segment_sam3_point_prompt segment_sam3_text_prompt solve_ik
+  tail: 
+seed 800105 rc 0 len 14804 apis: close_gripper down get_observation gripper move_to_joints navigate_to open_gripper plan_grasp point_prompt_molmo segment_sam3_point_prompt segment_sam3_text_prompt solve_ik
+  tail: 839 679">pot</points> | Generated text for 'stove burner': <points coords="1 1 418 657 2 427 573 3 574 568 4 574 657">stove burner</points> | Generated text for 'stove knob': <points coords="1 1 399 751 2 427 751 3 455 751 4 482 751">stove knob</points> | 
+seed 800106 rc 0 len 7300 apis: close_gripper get_observation get_oriented_bounding_box_from_3d_points knob move_to_joints navigate_to open_gripper plan_grasp point_prompt_molmo rotmat_to_quat segment_sam3_point_prompt segment_sam3_text_prompt solve_ik
+  tail: 
+seed 800107 rc 0 len 8757 apis: close_gripper get_observation move_to_joints navigate_to open_gripper plan_grasp point_prompt_molmo segment_sam3_point_prompt segment_sam3_text_prompt solve_ik world
+  tail: 
+seed 800108 rc 0 len 12616 apis: close_gripper down get_observation knob move_to_joints navigate_to open_gripper plan_grasp point_prompt_molmo segment_sam3_point_prompt segment_sam3_text_prompt solve_ik
+  tail:  'pot': <points coords="1 1 827 646">pot</points> | Generated text for 'stove surface': <points coords="1 1 511 643">stove surface</points> | Generated text for 'stove knob': <points coords="1 1 358 777 2 390 777 3 424 777 4 458 777">stove knob</points> | 
+seed 800109 rc 0 len 9493 apis: close_gripper forward get_observation move_to_joints navigate_to open_gripper plan_grasp point point_prompt_molmo rotmat_to_quat segment_sam3_point_prompt segment_sam3_text_prompt solve_ik
+  tail: 
+seed 800110 rc 0 len 8829 apis: close_gripper get_observation knob move_to_joints navigate_to open_gripper plan_grasp point_prompt_molmo segment_sam3_point_prompt segment_sam3_text_prompt sink solve_ik stove
+  tail: Generated text for 'stove knob': <points coords="1 1 593 777 2 620 777 3 651 777">stove knob</points> | 
+seed 800111 rc 0 len 10646 apis: close_gripper get_observation move_to_joints navigate_to open_gripper plan_grasp point_prompt_molmo segment_sam3_point_prompt segment_sam3_text_prompt solve_ik
+  tail: ted text for 'stove burner knob': There are none. | No points parsed from model output; skipping visualization. | Generated text for 'burner knob': <points coords="1 1 514 789">burner knob</points> | [robocasa] navigate_to('stove'): no collision-free pose | 
+seed 800112 rc 0 len 7310 apis: close_gripper get_observation move_to_joints navigate_to open_gripper plan_grasp point_prompt_molmo rotmat_to_quat segment_sam3_text_prompt solve_ik stove
+  tail: Generated text for 'stove knob': <points coords="1 1 577 724 2 627 724">stove knob</points> | Task completed: Pot placed on stove and burner turned on. | 
+seed 800113 rc 0 len 7376 apis: close_gripper get_observation move_to_joints navigate_to open_gripper plan_grasp point_prompt_molmo rotmat_to_quat segment_sam3_point_prompt segment_sam3_text_prompt solve_ik
+  tail: 
+seed 800114 rc 0 len 9190 apis: close_gripper get_observation knob move_to_joints navigate_to open_gripper plan_grasp segment_sam3_text_prompt solve_ik
+  tail: 
+seed 800115 rc 1 len 10602 apis: close_gripper get_observation move_to_joints navigate_to open_gripper plan_grasp point_prompt_molmo segment_sam3_point_prompt segment_sam3_text_prompt solve_ik stove
+  tail: or: Failed to communicate with SAM3 service at http://127.0.0.1:20049: Request to http://127.0.0.1:20049/segment_point failed after 5 retries / 120.00s. Last error: 422 Client Error: Unprocessable Entity for url: http://127.0.0.1:20049/segment_point | 

@@ -1,0 +1,64 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "serving_mismatch: serving the submission pr_pickup_ssm+pr_micr_start+sg_bp_burner failed: <HTTPError 400: 'Bad Request'>",
+ "gpu_hours": 15.3478,
+ "final_score": null,
+ "agent": "local",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": 262144
+ },
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "eval_backend": "tinker, decode=tinker(no_presence_penalty) (RoboCasa365 pool: every eval samples on Tinker, base or Tinker-trained adapter; dev / practice seeds only, hidden seeds refused); final=DEV (dev seeds 800021-800070, n=50, sampled on Tinker; never a Table 2 number: hidden finals need the local 27B)",
+ "trainer": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B",
+ "tinker": {
+  "calls": 22,
+  "usd": 120.1564,
+  "tinker_s": 8984.11
+ },
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 15.3478,
+ "gpu_hours_charging": "canonical",
+ "cost_model": "v2",
+ "gpu_hours_lost": 0.0,
+ "measured_vs_canonical": 1.0,
+ "agent_gpu_h": 1.7069,
+ "measured_cost": {
+  "train_gpu_h": 0.0,
+  "reason_gpu_h": 1.7069,
+  "sandbox_gpu_h": 9.2303,
+  "usd_tinker": 120.1564,
+  "charged_gpu_h": 15.3478,
+  "tokens": {
+   "prompt": 4552047,
+   "completion": 217112
+  },
+  "unmeasured_calls": 0
+ },
+ "submission": {
+  "token": "6d8785",
+  "how": "explicit",
+  "turn": 130,
+  "confirmed": true,
+  "confirmed_turn": 133,
+  "ended_by": "DONE",
+  "note": "Stack of the three adapters with learned skills: pick/move (0.875), microwave start, stove burner. Base is 0/20 on all 24 dev tasks; floor is 0 so this is pure upside.",
+  "policy": "base + pr_pickup_ssm (sha b1030ae921dc) + pr_micr_start (sha 9370d712fde9) + sg_bp_burner (sha bf121c2f4d3f)"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "154ac45aff64962504f4405b63b1f433577633313d4dc94f40b08d0afa85de57",
+ "env_text": "v2",
+ "turns_before_first_action": 23,
+ "tokens_before_first_action": 29620,
+ "first_action": "train",
+ "artifacts": {
+  "registry": "…/robocasaDev1-c5fd3f21/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

@@ -1,0 +1,38 @@
+rc=0
+58:A rollout or eval row carries `program`, `seed`, `sandbox_rc`, `secs`, `wall_s`, `log_tail` (the tail of what the program
+59-printed), `task` and, on a task whose verifier you can see, `stdout_tail` (= `log_tail`) and `task_completed`. The eval runner
+60-records no `stages` or `final_state`: those are in practice rows only. A reward file (`--reward FILE`, a `.py` in your workspace
+61-defining `reward(result) -> float`) sees every row key except `program`.
+62-
+--
+65:| `python3 rollout.py --adapter A[,B...]\|base\|loaded --task T --seeds N [--reward FILE]` | The stack on N dev seeds of T; rows in `rollouts/<id>.jsonl`, with `self_reward` (or `self_reward_error`) per row when `--reward` is given. Example: `python3 rollout.py --adapter loaded --task stack --seeds 8 --reward rewards/lifted.py` |
+66-| `python3 preset.py --task T --program FILE --name NAME --seeds N` | Your prefix program FILE (only the task's own API) runs once on each of N dev seeds (1-32) of T; each reached state is saved and the preset is kept only if every state restores. Record in `presets/NAME.json`; a train spec `"start_preset": "NAME"` on T then practises from those states. Example: `python3 preset.py --task stack --program prefixes/grasp.py --name stack_grasped --seeds 16` |
+67:| `python3 eval.py --adapter ... --task T --seeds N --reward FILE` | The eval's success count as without `--reward`, plus its rows in `rollouts/<id>.jsonl` scored by your reward. Example: `python3 eval.py --adapter loaded --task stack --seeds 20 --reward rewards/lifted.py` |
+68-
+69-### Worked examples (a task that never succeeds yet)
+70-
+71-Sub-goals, their verifiers and the start states of practice are yours to define. The examples below show one way the tools
+--
+75:1. Look at what the policy does. `python3 rollout.py --adapter base --task T --seeds 8` writes `rollouts/<id>.jsonl`: per seed
+76-   the program it wrote, what it printed (`log_tail`) and whether it succeeded. Reading a few programs and their output often
+77-   shows where they stop (an exception, a grasp that never closes, a place at the wrong height).
+78-
+79-2. Look at the state an episode ended in. The eval runner records no `stages` / `final_state`, but every train records them
+--
+109:   program printed (`stdout_tail`) or `task_completed` works on eval and rollout rows too. How far the episodes get on the
+110-   way is in the next train's `practice_rows.jsonl` and its stage histogram.
+12:running train its completed steps, latest mean reward and GPU-hours so far, as the site reports them. `tasks/<task>/eval_prompt.txt` (when
+60:records no `stages` or `final_state`: those are in practice rows only. A reward file (`--reward FILE`, a `.py` in your workspace
+61:defining `reward(result) -> float`) sees every row key except `program`.
+65:| `python3 rollout.py --adapter A[,B...]\|base\|loaded --task T --seeds N [--reward FILE]` | The stack on N dev seeds of T; rows in `rollouts/<id>.jsonl`, with `self_reward` (or `self_reward_error`) per row when `--reward` is given. Example: `python3 rollout.py --adapter loaded --task stack --seeds 8 --reward rewards/lifted.py` |
+67:| `python3 eval.py --adapter ... --task T --seeds N --reward FILE` | The eval's success count as without `--reward`, plus its rows in `rollouts/<id>.jsonl` scored by your reward. Example: `python3 eval.py --adapter loaded --task stack --seeds 20 --reward rewards/lifted.py` |
+81:   lowest-reward ones per task), and SCOREBOARD.md shows each train's stage histogram. `stages` is the simulator's own ordered
+86:3. Write a verifier for a sub-goal you choose, for example "the cube is grasped" (`rewards/grasped.py`):
+88:   def reward(r):
+93:   A reward may also read `final_state` (e.g. the cube's height above `init_pos`) or what the program printed (`stdout_tail`;
+94:   practice rows name the simulator's own reward `sim_reward`, a train's reward also sees it as `reward`).
+95:   Before training on it, score rows you already have: `python3 -c "import json; from rewards.grasped import reward; rows = [json.loads(l) for l in open('adapters/NAME/practice_rows.jsonl')]; print(sum(map(reward, rows)), len(rows))"`.
+96:   A reward that is 0 (or 1) on every row gives GRPO no signal; one that separates some rows does.
+98:4. Practise the sub-goal: a train spec with `"reward": "rewards/grasped.py"` (and a `note` naming the sub-goal if you want the
+105:   you meant before practising from it: a train spec with `"start_preset": "T_grasped"` and a reward for the remaining part.
+108:   `--reward`) have no `stages` / `final_state`, so a reward that reads them scores nothing there; one that reads what the

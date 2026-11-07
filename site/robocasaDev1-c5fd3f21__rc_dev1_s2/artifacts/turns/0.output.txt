@@ -1,0 +1,149 @@
+rc=0
+total 1813
+drwxr-sr-x 5 root nobody  8192 Nov  5 23:27 .
+drwxr-xr-x 4 root root      80 Nov  5 23:27 ..
+-rw-r--r-- 1 root nobody  2572 Nov  5 23:27 ENVIRONMENT.json
+-rw-r--r-- 1 root nobody  2081 Nov  5 23:27 SCOREBOARD.md
+-rw-r--r-- 1 root nobody   297 Nov  5 23:27 STATUS.json
+-rw-r--r-- 1 root nobody   741 Nov  5 23:27 _submit.py
+lrwxrwxrwx 1 root nobody    19 Nov  5 23:27 adapters -> ../session/adapters
+-rw-r--r-- 1 root nobody   396 Nov  5 23:27 cancel.py
+-rw-r--r-- 1 root nobody   788 Nov  5 23:27 eval.py
+-rw-r--r-- 1 root nobody  1401 Nov  5 23:27 finish.py
+drwxr-sr-x 2 root nobody   512 Nov  5 23:27 jobs
+-rw-r--r-- 1 root nobody   559 Nov  5 23:27 load.py
+-rw-r--r-- 1 root nobody  3008 Nov  5 23:27 preset.py
+-rw-r--r-- 1 root nobody  1229 Nov  5 23:27 rollout.py
+drwxr-sr-x 4 root nobody   512 Nov  5 23:27 skills
+-rw-r--r-- 1 root nobody   795 Nov  5 23:27 status.py
+drwxr-sr-x 2 root nobody   512 Nov  5 23:27 tasks
+-r--r--r-- 1 root nobody 20119 Nov  5 23:27 tasks.json
+-rw-r--r-- 1 root nobody   595 Nov  5 23:27 train.py
+-rw-r--r-- 1 root nobody  1581 Nov  5 23:27 unit.py
+-rw-r--r-- 1 root nobody   568 Nov  5 23:27 wait.py
+=== ENVIRONMENT.json ===
+{
+ "policy": "You are a language model whose weights can be adapted with LoRA adapters.",
+ "tasks": [
+  "TongBuffetSetup",
+  "PlaceVeggiesInDrawer",
+  "OrganizeMetallicUtensils",
+  "BoilPot",
+  "SimmeringSauce",
+  "HeatMultipleWater",
+  "BlendVegetableSauce",
+  "BlendMarinade",
+  "BlendIngredients",
+  "SteamInMicrowave",
+  "MicrowaveDefrostMeat",
+  "MicrowaveThawing",
+  "WashFruitColander",
+  "GetToastedBread",
+  "ClearReceptaclesForCleaning",
+  "HeatKebabSandwich",
+  "ToasterOvenBroilFish",
+  "ArrangeBreadBowl",
+  "MakeIceLemonade",
+  "GarnishPancake",
+  "CerealAndBowl",
+  "PackIdenticalLunches",
+  "StirVegetables",
+  "GatherTableware"
+ ],
+ "capabilities": {
+  "adapter_composition": "sum of LoRA deltas via rank concatenation",
+  "trainer_skill": "skills/trainer/SKILL.md",
+  "trainer_implementation": "retrain_min.site.hyak_robocasa.HyakRoboCasaSite",
+  "train_defaults": "identity-v2",
+  "budget_source": "env"
+ },
+ "adapter_mode": "library",
+ "constraint": null,
+ "budget_gpu_hours": 16.0,
+ "budget_policy": "Admission reserves the site's cost estimate; each call is charged the site's cost per call (skills/trainer/SKILL.md, Cost) on completion; gpu_hours_actual is measured time, not charged.",
+ "base_scores": "The base column starts filled with precomputed dev-seed counts, not charged to your budget.",
+ "metric": "Total hidden-seed successes across all tasks of the scored policy (finish.py: the submitted one, by default the loaded stack).",
+ "robocasa_cost_table": {
+  "version": "robocasa-v1",
+  "charged": {
+   "train, 1 step (batch 8)": 0.209,
+   "train, 10 steps (batch 8)": 1.341,
+   "train, 30 steps (batch 8)": 3.857,
+   "train, N steps": "1 x (0.0833 + 0.1258 x N x batch / 8)",
+   "eval, 5 seeds": 0.093,
+   "eval, 20 seeds": 0.121
+  }
+ },
+ "evaluation": {
+  "adapter_policy": "The one adapter stack you submit serves every task at the hidden evaluation.",
+  "scoring": "The final score is the total number of successes of the submitted policy on the hidden evaluation, summed over its tasks; dev-seed evals (eval.py) never count toward it.",
+  "hidden_evaluation": "The hidden evaluation runs on hidden seeds you never see, and also on unlisted variants of the listed task families.",
+  "task_text": "tasks.json lists every task you can train and dev-evaluate; tasks/<name>.md holds each task's full Goal text from its eval prompt.",
+  "generalization": "One stack serves every task at the hidden evaluation, so a gain on one task can cost successes on another, and a gain that holds only on seeds you practised on does not carry over."
+ }
+}=== STATUS.json ===
+{
+ "gpu_hours_spent": 0.0,
+ "gpu_hours_reserved": 0,
+ "gpu_hours_remaining": 16.0,
+ "loaded": [],
+ "adapters": [],
+ "running_jobs": [],
+ "job_progress": {},
+ "finish_now": "If you finish now, the scored policy is: base (`python3 finish.py` submits the loaded stack)",
+ "pending_submission": null
+}=== SCOREBOARD.md ===
+# SCOREBOARD
+
+playbook: none
+agent: local
+mode: dev
+dev seeds: from 800071
+policy: Qwen3.8-27B
+eval_backend: tinker, decode=tinker(no_presence_penalty) (RoboCasa365 pool: every eval samples on Tinker, base or Tinker-trained adapter; dev / practice seeds only, hidden seeds refused); final=DEV (dev seeds 800021-800070, n=50, sampled on Tinker; never a Table 2 number: hidden finals need the local 27B)
+
+Dev-seed success count per task x adapter stack (k/n = rate): the eval with the most seeds (equal n: the newest); smaller evals are in History and the job records. Adapter cells also give the base column's rate at the same n; `untested` = no eval of that stack on that task yet.
+
+| task | base |
+|---|---|
+| TongBuffetSetup | 0/20 = 0% |
+| PlaceVeggiesInDrawer | 0/20 = 0% |
+| OrganizeMetallicUtensils | 0/20 = 0% |
+| BoilPot | 0/20 = 0% |
+| SimmeringSauce | 0/20 = 0% |
+| HeatMultipleWater | 0/20 = 0% |
+| BlendVegetableSauce | 0/20 = 0% |
+| BlendMarinade | 0/20 = 0% |
+| BlendIngredients | 0/20 = 0% |
+| SteamInMicrowave | 0/20 = 0% |
+| MicrowaveDefrostMeat | 0/20 = 0% |
+| MicrowaveThawing | 0/20 = 0% |
+| WashFruitColander | 0/20 = 0% |
+| GetToastedBread | 0/20 = 0% |
+| ClearReceptaclesForCleaning | 0/20 = 0% |
+| HeatKebabSandwich | 0/20 = 0% |
+| ToasterOvenBroilFish | 0/20 = 0% |
+| ArrangeBreadBowl | 0/20 = 0% |
+| MakeIceLemonade | 0/20 = 0% |
+| GarnishPancake | 0/20 = 0% |
+| CerealAndBowl | 0/20 = 0% |
+| PackIdenticalLunches | 0/20 = 0% |
+| StirVegetables | 0/20 = 0% |
+| GatherTableware | 0/20 = 0% |
+
+GPU-hours: 0.000 spent, 16.000 remaining of 16.0 (0 job(s) running)
+Expected cost per call (the estimate checked against what remains): train.py (1 step 0.21, 10 steps 1.34, 50 steps 6.37) GPU-h; eval.py per task (5 seeds 0.09, 20 seeds 0.12, 100 seeds 0.27) GPU-h
+Loaded on your serving endpoint: base
+Submitted: none (python3 finish.py submits a policy)
+
+## Adapters
+
+| name | init | steps | spec | state |
+|---|---|---|---|---|
+
+## Self-reward (rollout.py --reward: your reward over the rollout facts; not a success count)
+
+- none yet
+
+## History (latest 30)
+

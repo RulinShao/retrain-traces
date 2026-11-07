@@ -1,0 +1,10 @@
+{
+  "name": "tb_drawer_probe",
+  "task": "TongBuffetSetup",
+  "steps": 1,
+  "batch": 8,
+  "reward": "rewards/drawer_open.py",
+  "goal": "Open the drawer on the left so you can reach the tongs inside.",
+  "init_mode": "fresh",
+  "time": "01:00:00"
+}

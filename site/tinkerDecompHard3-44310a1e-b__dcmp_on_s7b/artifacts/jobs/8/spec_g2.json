@@ -1,0 +1,11 @@
+{
+  "task": ["revstack"],
+  "name": "g2",
+  "steps": 10,
+  "batch": 8,
+  "rollouts": 8,
+  "lr": 2e-5,
+  "reward": "shaped",
+  "time": "03:00:00",
+  "stop_when": {"plateau_steps": 5, "min_gain": 0.01}
+}

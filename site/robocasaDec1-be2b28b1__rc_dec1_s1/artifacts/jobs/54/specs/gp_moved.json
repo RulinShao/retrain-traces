@@ -1,0 +1,1 @@
+{"task": "GarnishPancake", "name": "gp_moved", "steps": 1, "batch": 8, "reward": "rewards/gp_moved.py", "init_mode": "fresh", "time": "02:00:00"}

@@ -1,0 +1,31 @@
+# SCOREBOARD
+
+playbook: none
+agent: scripted:e2e-rl-uniform
+mode: dev
+dev seeds: from 800001
+policy: Qwen3.8-27B
+
+Dev-seed success count per task x adapter stack (k/n = rate): the eval with the most seeds (equal n: the newest); smaller evals are in History and the job records. Adapter cells also give the base column's rate at the same n; `untested` = no eval of that stack on that task yet.
+
+| task | base | e2e_c1 |
+|---|---|---|
+| lift | untested | untested |
+
+GPU-hours: 0.912 spent, 7.088 remaining of 8.0 (0 job(s) running)
+Expected cost per call (the estimate checked against what remains): train.py (1 step 2.15, 10 steps 19.60, 50 steps 97.13) GPU-h; eval.py per task (5 seeds 0.15, 20 seeds 0.19, 100 seeds 0.45) GPU-h
+Loaded on your serving endpoint: e2e_c1
+Submitted: base + e2e_c1 (sha c6175600c47c) (turn 3, token df81fb; confirmed in turn 4)
+
+## Adapters
+
+| name | init | steps | spec | state |
+|---|---|---|---|---|
+| e2e_c1 | base | 8 | specs/e2e_c1.json | trained |
+
+## History (latest 30)
+
+- train e2e_c1 (init base, steps 8): trained
+- load e2e_c1
+- finish: submitted e2e_c1 (token df81fb, job 4)
+- finish: confirmed e2e_c1 (token df81fb)

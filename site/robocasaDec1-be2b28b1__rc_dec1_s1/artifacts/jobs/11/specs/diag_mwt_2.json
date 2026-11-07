@@ -1,0 +1,1 @@
+{"task": "MicrowaveThawing", "name": "diag_mwt_2", "steps": 1, "batch": 8, "reward": "rewards/mwt_moved.py", "init_mode": "fresh", "time": "02:00:00"}

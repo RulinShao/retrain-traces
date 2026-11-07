@@ -1,0 +1,215 @@
+[note: the Goal line depends on the seed; the rest of this prompt is the same for every seed. Shown: seed 800001. Goal lines on the dev seeds 800001-800020 (trials):
+  Goal: Place the sweet potato and mushroom inside the fridge drawer. Close the drawer after placing the vegetables. (2)
+  Goal: Place the avocados inside the fridge drawer. Close the drawer after placing the vegetables. (1)
+  Goal: Place the bell pepper and broccoli inside the fridge drawer. Close the drawer after placing the vegetables. (1)
+  Goal: Place the bell pepper and squash inside the fridge drawer. Close the drawer after placing the vegetables. (1)
+  Goal: Place the bell pepper and sweet potato inside the fridge drawer. Close the drawer after placing the vegetables. (1)
+  Goal: Place the broccoli and lemon wedge inside the fridge drawer. Close the drawer after placing the vegetables. (1)
+  Goal: Place the corn and tomato inside the fridge drawer. Close the drawer after placing the vegetables. (1)
+  Goal: Place the eggplant and avocado inside the fridge drawer. Close the drawer after placing the vegetables. (1)
+  Goal: Place the garlic and eggplant inside the fridge drawer. Close the drawer after placing the vegetables. (1)
+  Goal: Place the lemon and sweet potato inside the fridge drawer. Close the drawer after placing the vegetables. (1)
+  Goal: Place the lemon wedge and bell pepper inside the fridge drawer. Close the drawer after placing the vegetables. (1)
+  Goal: Place the lemon wedge and lemon inside the fridge drawer. Close the drawer after placing the vegetables. (1)
+  Goal: Place the mushroom and squash inside the fridge drawer. Close the drawer after placing the vegetables. (1)
+  Goal: Place the onion and bell pepper inside the fridge drawer. Close the drawer after placing the vegetables. (1)
+  Goal: Place the potato and lime inside the fridge drawer. Close the drawer after placing the vegetables. (1)
+  Goal: Place the potatos inside the fridge drawer. Close the drawer after placing the vegetables. (1)
+  Goal: Place the squash and eggplant inside the fridge drawer. Close the drawer after placing the vegetables. (1)
+  Goal: Place the sweet potatos inside the fridge drawer. Close the drawer after placing the vegetables. (1)
+  Goal: Place the tomato and lime inside the fridge drawer. Close the drawer after placing the vegetables. (1)
+]
+
+=== system ===
+You are a helpful assistant that generates Python code to directly solve the task.
+
+=== user ===
+
+You are controlling a Franka Emika robot arm with the API described below. The arm is mounted on a mobile base in a kitchen. The base stays still while the arm moves; navigate_to(fixture) drives it to stand in front of a fixture, and afterwards every position and orientation is in the new base frame.
+Goal: Place the potatos inside the fridge drawer. Close the drawer after placing the vegetables.
+Success requires: both vegetables are fully inside the top fridge drawer, that drawer is closed (at most 2% open), and the gripper is more than 0.25 m from both vegetables.
+All positions and orientations are in the robot base frame: x points forward (away from the robot), y to the robot's left, z up; quaternions are WXYZ.
+Write ONLY executable Python code (no code fences). Import numpy if needed.
+
+APIs:
+
+get_observation() -> dict[str, typing.Any]
+  Doc:
+    Get the observation of the environment.
+    Returns:
+        observation:
+            A dictionary containing the observation of the environment.
+            The dictionary contains the following keys:
+            - ["robot0_robotview"]["images"]["rgb"]: Current color camera image as a numpy array of shape (H, W, 3), dtype uint8.
+            - ["robot0_robotview"]["images"]["depth"]: Current depth camera image as a numpy array of shape (H, W), dtype float32.
+            - ["robot0_robotview"]["intrinsics"]: Camera intrinsic matrix as a numpy array of shape (3, 3), dtype float64.
+            - ["robot0_robotview"]["pose_mat"]: Camera extrinsic matrix as a numpy array of shape (4, 4), dtype float64.
+
+point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+  Doc:
+    Use Molmo to point to a coordinate in the image based on a text prompt.
+    
+    Args:
+        image: np.ndarray: The RGB image to process. Shape: (H, W, 3), dtype uint8.
+        text_prompt: str: The text prompt to point to.
+    
+    Returns:
+        dict[str, tuple[int | None, int | None]]: Pixel coordinates for each
+        object query; (None, None) if parsing failed.
+
+segment_sam3_text_prompt(rgb: numpy.ndarray, text_prompt: str) -> list[dict[str, typing.Any]]
+  Doc:
+    Run SAM3 segmentation on an RGB image conditioned on a text prompt.
+    
+    Args:
+        rgb:
+            RGB image array of shape (H, W, 3), dtype uint8.
+        text_prompt:
+            Text prompt for SAM3 segmentation.
+    
+    Returns:
+        masks:
+            A list of dictionaries. Each dict may contain:
+    
+              - "mask":  np.ndarray of shape (H, W), dtype bool,
+                          where True means the pixel belongs to the instance.
+              - "box": list [x1, y1, x2, y2] in pixel coordinates.
+              - "score": float confidence score.
+
+segment_sam3_point_prompt(rgb: numpy.ndarray, point_coords: tuple[float, float]) -> list[dict[str, typing.Any]]
+  Doc:
+    Run SAM3 segmentation on an RGB image, optionally conditioned on an image coordinate point prompt.
+    
+    Args:
+        rgb:
+            RGB image array of shape (H, W, 3), dtype uint8.
+        point_coords:
+            (x, y) pixel coordinates of the point prompt.
+    
+    Returns:
+        masks:
+            A list of dictionaries. Each dict may contain:
+    
+              - "mask":  np.ndarray of shape (H, W), dtype bool,
+                          where True means the pixel belongs to the instance.
+              - "score": float confidence score.
+
+plan_grasp(depth, intrinsics, segmentation)
+  Doc:
+    Plan grasp candidates using Contact-GraspNet for a single instance.
+    
+    This is a thin wrapper around the Contact-GraspNet planner. It does not
+    apply any camera/world transforms: the caller is responsible for
+    transforming the resulting grasp poses into the desired frame. The returned
+    poses are already gripper TCP targets: after the camera-to-world transform,
+    pass them to solve_ik unchanged (do not apply any additional TCP offset).
+    
+    Args:
+        depth:
+            Depth image in meters.
+            Shape: (H, W), dtype float32/float64.
+        intrinsics:
+            Camera intrinsic matrix.
+            Shape: (3, 3), dtype float64.
+        segmentation:
+            Instance segmentation map where each integer > 0 corresponds to a
+            unique object instance ID.
+            Shape: (H, W) or (H, W, 1), dtype int32/int64.
+    
+    Returns:
+        grasp_poses:
+            np.ndarray of shape (K, 4, 4), dtype float64.
+            Homogeneous transforms for each candidate grasp IN THE CAMERA FRAME.
+        grasp_scores:
+            np.ndarray of shape (K,), dtype float64.
+            Confidence score for each candidate grasp.
+
+get_oriented_bounding_box_from_3d_points(points: numpy.ndarray) -> dict[str, typing.Any]
+  Doc:
+    Get the oriented bounding box from 3D points.
+    
+    Args:
+        points: np.ndarray: The 3D points to get the oriented bounding box from.
+            Shape: (N, 3), dtype float64.
+    
+    Returns:
+        dict[str, Any]: The oriented bounding box. The dictionary contains the following keys:
+            - "center": np.ndarray: The center of the oriented bounding box in point cloud frame.
+            - "extent": np.ndarray: The extent of the oriented bounding box.
+            - "R": np.ndarray: The rotation matrix of the oriented bounding box in point cloud frame.
+
+solve_ik(position: numpy.ndarray, quaternion_wxyz: numpy.ndarray) -> numpy.ndarray
+  Doc:
+    Solve inverse kinematics for the gripper TCP (the grasp point between the fingertips). The TCP offset
+    from the panda_hand link (0.107 m along the gripper approach axis) is applied internally.
+    
+    Args:
+        position:
+            Target position in world frame.
+            Shape: (3,), dtype float64.
+        quaternion_wxyz:
+            Target orientation as a unit quaternion in world frame.
+            Shape: (4,), [w, x, y, z], dtype float64.
+    
+    Returns:
+        joints:
+            np.ndarray of shape (7,), dtype float64.
+            Joint angles for the 7 DoF Franka arm.
+
+move_to_joints(joints: numpy.ndarray) -> None
+  Doc:
+    Move the robot to a given joint configuration in a blocking manner.
+    
+    Args:
+        joints:
+            Target joint angles for the 7-DoF Franka arm.
+            Shape: (7,), dtype float64.
+    
+    Returns:
+        None
+
+open_gripper() -> None
+  Doc:
+    Open gripper fully.
+    
+    Args:
+        None
+
+close_gripper() -> None
+  Doc:
+    Close gripper fully.
+    
+    Args:
+        None
+
+navigate_to(target: 'str') -> 'bool'
+  Doc:
+    Drive the mobile base to stand in front of a kitchen fixture, facing it.
+    
+    Args:
+        target: fixture name as used in the task instruction, e.g. "sink", "microwave", "stove", "fridge",
+            "dishwasher", "coffee machine", "drawer", "cabinet".
+    
+    Returns:
+        True if the base reached the fixture's standard working pose; False if the name matches no fixture or no
+        collision-free pose exists (the base does not move then).
+    
+    After a successful call the robot base frame (the frame of every position and orientation in this API) has moved:
+    call get_observation() again and recompute any pose obtained before. Arm joints and gripper state are unchanged;
+    an object held in the gripper is carried along.
+
+Conventions of this API (facts):
+- get_observation()["robot0_robotview"]["pose_mat"] maps camera coordinates to the robot base frame. Camera coordinates follow
+  the pinhole convention (x right, y down, z along the view); a pixel (u, v) at depth d (meters) is at camera point
+  ((u - K[0,2]) * d / K[0,0], (v - K[1,2]) * d / K[1,1], d), K = intrinsics. Depth values <= 0.05 or > 3 are invalid.
+- The camera is mounted above and behind the arm; the arm can block its view of the scene.
+- Gripper frame: +z is the approach direction (from the hand towards the fingertips); the fingers close along y. Quaternion
+  (w, x, y, z) [0, 0, 1, 0] points the fingers straight down, [0.7071, 0, 0.7071, 0] points them forward (+x), and the
+  identity [1, 0, 0, 0] points them straight up.
+- solve_ik returns its best joint solution without an error even when the target is out of reach; the hand reaches about
+  0.6-0.8 m from the arm base.
+- move_to_joints interpolates in joint space: between two configurations the hand does not move along a straight line.
+- No function reports the gripper's actual pose or opening.
+- plan_grasp returns arrays of shape (0, 4, 4) and (0,) when it finds no grasp.
+- Kitchen drawers slide along the base x axis: a drawer opens towards the robot (-x) and closes away from it (+x).
+- The program runs once; success is judged on the scene's final state after it ends.

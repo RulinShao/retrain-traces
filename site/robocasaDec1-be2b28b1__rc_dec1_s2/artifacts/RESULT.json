@@ -1,0 +1,64 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "eval_failed: InfraError('eval job 43003607: n_scored 49/50 void 1 http_error 0 void_harness 0; unscored seeds 800057 (missing: no trial record (never ran, or the worker died before writing it))')",
+ "gpu_hours": 8.5481,
+ "final_score": null,
+ "agent": "local",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": 262144
+ },
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "eval_backend": "tinker, decode=tinker(no_presence_penalty) (RoboCasa365 pool: every eval samples on Tinker, base or Tinker-trained adapter; dev / practice seeds only, hidden seeds refused); final=DEV (dev seeds 800021-800070, n=50, sampled on Tinker; never a Table 2 number: hidden finals need the local 27B)",
+ "trainer": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B",
+ "tinker": {
+  "calls": 26,
+  "usd": 67.5325,
+  "tinker_s": 5129.63
+ },
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 8.5481,
+ "gpu_hours_charging": "canonical",
+ "cost_model": "v2",
+ "gpu_hours_lost": 0.0,
+ "measured_vs_canonical": 1.0,
+ "agent_gpu_h": 1.5926,
+ "measured_cost": {
+  "train_gpu_h": 0.0,
+  "reason_gpu_h": 1.5926,
+  "sandbox_gpu_h": 4.3796,
+  "usd_tinker": 67.5325,
+  "charged_gpu_h": 8.5481,
+  "tokens": {
+   "prompt": 3762401,
+   "completion": 207568
+  },
+  "unmeasured_calls": 0
+ },
+ "submission": {
+  "token": "52d5f8",
+  "how": "explicit",
+  "turn": 185,
+  "confirmed": true,
+  "confirmed_turn": 187,
+  "ended_by": "DONE",
+  "note": null,
+  "policy": "base"
+ },
+ "skills_version": "6df138df-8645d430",
+ "initial_skills_digest": "352cc3f0ec300af292c575cbea31a87354740803b5ccda9823ba2fba951d9b30",
+ "env_text": "v2",
+ "turns_before_first_action": 110,
+ "tokens_before_first_action": 38777,
+ "first_action": "train",
+ "artifacts": {
+  "registry": "…/robocasaDec1-be2b28b1/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

@@ -1,0 +1,8 @@
+{
+  "task": "lift",
+  "name": "lift_grpo_4s",
+  "steps": 4,
+  "batch": 8,
+  "rollouts": 8,
+  "reward": "task_completed"
+}

@@ -1,0 +1,50 @@
+rc=0
+NUT rows: 16
+seed 800033 rc=1 t=0 grasp=False reach=False
+   grip pos=[-0.50685, -0.0, 1.37429] opening=0.07995 nut handle_pos=[-0.0604, 0.19049, 0.82999] nut pos=[-0.11335, 0.17987, 0.82999]
+   ERR: Error: invalid decimal literal | 
+seed 800034 rc=1 t=0 grasp=False reach=False
+   grip pos=[-0.50685, -0.0, 1.37429] opening=0.07995 nut handle_pos=[-0.14895, 0.17266, 0.82999] nut pos=[-0.11224, 0.21227, 0.82999]
+   ERR: Error: cannot import name 'Quaternion' from 'scipy.spatial.transform' (…/transform/__init__.py) | 
+seed 800035 rc=0 t=580 grasp=False reach=False
+   grip pos=[-0.05136, 0.24199, 0.90153] opening=0.07846 nut handle_pos=[-0.36964, 0.42506, 0.83219] nut pos=[-0.34453, 0.37728, 0.83076]
+seed 800036 rc=1 t=0 grasp=False reach=False
+   grip pos=[-0.50685, 0.0, 1.37429] opening=0.07995 nut handle_pos=[-0.15234, 0.07681, 0.82999] nut pos=[-0.11374, 0.11458, 0.82999]
+   ERR: Error: invalid decimal literal | 
+seed 800037 rc=1 t=0 grasp=False reach=False
+   grip pos=[-0.50685, 0.0, 1.37429] opening=0.07995 nut handle_pos=[-0.13739, 0.1848, 0.82999] nut pos=[-0.11374, 0.13625, 0.82999]
+   ERR: Error: invalid decimal literal | 
+seed 800038 rc=1 t=0 grasp=False reach=False
+   grip pos=[-0.50685, 0.0, 1.37429] opening=0.07995 nut handle_pos=[-0.16284, 0.12701, 0.82999] nut pos=[-0.11361, 0.1492, 0.82999]
+   ERR: Error: invalid decimal literal | 
+seed 800039 rc=0 t=472 grasp=False reach=False
+   grip pos=[-0.09339, 0.08926, 1.08787] opening=0.07955 nut handle_pos=[-0.11379, 0.08666, 0.82999] nut pos=[-0.11498, 0.14064, 0.82999]
+seed 800040 rc=1 t=0 grasp=False reach=False
+   grip pos=[-0.50685, 0.0, 1.37429] opening=0.07995 nut handle_pos=[-0.16035, 0.14555, 0.82999] nut pos=[-0.11217, 0.16994, 0.82999]
+   ERR: Error: invalid decimal literal | 
+seed 800041 rc=1 t=520 grasp=False reach=True
+   grip pos=[-0.16126, 0.1853, 0.93041] opening=0.00131 nut handle_pos=[-0.10224, 0.17227, 0.82999] nut pos=[-0.1187, 0.12084, 0.82999]
+   ERR: Error: Non-positive determinant (left-handed or null coordinate frame) in rotation matrix 0: [[1. 0. 0.] |  [0. 1. 1.] |  [0. 1. 1.]]. | 
+seed 800042 rc=1 t=0 grasp=False reach=False
+   grip pos=[-0.50685, 0.0, 1.37429] opening=0.07995 nut handle_pos=[-0.13363, 0.2292, 0.82999] nut pos=[-0.11312, 0.17925, 0.82999]
+   ERR: Error: invalid decimal literal | 
+seed 800043 rc=0 t=580 grasp=False reach=False
+   grip pos=[0.1432, -0.11748, 1.07896] opening=0.07876 nut handle_pos=[-0.08404, 0.24076, 0.82999] nut pos=[-0.11131, 0.19415, 0.82999]
+seed 800044 rc=1 t=0 grasp=False reach=False
+   grip pos=[-0.50685, 0.0, 1.37429] opening=0.07995 nut handle_pos=[-0.11108, 0.27418, 0.82999] nut pos=[-0.11055, 0.22018, 0.82999]
+   ERR: Error: invalid decimal literal | 
+seed 800045 rc=0 t=366 grasp=False reach=False
+   grip pos=[0.10898, 0.07614, 1.88423] opening=0.07876 nut handle_pos=[-0.08852, 0.14499, 0.82999] nut pos=[-0.1132, 0.19302, 0.82999]
+seed 800046 rc=0 t=386 grasp=False reach=False
+   grip pos=[-0.67256, -0.39059, 0.9216] opening=0.07866 nut handle_pos=[-0.0802, 0.20968, 0.82999] nut pos=[-0.11246, 0.16638, 0.82999]
+seed 800047 rc=0 t=852 grasp=True reach=False
+   grip pos=[-0.06865, 0.14943, 0.86392] opening=0.07951 nut handle_pos=[-0.17476, 0.19489, 0.82999] nut pos=[-0.12175, 0.20518, 0.82999]
+seed 800048 rc=1 t=0 grasp=False reach=False
+   grip pos=[-0.50685, 0.0, 1.37429] opening=0.07995 nut handle_pos=[-0.10037, 0.21118, 0.82999] nut pos=[-0.11321, 0.15873, 0.82999]
+   ERR: Error: invalid decimal literal | 
+
+TRACE type: <class 'dict'>
+  trace keys: ['every_k', 'points']
+   every_k <class 'int'> 10
+   points <class 'list'> 10
+    elem0: {"t": -182, "grippers": {"arm0": {"pos": [-0.5068, -0.0, 1.3742], "opening": 0.0774, "closed": false}}, "objects": {"square_nut": {"pos": [-0.1134, 0.1799, 0.83], "quat_wxyz": [0.9951, -0.0, 0.0, 0.0988]}, "square_peg": {"pos": [0.23, 0.1, 0.85], "quat_wxyz": [1.0, 0.0, 0.0, 0.0]}, "round_peg": {"pos": [0.23, -0.1, 0.85], "quat_wxyz": [1.0, 0.0, 0.0, 0.0]}}, "contacts": [["square_nut", "table"]]}

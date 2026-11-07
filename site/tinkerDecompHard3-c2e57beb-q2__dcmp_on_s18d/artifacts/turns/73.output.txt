@@ -1,0 +1,46 @@
+rc=0
+rollout row keys: ['program', 'seed', 'sandbox_rc', 'secs', 'wall_s', 'log_tail', 'task', 'stdout_tail', 'task_completed', 'sim_reward', 'stages', 'final_state', 'trace']
+32 keys: ['program', 'seed', 'sandbox_rc', 'secs', 'wall_s', 'log_tail', 'task', 'stdout_tail', 'task_completed', 'sim_reward', 'stages', 'final_state', 'trace']
+  program: len 1458
+  seed: len 6
+  sandbox_rc: len 1
+  secs: len 4
+  wall_s: len 4
+  log_tail: len 342
+  task: len 8
+  stdout_tail: len 342
+  task_completed: len 5
+  sim_reward: len 22
+  stages: len 188
+  final_state: len 758
+  trace: len 19685
+8:Relative paths in SPEC (a reward file, an init adapter path, data files) resolve against the workspace, where `train.py` runs, wherever SPEC itself is.
+21:Each step: `batch` prompts x `rollouts` rollouts (8, or 16 if the spec sets it). GRPO's update comes from reward differences among a prompt's rollouts: a prompt whose rollouts all get the same reward adds nothing to it. A rollout is one program written by the model for the task, run once in the task's simulator
+22:on one seed; its score is the reward below. The training prompt is the task's evaluation prompt, byte for byte (checked before training), unless the spec sets `note` or `goal` or a `data` row sets `prompt`:
+46:| `start_preset` | string | none | a named start-state preset (registry presets exist only where the operator built them (DEV label); presets you build with preset.py are yours, on the task they were built on) to begin practice from an intermediate scene (e.g. object already grasped) so the agent trains the hard tail; the staged reward then scores only the stages after that sub-goal; fails loudly if the preset has not been built. With hidden tasks (B2): also the name of a preset you built with `preset.py` (`presets/<name>.json`), on the task it was built on; on a hidden task only such a preset |
+47:| `start_mix` | string | none | a mixed start-state pool (core/mix_presets.py, built with `build_mix`): seeds split across presets of one task at a ratio, some from scratch; the staged reward scores the full chain; not with `start_preset`; fails loudly if not built; refused on a hidden task (B2) |
+48:| `reward` | string | `task_completed` | `task_completed` (1.0 if the task's own success check passes, else 0.0); `shaped` (the simulator's staged reward); Python source containing `def reward(r)`; or the path of a `.py` file (relative paths: the workspace) defining `reward(r)`. `r` is the simulator's reply (keys or attributes): `task_completed`, `reward`, `sandbox_rc`, `seed`, `log_tail` (= `stdout_tail`), `stages` (the simulator's ordered checklist for the task, {name: reached}, on tasks it tracks), `final_state` (object poses, gripper and contacts at the episode's end) and `trace` (the same, every few simulation steps of the episode); return a float |
+57:| `min_reward` | number | 1.0 | `objective: sft` only: rows with `reward` >= this are trained on, the others dropped (a filter, never a weight) |
+82:(1e-4), `min_reward` (1.0), `time`; no other field) trains the policy's LoRA by supervised fine-tuning (cross-entropy on the program's
+86:- Each line of `data` is `{"task": ..., "seed": ..., "prompt": [{"role": "system" | "user", "content": ...}, ...], "program": ..., "reward": ...}`
+88:  message last; `tasks/<task>/eval_prompt.txt` as messages is the eval prompt of record), `program` the response trained on, `reward`
+89:  a number used only as the `min_reward` filter.
+96:- Building the file: `python3 skills/trainer/sft_rows.py practice adapters/<name> [--min-reward 1] [--steps 3-5] > sft.jsonl` takes a
+97:  finished practice call's rollouts (Output below); `python3 skills/trainer/sft_rows.py rollouts rollouts/<id>.jsonl [--min-reward 1] > sft.jsonl`
+98:  takes rollout.py rows (reward = your self_reward). Both print why each dropped row was dropped.
+100:  `training.json` (`resolved_spec.data`: `sha256` of your file, `rows`, `kept`, rows per task, `min_reward`, `prompt_overrides`); the
+105:Optional. `{"plateau_steps": K, "min_gain": g}` stops the call once K steps in a row pass without the smoothed reward rising more
+106:than g above its best so far; `{"reward_at_least": r}` stops it once the smoothed reward reaches r; with both, the first that
+107:holds stops it. The smoothed reward is the mean `score_mean` of the last 3 steps, so neither can stop a call before step 3
+111:`target_reward`) and `steps_run`; the call's `state` is `STOPPED` (a finished call, not a failure). Without it, all `steps` run.
+130:- `train: unsupported spec field(s) ['<field>', ...]; this site reads only: steps, lr, batch, seed_start, reward, init, start_preset, start_mix, note, goal, time, rollouts, seeds, init_mode, weights, task, name, data, objective, epochs, min_reward, stop_when, score_center`
+135:- `train: reward must be 'task_completed', 'shaped' or the path of a .py file defining reward(result) -> float`
+136:- `train: reward file <path> is outside your workspace; a reward file must be a file in your workspace` (a symlink is not followed either)
+137:- `reward check (before any spend): <file> scores its start state / a crashed program at or above the median of programs that ran (start-state <x> (n <k>), crash <y> (n <k>), running median <z> (n <k>)); ...`: a `.py` reward is scored on your own recorded rows of the task (rollouts/*.jsonl and adapters/*/practice_rows.jsonl: rows that never moved, rows that crashed, rows that ran) before the train starts; nothing is charged. `"allow_noop_reward": true` in the spec trains anyway (recorded); otherwise the numbers are in the train's result (`reward_check`).
+139:- sft: `train: data line <N>: <rule>` (a row's keys, task, seed reserved, prompt, program or reward), `train: no row has reward >= min_reward <m> ...`, `train: field(s) [...] have no meaning with objective 'sft'; ...`, `train: objective 'sft' needs data: ...`, `train: objective 'sft' trains the small policy profiles on this site ...`, `train: steps <s> != ceil(kept rows x epochs / batch) = <n>; omit steps`, `train: task: an sft spec trains the tasks of its kept rows (...); omit task`
+145:- `train: your reward function raised <Error>: <message> (reward.py line N); ...` / `train: your reward function tried to <action> (<detail>), which the reward sandbox refuses; ...` / `train: your reward function ran longer than 120 s on one rollout ...`: a custom `reward(r)` runs in a sandbox, once per rollout: plain Python and the interpreter's libraries (math, json, numpy), files only in its working directory (temporary), no other files, no network, no subprocesses, 60 s CPU and 4 GiB per call. The train stops at the first such failure.
+153:While a train runs, its record shows completed steps, the latest step's mean reward, the fraction of rollouts with reward > 0
+182:`rewards.json` (per step: `step`, `score_mean` over that step's rollouts), `call.json` (job ids, `gpu_hours` = the canonical charge to
+184:Each `rewards.json` step also has `zero_variance_frac` (the share of that step's prompt groups whose rollouts all got one reward) and `failure_stages` (failed rollouts by stage: `sim`, `timeout`, `program`, `grader`, `task`); the running job's status line shows them for the latest step and the train's result lists them per step (`step_facts`).
+185:A call of several tasks (a `task` list, or `data` naming several) adds `per_task` to each `rewards.json` step: `{task: {"score_mean", "rollouts"}}`, that step's rollouts of each task and their mean reward (a rollout is attributed by its prompt; one matching no single task is left out).
+186:Each finished train (and one kept at a stop) also writes `practice_rows.jsonl`: one line per rollout of the call, `{task, seed, prompt_sha, program, reward, step, start}` plus the episode's `stdout_tail`, `sandbox_rc`, `secs`, `task_completed`, `sim_reward` (the reply's `reward`), `stages`, `final_state` and `trace` (reward = the score GRPO gave it; start = the adapter the call started from), with the prompts in `practice_prompts.json` (`{prompt_sha: [chat messages]}`). A rollout whose program was written for two seeds in one step is left out. These are training data you generated yourself; `skills/trainer/sft_rows.py practice adapters/<name>` turns them into SFT rows (see SFT below).

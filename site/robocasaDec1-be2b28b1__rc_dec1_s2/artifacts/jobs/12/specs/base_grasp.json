@@ -1,0 +1,9 @@
+{
+  "name": "base_grasp",
+  "task": "GarnishPancake",
+  "steps": 2,
+  "batch": 8,
+  "reward": "rewards/grasp_strawberry.py",
+  "init_mode": "fresh",
+  "time": "01:00:00"
+}

@@ -1,0 +1,17 @@
+{
+ "format_version": "1",
+ "trajectory_id": "21",
+ "created": "2026-11-06T19:50:47.170Z",
+ "producer": {
+  "name": "trajectory.producers.capx_jobs",
+  "version": null,
+  "git_sha": "e65b25e51758fcebe7a90cfdb4aadb68cb9a87df"
+ },
+ "tags": {
+  "session": "dcmp_vf_cx1",
+  "kind": "train",
+  "job_id": "21",
+  "capx_version": "7fda1bef602c"
+ },
+ "parent": "../.."
+}

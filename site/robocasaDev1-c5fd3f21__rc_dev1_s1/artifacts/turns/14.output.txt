@@ -1,0 +1,49 @@
+rc=0
+======================================== rollouts/1.jsonl
+seed 800071 rc 0 comp False
+  apis: navigate_to
+  tail: Generated text for 'stove knob': <points coords="1 1 468 696 2 527 696 3 592 696 4 662 696">stove knob</points> | 
+seed 800072 rc 0 comp False
+  apis: print
+  tail: pe: (3, 4, 4) | Grasp position: [ 0.81829445 -0.48555711  0.31625748] | Grasp quaternion: [-0.26743601  0.85894851  0.43144884 -0.06735979] | Joints: [-0.50563174  1.14515293 -0.25328001 -0.44454065  0.4226124   1.61951756 |  -0.70926517] | Stove masks: 200 | Stove position: [0.44016348 0.05349785 0.21917062] | Place joints: [ 0.14522979 -0.15334041 -0.02452135 -2.54484797 -0.00549419  2.39154553 
+seed 800073 rc 0 comp False
+  apis: close_gripper, navigate_to, open_gripper, move_to_joints
+  tail: 
+seed 800074 rc 0 comp False
+  apis: navigate_to, close_gripper, elif, open_gripper, move_to_joints
+  tail: 
+seed 800075 rc 1 comp False
+  apis: navigate_to, close_gripper, elif, open_gripper, move_to_joints
+  tail: ions/vision/sam3.py", line 205, in point_prompt_fn |     raise RuntimeError(f"Failed to communicate with SAM3 service at {SERVICE_URL}: {e}") | RuntimeError: Failed to communicate with SAM3 service at http://127.0.0.1:15857: Request to http://127.0.0.1:15857/segment_point failed after 5 retries / 120.00s. Last error: 422 Client Error: Unprocessable Entity for url: http://127.0.0.1:15857/segment_po
+======================================== rollouts/2.jsonl
+seed 800076 rc 0 comp False
+  apis: navigate_to
+  tail: 
+seed 800077 rc 0 comp False
+  apis: navigate_to, close_gripper, elif, open_gripper, move_to_joints
+  tail: 
+seed 800078 rc 1 comp False
+  apis: navigate_to, close_gripper, exit, open_gripper, move_to_joints
+  tail: Traceback (most recent call last): |   File "…/tasks/base.py", line 174, in _exec_user_code |     exec(code, self._exec_globals, self._exec_globals) |   File "<string>", line 44, in <module> |   File "<frozen _sitebuiltins>", line 26, in __call__ | SystemExit: None | 
+seed 800079 rc 0 comp False
+  apis: navigate_to
+  tail: 
+seed 800080 rc 0 comp False
+  apis: navigate_to
+  tail: Generated text for 'drawer handle': <points coords="1 1 264 849 2 279 850 3 583 754 4 602 754 5 729 729 6 935 743 7 968 754">drawer handle</points> | Generated text for 'tongs': There are none. | No points parsed from model output; skipping visualization. | Generated text for 'tray with hot dog': <points coords="1 1 279 357">tray with hot dog</points> | 
+======================================== rollouts/3.jsonl
+seed 800081 rc 0 comp False
+  apis: close_gripper, navigate_to, elif, move_to_joints
+  tail: [robocasa] navigate_to('microwave'): no collision-free pose | 
+seed 800082 rc 0 comp False
+  apis: navigate_to
+  tail: 
+seed 800083 rc 0 comp False
+  apis: print, navigate_to, close_gripper, pick_object, open_gripper, move_to_joints
+  tail: l center for picking: [ 0.33778909 -0.80861591  0.27206674] | Bowl grasp position: [ 0.35662463 -0.90004381  0.27680006], quaternion: [ 0.07786803  0.86817748 -0.46975079 -0.13978063] | Microwave center: [ 0.37048791  0.04058928 -0.04263163] | Door center: [0.15333536 0.4821583  0.07918679] | Button center: [0.52475399 0.0343701  0.41221959] | Task complete | [robocasa] navigate_to: no fixture mat
+seed 800084 rc 0 comp False
+  apis: navigate_to
+  tail: Generated text for 'microwave opening': There are none. | No points parsed from model output; skipping visualization. | Generated text for 'microwave door': <points coords="1 1 205 824">microwave door</points> | Generated text for 'microwave start button': There are none. | No points parsed from model output; skipping visualization. | [robocasa] navigate_to('microwave'): no collision-free pose | 
+seed 800085 rc 0 comp False
+  apis: navigate_to, close_gripper, place_object, open_gripper, move_to_joints, pick_object
+  tail: Generated text for 'microwave door handle': <points coords="1 1 014 807">microwave door handle</points> | Generated text for 'microwave start button': There are none. | No points parsed from model output; skipping visualization. | [robocasa] navigate_to: no fixture matches 'bowl' | [robocasa] navigate_to('microwave'): no collision-free pose | 

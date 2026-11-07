@@ -1,0 +1,11 @@
+{
+  "name": "boil_note_probe",
+  "task": "BoilPot",
+  "steps": 1,
+  "batch": 8,
+  "reward": "rewards/boil_pot_touches_stove.py",
+  "goal": "Take the pot filled with water and place it on the stove.",
+  "note": "SKILL GUIDE (practice only). Every trial, use this pipeline.\nobs=get_observation(); rv=obs['robot0_robotview']; img=rv['images']['rgb']; depth=rv['images']['depth']; K=rv['intrinsics']; pose=rv['pose_mat'] (camera->robot-base frame).\nTo get an object 3D center in the base frame: m=segment_sam3_text_prompt(img, NAME); take the entry with the highest score and its 'mask'; smap=np.zeros(img.shape[:2],int); smap[mask]=1; ys,xs=np.nonzero(mask); pts=[]; for y,x in zip(ys,xs): d=depth[y,x]; if 0.05<d<=3: cam=np.array([(x-K[0,2])*d/K[0,0],(y-K[1,2])*d/K[1,1],d,1.0]); b=pose@cam; pts.append(b[:3]); center=mean(pts) if pts else None. If segmentation is empty, use point_prompt_molmo(img, NAME) to get a pixel (u,v), then unproject that single pixel the same way.\nGrasp: g,s=plan_grasp(depth,K,smap); if len(g)>0: gp=pose@g[int(np.argmax(s))]; p=gp[:3,3]; q=rotm_to_wxyz_quat(gp[:3,:3]); move_to_joints(solve_ik(p,q)); open_gripper(); close_gripper(); move_to_joints(solve_ik(p+[0,0,0.12],[0,0,1,0])). Confirm the object is held (it should have moved) before proceeding.\nPlace at a target point T (base frame): move_to_joints(solve_ik(T+[0,0,0.15],[0,0,1,0])); move_to_joints(solve_ik(T,[0,0,1,0])); open_gripper(); then move up.\nWorkflow: (1) perceive and grasp the object to move and lift it. (2) call navigate_to( TARGET_FIXTURE ), then get_observation() AGAIN because the base frame moved, and re-perceive the target surface point. (3) place the object exactly at that target point. (4) perform the remaining task action.\nAIMING is what matters most: the object must END at the target, not merely be moved. If a placement misses the target, re-grasp the object and try again from a slightly different approach point. For appliances, switch them on by moving the gripper to the control knob/lever and pressing it.\nrotm_to_wxyz_quat(R): standard rotation-matrix to unit quaternion (w,x,y,z).\nWrite only plain executable Python, no code fences.",
+  "init_mode": "fresh",
+  "time": "01:00:00"
+}

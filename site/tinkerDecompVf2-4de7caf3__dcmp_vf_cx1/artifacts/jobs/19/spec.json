@@ -1,0 +1,9 @@
+{
+ "name": "restack_guided",
+ "init": "mixed12",
+ "init_mode": "branch",
+ "task": "restack",
+ "steps": 10,
+ "reward": "rewards/progress.py",
+ "note": "Inspect the scene first: if the green cube is on the red cube, gently move green onto a free tabletop location before reobserving and grasping red; transform camera grasp poses by pose_mat @ grasp_pose, preserve the grasp-to-object offset when computing placement, and use only the listed APIs."
+}

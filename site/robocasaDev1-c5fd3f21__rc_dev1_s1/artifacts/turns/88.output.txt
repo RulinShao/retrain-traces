@@ -1,0 +1,52 @@
+rc=0
+=== INDEX.md (tasks) ===
+# Task index
+
+Written by the environment from tasks.json, tasks/<task>/eval_prompt.txt and the session's base scores.
+
+## TongBuffetSetup
+
+- Goal: RoboCasa365 TongBuffetSetup (Arranging Buffet), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Take the tongs from the drawer on the *left/right* and place them on the dining counter next to the tray containing the [*food*]. Success requires: the tongs and the food tray both touch the dining counter with their centres within 0.5 m of each other, and the gripper is more than 0.15 m from the tongs and from the tray. 4 subtasks; skills: drawers, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## PlaceVeggiesInDrawer
+
+- Goal: RoboCasa365 PlaceVeggiesInDrawer (Loading Fridge), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Place the [*vegetables*] inside the fridge drawer. Close the drawer after placing the vegetables. Success requires: both vegetables are fully inside the top fridge drawer, that drawer is closed (at most 2% open), and the gripper is more than 0.25 m from both vegetables. 8 subtasks; skills: drawers, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## OrganizeMetallicUtensils
+
+- Goal: RoboCasa365 OrganizeMetallicUtensils (Organizing Utensils), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Pick up the metallic utensils from the counter and place them in the open drawer. Make sure not to pick up any wooden utensils. Success requires: every metallic utensil is fully inside the drawer and not touching the dining counter, every wooden spoon still touches the dining counter and is not in the drawer, and the gripper is more than 0.25 m from every utensil. 7 subtasks; skills: drawers, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## BoilPot
+
+- Goal: RoboCasa365 BoilPot (Boiling), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Take the pot filled with water and place it on the stove. Then turn on the stove burner to begin boiling the water. Success requires: the pot touches the stove and the burner nearest to the pot is on. 4 subtasks; skills: knobs, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## SimmeringSauce
+
+- Goal: RoboCasa365 SimmeringSauce (Reheating Food), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Place the pan on the [*burner location*] burner on the stove. Then place the tomato and the onion in the pan and turn on the [*burner location*] burner. Success requires: the pan touches the stove with its centre within 0.08 m of the named burner, the tomato and the onion are in the pan (touching it, centre within 0.7 of the pan's radius), and that burner is on. 4 subtasks; skills: knobs, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## HeatMultipleWater
+
+- Goal: RoboCasa365 HeatMultipleWater (Boiling), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Pick the kettle from the cabinet and place it on a stove burner. Then pick the pot from the counter and place it on another stove burner. Finally, turn both burners on. Success requires: the pot touches the stove with its centre within 0.15 m of a burner that is on, the kettle touches the stove with its centre within 0.08 m of a different burner that is on, and the gripper is more than 0.25 m from both. 4 subtasks; skills: knobs, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## BlendVegetableSauce
+
+- Goal: RoboCasa365 BlendVegetableSauce (Mixing Ingredients), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): The [*vegetable*] is done being boiled. Turn off the stove burner for the saucepan. Place the [*vegetable*] in the blender and turn on the blender to make a vegetable sauce. Success requires: the saucepan's burner is off, the vegetable is fully inside the blender (1 cm tolerance), and the lid is seated and the blender is switched on. 6 subtasks; skills: buttons, knobs, lids, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## BlendMarinade
+
+- Goal: RoboCasa365 BlendMarinade (Preparing Marinade), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Grab the [*vegetables*] from the fridge, place them in the blender, close the lid, and turn on the blender to create a marinade. Success requires: both marinade vegetables are fully inside the blender (1 cm tolerance), the lid is seated and the blender is switched on. 9 subtasks; skills: buttons, lids, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score

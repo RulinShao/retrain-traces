@@ -1,0 +1,94 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "preset_failed: InfraError('preset build diag5_rev (job 42957205, CANCELLED by 1387877): no rows written; see …/20261105T190748_preset_diag5_rev/job-42957205.out')",
+ "gpu_hours": 9.3639,
+ "final_score": null,
+ "agent": "local",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": 262144
+ },
+ "mode": "dev",
+ "final_episodes": 50,
+ "policy_model": "Qwen3.8-27B",
+ "eval_backend": "tinker, decode=tinker(no_presence_penalty) (DEV backend only: dev/checkpoint evals of Tinker-trained adapters sample on Tinker; hidden evals and other adapters run locally)",
+ "trainer": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B charge=canonical sim=h200",
+ "tinker": {
+  "calls": 5,
+  "usd": 59.2293,
+  "tinker_s": 3599.3
+ },
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 4.947,
+ "gpu_hours_charging": "canonical",
+ "cost_model": "v2",
+ "gpu_hours_lost": 0.0,
+ "measured_vs_canonical": 0.528,
+ "agent_gpu_h": 0.622,
+ "measured_cost": {
+  "train_gpu_h": 0.0,
+  "reason_gpu_h": 0.622,
+  "sandbox_gpu_h": 4.4304,
+  "usd_tinker": 59.2293,
+  "charged_gpu_h": 9.3639,
+  "tokens": {
+   "prompt": 1719454,
+   "completion": 58535
+  },
+  "unmeasured_calls": 0
+ },
+ "skills_version": null,
+ "initial_skills_digest": "4f258411617d8bc455b612b9fa8b1aed24b40a6365108c8f953a0bcac8de3cfe",
+ "suite": {
+  "name": "hard3",
+  "version": 1,
+  "hash": "sha256:aaa90816430a9221",
+  "train": [
+   "nut",
+   "restack",
+   "revstack"
+  ],
+  "eval": [
+   {
+    "cell": "nut",
+    "split": "id"
+   },
+   {
+    "cell": "restack",
+    "split": "id"
+   },
+   {
+    "cell": "revstack",
+    "split": "id"
+   },
+   {
+    "cell": "t2_ss",
+    "split": "far"
+   },
+   {
+    "cell": "t2_spl",
+    "split": "far"
+   }
+  ],
+  "splits": {
+   "nut": "id",
+   "restack": "id",
+   "revstack": "id",
+   "t2_ss": "far",
+   "t2_spl": "far"
+  }
+ },
+ "env_text": "v2",
+ "turns_before_first_action": 12,
+ "tokens_before_first_action": 23659,
+ "first_action": "train",
+ "artifacts": {
+  "registry": "…/tinkerDecompHard3-d219b0b2/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

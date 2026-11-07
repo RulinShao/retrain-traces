@@ -1,0 +1,108 @@
+rc=0
+---
+name: trainer
+description: The hyak RoboCasa365 trainer contract: every field train.py reads, the reward state, what each failure returns, costs, and what a train produces.
+---
+# Trainer on this site (hyak, RoboCasa365 kitchens, GRPO LoRA on Tinker)
+
+`python3 train.py SPEC` submits one practice call; SPEC is a JSON or YAML file in the workspace. `python3 train.py --help` prints this file.
+Relative paths in SPEC (a reward file, an init adapter path) resolve against the workspace, where `train.py` runs.
+Your shell on this site writes only in the workspace and has no network and no Slurm client; all compute goes through train.py and eval.py.
+
+## What a practice call is
+GRPO on a LoRA adapter (rank 32) of Qwen3.8-27B, sampled and updated on Tinker; the RoboCasa simulator and its perception
+servers (Molmo2 pointing, SAM3, GraspNet, PyRoKi) run on one GPU of this site. Each step: `batch` prompts x 8 rollouts. A
+rollout is one program written by the model, run once in the task's kitchen on one practice seed (from 900001); its
+score is the reward below. GRPO's update comes from reward differences among a prompt's 8 rollouts: a prompt whose rollouts all
+get the same reward adds nothing. Sampling during practice: temperature 1.0, top_p 0.95, top_k 20, thinking off, at most 8192
+tokens. Evaluation (eval.py) samples the base or one adapter on Tinker on dev seeds (eval.py draws them from 800071 upward);
+the session's final score is a DEV final on dev seeds 800021-800070 (n=50, labelled DEV), and hidden seeds (1-100) are never
+evaluated on this path.
+
+One call practises one task. A long task is decomposed by practising its sub-goals: set `goal` to the sub-goal sentence (it
+replaces the prompt's `Goal:` line in practice only) and `reward` to a reward_fn(state) that scores that sub-goal on the final
+state. Evaluation always uses the task's own prompt and its own success check.
+
+## Spec fields (a spec with any other field fails; see Failures)
+| field | type | default | accepted |
+|---|---|---|---|
+| `task` | string | this session's task when there is one | one task of tasks.json (a list is refused) |
+| `steps` | integer | 1 | >= 1 (the steps of this call) |
+| `batch` | integer | 8 | 1-16 prompts per step (each rolled out 8 times) |
+| `reward` | string | `task_completed` | `task_completed` (the task's own success check) or a .py file defining `reward_fn(state)` |
+| `goal` | string | none | one line, at most 500 characters: the sub-goal, replacing the training prompt's Goal line |
+| `note` | string | none | at most 4000 characters, inserted after the prompt's Success/Goal line as a SKILL GUIDE block (practice only) |
+| `init` | string | the adapter you trained last | an adapter trained here (its training.json names a `tinker_state`): weights and optimizer state continue |
+| `init_mode` | string | none | `resume` or `fresh` (see Continuation; `branch` is not available) |
+| `seed_start` | integer | your lineage's next unused block | >= 900001; step k, prompt i runs seed seed_start + batch x (k-1) + i |
+| `time` | HH:MM:SS | 3 x the fit, at least 2 h | the call's Slurm limit |
+
+## Reward (`reward_fn(state)`)
+`reward_fn(state)` returns 1/True for success, 0 otherwise (any other value counts as 0). It runs once per rollout on the
+final state, at most 2 s, under the reward guard: numpy and math are the only imports; no files, printing, dunder names or
+classes (a refused file fails the train before any job). `state` (frame: the robot's arm base; x forward,
+y left, z up; metres):
+- `objects`: per object name: `pos`, `init_pos`, `euler_xyz_deg`, `horizontal_radius`, `gripper_dist` (m from the gripper),
+  `contacts` (fixtures and objects it touches)
+- `fixtures`: per fixture name: `type`, `regions` (interior regions: `p0`, `px`, `py`, `pz` corners), `state` (its joints'
+  openings in [0, 1], burner / button / lever states where the fixture reports them), `init_state`
+- `gripper`: `pos`, `opening`; `robot_contacts`: the fixtures and objects the robot touches; `instruction`: the seed's goal sentence
+Example (the sub-goal "Open the fridge door."):
+```python
+def reward_fn(state):
+    fridge = state["fixtures"].get("fridge") or {}
+    doors = [v for k, v in (fridge.get("state") or {}).items() if "door" in k]
+    return int(bool(doors) and max(doors) > 0.5)
+```
+
+## Continuation
+Without `init` or `init_mode`, the adapter this session trained last is continued (its Tinker state: weights and optimizer);
+nothing trained yet means a fresh LoRA. `init: <adapter>` continues that adapter; `init_mode: fresh` starts a new LoRA. Only
+adapters trained on this site can be continued (Tinker cannot start from local weights). `steps` counts the steps of this call.
+
+## Failures
+A request this site cannot run as written ends `failed` in `jobs/<id>.json` with this text; nothing is charged:
+- `train: unsupported spec field(s) ['<field>', ...]; this site reads only: steps, batch, seed_start, reward, init, goal, note, time, task, name, init_mode`
+- `train: task must be one of [...], got '<task>'` / `train: task: a RoboCasa practice call trains one task (...)`
+- `train: reward must be 'task_completed' or the path of a .py file defining reward_fn(state) -> 0/1 (or a float in [0, 1])`
+- `train: reward file refused by the reward guard: <reasons> (...)` (e.g. `no top-level def reward_fn`, `syntax error line N`, `import os`) / `train: reward file must define reward_fn(state) at top level (one argument: the final state)`
+- `train: seed_start: practice seeds start at 900001 (...)`
+- `train: goal: ...` / `train: note: ...` / `train: batch: ...` / `train: steps: at least 1` / `train: time: HH:MM:SS`
+- `train: init '<name>': trainer=tinker continues only adapters it trained (...)`
+- `train: refused: Tinker budget exhausted (ledger X / cap Y USD); ...` (also `eval: ...` for an eval)
+- `eval: eval_backend=tinker never evaluates hidden seeds (1-100) ...` / `eval: a RoboCasa eval samples the policy on Tinker, so it evaluates the base or one adapter trained on Tinker here (...)`
+- `objective 'sft'`, preset.py, scoped_run.py and policy_sample.py are not available on this site.
+A reward_fn that raises or times out scores that rollout 0 (`reward_errors` in rewards.json). A step whose simulator services
+failed on more than 5% of its rollouts is not trained and is re-run at most twice; then the call stops with that fact and the
+step is refunded. Any other failure inside the trainer or the simulator ends the session as an infrastructure fault.
+
+## Progress and cancel
+While a train runs, its record shows completed steps and the latest step's mean reward. A Tinker state is saved after every
+step; a call stopped by the cluster (time limit, preemption, node failure) continues after its last saved step in a new Slurm
+job, at most 3 times. `cancel.py ID` stops the call and keeps no adapter (the adapter is exported when the call ends).
+When the Tinker spend cap is reached before a step, the call ends there: the adapter of its last step is kept and
+`training.json` records `budget_stop`.
+
+## Cost (canonical GPU-hours)
+The budget is charged the measured GPU-hours of the call's one GPU (perception + simulator); the canonical table below is the
+admission estimate (startup ~5 min; an eval trial up to 54 s on 8 parallel simulators; a practice rollout up to 49 s on 8, plus
+~61 s of Tinker sampling and update per step). Tinker USD is recorded per call (`tinker_usd`) and never converted into GPU-hours.
+
+| call | canonical GPU-hours |
+|---|---|
+| train, 1 step (batch 8) | 0.21 |
+| train, 10 steps (batch 8) | 1.34 |
+| train, 30 steps (batch 8) | 3.86 |
+| train, N steps | 1 x (0.0833 + 0.1258 x N x batch / 8) |
+| eval, 5 seeds | 0.09 |
+| eval, 20 seeds | 0.12 |
+
+## Output
+A finished train writes `adapters/<name>/` (read-only to you): `adapter_model.safetensors`, `adapter_config.json`, `rewards.json`
+(per step: `step`, `score_mean`, `rollouts`, `task_completed` = rollouts whose task's own success check held, `nonzero_groups`,
+`reward_errors`, `service_errors`), `call.json` (job ids, `gpu_hours` charged, `gpu_hours_actual`, rollout seed range, `rc_unit`:
+the task, sub-goal and reward the call trained) and `training.json` (`resolved_spec`, `tinker_state`, `tinker_usd`, `rc_gstep`
+= steps in the adapter's lineage). The adapter can be named in `eval.py --adapter` (one adapter per eval) and as `init`.
+====
+SKILL.md
+sft_rows.py

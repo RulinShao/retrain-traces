@@ -1,0 +1,54 @@
+{
+ "status": "DONE",
+ "turns": 29,
+ "gpu_hours": 15.8,
+ "final_score": {
+  "loaded": "B",
+  "per_task": {
+   "metaworldplus-push-wall": 27,
+   "metaworldplus-pick-place": 24,
+   "metaworldplus-door-lock": 32
+  },
+  "total": 83,
+  "n_per_task": 50,
+  "submission": "0df9a0",
+  "confirmed": true
+ },
+ "agent": "local",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": null
+ },
+ "mode": "dev",
+ "final_episodes": 50,
+ "policy_model": "tinker:Qwen/Qwen3.8-27B",
+ "gpu_hours_actual": 8.0367,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "0df9a0",
+  "how": "explicit",
+  "turn": 25,
+  "confirmed": true,
+  "confirmed_turn": 28,
+  "ended_by": "DONE",
+  "note": "Adapter B: GRPO on 3 MetaWorld+ tasks (shaped reward), 12 steps total. n=10 dev: 7/10 on push-wall, pick-place, door-lock (base 2/10,2/10,4/10).",
+  "policy": "base + B (sha ef9001a51bc2)"
+ },
+ "budget_forcing": "budget-forcing v1",
+ "skills_version": null,
+ "initial_skills_digest": "defcedbda4b148de7c1ef9e93383830ec80eeae85feaa51b285aecf7e7e51b5d",
+ "env_text": "v2",
+ "env_text_revision": "v2.1",
+ "turns_before_first_action": 10,
+ "tokens_before_first_action": 10143,
+ "first_action": "eval",
+ "artifacts": {
+  "registry": "…/tinkerEfeMt-3aa3e39d/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

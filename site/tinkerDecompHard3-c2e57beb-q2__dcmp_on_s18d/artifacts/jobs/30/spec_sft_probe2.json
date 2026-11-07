@@ -1,0 +1,7 @@
+{
+  "objective": "sft",
+  "name": "probe2",
+  "init": "probe1",
+  "data": "sft_probe.jsonl",
+  "epochs": 40
+}

@@ -1,0 +1,1 @@
+{"name": "sg_bp_place", "task": "BoilPot", "steps": 8, "batch": 8, "reward": "rewards/stove_place_r.py", "goal": "Put the pot on the stove burner.", "init_mode": "fresh", "seed_start": 913001, "time": "03:30:00"}

@@ -1,0 +1,570 @@
+rc=0
+======================================== rollouts/3.jsonl seed 800083
+# Code block 0
+import numpy as np
+
+def get_rgb():
+    obs = get_observation()
+    return obs["robot0_robotview"]["images"]["rgb"]
+
+def get_depth():
+    obs = get_observation()
+    return obs["robot0_robotview"]["images"]["depth"]
+
+def get_intrinsics():
+    obs = get_observation()
+    return obs["robot0_robotview"]["intrinsics"]
+
+def get_pose_mat():
+    obs = get_observation()
+    return obs["robot0_robotview"]["pose_mat"]
+
+def segment_object(text_prompt):
+    rgb = get_rgb()
+    masks = segment_sam3_text_prompt(rgb, text_prompt)
+    if not masks:
+        return None
+    # Pick the highest-scoring mask
+    best = max(masks, key=lambda m: m.get("score", 0))
+    return best.get("mask", None)
+
+def get_3d_points_from_mask(mask, depth, intrinsics, pose_mat):
+    """Convert segmented mask to 3D points in robot base frame."""
+    valid = (depth > 0.05) & (depth < 3.0) & mask
+    if not np.any(valid):
+        return None
+    
+    ys, xs = np.where(valid)
+    if len(xs) == 0:
+        return None
+    
+    # Subsample for efficiency
+    if len(xs) > 1000:
+        indices = np.random.choice(len(xs), 1000, replace=False)
+        xs = xs[indices]
+        ys = ys[indices]
+    
+    K = intrinsics
+    fx, fy = K[0, 0], K[1, 1]
+    cx, cy = K[0, 2], K[1, 2]
+    
+    depths = depth[ys, xs]
+    points_cam = np.zeros((len(xs), 3))
+    points_cam[:, 0] = (xs - cx) * depths / fx
+    points_cam[:, 1] = (ys - cy) * depths / fy
+    points_cam[:, 2] = depths
+    
+    # Transform to robot base frame
+    points_world = np.zeros((len(xs), 4))
+    points_world[:, :3] = points_cam
+    points_world[:, 3] = 1.0
+    points_world = (pose_mat @ points_world.T).T
+    points_world = points_world[:, :3]
+    
+    return points_world
+
+def get_object_center(points):
+    if points is None or len(points) == 0:
+        return None
+    return np.mean(points, axis=0)
+
+def pick_object(text_prompt, approach_offset=0.15):
+    """Pick an object from the scene."""
+    # Navigate to the object's location
+    # First, try to segment and find the object
+    mask = segment_object(text_prompt)
+    if mask is None:
+        print(f"Could not segment {text_prompt}")
+        return False
+    
+    depth = get_depth()
+    intrinsics = get_intrinsics()
+    pose_mat = get_pose_mat()
+    
+    points = get_3d_points_from_mask(mask, depth, intrinsics, pose_mat)
+    if points is None:
+        print(f"Could not get 3D points for {text_prompt}")
+        return False
+    
+    center = get_object_center(points)
+    if center is None:
+        print(f"Could not get center for {text_prompt}")
+        return False
+    
+    print(f"Object center: {center}")
+    
+    # Plan grasp
+    seg_map = np.zeros(mask.shape, dtype=np.int32)
+    seg_map[mask] = 1
+    
+    grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, seg_map)
+    
+    if len(grasp_poses) == 0:
+        print(f"No grasp found for {text_prompt}")
+        # Fallback: use center with default orientation (fingers down)
+        grasp_pos = center
+        grasp_quat = np.array([0.0, 0.0, 1.0, 0.0])  # fingers down
+    else:
+        # Pick best grasp
+        best_idx = np.argmax(grasp_scores)
+        grasp_pose_cam = grasp_poses[best_idx]
+        
+        # Transform grasp pose from camera frame to world frame
+        grasp_pos = (pose_mat @ np.array([grasp_pose_cam[0, 3], grasp_pose_cam[1, 3], grasp_pose_cam[2, 3], 1.0])).T[:3]
+        
+        # Extract rotation and convert to quaternion
+        R_cam = grasp_pose_cam[:3, :3]
+        R_world = pose_mat[:3, :3] @ R_cam
+        
+        # Convert rotation matrix to quaternion
+        from scipy.spatial.transform import Rotation
+        rot = Rotation.from_matrix(R_world)
+        grasp_quat = rot.as_quat()  # returns [x, y, z, w]
+        grasp_quat = np.array([grasp_quat[3], grasp_quat[0], grasp_quat[1], grasp_quat[2]])  # convert to WXYZ
+    
+    print(f"Grasp position: {grasp_pos}, quaternion: {grasp_quat}")
+    
+    # Move to approach position (above the grasp point)
+    approach_pos = grasp_pos.copy()
+    approach_pos[2] += approach_offset
+    
+    # Solve IK for approach
+    joints_approach = solve_ik(approach_pos, grasp_quat)
+    move_to_joints(joints_approach)
+    
+    # Open gripper
+    open_gripper()
+    
+    # Move to grasp position
+    joints_grasp = solve_ik(grasp_pos, grasp_quat)
+    move_to_joints(joints_grasp)
+    
+    # Close gripper
+    close_gripper()
+    
+    # Lift up
+    lift_pos = grasp_pos.copy()
+    lift_pos[2] += 0.15
+    joints_lift = solve_ik(lift_pos, grasp_quat)
+    move_to_joints(joints_lift)
+    
+    return True
+
+def place_object(target_position, target_quat, lift_height=0.15):
+    """Place the held object at the target position."""
+    # Move to above the target
+    approach_pos = target_position.copy()
+    approach_pos[2] += lift_height
+    
+    joints_approach = solve_ik(approach_pos, target_quat)
+    move_to_joints(joints_approach)
+    
+    # Move down to target
+    joints_place = solve_ik(target_position, target_quat)
+    move_to_joints(joints_place)
+    
+    # Open gripper
+    open_gripper()
+    
+    # Lift up
+    lift_pos = target_position.copy()
+    lift_pos[2] += 0.15
+    joints_lift = solve_ik(lift_pos, target_quat)
+    move_to_joints(joints_lift)
+    
+    return True
+
+# Step 1: Navigate to sink and pick the lime
+navigate_to("sink")
+
+# Pick the lime
+pick_object("lime")
+
+# Step 2: Navigate to the bowl and place the lime in it
+navigate_to("bowl")
+
+# Get the bowl's position
+mask_bowl = segment_object("bowl")
+if mask_bowl is not None:
+    depth = get_depth()
+    intrinsics = get_intrinsics()
+    pose_mat = get_pose_mat()
+    points_bowl = get_3d_points_from_mask(mask_bowl, depth, intrinsics, pose_mat)
+    if points_bowl is not None:
+        bowl_center = get_object_center(points_bowl)
+        print(f"Bowl center: {bowl_center}")
+        
+        # Place lime in bowl (slightly above bowl center)
+        place_pos = bowl_center.copy()
+        place_pos[2] += 0.05  # slightly above to drop in
+        place_quat = np.array([1.0
+... [LEN 11847 ]
+LOG: 785 -0.59403728  0.23249983]
+Grasp position: [ 0.31142787 -0.47213648  0.28409187], quaternion: [-0.0819148   0.79056588  0.60063605 -0.08678642]
+Bowl center: [ 0.32316321 -0.62605467  0.26984476]
+Bowl center for picking: [ 0.33778909 -0.80861591  0.27206674]
+Bowl grasp position: [ 0.35662463 -0.90004381  0.27680006], quaternion: [ 0.07786803  0.86817748 -0.46975079 -0.13978063]
+Microwave center: [ 0.37048791  0.04058928 -0.04263163]
+Door center: [0.15333536 0.4821583  0.07918679]
+Button center: [0.52475399 0.0343701  0.41221959]
+Task complete
+[robocasa] navigate_to: no fixture matches 'bowl'
+
+======================================== rollouts/3.jsonl seed 800085
+# Code block 0
+import numpy as np
+
+def quat_from_matrix(R):
+    """Convert rotation matrix to quaternion (w, x, y, z)."""
+    trace = R[0, 0] + R[1, 1] + R[2, 2]
+    if trace > 0:
+        s = 0.5 / np.sqrt(trace + 1.0)
+        w = 0.25 / s
+        x = (R[2, 1] - R[1, 2]) * s
+        y = (R[0, 2] - R[2, 0]) * s
+        z = (R[1, 0] - R[0, 1]) * s
+    elif R[0, 0] > R[1, 1] and R[0, 0] > R[2, 2]:
+        s = 2.0 * np.sqrt(1.0 + R[0, 0] - R[1, 1] - R[2, 2])
+        w = (R[2, 1] - R[1, 2]) / s
+        x = 0.25 * s
+        y = (R[0, 1] + R[1, 0]) / s
+        z = (R[0, 2] + R[2, 0]) / s
+    elif R[1, 1] > R[2, 2]:
+        s = 2.0 * np.sqrt(1.0 + R[1, 1] - R[0, 0] - R[2, 2])
+        w = (R[0, 2] - R[2, 0]) / s
+        x = (R[0, 1] + R[1, 0]) / s
+        y = 0.25 * s
+        z = (R[1, 2] + R[2, 1]) / s
+    else:
+        s = 2.0 * np.sqrt(1.0 + R[2, 2] - R[0, 0] - R[1, 1])
+        w = (R[1, 0] - R[0, 1]) / s
+        x = (R[0, 2] + R[2, 0]) / s
+        y = (R[1, 2] + R[2, 1]) / s
+        z = 0.25 * s
+    q = np.array([w, x, y, z])
+    q = q / np.linalg.norm(q)
+    if q[0] < 0:
+        q = -q
+    return q
+
+def quat_multiply(q1, q2):
+    """Multiply two quaternions (w, x, y, z)."""
+    w1, x1, y1, z1 = q1
+    w2, x2, y2, z2 = q2
+    w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
+    x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
+    y = w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2
+    z = w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2
+    q = np.array([w, x, y, z])
+    return q / np.linalg.norm(q)
+
+def get_object_pose(rgb, depth, intrinsics, pose_mat, text_prompt):
+    """Get the 3D pose of an object from segmentation."""
+    masks = segment_sam3_text_prompt(rgb, text_prompt)
+    if not masks:
+        return None
+    
+    # Use the highest scoring mask
+    best_mask = max(masks, key=lambda m: m.get('score', 0))
+    mask = best_mask['mask']
+    
+    if not np.any(mask):
+        return None
+    
+    # Create segmentation map (1 for the object)
+    seg_map = mask.astype(np.int32)
+    
+    # Plan grasp
+    grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, seg_map)
+    
+    if len(grasp_poses) == 0:
+        # Fall back to using the centroid of the mask
+        ys, xs = np.where(mask)
+        if len(xs) == 0:
+            return None
+        u = np.mean(xs)
+        v = np.mean(ys)
+        d = depth[v.astype(int), u.astype(int)]
+        if d <= 0.05 or d > 3 or np.isnan(d):
+            return None
+        # Camera coordinates
+        x_cam = (u - intrinsics[0, 2]) * d / intrinsics[0, 0]
+        y_cam = (v - intrinsics[1, 2]) * d / intrinsics[1, 1]
+        z_cam = d
+        # Transform to world
+        cam_point = np.array([x_cam, y_cam, z_cam, 1.0])
+        world_point = pose_mat @ cam_point
+        position = world_point[:3]
+        # Use a default orientation (fingers down)
+        quaternion = np.array([0.0, 0.0, 1.0, 0.0])
+        return position, quaternion
+    
+    # Use the best grasp
+    best_idx = np.argmax(grasp_scores)
+    grasp_pose = grasp_poses[best_idx]
+    
+    # Transform from camera frame to world frame
+    world_pose = pose_mat @ grasp_pose
+    position = world_pose[:3, 3]
+    R = world_pose[:3, :3]
+    quaternion = quat_from_matrix(R)
+    
+    return position, quaternion
+
+def pick_object(rgb, depth, intrinsics, pose_mat, text_prompt):
+    """Pick an object."""
+    result = get_object_pose(rgb, depth, intrinsics, pose_mat, text_prompt)
+    if result is None:
+        return False
+    
+    position, quaternion = result
+    
+    # Move above the object
+    above_pos = position.copy()
+    above_pos[2] += 0.15
+    
+    # Open gripper
+    open_gripper()
+    
+    # Move above
+    joints_above = solve_ik(above_pos, quaternion)
+    move_to_joints(joints_above)
+    
+    # Move to grasp position
+    joints_grasp = solve_ik(position, quaternion)
+    move_to_joints(joints_grasp)
+    
+    # Close gripper
+    close_gripper()
+    
+    # Move up
+    up_pos = position.copy()
+    up_pos[2] += 0.15
+    joints_up = solve_ik(up_pos, quaternion)
+    move_to_joints(joints_up)
+    
+    return True
+
+def place_object(rgb, depth, intrinsics, pose_mat, text_prompt, offset=None):
+    """Place the held object at the specified location."""
+    result = get_object_pose(rgb, depth, intrinsics, pose_mat, text_prompt)
+    if result is None:
+        return False
+    
+    position, quaternion = result
+    
+    if offset is not None:
+        position = position + offset
+    
+    # Move above the placement location
+    above_pos = position.copy()
+    above_pos[2] += 0.15
+    
+    joints_above = solve_ik(above_pos, quaternion)
+    move_to_joints(joints_above)
+    
+    # Move to placement position
+    joints_place = solve_ik(position, quaternion)
+    move_to_joints(joints_place)
+    
+    # Open gripper
+    open_gripper()
+    
+    # Move up
+    up_pos = position.copy()
+    up_pos[2] += 0.15
+    joints_up = solve_ik(up_pos, quaternion)
+    move_to_joints(joints_up)
+    
+    return True
+
+# Step 1: Navigate to sink and pick the mushroom
+navigate_to("sink")
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+pick_object(rgb, depth, intrinsics, pose_mat, "mushroom")
+
+# Step 2: Navigate to bowl and place the mushroom in it
+navigate_to("bowl")
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+place_object(rgb, depth, intrinsics, pose_mat, "bowl", offset=np.array([0, 0, 0.05]))
+
+# Step 3: Pick the bowl
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+pick_object(rgb, depth, intrinsics, pose_mat, "bowl")
+
+# Step 4: Navigate to microwave and place the bowl
+... [LEN 9384 ]
+LOG: Generated text for 'microwave door handle': <points coords="1 1 014 807">microwave door handle</points>
+Generated text for 'microwave start button': There are none.
+No points parsed from model output; skipping visualization.
+[robocasa] navigate_to: no fixture matches 'bowl'
+[robocasa] navigate_to('microwave'): no collision-free pose
+
+======================================== rollouts/2.jsonl seed 800080
+# Code block 0
+import numpy as np
+
+# Step 1: Navigate to the drawer
+navigate_to("drawer")
+
+# Get observation to see the drawer
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Open the drawer - first move to a position in front of the drawer
+# The drawer slides along x axis, opens towards robot (-x)
+# We need to grab the drawer handle and pull it open
+
+# Try to find the drawer handle
+handle_result = point_prompt_molmo(rgb, "drawer handle")
+handle_point = handle_result.get("drawer handle", (None, None))
+
+if handle_point[0] is not None and handle_point[1] is not None:
+    # Segment the handle
+    masks = segment_sam3_point_prompt(rgb, handle_point)
+    if masks:
+        mask = masks[0]["mask"]
+        # Create segmentation
+        seg = np.zeros(rgb.shape[:2], dtype=np.int32)
+        seg[mask] = 1
+        
+        # Plan grasp on the handle
+        grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, seg)
+        if len(grasp_poses) > 0:
+            # Get best grasp
+            best_idx = np.argmax(grasp_scores)
+            grasp_pose_cam = grasp_poses[best_idx]
+            
+            # Transform to world frame
+            grasp_pose_world = pose_mat @ grasp_pose_cam
+            
+            # Extract position and orientation
+            grasp_pos = grasp_pose_world[:3, 3]
+            grasp_rot = grasp_pose_world[:3, :3]
+            
+            # Convert rotation to quaternion
+            # Using the rotation matrix to quaternion conversion
+            trace = np.trace(grasp_rot)
+            if trace > 0:
+                S = np.sqrt(trace + 1.0) * 2
+                w = 0.25 * S
+                x = (grasp_rot[2, 1] - grasp_rot[1, 2]) / S
+                y = (grasp_rot[0, 2] - grasp_rot[2, 0]) / S
+                z = (grasp_rot[1, 0] - grasp_rot[0, 1]) / S
+            elif (grasp_rot[0, 0] > grasp_rot[1, 1]) and (grasp_rot[0, 0] > grasp_rot[2, 2]):
+                S = np.sqrt(1.0 + grasp_rot[0, 0] - grasp_rot[1, 1] - grasp_rot[2, 2]) * 2
+                w = (grasp_rot[2, 1] - grasp_rot[1, 2]) / S
+                x = 0.25 * S
+                y = (grasp_rot[0, 1] + grasp_rot[1, 0]) / S
+                z = (grasp_rot[0, 2] + grasp_rot[2, 0]) / S
+            elif grasp_rot[1, 1] > grasp_rot[2, 2]:
+                S = np.sqrt(1.0 + grasp_rot[1, 1] - grasp_rot[0, 0] - grasp_rot[2, 2]) * 2
+                w = (grasp_rot[0, 2] - grasp_rot[2, 0]) / S
+                x = (grasp_rot[0, 1] + grasp_rot[1, 0]) / S
+                y = 0.25 * S
+                z = (grasp_rot[1, 2] + grasp_rot[2, 1]) / S
+            else:
+                S = np.sqrt(1.0 + grasp_rot[2, 2] - grasp_rot[0, 0] - grasp_rot[1, 1]) * 2
+                w = (grasp_rot[1, 0] - grasp_rot[0, 1]) / S
+                x = (grasp_rot[0, 2] + grasp_rot[2, 0]) / S
+                y = (grasp_rot[1, 2] + grasp_rot[2, 1]) / S
+                z = 0.25 * S
+            
+            quat = np.array([w, x, y, z])
+            quat = quat / np.linalg.norm(quat)
+            
+            # Move to grasp the handle
+            joints = solve_ik(grasp_pos, quat)
+            move_to_joints(joints)
+            
+            # Close gripper
+            close_gripper()
+            
+            # Pull the drawer open - move in -x direction
+            # First move up a bit
+            lift_pos = grasp_pos + np.array([0, 0, 0.1])
+            joints = solve_ik(lift_pos, quat)
+            move_to_joints(joints)
+            
+            # Pull drawer open
+            pull_pos = grasp_pos + np.array([-0.3, 0, 0.05])
+            joints = solve_ik(pull_pos, quat)
+            move_to_joints(joints)
+            
+            # Open gripper to release handle
+            open_gripper()
+            
+            # Move away
+            away_pos = pull_pos + np.array([0, 0, 0.2])
+            joints = solve_ik(away_pos, quat)
+            move_to_joints(joints)
+
+# Now the drawer should be open. Get new observation
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Find the tongs in the drawer
+tongs_result = point_prompt_molmo(rgb, "tongs")
+tongs_point = tongs_result.get("tongs", (None, None))
+
+if tongs_point[0] is not None and tongs_point[1] is not None:
+    # Segment the tongs
+    masks = segment_sam3_point_prompt(rgb, tongs_point)
+    if masks:
+        mask = masks[0]["mask"]
+        seg = np.zeros(rgb.shape[:2], dtype=np.int32)
+        seg[mask] = 1
+        
+        # Plan grasp on the tongs
+        grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, seg)
+        if len(grasp_poses) > 0:
+            best_idx = np.argmax(grasp_scores)
+            grasp_pose_cam = grasp_poses[best_idx]
+            grasp_pose_world = pose_mat @ grasp_pose_cam
+            
+            grasp_pos = grasp_pose_world[:3, 3]
+            grasp_rot = grasp_pose_world[:3, :3]
+            
+            # Convert to quaternion
+            trace = np.trace(grasp_rot)
+            if trace > 0:
+                S = np.sqrt(trace + 1.0) * 2
+                w = 0.25 * S
+                x = (grasp_rot[2, 1] - grasp_rot[1, 2]) / S
+                y = (grasp_rot[0, 2] - grasp_rot[2, 0]) / S
+                z = (grasp_rot[1, 0] - grasp_rot[0, 1]) / S
+            elif (grasp_rot[0, 0] > grasp_rot[1, 1]) and (grasp_rot[0, 0] > grasp_rot[2, 2]):
+                S = np.sqrt(1.0 + grasp_rot[0, 0] - grasp_rot[1, 1] - grasp_rot[2, 2]) * 2
+                w = (grasp_rot[2, 1] - grasp_rot[1, 2]) / S
+                x = 0.25 * S
+                y = (grasp_rot[0, 1] + grasp_rot[1, 0]) / S
+                z = (grasp_rot[0, 2] + grasp_rot[2, 0]) / S
+            elif grasp_rot[1, 1] > grasp_rot[2, 2]:
+                S = np.sqrt(1.0 + grasp_rot[1, 1] - grasp_rot[0, 0] - grasp_ro
+... [LEN 8796 ]
+LOG: Generated text for 'drawer handle': <points coords="1 1 264 849 2 279 850 3 583 754 4 602 754 5 729 729 6 935 743 7 968 754">drawer handle</points>
+Generated text for 'tongs': There are none.
+No points parsed from model output; skipping visualization.
+Generated text for 'tray with hot dog': <points coords="1 1 279 357">tray with hot dog</points>
+

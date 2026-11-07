@@ -1,0 +1,171 @@
+rc=0
+ArrangeBreadBowl
+ArrangeBreadBowl.md
+BlendIngredients
+BlendIngredients.md
+BlendMarinade
+BlendMarinade.md
+BlendVegetableSauce
+BlendVegetableSauce.md
+BoilPot
+BoilPot.md
+CerealAndBowl
+CerealAndBowl.md
+ClearReceptaclesForCleaning
+ClearReceptaclesForCleaning.md
+GarnishPancake
+GarnishPancake.md
+GatherTableware
+GatherTableware.md
+GetToastedBread
+GetToastedBread.md
+HeatKebabSandwich
+HeatKebabSandwich.md
+HeatMultipleWater
+HeatMultipleWater.md
+INDEX.md
+MakeIceLemonade
+MakeIceLemonade.md
+MicrowaveDefrostMeat
+MicrowaveDefrostMeat.md
+MicrowaveThawing
+MicrowaveThawing.md
+OrganizeMetallicUtensils
+OrganizeMetallicUtensils.md
+PackIdenticalLunches
+PackIdenticalLunches.md
+PlaceVeggiesInDrawer
+PlaceVeggiesInDrawer.md
+SimmeringSauce
+SimmeringSauce.md
+SteamInMicrowave
+SteamInMicrowave.md
+StirVegetables
+StirVegetables.md
+ToasterOvenBroilFish
+ToasterOvenBroilFish.md
+TongBuffetSetup
+TongBuffetSetup.md
+WashFruitColander
+WashFruitColander.md
+===INDEX===
+# Task index
+
+Written by the environment from tasks.json, tasks/<task>/eval_prompt.txt and the session's base scores.
+
+## TongBuffetSetup
+
+- Goal: Take the tongs from the drawer on the left and place them on the dining counter next to the tray containing the kebab skewer. (the Goal line depends on the seed; tasks/TongBuffetSetup/eval_prompt.txt lists them)
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper, navigate_to
+
+## PlaceVeggiesInDrawer
+
+- Goal: Place the potatos inside the fridge drawer. Close the drawer after placing the vegetables. (the Goal line depends on the seed; tasks/PlaceVeggiesInDrawer/eval_prompt.txt lists them)
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper, navigate_to
+
+## OrganizeMetallicUtensils
+
+- Goal: Pick up the metallic utensils from the counter and place them in the open drawer. Make sure not to pick up any wooden utensils.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper, navigate_to
+
+## BoilPot
+
+- Goal: Take the pot filled with water and place it on the stove. Then turn on the stove burner to begin boiling the water.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper, navigate_to
+
+## SimmeringSauce
+
+- Goal: Place the pan on the rear center burner on the stove. Then place the tomato and the onion in the pan and turn on the rear center burner. (the Goal line depends on the seed; tasks/SimmeringSauce/eval_prompt.txt lists them)
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper, navigate_to
+
+## HeatMultipleWater
+
+- Goal: Pick the kettle from the cabinet and place it on a stove burner. Then pick the pot from the counter and place it on another stove burner. Finally, turn both burners on.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper, navigate_to
+
+## BlendVegetableSauce
+
+- Goal: The carrot is done being boiled. Turn off the stove burner for the saucepan. Place the carrot in the blender and turn on the blender to make a vegetable sauce. (the Goal line depends on the seed; tasks/BlendVegetableSauce/eval_prompt.txt lists them)
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper, navigate_to
+
+## BlendMarinade
+
+- Goal: Grab the garlic and onion from the fridge, place them in the blender, close the lid, and turn on the blender to create a marinade. (the Goal line depends on the seed; tasks/BlendMarinade/eval_prompt.txt lists them)
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper, navigate_to
+
+## BlendIngredients
+
+- Goal: Open the blender lid, put the tangerine in the blender, close the lid, and start the blender. (the Goal line depends on the seed; tasks/BlendIngredients/eval_prompt.txt lists them)
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper, navigate_to
+
+## SteamInMicrowave
+
+- Goal: Pick the eggplant from the sink and place it in the bowl. Then pick the bowl and place it in the microwave. Then close the microwave door and press the start button. (the Goal line depends on the seed; tasks/SteamInMicrowave/eval_prompt.txt lists them)
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper, navigate_to
+
+## MicrowaveDefrostMeat
+
+- Goal: Place the tupperware containing the frozen steak in the microwave. Close the microwave door and press the start button to defrost the meat. (the Goal line depends on the seed; tasks/MicrowaveDefrostMeat/eval_prompt.txt lists them)
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper, navigate_to
+
+## MicrowaveThawing
+
+- Goal: Pick the chicken drumstick from the counter and place it in the microwave. Then turn on the microwave. (the Goal line depends on the seed; tasks/MicrowaveThawing/eval_prompt.txt lists them)
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper, navigate_to
+
+## WashFruitColander
+
+- Goal: Put the colander in the sink, put the orange, mango, kiwi in the colander, and turn on the sink faucet and pour water over the colander. (the Goal line depends on the seed; tasks/WashFruitColander/eval_prompt.txt lists them)
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper, navigate_to
+
+## GetToastedBread
+
+- Goal: Start the toaster. Once the lever pops up, take the bread to the plate on the dining counter.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper, navigate_to
+
+## ClearReceptaclesForCleaning
+
+- Goal: Pick the mug and strainer and place them in the sink. Then turn on the water. (the Goal line depends on the seed; tasks/ClearReceptaclesForCleaning/eval_prompt.txt lists them)
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper, navigate_to
+
+## HeatKebabSandwich
+
+- Goal: Pick up the kebab skewer and baguette bread, and place them inside the toaster oven. Close the toaster oven door and start by setting the timer.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+- APIs: get_observation, point_prompt_molmo, segment_sam3_text_prompt, segment_sam3_point_prompt, plan_grasp, get_oriented_bounding_box_from_3d_points, solve_ik, move_to_joints, open_gripper, close_gripper, navigate_to
+
+## ToasterOvenBroilFish
+
+- Goal: Place the fish on the rack of the toaster oven, and slide the rack back inside. Close the toaster oven door and set the temperature to the max to begin broiling the fish. (the Goal line depends on the seed; tasks/ToasterOvenBroilFish/eval_prompt.txt lists them)
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score

@@ -1,0 +1,11 @@
+{
+  "task": ["nut", "restack"],
+  "name": "g1",
+  "steps": 18,
+  "batch": 12,
+  "rollouts": 8,
+  "lr": 2e-5,
+  "reward": "shaped",
+  "time": "04:40:00",
+  "stop_when": {"plateau_steps": 5, "min_gain": 0.01}
+}

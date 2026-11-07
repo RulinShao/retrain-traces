@@ -1,0 +1,10 @@
+{
+  "name": "wash_faucet_probe",
+  "task": "WashFruitColander",
+  "steps": 1,
+  "batch": 8,
+  "reward": "rewards/wash_faucet_on.py",
+  "goal": "Turn on the sink faucet.",
+  "init_mode": "fresh",
+  "time": "01:00:00"
+}

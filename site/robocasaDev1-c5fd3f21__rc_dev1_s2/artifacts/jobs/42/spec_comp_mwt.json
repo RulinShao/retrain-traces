@@ -1,0 +1,1 @@
+{"name": "comp_mwt", "task": "MicrowaveThawing", "steps": 12, "batch": 8, "reward": "rewards/mwt_in_on_r.py", "goal": "Place the food inside the microwave, then press the microwave start button so it turns on.", "init": "pr_pickup_ssm", "init_mode": "resume", "seed_start": 930001, "time": "04:00:00"}

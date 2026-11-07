@@ -1,0 +1,10 @@
+{
+  "name": "arr_dining_strict",
+  "task": "ArrangeBreadBowl",
+  "steps": 1,
+  "batch": 8,
+  "reward": "rewards/arr_bowl_dining_strict.py",
+  "goal": "Pick up the bread bowl and move it to the dining counter.",
+  "init_mode": "fresh",
+  "time": "01:00:00"
+}

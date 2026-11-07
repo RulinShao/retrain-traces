@@ -1,0 +1,184 @@
+rc=0
+---
+name: retrain-tools
+description: Submit training and evaluation jobs, inspect results, and select the policy to score.
+---
+
+# Environment tools
+
+Read `ENVIRONMENT.json` for the site's policy, adapter composition and enforced constraints, and `tasks.json`
+for task details. `STATUS.json` contains the latest budget, loaded stack, adapters and running job IDs.
+`SCOREBOARD.md` has dev scores and lineage. While a train or eval is submitted, `jobs/<id>.json` (`progress`, `progress_line`; `status.py`),
+STATUS.json (`job_progress`) and the scoreboard show whether it is queued (not started, with its queue time so far) or running, and for a
+running train its completed steps, latest mean reward and GPU-hours so far, as the site reports them. `tasks/<task>/eval_prompt.txt` (when
+the site provides it) is the prompt the policy receives at evaluation; training prompts are checked against it. `tasks/INDEX.md` lists each task's goal line, dev and
+hidden seed ranges, recorded base score, API names and key rules, taken from tasks.json, the eval prompts and the base scores. State comes from the environment; this skill is editable guidance.
+
+| Command | Effect |
+| --- | --- |
+| `python3 train.py SPEC` | Submit JSON/YAML spec to the installed trainer; see `skills/trainer/SKILL.md`. |
+| `python3 eval.py --adapter A[,B...]\|base\|loaded --task T --seeds N` | Evaluate on the next N unused dev seeds (the result lists them; the base column has its own) with the task's `tasks/<task>/eval_prompt.txt` verbatim (no training `note`/`goal`; the final score uses the same prompt). A stack's score on a task is known only from an eval of that stack (`--adapter A,B`); neither the scoreboard nor the environment derives it from its adapters' single scores. `loaded` is the stack loaded when the request is picked up, so not an adapter whose train is still running. Results are written only when all seeds finish, so an eval that reaches its time limit usually fails with no count (rarely: a count over the seeds that finished, with `partial`). Where the site can resume an eval (eval port dq-t1v2), an eval stopped by the cluster (time limit, preemption, node failure) continues its remaining seeds in a new Slurm job, at most 3 times; its status then says `continued from seed k in job J`, and its result lists every Slurm job (`jobs`) and each continuation (`continued`: `job` stopped, `cause`, `from` seed, `of` seeds, `continued_in` job), as it lists site retries. |
+| `python3 load.py load A [B...]` | Replace the loaded stack (names separated by spaces; eval.py separates them by commas). |
+| `python3 load.py stack A [B...]` | Append to the loaded stack. |
+| `python3 load.py unload [A...]` | Remove names, or return to base with no names. |
+| `python3 status.py [ID...]` | Read job states and results; no IDs shows all jobs. The last line states what finishing now would score. |
+| `python3 wait.py all\|ID... [--max 4h\|90m]` | Submit a wait barrier: your next turn starts when those jobs finish or after `--max` (default 2h), whichever comes first. If the bound comes first, the result states each job's queue state, reason, position and time pending, and "no job finished". The barrier runs in the environment after your command returns, so `--max` is not limited by the per-command time limit. |
+| `python3 finish.py [--policy base \| --adapters A[,B...]] [--note TEXT]` | Step one of ending the session: submit the policy to score (no policy arguments: the loaded stack; single mode: `current`, `v<k>` or `current@<k>`). The result states exactly what will be scored and a token. |
+| `python3 finish.py --confirm TOKEN` | Step two, in a later turn: end the session; the submission is scored. |
+| `python3 cancel.py ID` | Stop a running train or eval. A train keeps the adapter of its last saved step (if the site saved one), registered with the steps it ran; the job is charged the GPU time it used. |
+
+Scripts submit request files and return IDs. Shell success means submission, not job success. In the chat backend,
+requests are handled only after the entire command returns: `train.py spec.json; wait.py all; load.py load a1`
+queues a dependency chain, but reading status later in that same shell still sees the old state. The Codex backend has a background executor; request processing and status refresh happen independently.
+Read `jobs/<id>.json` or the next observation to distinguish done, failed and refused requests.
+
+Training names are reserved while pending. Training does not load an adapter in library mode; single mode automatically
+replaces and loads `current`. When ENVIRONMENT.json `constraint` names versions, every successful train is a new version
+v1, v2, ... (`current` = the latest) and becomes active; `load.py load v<k>` makes an earlier version active again,
+`eval.py --adapter v<k>` evaluates one, the next train starts from the active version, and versions are never stacked.
+Adapter composition depends on the site. Load calls are free. Train/dev calls reserve the
+site's cost estimate at admission and are charged the site's cost per call (skills/trainer/SKILL.md, Cost); the
+reservation is admission control, not a hard runtime cutoff.
+
+Successful training returns an adapter path, a skills digest, and site-provided training metadata when available.
+`training.json` in the adapter contains site-resolved parameters and artifact names. `site_sources` identifies the site
+code, not the complete external GPU/software environment. A skill edit alone does not change the installed trainer.
+
+Ending the session takes two steps: `finish.py` submits a policy and its result states exactly what will be scored
+(adapters with version and weights sha, eval-prompt hash) and a token; `finish.py --confirm TOKEN` in a later turn ends the
+session. Until then the session goes on; a `load.py` or `train.py` request in between cancels the submission (submit
+again). An unknown adapter name refuses the submission. The submission is scored even if a different stack is loaded at
+the end. If the session ends without a confirmation (budget, caps), the pending submission is scored, else the loaded
+stack. Submitted jobs finish before the score. A file named `DONE` starts the two-step finish like `finish.py` with no
+arguments: it submits the loaded stack (the file is removed); the session ends only after `finish.py --confirm TOKEN`.
+
+
+## Per-episode feedback (this session)
+
+Each of these runs on the next unused dev seeds, is charged as an eval of N seeds, and writes its rows where you can read them.
+A rollout or eval row carries `program`, `seed`, `sandbox_rc`, `secs`, `wall_s`, `log_tail` (the tail of what the program
+printed), `task` and, on a task whose verifier you can see, `stdout_tail` (= `log_tail`) and `task_completed`. On such a task a
+rollout.py row is also the practice episode record: the policy's program for that seed runs once on the task's practice
+simulator (one attempt, as a practice rollout), so the row adds `sim_reward` (the simulator's own dense reward, the one `shaped` trains on), `stages` (its
+ordered checklist for the task, {name: reached}, where it keeps one), `final_state` (object poses, gripper and contacts at
+the end) and `trace` (the same, every few simulation steps of the episode). eval.py rows come from the evaluation runner, which records no `stages` or `final_state`. A reward file (`--reward
+FILE`, a `.py` in your workspace defining `reward(result) -> float`) sees every row key except `program`. A rollout.py job's result (`signals`) and its History line also state, over its rows, how many reach each stage and how many distinct values `task_completed`, `sim_reward` and each stage flag take (1 = the same on every row).
+
+| Command | Effect |
+| --- | --- |
+| `python3 rollout.py --adapter A[,B...]\|base\|loaded --task T --seeds N [--reward FILE]` | The stack on N dev seeds of T; rows in `rollouts/<id>.jsonl`, with `self_reward` (or `self_reward_error`) per row when `--reward` is given. Example: `python3 rollout.py --adapter loaded --task stack --seeds 8 --reward rewards/lifted.py` |
+| `python3 preset.py --task T --program FILE --name NAME --seeds N` | Your prefix program FILE (only the task's own API) runs once on each of N dev seeds (1-32) of T; each reached state is saved and the preset is kept only if every state restores. Record in `presets/NAME.json`; a train spec `"start_preset": "NAME"` on T then practises from those states. Example: `python3 preset.py --task stack --program prefixes/grasp.py --name stack_grasped --seeds 16` |
+| `python3 eval.py --adapter ... --task T --seeds N --reward FILE` | The eval's success count as without `--reward`, plus its rows in `rollouts/<id>.jsonl` scored by your reward. Example: `python3 eval.py --adapter loaded --task stack --seeds 20 --reward rewards/lifted.py` |
+
+A ```bash block ends at the next ``` anywhere in the reply, including one inside a heredoc or a Python string, so the rest of such a command does not run; a bash tool call has no such limit (or write the backticks another way, e.g. `chr(96)*3` in Python).
+
+### Worked examples (a task that never succeeds yet)
+
+Sub-goals, their verifiers and the start states of practice are yours to define. The examples below show one way the tools
+fit together on a generic pick-and-place task `T` (object `the cube`); adapt or ignore them. Requests are picked up only after
+your whole command returns, so read a job's files in your next turn.
+
+1. Look at what the policy does. `python3 rollout.py --adapter base --task T --seeds 8` writes `rollouts/<id>.jsonl`: per seed
+   the program it wrote, what it printed (`log_tail`) and whether it succeeded. Reading a few programs and their output often
+   shows where they stop (an exception, a grasp that never closes, a place at the wrong height).
+
+2. Look at the state an episode ended in. Each rollout.py row has it (`stages`, `final_state`), and every train records it for
+   each practice episode: `adapters/<name>/practice_rows.jsonl` (all episodes) and `adapters/<name>/failures.jsonl` (the
+   lowest-reward ones per task), and SCOREBOARD.md shows each train's stage histogram (eval.py rows have neither). `stages` is the simulator's own ordered
+   checklist for the task where it keeps one (names like `reach ...`, `grasp ...`, `lift ...`; true once reached); `final_state` holds object poses
+   (`pos`, `init_pos`, `max_z`), the gripper (`pos`, `opening`, `grasping`) and `contacts`. Print one row to see the keys:
+   `python3 -c "import json; r = json.loads(open('adapters/NAME/failures.jsonl').readline()); print(r['stages']); print(json.dumps(r['final_state'])[:800])"`
+
+3. Write a verifier for a sub-goal you choose, for example "the cube is grasped" (`rewards/grasped.py`):
+   ```python
+   def reward(r):
+       stages = r.get("stages") or {}
+       grasped = any(v for k, v in stages.items() if k.startswith("grasp"))
+       return 1.0 if grasped else 0.0
+   ```
+   A reward may also read `final_state` (e.g. the cube's height above `init_pos`) or what the program printed (`stdout_tail`;
+   practice rows name the simulator's own reward `sim_reward`, a train's reward also sees it as `reward`).
+   Before training on it, score rows you already have: `python3 -c "import json; from rewards.grasped import reward; rows = [json.loads(l) for l in open('adapters/NAME/practice_rows.jsonl')]; print(sum(map(reward, rows)), len(rows))"`.
+   A reward that is 0 (or 1) on every row gives GRPO no signal; one that separates some rows does. The train reward `shaped` is
+   the simulator's own dense reward (a row's `sim_reward`), a different signal from `stages`: count how often each separates
+   your recorded rows before choosing one.
+
+   Three facts about sub-goal rewards (hard3 11-05: a reward with an ungated "red near green" term paid 0.374 to programs that
+   crashed at once, because restack starts with red under green, and 0.19-0.28 to programs that ran; practice drove crashes from
+   61% to 95% of rows):
+   - A stage the episodes never reach (0/n) gives GRPO no signal, and neither does one they always reach (n/n). A rollout's
+     `stages reached` counts show where episodes stop; the first stage near 0/n is the one that blocks the end, and practice on
+     it has signal from start states just before it (`preset.py`).
+   - A distance term (gripper to object, object to target) also scores the start state. Gate each one on the stage before it
+     (e.g. the place distance only once the object is lifted), so that a program that does nothing scores what a crash scores.
+   - A form that has neither problem: 0 for a crashed program (`sandbox_rc != 0`) and for an episode that never moved
+     (`final_state["t"] == 0`), else the fraction of the task's stages reached in order, plus a small term in [0, 1) for the
+     next unreached stage:
+     ```python
+     def reward(r):
+         if r.get("sandbox_rc") not in (0, None) or not (r.get("final_state") or {}).get("t"):
+             return 0.0
+         stages = list((r.get("stages") or {}).values())
+         k = 0
+         while k < len(stages) and stages[k]:
+             k += 1
+         near = 0.0   # e.g. 1 - distance to the next stage's target / its start distance, from final_state; 0 if none
+         return (k + 0.5 * near) / max(1, len(stages))
+     ```
+   train.py also scores every reward file on your recorded rows of the task before it spends anything (see the trainer's
+   Failures).
+
+4. Practise the sub-goal: a train spec with `"reward": "rewards/grasped.py"` (and a `note` naming the sub-goal if you want the
+   prompt to say it). `practice_rows.jsonl` then shows how often the sub-goal was reached per step.
+
+5. Build start states for the next sub-goal. A prefix program (`prefixes/grasp.py`, the task's own API only) that performs the
+   steps you can already do, then `python3 preset.py --task T --program prefixes/grasp.py --name T_grasped --seeds 16`.
+   `presets/T_grasped.json` lists, per seed, whether the state restores and what the prefix printed, and (on a task whose
+   verifier you see) `task_completed`, `stages` and `final_state` of the reached state, so you can check the prefix reached what
+   you meant before practising from it: a train spec with `"start_preset": "T_grasped"` and a reward for the remaining part.
+
+6. Check the whole task again: `python3 eval.py --adapter A[,B] --task T --seeds 20` gives the success count. Its rows (with
+   `--reward`) have no `stages` / `final_state`, so a reward that reads them scores nothing there; one that reads what the
+   program printed (`stdout_tail`) or `task_completed` works on eval rows too. How far the episodes get on the way is in
+   `python3 rollout.py --adapter A[,B] --task T --seeds 8 --reward rewards/grasped.py` (rollout rows carry `stages` and
+   `final_state`) and in the next train's `practice_rows.jsonl` and its stage histogram.
+
+### Subtask units (`unit.py`)
+
+A sub-goal you practise often can be given a name and used like a task. Example on a task `T`, with the files of the examples
+above:
+
+```bash
+python3 unit.py register T_place --task T --reward rewards/placed.py --start-preset T_grasped --done rewards/placed_done.py
+```
+
+Afterwards `"task": "T_place"` in a train spec trains on T from `T_grasped`'s states with `rewards/placed.py` (the spec does not
+set `reward` or `start_preset` then); `python3 rollout.py --adapter A --task T_place --seeds 8` runs T_place's episodes on T's
+practice simulator from those states (rows scored by its reward, plus `unit_done` with a done file); `python3 eval.py --adapter A
+--task T_place --seeds 8` counts the episodes where `done(r)` holds (or the reward reaches 1.0 without a done file) and shows
+them as the scoreboard row `T_place (unit of T)`. From a start preset, a unit's rollouts and evals run on that preset's own seeds
+(at most as many as it has states). A unit never changes T's own score. `python3 unit.py list` shows your units; registering
+charges nothing.
+
+## Verifiers (this session)
+
+| Command | Effect |
+| --- | --- |
+| `python3 verifier.py design --task T --goal TEXT [--unit U] [--purpose TEXT] [--name N]` | A verifier for your goal (or sub-goal) on T, written and reviewed by fresh-context subagents and executed by a lint on states: T's start state scores 0, crashed and no-op rows score 0, goal states score 1, near misses (states that look like the goal but are not: the task's fixed set and the judge's) score 0, and the mean score never falls along T's stage checklist. Writes `verifiers/N.py` (a reward for rollout.py --reward, unit.py and a train spec; eval.py rows carry no `final_state`, so it scores 0 there) and `verifiers/N.audit.json`, or refuses naming the failing check. Uses only your own recorded rows of T: run rollout.py on T first. The subagents' time is charged to your GPU-hour budget (`gpu_hours` in the result). Example: `python3 verifier.py design --task T --goal "sub-goal 1 reached and released" --purpose "reward of sub-goal 1"` |
+
+- The default reward is a binary current-sub-goal verifier: 1.0 when the sub-goal's predicates hold on `final_state`, else 0.0,
+  with no distance term.
+- Relax only within bounds: a larger tolerance on the same predicate, or an earlier sub-goal. Never drop a necessary predicate;
+  never relax the task's final success.
+- Tighten or move on once a sub-goal passes above ~60%.
+- Before submitting a verifier or reward, write down one end state that passes your predicates without achieving the goal; if
+  you can write one, the predicate set is incomplete.
+- A verifier is a reward, never a score: the eval of record stays the task's own check.
+
+## Budget facts (this session)
+
+Once less than half of the GPU-hour budget remains, every observation ends with one `[environment] budget facts:` line: the
+remaining GPU-hours and their share of the budget, the tasks whose practice success rose in the last train, the tasks with zero
+practice rollouts in the current adapter (the one trained last), and the tasks whose dev count's 95% interval still overlaps
+base's. `finish.py` (step one) with more than 10% of the budget remaining returns the same facts and one sentence that budget
+remains; as always, step one does not end the session, and `finish.py --confirm TOKEN` in a later turn does.

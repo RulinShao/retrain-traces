@@ -1,0 +1,1 @@
+{"seq": 0, "t": "2026-11-07T14:38:17.070Z", "kind": "job.submit", "payload": {"job_id": "56", "type": "eval", "task": "restack", "seeds": [800783, 800802], "n": 20, "adapter": "…/adapters/restack_sft", "slurm_jobs": ["43036955"], "policy_model": "Qwen3.8-27B"}, "files": []}

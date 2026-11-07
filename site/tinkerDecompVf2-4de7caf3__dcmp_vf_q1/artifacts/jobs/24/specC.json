@@ -1,0 +1,10 @@
+{
+  "task": "restack",
+  "init": "t1_shaped_nutr",
+  "name": "t2_restack",
+  "steps": 30,
+  "batch": 8,
+  "rollouts": 8,
+  "lr": 3e-5,
+  "reward": "rewards/restack_reward.py"
+}

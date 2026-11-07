@@ -1,0 +1,26 @@
+rc=0
+================================================================================
+A.json <class 'dict'>
+keys: ['setting', 'adapter_policy_at_eval', 'task_text_visibility', 'overview', 'scoring_text', 'hidden_eval_text', 'generalization_text']
+size: 913
+{"setting": "A", "adapter_policy_at_eval": "single_stack", "task_text_visibility": "listed_full", "overview": {"robot": "A Franka Emika robot arm in CaP-X Robosuite simulation, driven through the perception and control APIs listed in each task's eval prompt (CaP-X API tier s4).", "program": "Per trial the policy writes one single-turn Python program: executable code only, comments allowed, no code fences.", "success": "Each task's own success check.", "evaluation": "Hidden seeds; the one adapter stack you submit serves every task."}, "scoring_text": "The final score is the number of successes of the submitted policy on the hidden evaluation; dev-seed evals (eval.py) never count toward it.", "hidden_eval_text": "The hidden evaluation runs on hidden seeds you never see.", "generalization_tex
+================================================================================
+B1.json <class 'dict'>
+keys: ['setting', 'adapter_policy_at_eval', 'task_text_visibility', 'overview', 'scoring_text', 'hidden_eval_text', 'generalization_text']
+size: 1076
+{"setting": "B1", "adapter_policy_at_eval": "single_stack", "task_text_visibility": "listed_full", "overview": {"robot": "A Franka Emika robot arm in CaP-X Robosuite simulation, driven through the perception and control APIs listed in each task's eval prompt (CaP-X API tier s4).", "program": "Per trial the policy writes one single-turn Python program: executable code only, comments allowed, no code fences.", "success": "Each task's own success check.", "evaluation": "Hidden seeds; the one adapter stack you submit serves every task."}, "scoring_text": "The final score is the total number of successes of the submitted policy on the hidden evaluation, summed over its tasks; dev-seed evals (eval.py) never count toward it.", "hidden_eval_text": "The hidden evaluation runs on hidden seeds you ne
+================================================================================
+B2.json <class 'dict'>
+keys: ['setting', 'adapter_policy_at_eval', 'task_text_visibility', 'overview', 'scoring_text', 'hidden_eval_text', 'generalization_text']
+size: 1181
+{"setting": "B2", "adapter_policy_at_eval": "single_stack", "task_text_visibility": "aliases_policy_text", "overview": {"robot": "Franka Emika robot arms (one arm, or two on opposite sides of the table) in CaP-X Robosuite simulation, driven through the perception and control APIs listed in each task's eval prompt (CaP-X API tier s4).", "program": "Per trial the policy writes one single-turn Python program: executable code only, comments allowed, no code fences.", "success": "Each task's own success check (a chain of sub-goals: all of them, in any order).", "evaluation": "Hidden seeds; the one adapter stack you submit serves every task."}, "scoring_text": "The final score is the total number of successes of the submitted policy on the hidden evaluation, summed over its tasks; dev-seed evals
+================================================================================
+families.json <class 'dict'>
+keys: ['pick-and-place', 'wiping', 'nut-assembly', 'two-arm transfer']
+size: 476
+{"pick-and-place": ["lift", "stack", "restack", "revstack", "stackv2", "twolift", "t1_lift_big", "t1_lift_far", "t1_lift_small", "t1_lift_wide", "t1_stack_big", "t1_stack_d1", "t1_stack_d3", "t1_stack_small", "t1_stack_wide", "t1_stack_wider_big", "t1_stack_wider_small_d3", "t2_l", "t2_ls", "t2_lsl", "t2_p", "t2_pl", "t2_s", "t2_sp", "t2_spl", "t2_ss", "t2_sssl"], "wiping": ["wipe"], "nut-assembly": ["nut", "t1_nut_wide", "t1_nut_wider"], "two-arm transfer": ["handover"]}
+================================================================================
+turns_mt.json <class 'dict'>
+keys: ['_doc', 'program', 'fact']
+size: 872
+{"_doc": "The MT turn setting's runtime facts (#817; env_text.with_turn_setting / facts_line; config layer, editable without touching the loop). program replaces the setting's overview.program; fact is appended to the turn-0 facts line. Facts only: what the protocol is, never how to use it.", "program": "Per trial the policy writes a Python program (executable code, comments allowed); after it runs, the policy sees the code executed so far with that program's console stdout and stderr, and either writes new code, which runs on the same scene, or answers FINISH; at most 11 code blocks per trial (CaP-X M1v).", "fact": "turn setting MT (CaP-X M1v: after each code block the policy sees its stdout and stderr and writes new code or finishes, at most 11 blocks; success is checked once, on the fin

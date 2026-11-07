@@ -1,0 +1,10 @@
+{
+  "name": "wash_fruit_probe",
+  "task": "WashFruitColander",
+  "steps": 1,
+  "batch": 8,
+  "reward": "rewards/wash_fruit_in_colander.py",
+  "goal": "Put the fruit into the colander.",
+  "init_mode": "fresh",
+  "time": "01:00:00"
+}

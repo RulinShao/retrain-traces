@@ -1,0 +1,4 @@
+{"objective":"grpo","name":"grpo_nut","task":"nut","batch":8,"rollouts":8,
+ "reward":"prog/grpo_reward.py","seed_start":814000,"steps":12,
+ "stop_when":{"plateau_steps":8,"min_gain":0.01},
+ "note":"Grasp the nut by its extruded handle using the grasp pose query for 'extruded handle of the brown square nut' (it returns an end-effector pose on the handle in the world frame); the nut's white hollow center is rigidly offset from that grasp pose, so move so the white hollow center is directly above the peg top and lower along the peg axis to insert the nut."}

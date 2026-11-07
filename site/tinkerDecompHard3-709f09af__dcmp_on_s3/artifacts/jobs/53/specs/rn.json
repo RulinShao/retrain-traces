@@ -1,0 +1,13 @@
+{
+  "task": [
+    "restack",
+    "nut"
+  ],
+  "name": "rn",
+  "init": "rv7",
+  "reward": "shaped",
+  "steps": 10,
+  "batch": 8,
+  "rollouts": 8,
+  "lr": 2e-05
+}

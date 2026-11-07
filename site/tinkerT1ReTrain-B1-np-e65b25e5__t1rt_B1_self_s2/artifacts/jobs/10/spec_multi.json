@@ -1,0 +1,9 @@
+{
+  "name": "multi1",
+  "task": ["lift", "stack", "restack", "wipe", "nut"],
+  "batch": 10,
+  "rollouts": 8,
+  "steps": 30,
+  "reward": "shaped",
+  "lr": 2e-5
+}

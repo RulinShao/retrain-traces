@@ -1,0 +1,1 @@
+{"task": "BoilPot", "steps": 1, "batch": 8, "reward": "rewards/d_potmoved.py", "init_mode": "fresh", "name": "d_potmoved", "seed_start": 901301}

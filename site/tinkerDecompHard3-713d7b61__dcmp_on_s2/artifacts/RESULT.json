@@ -1,0 +1,94 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "train_failed: InfraError(\"Tinker checkpoint …/global_step_13/actor has no exported adapter next to its run (practice_ctl's EXPORT_PEFT = site/tinker_export.py writes <run>/peft_*_step<k>); see the call's job log\")",
+ "gpu_hours": 2.692,
+ "final_score": null,
+ "agent": "local",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": 262144
+ },
+ "mode": "dev",
+ "final_episodes": 50,
+ "policy_model": "Qwen3.8-27B",
+ "eval_backend": "tinker, decode=tinker(no_presence_penalty) (DEV backend only: dev/checkpoint evals of Tinker-trained adapters sample on Tinker; hidden evals and other adapters run locally)",
+ "trainer": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B charge=canonical sim=l40s",
+ "tinker": {
+  "calls": 1,
+  "usd": 23.9125,
+  "tinker_s": 2611.86
+ },
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 2.4414,
+ "gpu_hours_charging": "canonical",
+ "cost_model": "v2",
+ "gpu_hours_lost": 0.0,
+ "measured_vs_canonical": 0.907,
+ "agent_gpu_h": 0.0907,
+ "measured_cost": {
+  "train_gpu_h": 0.0,
+  "reason_gpu_h": 0.0907,
+  "sandbox_gpu_h": 2.4414,
+  "usd_tinker": 23.9125,
+  "charged_gpu_h": 2.692,
+  "tokens": {
+   "prompt": 204424,
+   "completion": 15951
+  },
+  "unmeasured_calls": 0
+ },
+ "skills_version": null,
+ "initial_skills_digest": "ffff348031fa1b8c63d57c68a08ca2d8afb9906153cb1637cd37e3249c29aafb",
+ "suite": {
+  "name": "hard3",
+  "version": 1,
+  "hash": "sha256:aaa90816430a9221",
+  "train": [
+   "nut",
+   "restack",
+   "revstack"
+  ],
+  "eval": [
+   {
+    "cell": "nut",
+    "split": "id"
+   },
+   {
+    "cell": "restack",
+    "split": "id"
+   },
+   {
+    "cell": "revstack",
+    "split": "id"
+   },
+   {
+    "cell": "t2_ss",
+    "split": "far"
+   },
+   {
+    "cell": "t2_spl",
+    "split": "far"
+   }
+  ],
+  "splits": {
+   "nut": "id",
+   "restack": "id",
+   "revstack": "id",
+   "t2_ss": "far",
+   "t2_spl": "far"
+  }
+ },
+ "env_text": "v2",
+ "turns_before_first_action": 9,
+ "tokens_before_first_action": 18374,
+ "first_action": "train",
+ "artifacts": {
+  "registry": "…/tinkerDecompHard3-713d7b61/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

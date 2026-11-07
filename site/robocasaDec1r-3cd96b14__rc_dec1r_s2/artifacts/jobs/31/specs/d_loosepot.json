@@ -1,0 +1,1 @@
+{"task": "BoilPot", "steps": 1, "batch": 8, "reward": "rewards/d_loosepot.py", "init_mode": "fresh", "name": "d_loosepot", "seed_start": 901201}

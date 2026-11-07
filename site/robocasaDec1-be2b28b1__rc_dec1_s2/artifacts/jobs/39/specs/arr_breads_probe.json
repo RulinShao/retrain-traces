@@ -1,0 +1,10 @@
+{
+  "name": "arr_breads_probe",
+  "task": "ArrangeBreadBowl",
+  "steps": 1,
+  "batch": 8,
+  "reward": "rewards/arr_breads_in_bowl.py",
+  "goal": "Pick up the heated bread from the toaster oven and place it in the bowl.",
+  "init_mode": "fresh",
+  "time": "01:00:00"
+}

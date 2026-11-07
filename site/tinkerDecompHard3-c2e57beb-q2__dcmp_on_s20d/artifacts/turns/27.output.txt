@@ -1,0 +1,164 @@
+rc=0
+========================= presets/rv1.json
+##### seed 800051 rc 0 completed None restorable True
+  tail: ); approach[2] += 0.1
+move_to_joints(solve_ik(approach, gq))
+move_to_joints(solve_ik(ppos, gq))
+open_gripper()
+ret = ppos.copy(); ret[2] += 0.15
+move_to_joints(solve_ik(ret, gq))
+print("PLACED green on red. place_z", round(float(place_z),4))
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: PLACED green on red. place_z -0.0314
+
+  Stderr: 
+
+##### seed 800052 rc 0 completed None restorable True
+  tail: y(); approach[2] += 0.1
+move_to_joints(solve_ik(approach, gq))
+move_to_joints(solve_ik(ppos, gq))
+open_gripper()
+ret = ppos.copy(); ret[2] += 0.15
+move_to_joints(solve_ik(ret, gq))
+print("PLACED green on red. place_z", round(float(place_z),4))
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: PLACED green on red. place_z -0.0326
+
+  Stderr: 
+
+##### seed 800053 rc 0 completed None restorable True
+  tail:  approach[2] += 0.1
+move_to_joints(solve_ik(approach, gq))
+move_to_joints(solve_ik(ppos, gq))
+open_gripper()
+ret = ppos.copy(); ret[2] += 0.15
+move_to_joints(solve_ik(ret, gq))
+print("PLACED green on red. place_z", round(float(place_z),4))
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: PLACED green on red. place_z -0.0268
+
+  Stderr: 
+
+##### seed 800054 rc 0 completed None restorable True
+  tail: (); approach[2] += 0.1
+move_to_joints(solve_ik(approach, gq))
+move_to_joints(solve_ik(ppos, gq))
+open_gripper()
+ret = ppos.copy(); ret[2] += 0.15
+move_to_joints(solve_ik(ret, gq))
+print("PLACED green on red. place_z", round(float(place_z),4))
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: PLACED green on red. place_z -0.0322
+
+  Stderr: 
+
+========================= presets/re1.json
+##### seed 800055 rc 0 completed None restorable True
+  tail:  table
+place_z = gcenter2[2] + gext2[2] / 2.0 + rext[2] / 2.0
+rplace = np.array([gcenter2[0], gcenter2[1], place_z])
+_pick_place(obs2, rmask, rplace, _q)
+print("RESTACK done: red on green at", np.round(rplace, 4).tolist())
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: RESTACK done: red on green at [0.6761, 0.0349, 0.0053]
+
+  Stderr: 
+
+##### seed 800056 rc 0 completed None restorable True
+  tail: n table
+place_z = gcenter2[2] + gext2[2] / 2.0 + rext[2] / 2.0
+rplace = np.array([gcenter2[0], gcenter2[1], place_z])
+_pick_place(obs2, rmask, rplace, _q)
+print("RESTACK done: red on green at", np.round(rplace, 4).tolist())
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: RESTACK done: red on green at [0.5485, 0.116, 0.0018]
+
+  Stderr: 
+
+##### seed 800057 rc 0 completed None restorable True
+  tail: table
+place_z = gcenter2[2] + gext2[2] / 2.0 + rext[2] / 2.0
+rplace = np.array([gcenter2[0], gcenter2[1], place_z])
+_pick_place(obs2, rmask, rplace, _q)
+print("RESTACK done: red on green at", np.round(rplace, 4).tolist())
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: RESTACK done: red on green at [0.6673, -0.0367, 0.0063]
+
+  Stderr: 
+
+##### seed 800058 rc 0 completed None restorable True
+  tail:  table
+place_z = gcenter2[2] + gext2[2] / 2.0 + rext[2] / 2.0
+rplace = np.array([gcenter2[0], gcenter2[1], place_z])
+_pick_place(obs2, rmask, rplace, _q)
+print("RESTACK done: red on green at", np.round(rplace, 4).tolist())
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: RESTACK done: red on green at [0.4792, -0.0492, 0.0107]
+
+  Stderr: 
+
+========================= presets/nv1.json
+##### seed 800059 rc 0 completed None restorable True
+  tail: 0.002, 0.008, 1.0]]
+DIAG cext [0.0394, 0.0394, 0.0006]
+DIAG bext [0.1328, 0.1074, 0.0087]
+DIAG bR [[0.99, -0.137, 0.009], [0.137, 0.99, -0.015], [-0.006, 0.016, 1.0]]
+DIAG hcenter [0.4607, 0.1526, -0.0856] center [0.7887, -0.1007, 0.0279] bcenter [0.4582, 0.1484, -0.0854]
+DIAG block_top -0.082 body_target [0.4582, 0.1484, -0.0817]
+
+  Stderr: 
+
+##### seed 800060 rc 0 completed None restorable True
+  tail: 0.996, -0.028, 0.084]]
+DIAG cext [0.0386, 0.0389, 0.0006]
+DIAG bext [0.1255, 0.0917, 0.015]
+DIAG bR [[0.58, -0.815, 0.017], [0.815, 0.58, -0.005], [-0.006, 0.017, 1.0]]
+DIAG hcenter [0.7837, -0.0986, -0.0343] center [0.7887, -0.1004, 0.028] bcenter [0.4543, 0.1955, -0.0885]
+DIAG block_top -0.082 body_target [0.4543, 0.1955, -0.0817]
+
+  Stderr: 
+
+##### seed 800061 rc 0 completed None restorable True
+  tail: .011, -0.002, -1.0]]
+DIAG cext [0.0569, 0.0553, 0.0076]
+DIAG bext [0.123, 0.0886, 0.0083]
+DIAG bR [[0.824, -0.567, -0.007], [-0.567, -0.824, 0.005], [-0.009, -0.0, -1.0]]
+DIAG hcenter [0.431, 0.1558, -0.0855] center [0.4437, 0.1475, -0.099] bcenter [0.431, 0.1558, -0.0854]
+DIAG block_top -0.082 body_target [0.431, 0.1558, -0.0782]
+
+  Stderr: 
+
+##### seed 800062 rc 0 completed None restorable True
+  tail:  -0.012, 0.111]]
+DIAG cext [0.0389, 0.0386, 0.0007]
+DIAG bext [0.1233, 0.0871, 0.0138]
+DIAG bR [[0.334, -0.943, 0.001], [-0.943, -0.334, 0.014], [-0.013, -0.006, -1.0]]
+DIAG hcenter [0.7821, -0.0976, -0.034] center [0.7887, -0.101, 0.028] bcenter [0.4521, 0.1519, -0.0879]
+DIAG block_top -0.082 body_target [0.4521, 0.1519, -0.0817]
+
+  Stderr: 
+

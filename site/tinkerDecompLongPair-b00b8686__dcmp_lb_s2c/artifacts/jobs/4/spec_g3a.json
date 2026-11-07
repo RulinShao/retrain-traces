@@ -1,0 +1,1 @@
+{"task": ["revstack"], "name": "g3a", "init": "g2b", "init_mode": "resume", "steps": 60, "reward": "rewards/staged_g2b.py"}

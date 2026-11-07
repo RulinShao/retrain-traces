@@ -1,0 +1,13 @@
+{
+  "task": ["restack"],
+  "name": "g3",
+  "init": "g2",
+  "init_mode": "branch",
+  "steps": 12,
+  "batch": 12,
+  "rollouts": 8,
+  "lr": 2e-5,
+  "reward": "rewards/lift_reward.py",
+  "seed_start": 812242,
+  "time": "04:40:00"
+}

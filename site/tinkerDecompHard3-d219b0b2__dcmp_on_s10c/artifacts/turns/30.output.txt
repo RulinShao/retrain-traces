@@ -1,0 +1,76 @@
+rc=0
+##### diag_restack
+800065 rc 1 restorable True completed None stages None
+   TAIL: ck (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 33, in <module> |   File "_rotation.pyx", line 1688, in scipy.spatial.transform._rotation.Rotation.as_quat | TypeError: as_quat() got an unexpected keyword argument 'scn' | 
+800066 rc 1 restorable True completed None stages None
+   TAIL: k (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 33, in <module> |   File "_rotation.pyx", line 1688, in scipy.spatial.transform._rotation.Rotation.as_quat | TypeError: as_quat() got an unexpected keyword argument 'scn' | 
+800067 rc 1 restorable True completed None stages None
+   TAIL:  (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 33, in <module> |   File "_rotation.pyx", line 1688, in scipy.spatial.transform._rotation.Rotation.as_quat | TypeError: as_quat() got an unexpected keyword argument 'scn' | 
+800068 rc 1 restorable True completed None stages None
+   TAIL:  (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 33, in <module> |   File "_rotation.pyx", line 1688, in scipy.spatial.transform._rotation.Rotation.as_quat | TypeError: as_quat() got an unexpected keyword argument 'scn' | 
+##### revstack_cand2
+800069 rc 1 restorable True completed None stages None
+   TAIL: (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 61, in <module> |   File "_rotation.pyx", line 1688, in scipy.spatial.transform._rotation.Rotation.as_quat | TypeError: as_quat() got an unexpected keyword argument 'scn' | 
+800070 rc 1 restorable True completed None stages None
+   TAIL:  (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 61, in <module> |   File "_rotation.pyx", line 1688, in scipy.spatial.transform._rotation.Rotation.as_quat | TypeError: as_quat() got an unexpected keyword argument 'scn' | 
+800071 rc 1 restorable True completed None stages None
+   TAIL:  (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 61, in <module> |   File "_rotation.pyx", line 1688, in scipy.spatial.transform._rotation.Rotation.as_quat | TypeError: as_quat() got an unexpected keyword argument 'scn' | 
+800072 rc 1 restorable True completed None stages None
+   TAIL: (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 61, in <module> |   File "_rotation.pyx", line 1688, in scipy.spatial.transform._rotation.Rotation.as_quat | TypeError: as_quat() got an unexpected keyword argument 'scn' | 
+800073 rc 1 restorable True completed None stages None
+   TAIL:  (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 61, in <module> |   File "_rotation.pyx", line 1688, in scipy.spatial.transform._rotation.Rotation.as_quat | TypeError: as_quat() got an unexpected keyword argument 'scn' | 
+800074 rc 1 restorable True completed None stages None
+   TAIL:  (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 61, in <module> |   File "_rotation.pyx", line 1688, in scipy.spatial.transform._rotation.Rotation.as_quat | TypeError: as_quat() got an unexpected keyword argument 'scn' | 
+800075 rc 1 restorable True completed None stages None
+   TAIL:  (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 61, in <module> |   File "_rotation.pyx", line 1688, in scipy.spatial.transform._rotation.Rotation.as_quat | TypeError: as_quat() got an unexpected keyword argument 'scn' | 
+800076 rc 1 restorable True completed None stages None
+   TAIL: (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 61, in <module> |   File "_rotation.pyx", line 1688, in scipy.spatial.transform._rotation.Rotation.as_quat | TypeError: as_quat() got an unexpected keyword argument 'scn' | 
+800077 rc 1 restorable True completed None stages None
+   TAIL: ck (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 61, in <module> |   File "_rotation.pyx", line 1688, in scipy.spatial.transform._rotation.Rotation.as_quat | TypeError: as_quat() got an unexpected keyword argument 'scn' | 
+800078 rc 1 restorable True completed None stages None
+   TAIL: ck (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 61, in <module> |   File "_rotation.pyx", line 1688, in scipy.spatial.transform._rotation.Rotation.as_quat | TypeError: as_quat() got an unexpected keyword argument 'scn' | 
+800079 rc 1 restorable True completed None stages None
+   TAIL: ck (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 61, in <module> |   File "_rotation.pyx", line 1688, in scipy.spatial.transform._rotation.Rotation.as_quat | TypeError: as_quat() got an unexpected keyword argument 'scn' | 
+800080 rc 1 restorable True completed None stages None
+   TAIL: ck (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 61, in <module> |   File "_rotation.pyx", line 1688, in scipy.spatial.transform._rotation.Rotation.as_quat | TypeError: as_quat() got an unexpected keyword argument 'scn' | 
+800081 rc 1 restorable True completed None stages None
+   TAIL: ck (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 61, in <module> |   File "_rotation.pyx", line 1688, in scipy.spatial.transform._rotation.Rotation.as_quat | TypeError: as_quat() got an unexpected keyword argument 'scn' | 
+800082 rc 1 restorable True completed None stages None
+   TAIL: ck (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 61, in <module> |   File "_rotation.pyx", line 1688, in scipy.spatial.transform._rotation.Rotation.as_quat | TypeError: as_quat() got an unexpected keyword argument 'scn' | 
+800083 rc 1 restorable True completed None stages None
+   TAIL: (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 61, in <module> |   File "_rotation.pyx", line 1688, in scipy.spatial.transform._rotation.Rotation.as_quat | TypeError: as_quat() got an unexpected keyword argument 'scn' | 
+800084 rc 1 restorable True completed None stages None
+   TAIL: (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 61, in <module> |   File "_rotation.pyx", line 1688, in scipy.spatial.transform._rotation.Rotation.as_quat | TypeError: as_quat() got an unexpected keyword argument 'scn' | 
+##### nut_cand2
+800085 rc 0 restorable True completed None stages None
+   TAIL: nut: target_handle = target_nut_center + (handle - nut_center) | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) | move_to_joints(solve_ik(target_handle, q0)) | # release | open_gripper() | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+800086 rc 0 restorable True completed None stages None
+   TAIL: nut: target_handle = target_nut_center + (handle - nut_center) | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) | move_to_joints(solve_ik(target_handle, q0)) | # release | open_gripper() | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+800087 rc 0 restorable True completed None stages None
+   TAIL:  nut: target_handle = target_nut_center + (handle - nut_center) | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) | move_to_joints(solve_ik(target_handle, q0)) | # release | open_gripper() | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+800088 rc 0 restorable True completed None stages None
+   TAIL: nut: target_handle = target_nut_center + (handle - nut_center) | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) | move_to_joints(solve_ik(target_handle, q0)) | # release | open_gripper() | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+800089 rc 0 restorable True completed None stages None
+   TAIL:  nut: target_handle = target_nut_center + (handle - nut_center) | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) | move_to_joints(solve_ik(target_handle, q0)) | # release | open_gripper() | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+800090 rc 0 restorable True completed None stages None
+   TAIL: nut: target_handle = target_nut_center + (handle - nut_center) | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) | move_to_joints(solve_ik(target_handle, q0)) | # release | open_gripper() | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+800091 rc 0 restorable True completed None stages None
+   TAIL:  nut: target_handle = target_nut_center + (handle - nut_center) | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) | move_to_joints(solve_ik(target_handle, q0)) | # release | open_gripper() | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+800092 rc 0 restorable True completed None stages None
+   TAIL: nut: target_handle = target_nut_center + (handle - nut_center) | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) | move_to_joints(solve_ik(target_handle, q0)) | # release | open_gripper() | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+800093 rc 0 restorable True completed None stages None
+   TAIL:  nut: target_handle = target_nut_center + (handle - nut_center) | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) | move_to_joints(solve_ik(target_handle, q0)) | # release | open_gripper() | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+800094 rc 0 restorable True completed None stages None
+   TAIL: e nut: target_handle = target_nut_center + (handle - nut_center) | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) | move_to_joints(solve_ik(target_handle, q0)) | # release | open_gripper() | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+800095 rc 0 restorable True completed None stages None
+   TAIL: nut: target_handle = target_nut_center + (handle - nut_center) | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) | move_to_joints(solve_ik(target_handle, q0)) | # release | open_gripper() | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+800096 rc 0 restorable True completed None stages None
+   TAIL:  nut: target_handle = target_nut_center + (handle - nut_center) | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) | move_to_joints(solve_ik(target_handle, q0)) | # release | open_gripper() | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+800097 rc 0 restorable True completed None stages None
+   TAIL: nut: target_handle = target_nut_center + (handle - nut_center) | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) | move_to_joints(solve_ik(target_handle, q0)) | # release | open_gripper() | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+800098 rc 0 restorable True completed None stages None
+   TAIL:  nut: target_handle = target_nut_center + (handle - nut_center) | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) | move_to_joints(solve_ik(target_handle, q0)) | # release | open_gripper() | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+800099 rc 0 restorable True completed None stages None
+   TAIL: nut: target_handle = target_nut_center + (handle - nut_center) | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) | move_to_joints(solve_ik(target_handle, q0)) | # release | open_gripper() | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+800100 rc 0 restorable True completed None stages None
+   TAIL:  nut: target_handle = target_nut_center + (handle - nut_center) | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) | move_to_joints(solve_ik(target_handle, q0)) | # release | open_gripper() | move_to_joints(solve_ik(target_handle + np.array([0.0, 0.0, 0.10]), q0)) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 

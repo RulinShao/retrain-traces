@@ -1,0 +1,154 @@
+rc=0
+===== SCOREBOARD =====
+# SCOREBOARD
+
+playbook: none
+agent: local
+mode: dev
+dev seeds: from 800001
+policy: Qwen3.8-27B
+eval_backend: tinker, decode=tinker(no_presence_penalty) (DEV backend only: dev/checkpoint evals of Tinker-trained adapters sample on Tinker; hidden evals and other adapters run locally)
+
+Dev-seed success count per task x adapter stack (k/n = rate): the eval with the most seeds (equal n: the newest); smaller evals are in History and the job records. Adapter cells also give the base column's rate at the same n; `untested` = no eval of that stack on that task yet.
+
+| task | base | rv6 | n6 | rs6 |
+|---|---|---|---|---|
+| nut | 0/20 = 0% | untested | 0/20 = 0% (base 0% = 0.0/20) | untested |
+| restack | 0/20 = 0% | untested | untested | 0/20 = 0% (base 0% = 0.0/20) |
+| revstack | 0/20 = 0% | 1/20 = 5% (base 0% = 0.0/20) | untested | untested |
+
+GPU-hours: 7.128 spent, 8.872 remaining of 16.0 (0 job(s) running)
+Expected cost per call (the estimate checked against what remains): train.py (1 step 0.39, 10 steps 1.98, 50 steps 9.03) GPU-h; eval.py per task (5 seeds 0.15, 20 seeds 0.19, 100 seeds 0.45) GPU-h
+Loaded on your serving endpoint: rv6
+Submitted: base + rv6 (sha a2b6df096c16) (turn 26, token 8809f4; pending: python3 finish.py --confirm 8809f4 in a later turn ends the session)
+
+## Adapters
+
+| name | init | steps | spec | state |
+|---|---|---|---|---|
+| rv6 | base | 6 | specs/rv6.json | trained |
+| n6 | base | 6 | specs/n6.json | trained |
+| rs6 | base | 6 | specs/rs6.json | trained |
+
+## Self-reward (rollout.py --reward: your reward over the rollout facts; not a success count)
+
+- none yet
+
+## Failure digest (facts: a train's lowest-reward episodes per task; full records in failures.jsonl)
+
+- revstack: 16 failures in adapters/rv6/failures.jsonl; stages unavailable:16
+- nut: 16 failures in adapters/n6/failures.jsonl; stages none:15 grasp the nut:1
+- restack: 16 failures in adapters/rs6/failures.jsonl; stages none:16
+
+## History (latest 30)
+
+- eval base on nut: 0/20
+- eval base on revstack: 0/20
+- eval base on restack: 0/20
+- rollout base on nut: 4 seeds -> rollouts/5.jsonl
+- rollout base on restack: 4 seeds -> rollouts/6.jsonl
+- rollout base on revstack: 4 seeds -> rollouts/7.jsonl
+- train rv6 (init base, steps 6): trained
+- train n6 (init base, steps 6): trained
+- preset probe_r1 on restack: 4 seeds -> presets/probe_r1.json
+- load rv6
+- finish: submitted rv6 (token 8809f4, job 18)
+- train rs6 (init base, steps 6): trained
+- preset probe_r2 on restack: 8 seeds -> presets/probe_r2.json
+- eval rv6 on revstack: 1/20
+- eval rs6 on restack: 0/20
+- eval n6 on nut: 0/20
+- preset probe_r3 on restack: 8 seeds -> presets/probe_r3.json
+- preset probe_r4 on restack: 4 seeds -> presets/probe_r4.json
+===== BASE NUT program (seed 800196) =====
+# Code block 0
+import numpy as np
+from scipy.spatial.transform import Rotation
+
+# Step 1: Get observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Find the extruded handle of the brown square nut
+handle_point_result = point_prompt_molmo(rgb_image, "extruded handle of the brown square nut")
+handle_pixel = handle_point_result.get("extruded handle of the brown square nut", (None, None))
+
+if handle_pixel[0] is None or handle_pixel[1] is None:
+    # Fallback: try segmentation
+    handle_masks = segment_sam3_text_prompt(rgb_image, "extruded handle of the brown square nut")
+    if handle_masks:
+        mask = handle_masks[0]["mask"]
+        ys, xs = np.where(mask)
+        if len(xs) > 0:
+            handle_pixel = (int(np.mean(xs)), int(np.mean(ys)))
+        else:
+            raise Exception("Could not find handle")
+    else:
+        raise Exception("Could not find handle")
+
+# Step 3: Find the white hollow center of the brown square nut (object center)
+center_point_result = point_prompt_molmo(rgb_image, "white hollow center of the brown square nut")
+center_pixel = center_point_result.get("white hollow center of the brown square nut", (None, None))
+
+if center_pixel[0] is None or center_pixel[1] is None:
+    # Fallback: try segmentation
+    center_masks = segment_sam3_text_prompt(rgb_image, "brown square nut")
+    if center_masks:
+        mask = center_masks[0]["mask"]
+        ys, xs = np.where(mask)
+        if len(xs) > 0:
+            center_pixel = (int(np.mean(xs)), int(np.mean(ys)))
+        else:
+            raise Exception("Could not find nut center")
+    else:
+        raise Exception("Could not find nut center")
+
+# Step 4: Find the brown square block (target peg)
+block_point_result = point_prompt_molmo(rgb_image, "brown square block")
+block_pixel = block_point_result.get("brown square block", (None, None))
+
+if block_pixel[0] is None or block_pixel[1] is None:
+    # Fallback: try segmentation
+    block_masks = segment_sam3_text_prompt(rgb_image, "brown square block")
+    if block_masks:
+        mask = block_masks[0]["mask"]
+        ys, xs = np.where(mask)
+        if len(xs) > 0:
+            block_pixel = (int(np.mean(xs)), int(np.mean(ys)))
+        else:
+            raise Exception("Could not find block")
+    else:
+        raise Exception("Could not find block")
+
+# Helper function to convert pixel to 3D point using depth
+def pixel_to_3d(pixel_x, pixel_y, depth_img, intrinsics, pose_mat):
+    """Convert pixel coordinates to 3D world coordinates."""
+    z = depth_img[pixel_y, pixel_x]
+    if z <= 0:
+        return None
+    
+    # Camera frame coordinates
+    x_cam = (pixel_x - intrinsics[0, 2]) * z / intrinsics[0, 0]
+    y_cam = (pixel_y - intrinsics[1, 2]) * z / intrinsics[1, 1]
+    z_cam = z
+    
+    # Transform to world frame using camera extrinsic matrix
+    # pose_mat transforms from camera frame to world frame
+    point_cam = np.array([x_cam, y_cam, z_cam, 1.0])
+    point_world = pose_mat @ point_cam
+    return point_world[:3]
+
+# Convert pixels to 3D points
+handle_3d = pixel_to_3d(handle_pixel[0], handle_pixel[1], depth_image, intrinsics, pose_mat)
+center_3d = pixel_to_3d(center_pixel[0], center_pixel[1], depth_image, intrinsics, pose_mat)
+block_3d = pixel_to_3d(block_pixel[0], block_pixel[1], depth_image, intrinsics, pose_mat)
+
+if handle
+--- LOG ---
+Generated text for 'extruded handle of the brown square nut': <points coords="1 1 677 440">extruded handle of the brown square nut</points>
+Generated text for 'white hollow center of the brown square nut': <points coords="1 1 662 377">white hollow center of the brown square nut</points>
+Generated text for 'brown square block': <points coords="1 1 607 764">brown square block</points>
+

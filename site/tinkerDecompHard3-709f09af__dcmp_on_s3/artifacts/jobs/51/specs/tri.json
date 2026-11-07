@@ -1,0 +1,14 @@
+{
+  "task": [
+    "revstack",
+    "restack",
+    "nut"
+  ],
+  "name": "tri",
+  "init": "rv7",
+  "reward": "shaped",
+  "steps": 10,
+  "batch": 12,
+  "rollouts": 8,
+  "lr": 2e-05
+}

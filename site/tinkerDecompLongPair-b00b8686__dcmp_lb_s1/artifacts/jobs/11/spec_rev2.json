@@ -1,0 +1,11 @@
+{
+ "name": "rev2",
+ "task": "revstack",
+ "init": "rev1",
+ "init_mode": "branch",
+ "steps": 15,
+ "batch": 8,
+ "rollouts": 8,
+ "reward": "rewards/stages.py",
+ "stop_when": {"plateau_steps": 5, "min_gain": 0.02}
+}

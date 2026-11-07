@@ -1,0 +1,1 @@
+{"name": "pr_micr_start", "task": "SteamInMicrowave", "steps": 8, "batch": 8, "reward": "rewards/micro_button_r.py", "goal": "Press the microwave start button so the microwave begins.", "init_mode": "fresh", "seed_start": 920001, "time": "03:30:00"}

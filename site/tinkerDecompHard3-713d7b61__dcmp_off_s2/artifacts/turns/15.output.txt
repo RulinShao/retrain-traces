@@ -1,0 +1,258 @@
+rc=0
+RESTACK WIN, seed 810674 len 13135
+This task requires the robot to grasp the red cube and place it precisely on top of the green cube. To ensure the cubes align correctly without sliding, we must determine the pose (position and orientation) of both cubes in the world frame using their 3D point clouds derived from the depth image and segmentation.
+
+Here is the step-by-step reasoning:
+
+1.  **Perception**:
+    *   Get the current observation (RGB, Depth, Intrinsics, Extrinsics).
+    *   Use `segment_sam3_text_prompt` to segment the "red cube" and "green cube".
+    *   Back-project the segmented pixels to 3D points in the camera frame.
+    *   Transform these points to the world frame using the camera extrinsics.
+    *   Compute the Oriented Bounding Box (OBB) for both cubes to get their centers, extents (dimensions), and rotations.
+
+2.  **Grasp Planning**:
+    *   Create a segmentation mask for the red cube.
+    *   Use `plan_grasp` to find grasp candidates in the camera frame.
+    *   Select the best grasp candidate (highest score).
+    *   Transform the grasp pose from the camera frame to the world frame.
+
+3.  **Placement Calculation**:
+    *   Calculate the target position for the red cube.
+        *   The X and Y coordinates of the target center should match the X and Y coordinates of the green cube's center (to place it on top).
+        *   The Z coordinate of the target center is: $Z_{green\_center} + \frac{extent_{green\_Z}}{2} + \frac{extent_{red\_Z}}{2}$.
+        *   Note: We assume the world frame Z-axis is "up" relative to the table. The extents from `get_oriented_bounding_box_from_3d_points` are usually local to the OBB. We need to be careful with the "Z" extent. Usually, if the table is aligned with world axes, the extent corresponding to the vertical direction is the one we need. However, a more robust approach for "placing on top" is to project the centers onto the gravity vector (usually world Z). Let's assume the standard Franka setup where World Z is up.
+        *   Actually, `get_oriented_bounding_box_from_3d_points` returns extents in the local frame of the OBB. To know which extent corresponds to the vertical height, we can check the rotation matrix. Alternatively, since the cubes are on a table, the "height" is the dimension along the world Z-axis.
+        *   A simpler and robust approach for cubes on a table:
+            *   Get the green cube's top surface height: $Z_{green\_top} = Z_{green\_center} + \text{height}_{green}/2$.
+            *   Get the red cube's bottom surface height relative to its center: $h_{red}/2$.
+            *   Target Center Z = $Z_{green\_top} + h_{red}/2$.
+            *   To get the "height" (dimension along world Z), we can take the projection of the OBB extent vector onto the world Z-axis, or simply observe that for a cube on a table, the vertical extent is roughly the same in all directions if it's a perfect cube, but the OBB might be rotated.
+            *   Let's calculate the world-frame extents. The local extent vector $\mathbf{e}$ is rotated by $R$ to get world axes contributions. The vertical dimension (along world Z) is not just one component if the box is tilted.
+            *   However, for placing "on top", we just need the distance from the center to the "top" face in the world frame.
+            *   Distance from center to top face in world Z = $\max((R^T \cdot \mathbf{e})_z \dots)$? No.
+            *   Let's use a simpler heuristic often used in these tasks: The vertical height of the object in the world frame is the difference between the max Z and min Z of the point cloud. This is robust and easy.
+            *   Let $Z_{green\_min}, Z_{green\_max}$ be the min and max Z coordinates of the green cube's world points. Height $H_g = Z_{green\_max} - Z_{green\_min}$.
+            *   Let $Z_{red\_min}, Z_{red\_max}$ be the min and max Z coordinates of the red cube's world points. Height $H_r = Z_{red\_max} - Z_{red\_min}$.
+            *   Green Top Z = $Z_{green\_max}$.
+            *   Red Center Target Z = $Z_{green\_max} + H_r / 2$.
+            *   Target X, Y = Green Center X, Y.
+
+    *   The target orientation for the red cube should match the orientation of the green cube (or just be upright/aligned with world axes if the green cube is axis-aligned). The prompt says "place... on top". Usually, aligning the orientation with the base cube is best. Let's use the green cube's rotation matrix $R_{green}$ for the red cube's placement orientation. This ensures they are aligned.
+
+4.  **Execution**:
+    *   Move to a pre-grasp position (approach) if necessary, or directly to the grasp position if safe. Given "Gently", we should move to the grasp pose, close the gripper, move to a safe lifting position, move over the green cube to the target placement position, and then open the gripper.
+    *   The `solve_ik` function takes position and quaternion.
+    *   We need the rotation matrix $R_{green}$ as a quaternion.
+
+Let's refine the "Height" calculation.
+The OBB `extent` gives the dimensions of the box in its local frame. The `R` matrix transforms local to world.
+The height of the object along the world Z-axis is the projection of the box's "vertical" span.
+Actually, the simplest and most accurate "extent" to use for stacking is the dimension of the object along the direction of gravity (World Z).
+We can compute the Z-height of the object as:
+$Z_{max} - Z_{min}$ of the 3D points in world frame.
+
+Let's implement this.
+
+```python
+import numpy as np
+from scipy.spatial.transform import Rotation
+
+# 1. Get Observation
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# 2. Segmentation
+# Segment red cube
+masks_red = segment_sam3_text_prompt(rgb, "red cube")
+if not masks_red:
+    raise Exception("Failed to segment red cube")
+mask_red = masks_red[0]["mask"]
+
+# Segment green cube
+masks_green = segment_sam3_text_prompt(rgb, "green cube")
+if not masks_green:
+    raise Exception("Failed to segment green cube")
+mask_green = masks_green[0]["mask"]
+
+# 3. Point Cloud Extraction and World Transformation
+# Get depth where masks are valid
+def get_world_points(mask, depth, intrinsics, pose_mat):
+    ys, xs = np.where(mask)
+    if len(xs) == 0:
+        return None
+    zs = depth[ys, xs]
+    # Filter out invalid depths (0 or nan)
+    valid = zs > 0
+    if not np.any(valid):
+        return None
+    xs_valid = xs[valid]
+    ys_valid = ys[valid]
+    zs_valid = zs[valid]
+    
+    # Back-project to camera frame
+    # x_c = (u - cx) * z / fx
+    # y_c = (v - cy) * z / fy
+    # z_c = z
+    fx = intrinsics[0, 0]
+    fy = intrinsics[1, 1]
+    cx = intrinsics[0, 2]
+    cy = intrinsics[1, 2]
+    
+    x_c = (xs_valid - cx) * zs_valid / fx
+    y_c = (ys_valid - cy) * zs_valid / fy
+    z_c = zs_valid
+    
+    pts_c = np.vstack([x_c, y_c, z_c]).T
+    
+    # Transform to world frame
+    # pose_mat is usually T_cw (Camera to World) or T_wc (World to Camera)?
+    # Doc says: "Camera extrinsic matrix". Standard convention in robotics is often T_wc (World from Camera) or T_cw.
+    # Let's assume standard: P_world = T_cw * P_cam.
+    # The matrix is 4x4.
+    R_cw = pose_mat[:3, :3]
+    t_cw = pose_mat[:3, 3]
+    
+    pts_w = (R_cw @ pts_c.T).T + t_cw
+    return pts_w
+
+pts_red_world = get_world_points(mask_red, depth, intrinsics, pose_mat)
+pts_green_world = get_world_points(mask_green, depth, intrinsics, pose_mat)
+
+if pts_red_world is None or pts_green_world is None:
+    raise Exception("Failed to extract world points for cubes")
+
+# 4. Calculate OBB and Heights
+obb_red = get_oriented_bounding_box_from_3d_points(pts_red_world)
+obb_green = get_oriented_bounding_box_from_3d_points(pts_green_world)
+
+center_red = obb_red["center"]
+extent_red = obb_red["extent"]
+R_red = obb_red["R"]
+
+center_green = obb_green["center"]
+extent_green = obb_green["extent"]
+R_green = obb_green["R"]
+
+# Calculate Z-extents (heights) from the point clouds directly for robustness
+# The "height" of the cube in the world frame is the span along the Z axis.
+z_red_min = np.min(pts_red_world[:, 2])
+z_red_max = np.max(pts_red_world[:, 2])
+z_green_min = np.min(pts_green_world[:, 2])
+z_green_max = np.max(pts_green_world[:, 2])
+
+red_height = z_red_max - z_red_min
+green_height = z_green_max - z_green_min
+
+# Target Position for Red Cube
+# X, Y should align with Green Cube Center
+# Z should be: Top of Green + Half Height of Red
+target_x = center_green[0]
+target_y = center_green[1]
+target_z = z_green_max + red_height / 2.0
+
+target_position = np.array([target_x, target_y, target_z])
+
+# Target Orientation for Red Cube
+# Align with Green Cube orientation
+R_target = R_green
+quat_target = Rotation.from_matrix(R_target).as_quat()
+# scipy quat is [x, y, z, w]. API wants [w, x, y, z].
+quat_target_wxyz = [quat_target[3], quat_target[0], quat_target[1], quat_target[2]]
+
+# 5. Grasp Planning for Red Cube
+# Plan grasp in camera frame
+# We need a segmentation map in int format for plan_grasp
+seg_map = np.zeros(rgb.shape[:2], dtype=np.int32)
+seg_map[mask_red] = 1
+
+grasp_poses_cam, grasp_scores = plan_grasp(depth, intrinsics, seg_map)
+
+if len(grasp_poses_cam) == 0:
+    raise Exception("No grasp candidates found")
+
+# Select best grasp
+best_idx = np.argmax(grasp_scores)
+grasp_pose_cam = grasp_poses_cam[best_idx]
+
+# Transform grasp pose to world frame
+R_cw = pose_mat[:3, :3]
+t_cw = pose_mat[:3, 3]
+
+R_grasp_cam = grasp_pose_cam[:3, :3]
+t_grasp_cam = grasp_pose_cam[:3, 3]
+
+# T_wc = T_cw * T_cam_grasp ? 
+# Usually: T_wc (World from Camera) is given by pose_mat? 
+# If pose_mat is T_wc (maps cam coords to world coords):
+# P_world = pose_mat @ P_cam
+# Then T_world_grasp = T_world_cam @ T_cam_grasp
+R_grasp_world = R_cw @ R_grasp_cam
+t_grasp_world = R_cw @ t_grasp_cam + t_cw
+
+grasp_position_world = t_grasp_world
+R_grasp_world_mat = R_grasp_world
+quat_grasp = Rotation.from_matrix(R_grasp_world_mat).as_quat()
+quat_grasp_wxyz = [quat_grasp[3], quat_grasp[0], quat_grasp[1], quat_grasp[2]]
+
+# 6. Execute Motion
+# 1. Move to grasp position
+joints_grasp = solve_ik(grasp_position_world, quat_grasp_wxyz)
+move_to_joints(joints_grasp)
+
+# 2. Close gripper
+close_gripper()
+
+# 3. Lift up a bit to avoid collision (optional but good practice, "Gently" implies careful movement)
+# Let's lift by 5cm in Z direction
+lift_pos = grasp_position_world.copy()
+lift_pos[2] += 0.05
+joints_lift = solve_ik(lift_pos, quat_grasp_wxyz)
+move_to_joints(joints_lift)
+
+# 4. Move to target placement position
+# We maintain the grasp orientation? Or align with target?
+# Usually, we move in Cartesian space while maintaining orientation to avoid tilting the object.
+# However, if the grasp orientation is different from the target orientation, we might need to rotate.
+# For a cube, if we grasp it and place it, keeping the same orientation relative to the gripper is safest to avoid rotation errors, UNLESS the gripper orientation is fixed relative to the world in a way that matches the target.
+# The target orientation is R_green. The grasp orientation is R_grasp_world.
+# If R_grasp_world is not aligned with R_green, we need to rotate the arm.
+# To keep it simple and robust:
+# 1. Move horizontally to the target X, Y while keeping the current orientation (to avoid tipping).
+# 2. Then rotate/adjust to the target orientation and lower?
+# Or simply move to the target pose. Since it's a Franka, it can handle the interpolation if we just command the target joint config.
+# However, interpolating between two poses with different orientations can cause unexpected paths.
+# Let's assume the grasp pose and target pose are sufficiently similar (e.g., gripper comes from above in both cases) OR we break it down.
+# Let's move to a "pre-placement" position: Same X, Y as target, but Z at a safe height (same as lift or slightly above target Z).
+pre_place_pos = target_position.copy()
+pre_place_pos[2] = lift_pos[2]  # Keep current height
+joints_pre_place = solve_ik(pre_place_pos, quat_grasp_wxyz)
+move_to_joints(joints_pre_place)
+
+# Now, we need to align orientation with R_green and lower.
+# If the grasp orientation is significantly different, we might rotate here.
+# Let's just solve IK for the final target pose.
+joints_target = solve_ik(target_position, quat_target_wxyz)
+
+# Move to target. The robot will interpolate. 
+# To be "gentle" and avoid dropping, we should ensure the path is safe.
+# Moving from pre_place (above target, maybe different orient) to target (on target, aligned) 
+# might cause a swing. 
+# Let's try to maintain the grasp orientation until we are very close, then adjust?
+# Given the constraints, let's just move to the target. Franka's interpolator should handle it reasonably well for small differences.
+# If the grasp was from above and target is above green cube, orientations might be close.
+
+move_to_joints(joints_target)
+
+# 5. Open gripper
+open_gripper()
+
+# 6. Retract slightly (optional, but good to ensure release)
+retract_pos = target_position.copy()
+retract_pos[2] += 0.05
+joints_retract = solve_ik(retract_pos, quat_target_wxyz)
+move_to_joints(joints_retract)
+```

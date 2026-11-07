@@ -1,0 +1,1 @@
+{"task": "BoilPot", "steps": 1, "batch": 8, "reward": "rewards/p_boil.py", "init_mode": "fresh", "name": "p_boil", "seed_start": 900001}

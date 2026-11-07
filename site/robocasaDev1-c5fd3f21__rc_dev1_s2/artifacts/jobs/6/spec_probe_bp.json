@@ -1,0 +1,9 @@
+{
+  "name": "probe_boilpot",
+  "task": "BoilPot",
+  "steps": 1,
+  "batch": 8,
+  "reward": "task_completed",
+  "init_mode": "fresh",
+  "time": "02:00:00"
+}

@@ -1,0 +1,142 @@
+rc=0
+n sim>=0.5: 6  0.2-0.5: 3
+rc dist: Counter({0: 332, 1: 52})
+crash tails:
+4 ations/franka/control_reduced.py", line 358, in get_oriented_bounding_box_from_3d_points |     return _get_obb(points) |   File "…/capx/integratio
+2 (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g)
+1 ts> | Generated text for 'red cube': <points coords="1 1 215 677">red cube</points> |   Stderr: Traceback (most recent call last):
+1 andbox failed: 1 |   Stdout:  |   Stderr: Traceback (most recent call last):
+1 ut:  |   Stderr: Traceback (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run
+1 atch/kohlab/<user>/rmin_trees/709f09af/envs/capx/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 189, in <module>
+1 d: 1 |   Stdout:  |   Stderr: Traceback (most recent call last):
+1 ts(release_joints) | Environment response: |   Sandbox failed: 1
+1 -x/capx/integrations/franka/common.py", line 51, in apply_tcp_offset |     rot = SciRotation.from_quat(quat_xyzw) |   File "_rotation.pyx", line 1007, in scipy.spatial.transform._rotation.Rotation.fro
+1 apx/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 18
+1 ints coords="1 1 277 549">red cube</points> |   Stderr: Traceback (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run
+1 _to_joints(joints_retract) | Environment response: |   Sandbox failed: 1
+1 ise RuntimeError(f"Failed to communicate with SAM3 service at {SERVICE_URL}: {e}") | RuntimeError: Failed to communicate with SAM3 service at http://127.0.0.1:30097: Request to http://127.0.0.1:30097/
+1 get_oriented_bounding_box_from_3d_points |     obb = o3d_points.get_oriented_bounding_box() | RuntimeError: QH6412 qhull input error (qh_initqhull_globals): expecting between 1 and 2147483631 points. 
+1 ase) | Environment response: |   Sandbox failed: 1
+--- 810196 step 4 sim 1.0 tc True
+en gripper to release
+open_gripper()
+
+# Step 14: Move up slightly after releasing
+joints_after_release = solve_ik(place_pos + np.array([0, 0, 0.1]), grasp_quat)
+move_to_joints(joints_after_release)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+  Reward: 1.0
+  Task Completed: True
+  Terminated: True, Truncated: False
+  Num Regenerations: 0
+  Num Finishes: 0
+  Num Code Blocks: 1
+----------------------------------------------------------------------------------------------------
+--- 810016 step 1 sim 0.74 tc False
+16: Move down to placement position
+joints_place = solve_ik(place_pos, identity_quat)
+move_to_joints(joints_place)
+
+# Step 17: Open gripper to release the green cube
+open_gripper()
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+  Reward: 0.7399474158280402
+  Task Completed: False
+  Terminated: False, Truncated: False
+  Num Regenerations: 0
+  Num Finishes: 0
+  Num Code Blocks: 1
+----------------------------------------------------------------------------------------------------
+--- 810379 step 6 sim 0.738 tc False
+
+# Step 12: Move down to the placement position
+place_joints = solve_ik(place_pos, grasp_quat_world)
+move_to_joints(place_joints)
+
+# Step 13: Open gripper to release
+open_gripper()
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+  Reward: 0.7380215298003214
+  Task Completed: False
+  Terminated: False, Truncated: False
+  Num Regenerations: 0
+  Num Finishes: 0
+  Num Code Blocks: 1
+----------------------------------------------------------------------------------------------------
+--- 810124 step 2 sim 0.735 tc False
+11: Move up slightly to avoid collision
+retract_pos = place_pos.copy()
+retract_pos[2] += 0.05
+retract_joints = solve_ik(retract_pos, grasp_quat_wxyz)
+move_to_joints(retract_joints)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+  Reward: 0.7352122135581386
+  Task Completed: False
+  Terminated: False, Truncated: False
+  Num Regenerations: 0
+  Num Finishes: 0
+  Num Code Blocks: 1
+----------------------------------------------------------------------------------------------------
+--- 810322 step 6 sim 0.722 tc False
+per()
+
+# Move up a bit to ensure full release
+release_pos = place_pos.copy()
+release_pos[2] += 0.1
+joints_release = solve_ik(release_pos, place_quat)
+move_to_joints(joints_release)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+  Reward: 0.7221388080486664
+  Task Completed: False
+  Terminated: False, Truncated: False
+  Num Regenerations: 0
+  Num Finishes: 0
+  Num Code Blocks: 1
+----------------------------------------------------------------------------------------------------
+--- 810299 step 5 sim 0.709 tc False
+nts)
+
+# Step 11: Descend to placement position
+place_joints = solve_ik(place_position, identity_quat)
+move_to_joints(place_joints)
+
+# Step 12: Open gripper to release
+open_gripper()
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+  Reward: 0.708842839811993
+  Task Completed: False
+  Terminated: False, Truncated: False
+  Num Regenerations: 0
+  Num Finishes: 0
+  Num Code Blocks: 1
+----------------------------------------------------------------------------------------------------

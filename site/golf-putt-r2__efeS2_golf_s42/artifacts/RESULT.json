@@ -1,0 +1,49 @@
+{
+ "status": "DONE",
+ "turns": 16,
+ "gpu_hours": 1.507,
+ "final_score": {
+  "loaded": "base",
+  "per_task": {
+   "embodied-olympics-fun-golf-putt": 0
+  },
+  "total": 0,
+  "n_per_task": 100,
+  "submission": "ae9e67",
+  "confirmed": true
+ },
+ "agent": "local",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": null
+ },
+ "mode": "dev",
+ "policy_model": "tinker:Qwen/Qwen3.8-27B",
+ "gpu_hours_actual": 0.8956,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "ae9e67",
+  "how": "explicit",
+  "turn": 14,
+  "confirmed": true,
+  "confirmed_turn": 15,
+  "ended_by": "DONE",
+  "note": "Base model verified at 0 across 864 real program rollouts scored by the task referee (no fair stroke ever produced). Adapters a1/a3 are all-zero-updates (identical to base); GRPO has no within-group reward variance to learn from. Submitting base (the only distinct policy available) as the honest 0-score result for this frozen golf-putt instance.",
+  "policy": "base"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "cd1396689a699cf17538ac1b3b1d8d18445db6e60460f68ecb17cfd722eefd54",
+ "env_text": "v2",
+ "turns_before_first_action": 5,
+ "tokens_before_first_action": 11792,
+ "first_action": "train",
+ "artifacts": {
+  "registry": "…/golf-putt-r2/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

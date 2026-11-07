@@ -1,0 +1,1 @@
+{"name": "sg_bl_lid", "task": "BlendIngredients", "steps": 8, "batch": 8, "reward": "rewards/blender_lid_r.py", "goal": "Close and seat the blender lid.", "init_mode": "fresh", "seed_start": 915001, "time": "03:30:00"}

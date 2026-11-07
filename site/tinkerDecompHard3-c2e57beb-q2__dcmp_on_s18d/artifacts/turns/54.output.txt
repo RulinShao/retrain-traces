@@ -1,0 +1,98 @@
+rc=0
+then downward is -Z direction
+# We want the gripper's local Z axis to point down (-world Z)
+down_quat_wxyz = np.array([0.0, 0.0, 0.0, 1.0])  # This might need adjustment based on convention
+
+# Actually, let's think about this more carefully.
+# The solve_ik function expects quaternion in wxyz format.
+# For a typical Franka setup, when the arm is extended forward and down,
+# we want the gripper to be oriented so it can grasp objects from above.
+# Let's use identity rotation first and see, or use a standard down-facing orientation.
+
+# Standard down-facing: rotate 180 degrees around X axis? Or Y axis?
+# Let's use a rotation that makes the gripper face downward.
+# If the default gripper orientation has fingers along some axis, we need to rotate appropriately.
+# For simplicity, let's try with identity first, but actually we should have the gripper pointing down.
+
+# Let's use a rotation of pi around X axis to flip the gripper to face down
+rot_down = Rotation.from_euler('x', np.pi)
+quat_down = rot_down.as_quat()  # returns [x, y, z, w]
+quat_down_wxyz = np.array([quat_down[3], quat_down[0], quat_down[1], quat_down[2]])
+
+print(f"Approach position: {approach_pos}")
+print(f"Down orientation quaternion (wxyz): {quat_down_wxyz}")
+
+# Solve IK for approach position
+joints_approach = solve_ik(approach_pos, quat_down_wxyz)
+move_to_joints(joints_approach)
+
+# Step 7: Open gripper
+open_gripper()
+
+# Step 8: Move down to grasp the handle
+grasp_pos = handle_3d.copy()
+# Might need to adjust slightly for gripper offset, but let's start with direct position
+joints_grasp = solve_ik(grasp_pos, quat_down_wxyz)
+move_to_joints(joints_grasp)
+
+# Step 9: Close gripper to grasp
+close_gripper()
+
+# Step 10: Lift up
+lift_pos = handle_3d.copy()
+lift_pos[2] += safe_height
+joints_lift = solve_ik(lift_pos, quat_down_wxyz)
+move_to_joints(joints_lift)
+
+# Step 11: Now we need to move to the block/peg location
+# The nut's center should be aligned with the top of the block
+# Since we're grasping at the handle, the nut's center is at handle_3d + offset_handle_to_center
+# When we move the handle to a new position, the nut's center moves by the same amount
+
+# Target: nut's center should be directly above the block center, at a height that allows insertion
+# Let's say we want the nut's center to be at block_3d + [0, 0, insertion_height]
+# Where insertion_height is the height of the peg plus some clearance
+
+# First, let's estimate the insertion height. We'll assume we need to lower the nut until it seats on the peg.
+# For now, let's move horizontally to align with the block, keeping the same height
+
+target_handle_pos = block_3d - offset_handle_to_center
+# Keep the same Z height as current lifted position for now
+target_handle_pos[2] = lift_pos[2]
+
+print(f"Target handle position: {target_handle_pos}")
+
+joints_move_to_block = solve_ik(target_handle_pos, quat_down_wxyz)
+move_to_joints(joints_move_to_block)
+
+# Step 12: Lower the nut onto the peg
+# We need to lower until the nut seats on the peg
+# Let's lower slowly and check, but for now let's just lower by an estimated amount
+lower_amount = 0.05  # 5cm, adjust as needed
+final_handle_pos = target_handle_pos.copy()
+final_handle_pos[2] -= lower_amount
+
+print(f"Final handle position: {final_handle_pos}")
+
+joints_insert = solve_ik(final_handle_pos, quat_down_wxyz)
+move_to_joints(joints_insert)
+
+# Step 13: Optionally open gripper to release
+open_gripper()
+
+# Step 14: Retract
+retract_pos = final_handle_pos.copy()
+retract_pos[2] += safe_height
+joints_retract = solve_ik(retract_pos, quat_down_wxyz)
+move_to_joints(joints_retract)
+
+print("Task completed: Nut inserted onto block")
+--- FINAL ---
+  square_nut: pos=[0.144, 0.072, 0.83] init=[-0.111, 0.163, 0.83] max_z=0.928
+  square_peg: pos=[0.23, 0.1, 0.85] init=[0.23, 0.1, 0.85] max_z=0.85
+  round_peg: pos=[0.23, -0.1, 0.85] init=[0.23, -0.1, 0.85] max_z=0.85
+  grip arm0: pos=[0.168, 0.063, 0.983] opening=0.079 grasping=[]
+  contacts [['square_nut', 'table']]
+--- STAGE 0 (initial):
+{'square_nut': [-0.111, 0.163, 0.83], 'square_peg': [0.23, 0.1, 0.85], 'round_peg': [0.23, -0.1, 0.85]}
+{'square_nut': [-0.111, 0.163, 0.83], 'square_peg': [0.23, 0.1, 0.85], 'round_peg': [0.23, -0.1, 0.85]}

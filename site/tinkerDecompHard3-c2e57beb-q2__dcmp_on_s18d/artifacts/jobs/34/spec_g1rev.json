@@ -1,0 +1,11 @@
+{
+  "objective": "grpo",
+  "task": ["revstack"],
+  "name": "g1rev",
+  "steps": 20,
+  "batch": 8,
+  "rollouts": 8,
+  "reward": "shaped",
+  "init_mode": "fresh",
+  "note": "Verify a grasp by re-observing the grasped cube and confirming that it rose with the gripper before moving it, and compute the placement height exactly from the oriented bounding boxes' centers and extents so the green cube settles on top of the red cube without dropping."
+}

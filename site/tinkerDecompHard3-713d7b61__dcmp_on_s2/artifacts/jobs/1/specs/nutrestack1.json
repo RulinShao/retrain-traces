@@ -1,0 +1,8 @@
+{
+ "task": ["nut", "restack"],
+ "name": "nr1",
+ "steps": 14,
+ "batch": 8,
+ "rollouts": 8,
+ "reward": "task_completed"
+}

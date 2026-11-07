@@ -1,0 +1,35 @@
+{
+ "format_version": "1",
+ "trajectory_id": "dcmp_mu2_cx1",
+ "created": "2026-11-06T19:30:12.440Z",
+ "producer": {
+  "name": "trajectory.adapters.retrain_min_session",
+  "version": null,
+  "git_sha": "e65b25e51758fcebe7a90cfdb4aadb68cb9a87df"
+ },
+ "tags": {
+  "kind": "session",
+  "session": "dcmp_mu2_cx1",
+  "site": "RecordingSite",
+  "batch": "tinkerDecompMu2-57d71fa5",
+  "adapter_mode": "library",
+  "policy_model": "Qwen3.8-27B"
+ },
+ "agent": {
+  "model": "gpt-6-astra",
+  "backend": "codex:gpt-6-astra"
+ },
+ "harness": {
+  "name": "retrain_min.codex_agent",
+  "config": {
+   "max_reply_tokens": 16384,
+   "context_messages": 60,
+   "context_tokens": 160000,
+   "reply_chars": 12000,
+   "observation_chars": 20000,
+   "reasoning": null,
+   "seed": null,
+   "tree_sha": "57d71fa5a55c56156a43422011ea231375fe410d"
+  }
+ }
+}

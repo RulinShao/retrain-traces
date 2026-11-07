@@ -1,0 +1,240 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "eval_failed: InfraError('eval job 42865885 state FAILED: 0 cell summaries; ABORT: oracle gate FAILED [priv=2/5 vis=none_chain] on g3125 (root cause pending; not declared a bad node)')",
+ "gpu_hours": 19.354,
+ "final_score": null,
+ "agent": "scripted:e2e-rl+6task-uniform-seg2",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": 262144
+ },
+ "mode": "dev",
+ "final_episodes": 50,
+ "policy_model": "Qwen3.8-27B",
+ "trainer": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B charge=canonical sim=a40",
+ "tinker": {
+  "calls": 2,
+  "usd": 147.1139,
+  "tinker_s": 8868.4
+ },
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 18.4562,
+ "gpu_hours_charging": "canonical",
+ "cost_model": "v2",
+ "gpu_hours_lost": 0.0,
+ "measured_vs_canonical": 0.954,
+ "agent_gpu_h": 0.0,
+ "measured_cost": {
+  "train_gpu_h": 0.0,
+  "reason_gpu_h": 0.0,
+  "sandbox_gpu_h": 13.0922,
+  "usd_tinker": 147.1139,
+  "charged_gpu_h": 19.354,
+  "tokens": {
+   "prompt": 0,
+   "completion": 0
+  },
+  "unmeasured_calls": 0
+ },
+ "submission": {
+  "token": "56f208",
+  "how": "default-loaded-stack",
+  "turn": 5,
+  "confirmed": true,
+  "confirmed_turn": 6,
+  "ended_by": "DONE",
+  "note": "e2e-RL+6task (uniform) seg2: adapter e2e_c2 for every task (fixed recipe)",
+  "policy": "base + e2e_c2 (sha a2723a6157d6)"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "fb22c4d40c635b130c495f5d714b90cef1f6ba969822f536689d10375046c5c3",
+ "suite": {
+  "name": "B1-setlevel",
+  "version": 1,
+  "hash": "sha256:992a3ebe189920ee",
+  "train": [
+   "lift",
+   "stack",
+   "wipe",
+   "nut",
+   "restack",
+   "revstack"
+  ],
+  "eval": [
+   {
+    "cell": "lift",
+    "split": "id"
+   },
+   {
+    "cell": "stack",
+    "split": "id"
+   },
+   {
+    "cell": "wipe",
+    "split": "id"
+   },
+   {
+    "cell": "nut",
+    "split": "id"
+   },
+   {
+    "cell": "restack",
+    "split": "id"
+   },
+   {
+    "cell": "revstack",
+    "split": "id"
+   },
+   {
+    "cell": "t1_stack_wide",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_big",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_d1",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_wide",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_big",
+    "split": "near"
+   },
+   {
+    "cell": "t1_nut_wide",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_d3",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_small",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_wider_big",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_wider_small_d3",
+    "split": "far"
+   },
+   {
+    "cell": "t1_lift_far",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_small",
+    "split": "near"
+   },
+   {
+    "cell": "t1_nut_wider",
+    "split": "near"
+   },
+   {
+    "cell": "t2_l",
+    "split": "far"
+   },
+   {
+    "cell": "t2_s",
+    "split": "far"
+   },
+   {
+    "cell": "t2_p",
+    "split": "far"
+   },
+   {
+    "cell": "t2_ls",
+    "split": "far"
+   },
+   {
+    "cell": "t2_sp",
+    "split": "far"
+   },
+   {
+    "cell": "t2_pl",
+    "split": "far"
+   },
+   {
+    "cell": "t2_ss",
+    "split": "far"
+   },
+   {
+    "cell": "t2_lsl",
+    "split": "far"
+   },
+   {
+    "cell": "t2_spl",
+    "split": "far"
+   },
+   {
+    "cell": "t2_sssl",
+    "split": "far"
+   },
+   {
+    "cell": "twolift",
+    "split": "far"
+   },
+   {
+    "cell": "handover",
+    "split": "far"
+   },
+   {
+    "cell": "stackv2",
+    "split": "far"
+   }
+  ],
+  "splits": {
+   "lift": "id",
+   "stack": "id",
+   "wipe": "id",
+   "nut": "id",
+   "restack": "id",
+   "revstack": "id",
+   "t1_stack_wide": "near",
+   "t1_stack_big": "near",
+   "t1_stack_d1": "near",
+   "t1_lift_wide": "near",
+   "t1_lift_big": "near",
+   "t1_nut_wide": "near",
+   "t1_stack_d3": "near",
+   "t1_stack_small": "near",
+   "t1_stack_wider_big": "near",
+   "t1_stack_wider_small_d3": "far",
+   "t1_lift_far": "near",
+   "t1_lift_small": "near",
+   "t1_nut_wider": "near",
+   "t2_l": "far",
+   "t2_s": "far",
+   "t2_p": "far",
+   "t2_ls": "far",
+   "t2_sp": "far",
+   "t2_pl": "far",
+   "t2_ss": "far",
+   "t2_lsl": "far",
+   "t2_spl": "far",
+   "t2_sssl": "far",
+   "twolift": "far",
+   "handover": "far",
+   "stackv2": "far"
+  }
+ },
+ "turns_before_first_action": 0,
+ "tokens_before_first_action": 0,
+ "first_action": "train",
+ "artifacts": {
+  "registry": "…/tinkerE2E-B1-6task-seg2c-40e43eb5/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

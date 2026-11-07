@@ -1,0 +1,11 @@
+{
+  "task": "revstack",
+  "name": "rv7",
+  "init": "rv6",
+  "reward": "shaped",
+  "steps": 12,
+  "batch": 8,
+  "rollouts": 8,
+  "lr": 2e-05,
+  "note": "Use plan_grasp on the target cube, transform the returned grasp pose to the world frame with the camera extrinsics, approach from 0.1 m above, close the gripper, lift at least 0.2 m in z before moving laterally, and set place_z = base_center_z + base_half_extent + target_half_extent."
+}

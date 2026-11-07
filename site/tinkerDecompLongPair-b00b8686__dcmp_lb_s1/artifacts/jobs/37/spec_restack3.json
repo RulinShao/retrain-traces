@@ -1,0 +1,10 @@
+{
+ "task": "restack",
+ "name": "restack3",
+ "steps": 35,
+ "batch": 8,
+ "rollouts": 8,
+ "lr": 2e-5,
+ "reward": "reward_prec.py",
+ "seed_start": 812001
+}

@@ -1,0 +1,1 @@
+{"task": "MakeIceLemonade", "steps": 1, "batch": 8, "reward": "rewards/p_ice.py", "init_mode": "fresh", "name": "p_ice", "seed_start": 900301}

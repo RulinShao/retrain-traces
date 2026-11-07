@@ -1,0 +1,1 @@
+{"task": "ClearReceptaclesForCleaning", "name": "diag_cr_m", "steps": 1, "batch": 8, "reward": "rewards/cr_mug.py", "init_mode": "fresh", "time": "02:00:00"}

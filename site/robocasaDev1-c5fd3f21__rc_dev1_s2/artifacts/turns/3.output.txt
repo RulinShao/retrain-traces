@@ -1,0 +1,102 @@
+rc=0
+INDEX.md
+# Task index
+
+Written by the environment from tasks.json, tasks/<task>/eval_prompt.txt and the session's base scores.
+
+## TongBuffetSetup
+
+- Goal: RoboCasa365 TongBuffetSetup (Arranging Buffet), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Take the tongs from the drawer on the *left/right* and place them on the dining counter next to the tray containing the [*food*]. Success requires: the tongs and the food tray both touch the dining counter with their centres within 0.5 m of each other, and the gripper is more than 0.15 m from the tongs and from the tray. 4 subtasks; skills: drawers, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## PlaceVeggiesInDrawer
+
+- Goal: RoboCasa365 PlaceVeggiesInDrawer (Loading Fridge), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Place the [*vegetables*] inside the fridge drawer. Close the drawer after placing the vegetables. Success requires: both vegetables are fully inside the top fridge drawer, that drawer is closed (at most 2% open), and the gripper is more than 0.25 m from both vegetables. 8 subtasks; skills: drawers, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## OrganizeMetallicUtensils
+
+- Goal: RoboCasa365 OrganizeMetallicUtensils (Organizing Utensils), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Pick up the metallic utensils from the counter and place them in the open drawer. Make sure not to pick up any wooden utensils. Success requires: every metallic utensil is fully inside the drawer and not touching the dining counter, every wooden spoon still touches the dining counter and is not in the drawer, and the gripper is more than 0.25 m from every utensil. 7 subtasks; skills: drawers, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## BoilPot
+
+- Goal: RoboCasa365 BoilPot (Boiling), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Take the pot filled with water and place it on the stove. Then turn on the stove burner to begin boiling the water. Success requires: the pot touches the stove and the burner nearest to the pot is on. 4 subtasks; skills: knobs, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## SimmeringSauce
+
+- Goal: RoboCasa365 SimmeringSauce (Reheating Food), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Place the pan on the [*burner location*] burner on the stove. Then place the tomato and the onion in the pan and turn on the [*burner location*] burner. Success requires: the pan touches the stove with its centre within 0.08 m of the named burner, the tomato and the onion are in the pan (touching it, centre within 0.7 of the pan's radius), and that burner is on. 4 subtasks; skills: knobs, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## HeatMultipleWater
+
+- Goal: RoboCasa365 HeatMultipleWater (Boiling), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Pick the kettle from the cabinet and place it on a stove burner. Then pick the pot from the counter and place it on another stove burner. Finally, turn both burners on. Success requires: the pot touches the stove with its centre within 0.15 m of a burner that is on, the kettle touches the stove with its centre within 0.08 m of a different burner that is on, and the gripper is more than 0.25 m from both. 4 subtasks; skills: knobs, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## BlendVegetableSauce
+
+- Goal: RoboCasa365 BlendVegetableSauce (Mixing Ingredients), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): The [*vegetable*] is done being boiled. Turn off the stove burner for the saucepan. Place the [*vegetable*] in the blender and turn on the blender to make a vegetable sauce. Success requires: the saucepan's burner is off, the vegetable is fully inside the blender (1 cm tolerance), and the lid is seated and the blender is switched on. 6 subtasks; skills: buttons, knobs, lids, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## BlendMarinade
+
+- Goal: RoboCasa365 BlendMarinade (Preparing Marinade), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Grab the [*vegetables*] from the fridge, place them in the blender, close the lid, and turn on the blender to create a marinade. Success requires: both marinade vegetables are fully inside the blender (1 cm tolerance), the lid is seated and the blender is switched on. 9 subtasks; skills: buttons, lids, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## BlendIngredients
+
+- Goal: RoboCasa365 BlendIngredients (Making Smoothies), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Open the blender lid, put the fruit in the blender, close the lid, and start the blender. Success requires: the fruit is fully inside the blender (1 cm tolerance), the lid is seated and the blender is switched on. 4 subtasks; skills: buttons, lids, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## SteamInMicrowave
+
+- Goal: RoboCasa365 SteamInMicrowave (Steaming Food), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Pick the [*vegetable*] from the sink and place it in the bowl. Then pick the bowl and place it in the microwave. Then close the microwave door and press the start button. Success requires: the vegetable is in the bowl, the bowl is fully inside the microwave, the door is closed and the microwave has been started with its start button. 6 subtasks; skills: buttons, doors, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## MicrowaveDefrostMeat
+
+- Goal: RoboCasa365 MicrowaveDefrostMeat (Microwaving Food), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Place the tupperware containing the frozen [*meat*] in the microwave. Close the microwave door and press the start button to defrost the meat. Success requires: the tupperware with the meat in it is fully inside the microwave, the door is closed, the microwave has been started, and the gripper is more than 0.25 m from the tupperware. 5 subtasks; skills: buttons, doors, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## MicrowaveThawing
+
+- Goal: RoboCasa365 MicrowaveThawing (Defrosting Food), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Pick the [*food*] from the counter and place it in the microwave. Then turn on the microwave. Success requires: the food is inside the microwave, the gripper is away from it AND the microwave is on. 4 subtasks; skills: buttons, doors, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## WashFruitColander
+
+- Goal: RoboCasa365 WashFruitColander (Washing Fruits and Vegetables), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Put the colander in the sink, put the [*fruit*] in the colander, and turn on the sink faucet and pour water over the colander. Success requires: every fruit is in the colander (touching it, centre within 0.7 of its radius) and the colander sits under the running water (centre within one colander radius of the stream, below its top). 4 subtasks; skills: levers, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## GetToastedBread
+
+- Goal: RoboCasa365 GetToastedBread (Toasting Bread), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Start the toaster. Once the lever pops up, take the bread to the plate on the dining counter. Success requires: the bread was in a toaster slot while that slot was toasting, and now the bread is on the plate and the gripper is more than 0.25 m from it. 4 subtasks; skills: levers, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## ClearReceptaclesForCleaning
+
+- Goal: RoboCasa365 ClearReceptaclesForCleaning (Clearing Table), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Pick the [*tableware*] and place them in the sink. Then turn on the water. Success requires: both receptacles are fully inside the sink basin (5 cm tolerance) and the water is running. 8 subtasks; skills: levers, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## HeatKebabSandwich
+
+- Goal: RoboCasa365 HeatKebabSandwich (Preparing Sandwiches), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Pick up the kebab skewer and baguette bread, and place them inside the toaster oven. Close the toaster oven door and start by setting the timer. Success requires: the kebab and the baguette each touch a toaster-oven rack, the door is less than 90% open, and the timer is set to >= 10% of its range. 6 subtasks; skills: doors, knobs, navigation, pick_place, racks.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+

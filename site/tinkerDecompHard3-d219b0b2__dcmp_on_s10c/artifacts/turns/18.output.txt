@@ -1,0 +1,135 @@
+rc=0
+=== seed 800009 rc 0 completed False sim 3.5761577699008895e-05 stages {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+e_to_joints(joints_place)
+
+# Step 12: Open gripper to release the green cube
+open_gripper()
+
+# Step 13: Retract slightly to avoid collision
+retract_pos = place_pos.copy()
+retract_pos[2] += 0.1
+joints_retract = solve_ik(retract_pos, place_quat_w)
+move_to_joints(joints_retract)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+=== seed 800010 rc 1 completed False sim 0.00015281036676798032 stages {'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+ct)
+
+
+Environment response:
+  Sandbox failed: 1
+  Stdout: 
+  Stderr: Traceback (most recent call last):
+  File "…/sim/obs_guard.py", line 252, in _run
+    exec(code, g, g)
+  File "<string>", line 95, in <module>
+IndexError: arrays used as indices must be of integer (or boolean) type
+
+=== seed 800011 rc 0 completed False sim 0.0008818749425117123 stages {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+
+
+# Step 11: Release the green cube by opening the gripper
+open_gripper()
+
+# Step 12: Retract slightly after release
+retract_position = place_position.copy()
+retract_position[2] += 0.1
+joints_retract = solve_ik(retract_position, place_quat_world)
+move_to_joints(joints_retract)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+=== seed 800012 rc 0 completed False sim 1.7682692288745194e-06 stages {'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+p 15: Open gripper to release the green cube
+open_gripper()
+
+# Step 16: Retract slightly
+retract_pos = np.array([red_center[0], red_center[1], place_z + z_approach])
+retract_quat = grasp_quat
+
+joints_retract = solve_ik(retract_pos, retract_quat)
+move_to_joints(joints_retract)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+=== seed 800013 rc 0 completed False sim 0.0023517110520811374 stages {'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+
+
+# Step 12: Open the gripper to release the green cube
+open_gripper()
+
+# Step 13: Retract the robot slightly
+retract_position = place_position.copy()
+retract_position[2] += 0.1
+
+joints_retract = solve_ik(retract_position, grasp_orientation_quat)
+move_to_joints(joints_retract)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+=== seed 800014 rc 0 completed False sim 0.000360058050664705 stages {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+e = solve_ik(place_pos, place_quat_wxyz)
+move_to_joints(joints_place)
+
+# Open gripper to release
+open_gripper()
+
+# Retract slightly
+retract_pos = place_pos.copy()
+retract_pos[2] += z_approach
+joints_retract = solve_ik(retract_pos, place_quat_wxyz)
+move_to_joints(joints_retract)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+=== seed 800015 rc 0 completed False sim 0.04002702230665038 stages {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': True, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+e_ik(place_pos, grasp_quat_wxyz)
+move_to_joints(joints_place)
+
+# Step 8: Open gripper to release
+open_gripper()
+
+# Step 9: Retract slightly
+retract_pos = place_pos.copy()
+retract_pos[2] += 0.1
+joints_retract = solve_ik(retract_pos, grasp_quat_wxyz)
+move_to_joints(joints_retract)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+=== seed 800016 rc 0 completed False sim 0.0012277035551143678 stages {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+ to placement position
+joints_place = solve_ik(place_pos, grasp_quat_wxyz)
+move_to_joints(joints_place)
+
+# Release the green cube
+open_gripper()
+
+# Lift back up to safe height
+joints_release_lift = solve_ik(lateral_move_pos, grasp_quat_wxyz)
+move_to_joints(joints_release_lift)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 

@@ -1,0 +1,1 @@
+{"name": "sg_bp_burner", "task": "BoilPot", "steps": 8, "batch": 8, "reward": "rewards/knob_changed_r.py", "goal": "Turn on the stove burner (turn the burner knob so its state changes).", "init_mode": "fresh", "seed_start": 914001, "time": "03:30:00"}

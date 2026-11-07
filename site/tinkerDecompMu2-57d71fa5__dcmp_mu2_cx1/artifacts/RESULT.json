@@ -1,0 +1,134 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "model_endpoint: codex exec exited 1: ",
+ "gpu_hours": 8.2761,
+ "final_score": null,
+ "codex_resumes": [
+  {
+   "exit_s": 9855.8,
+   "jobs_pending": 1,
+   "results_unseen": true,
+   "resumed_s": 14437.3,
+   "mode": "resume"
+  },
+  {
+   "exit_s": 15554.5,
+   "jobs_pending": 0,
+   "results_unseen": true,
+   "resumed_s": 15554.5,
+   "mode": "resume"
+  },
+  {
+   "exit_s": 19380.2,
+   "jobs_pending": 0,
+   "results_unseen": true,
+   "resumed_s": 19380.2,
+   "mode": "resume"
+  },
+  {
+   "exit_s": 33827.5,
+   "jobs_pending": 2,
+   "results_unseen": true,
+   "resumed_s": 35910.9,
+   "mode": "resume"
+  }
+ ],
+ "agent": "codex:gpt-6-astra",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": 262144
+ },
+ "mode": "dev",
+ "final_episodes": 50,
+ "agent_usage": {
+  "reasoning_output_tokens": 2058,
+  "cache_write_input_tokens": 0,
+  "cached_input_tokens": 5454464,
+  "input_tokens": 5875141,
+  "output_tokens": 12016,
+  "commands": 27,
+  "events": 86,
+  "codex_exit": 1,
+  "codex_runs": 5
+ },
+ "policy_model": "Qwen3.8-27B",
+ "eval_backend": "tinker, decode=tinker(no_presence_penalty) (DEV backend only: dev/checkpoint evals of Tinker-trained adapters sample on Tinker; hidden evals and other adapters run locally)",
+ "trainer": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B charge=canonical sim=l40s",
+ "tinker": {
+  "calls": 5,
+  "usd": 57.2573,
+  "tinker_s": 6637.67,
+  "usd_all_resumes": 57.2571,
+  "jobs_all_resumes": 7
+ },
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 5.7608,
+ "gpu_hours_charging": "canonical",
+ "cost_model": "v2",
+ "gpu_hours_lost": 0.0725,
+ "measured_vs_canonical": 0.696,
+ "agent_gpu_h": null,
+ "measured_cost": {
+  "train_gpu_h": 0.0,
+  "reason_gpu_h": null,
+  "sandbox_gpu_h": 3.801,
+  "usd_tinker": 57.2573,
+  "charged_gpu_h": 8.2761,
+  "tokens": {
+   "prompt": 0,
+   "completion": 0
+  },
+  "unmeasured_calls": 0
+ },
+ "skills_version": null,
+ "initial_skills_digest": "94e4273c0c78629d95bb7693bbf5c9dc5acb31c1cf5717ba681ccb1c9d91c646",
+ "suite": {
+  "name": "hard3",
+  "version": 1,
+  "hash": "sha256:aaa90816430a9221",
+  "train": [
+   "nut",
+   "restack",
+   "revstack"
+  ],
+  "eval": [
+   {
+    "cell": "nut",
+    "split": "id"
+   },
+   {
+    "cell": "restack",
+    "split": "id"
+   },
+   {
+    "cell": "revstack",
+    "split": "id"
+   },
+   {
+    "cell": "t2_ss",
+    "split": "far"
+   },
+   {
+    "cell": "t2_spl",
+    "split": "far"
+   }
+  ],
+  "splits": {
+   "nut": "id",
+   "restack": "id",
+   "revstack": "id",
+   "t2_ss": "far",
+   "t2_spl": "far"
+  }
+ },
+ "env_text": "v2",
+ "artifacts": {
+  "registry": "…/tinkerDecompMu2-57d71fa5/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

@@ -1,0 +1,230 @@
+rc=0
+
+#################### rollouts/1.jsonl keys:
+KEYS: ['program', 'seed', 'sandbox_rc', 'secs', 'wall_s', 'log_tail', 'task', 'stdout_tail', 'task_completed']
+===== seed 800071 rc 0 secs None ===== 
+---- log_tail ----
+
+---- program (first 3500 chars) ----
+# Code block 0
+import numpy as np
+
+# Step 1: Navigate to the fridge
+navigate_to("fridge")
+
+# Step 2: Get observation at the fridge
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 3: Segment the strawberry
+masks = segment_sam3_text_prompt(rgb, "strawberry")
+if not masks or len(masks) == 0:
+    # Try point prompt as fallback
+    point_result = point_prompt_molmo(rgb, "strawberry")
+    if point_result:
+        for key, val in point_result.items():
+            if val[0] is not None and val[1] is not None:
+                masks = segment_sam3_point_prompt(rgb, val)
+                break
+
+if not masks or len(masks) == 0:
+    # No strawberry found, just navigate to dining counter
+    navigate_to("dining counter")
+    exit()
+
+# Use the first mask
+mask = masks[0]["mask"]
+
+# Create segmentation map (integer)
+seg_map = np.zeros(mask.shape, dtype=np.int32)
+seg_map[mask] = 1
+
+# Step 4: Plan grasp
+grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, seg_map)
+
+if grasp_poses.shape[0] == 0:
+    # No grasp found, try to navigate to dining counter
+    navigate_to("dining counter")
+    exit()
+
+# Select the best grasp
+best_idx = np.argmax(grasp_scores)
+grasp_pose_cam = grasp_poses[best_idx]  # 4x4 in camera frame
+
+# Step 5: Transform grasp pose to robot base frame
+# pose_mat maps camera coordinates to robot base frame
+grasp_pose_base = pose_mat @ grasp_pose_cam
+
+# Extract position and orientation
+grasp_pos = grasp_pose_base[:3, 3]
+grasp_quat = np.array([grasp_pose_base[0,0], grasp_pose_base[1,0], grasp_pose_base[2,0], grasp_pose_base[3,0]])
+# Actually, we need to extract the rotation properly. Let me use a helper.
+
+def mat_to_quat(R):
+    """Convert 3x3 rotation matrix to quaternion (w, x, y, z)."""
+    trace = R[0,0] + R[1,1] + R[2,2]
+    if trace > 0:
+        S = 2.0 * np.sqrt(trace + 1.0)
+        w = 0.25 * S
+        x = (R[2,1] - R[1,2]) / S
+        y = (R[0,2] - R[2,0]) / S
+        z = (R[1,0] - R[0,1]) / S
+    elif R[0,0] > R[1,1] and R[0,0] > R[2,2]:
+        S = 2.0 * np.sqrt(1.0 + R[0,0] - R[1,1] - R[2,2])
+        w = (R[2,1] - R[1,2]) / S
+        x = 0.25 * S
+        y = (R[0,1] + R[1,0]) / S
+        z = (R[0,2] + R[2,0]) / S
+    elif R[1,1] > R[2,2]:
+        S = 2.0 * np.sqrt(1.0 + R[1,1] - R[0,0] - R[2,2])
+        w = (R[0,2] - R[2,0]) / S
+        x = (R[0,1] + R[1,0]) / S
+        y = 0.25 * S
+        z = (R[1,2] + R[2,1]) / S
+    else:
+        S = 2.0 * np.sqrt(1.0 + R[2,2] - R[0,0] - R[1,1])
+        w = (R[1,0] - R[0,1]) / S
+        x = (R[0,2] + R[2,0]) / S
+        y = (R[1,2] + R[2,1]) / S
+        z = 0.25 * S
+    quat = np.array([w, x, y, z])
+    return quat / np.linalg.norm(quat)
+
+R_cam = grasp_pose_cam[:3, :3]
+grasp_quat = mat_to_quat(R_cam)
+
+# Step 6: Move to grasp position (approach from above)
+# First, move to a position above the grasp point
+approach_pos = grasp_pos.copy()
+approach_pos[2] += 0.15  # 15 cm above
+
+# Solve IK for approach position with gripper pointing down
+joints_approach = solve_ik(approach_pos, np.array([0, 0, 1, 0]))
+move_to_joints(joints_approach)
+
+# Step 7: Move to grasp position
+joints_grasp = solve_ik(grasp_pos, grasp_quat)
+move_to_joints(joints_grasp)
+
+# Step 8: Close gripper to grasp the strawberry
+close_gripper()
+
+# Step 9: Lift the strawberry
+lift_pos = grasp_pos.copy()
+lift_pos[2] += 0.2  # Lift 20 cm
+joints_lift = solve_ik(li
+
+#################### rollouts/2.jsonl keys:
+KEYS: ['program', 'seed', 'sandbox_rc', 'secs', 'wall_s', 'log_tail', 'task', 'stdout_tail', 'task_completed']
+===== seed 800076 rc 0 secs None ===== 
+---- log_tail ----
+
+---- program (first 3500 chars) ----
+# Code block 0
+import numpy as np
+
+# Step 1: Navigate to the sink to find the pot
+navigate_to("sink")
+
+# Get observation
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Segment the pot
+masks = segment_sam3_text_prompt(rgb, "pot")
+if not masks:
+    # Try alternative prompts
+    masks = segment_sam3_text_prompt(rgb, "metal pot")
+    if not masks:
+        masks = segment_sam3_text_prompt(rgb, "water pot")
+
+if not masks:
+    # Fallback: try to find it with point prompt
+    point_result = point_prompt_molmo(rgb, "pot with water")
+    if point_result:
+        for key, val in point_result.items():
+            if val[0] is not None and val[1] is not None:
+                point_masks = segment_sam3_point_prompt(rgb, val)
+                if point_masks:
+                    masks = point_masks
+                    break
+
+if not masks:
+    # Can't find the pot, try to just go to stove
+    navigate_to("stove")
+    # Try to turn on the burner
+    # For now, we'll just attempt to interact with the stove
+    pass
+else:
+    # Get the best mask
+    best_mask = max(masks, key=lambda m: m.get("score", 0))
+    mask = best_mask["mask"]
+    
+    # Create segmentation map (single instance)
+    segmentation = mask.astype(np.int32)
+    
+    # Plan grasp
+    grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, segmentation)
+    
+    if len(grasp_poses) > 0:
+        # Get the best grasp
+        best_idx = np.argmax(grasp_scores)
+        grasp_pose = grasp_poses[best_idx]
+        
+        # Transform from camera frame to world frame
+        world_grasp_pose = pose_mat @ grasp_pose
+        
+        # Extract position and orientation
+        position = world_grasp_pose[:3, 3]
+        # Convert rotation matrix to quaternion
+        R = world_grasp_pose[:3, :3]
+        
+        # Convert rotation matrix to quaternion (WXYZ)
+        trace = R[0, 0] + R[1, 1] + R[2, 2]
+        if trace > 0:
+            S = 0.5 / np.sqrt(trace + 1.0)
+            w = 0.25 / S
+            x = (R[2, 1] - R[1, 2]) * S
+            y = (R[0, 2] - R[2, 0]) * S
+            z = (R[1, 0] - R[0, 1]) * S
+        elif (R[0, 0] > R[1, 1]) and (R[0, 0] > R[2, 2]):
+            S = 2.0 * np.sqrt(1.0 + R[0, 0] - R[1, 1] - R[2, 2])
+            w = (R[2, 1] - R[1, 2]) / S
+            x = 0.25 * S
+            y = (R[0, 1] + R[1, 0]) / S
+            z = (R[0, 2] + R[2, 0]) / S
+        elif R[1, 1] > R[2, 2]:
+            S = 2.0 * np.sqrt(1.0 + R[1, 1] - R[0, 0] - R[2, 2])
+            w = (R[0, 2] - R[2, 0]) / S
+            x = (R[0, 1] + R[1, 0]) / S
+            y = 0.25 * S
+            z = (R[1, 2] + R[2, 1]) / S
+        else:
+            S = 2.0 * np.sqrt(1.0 + R[2, 2] - R[0, 0] - R[1, 1])
+            w = (R[1, 0] - R[0, 1]) / S
+            x = (R[0, 2] + R[2, 0]) / S
+            y = (R[1, 2] + R[2, 1]) / S
+            z = 0.25 * S
+        
+        quaternion = np.array([w, x, y, z])
+        
+        # Move to grasp position (slightly above first)
+        approach_position = position + np.array([0, 0, 0.1])
+        approach_joints = solve_ik(approach_position, quaternion)
+        move_to_joints(approach_joints)
+        
+        # Open gripper
+        open_gripper()
+        
+        # Move to grasp position
+        grasp_joints = solve_ik(position, quaternion)
+        move_to_joints(grasp_joints)
+        
+        # Close gripper
+    

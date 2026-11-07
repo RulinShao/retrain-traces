@@ -1,0 +1,10 @@
+{
+  "name": "mw_on_probe",
+  "task": "MicrowaveThawing",
+  "steps": 1,
+  "batch": 8,
+  "reward": "rewards/microwave_on.py",
+  "goal": "Turn on the microwave so it starts heating.",
+  "init_mode": "fresh",
+  "time": "01:00:00"
+}

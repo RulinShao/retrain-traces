@@ -1,0 +1,242 @@
+rc=0
+total 785
+drwxr-sr-x  2 root nobody    512 Nov  5 08:37 .
+drwxr-sr-x 10 root nobody   8192 Nov  5 12:00 ..
+-rw-r--r--  1 root nobody 143235 Nov  5 08:37 1.jsonl
+-rw-r--r--  1 root nobody 161671 Nov  5 08:08 2.jsonl
+-rw-r--r--  1 root nobody 148009 Nov  5 08:37 3.jsonl
+===== rollouts/1.jsonl task restack n 8
+Let me break down this task:
+
+1. I need to find the red cube and green cube in the scene
+2. I need to grasp the red cube
+3. I need to place it on top of the green cube at the correct height (using cube extents)
+4. I need to open the gripper to release the red cube
+
+Let me start by getting the observation and identifying the cubes:
+
+```python
+import numpy as np
+
+# Get initial observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Segment the red cube
+red_cube_masks = segment_sam3_text_prompt(rgb_image, "red cube")
+if not red_cube_masks:
+    raise Exception("Could not find red cube")
+
+# Take the best mask for red cube
+red_mask = max(red_cube_masks, key=lambda x: x.get("score", 0))["mask"]
+
+# Segment the green cube
+green_cube_masks = segment_sam3_text_prompt(rgb_image, "green cube")
+if not green_cube_masks:
+    raise Exception("Could not find green cube")
+
+# Take the best mask for green cube
+green_mask = max(green_cube_masks, key=lambda x: x.get("score", 0))["mask"]
+
+# Create segmentation maps for plan_grasp (only one instance each)
+red_segmentation = np.zeros_like(depth_image, dtype=np.int32)
+red_segmentation[red_mask] = 1
+
+green_segmentation = np.zeros_like(depth_image, dtype=np.int32)
+green_segmentation[green_mask] = 1
+
+# Plan grasp for red cube
+grasp_poses, grasp_scores = plan_grasp(depth_image, intrinsics, red_segmentation)
+
+if len(grasp_poses) == 0:
+    raise Exception("No grasp candidates found for red cube")
+
+# Select the best grasp
+best_grasp_idx = np.argmax(grasp_scores)
+best_grasp_pose_cam = grasp_poses[best_grasp_idx]  # In camera frame
+
+# Transform grasp pose from camera frame to world frame
+# The pose_mat is camera extrinsic (camera to world), so we need its inverse to go from camera to world
+cam_to_world = pose_mat.copy()
+world_to_cam = np.linalg.inv(cam_to_world)
+
+# The grasp pose is in camera frame, so to get it in world frame:
+# world_pose = cam_to_world @ cam_frame_pose
+grasp_pose_world = cam_to_world @ best_grasp_pose_cam
+
+# Extract position and orientation of the grasp
+grasp_pos_world = grasp_pose_world[:3, 3]
+grasp_quat_wxyz = np.array([
+    grasp_pose_world[0,0] + grasp_pose_world[1,1] + grasp_pose_world[2,2] + 1,
+    grasp_pose_world[0,0] - grasp_pose_world[1,1] - grasp_pose_world[2,2] + 1,
+    grasp_pose_world[1,0] - grasp_pose_world[0,1] - grasp_pose_world[2,2] + 1,
+    grasp_pose_world[2,0] - grasp_pose_world[1,2] - grasp_pose_world[0,3] + 1
+])
+# This quaternion extraction is wrong, let me use a proper method
+
+def rotmat_to_quat(R):
+    """Convert rotation matrix to quaternion (w, x, y, z)."""
+    trace = R[0,0] + R[1,1] + R[2,2]
+    if trace > 0:
+        S = np.sqrt(trace + 1.0) * 2
+        w = 0.25 * S
+        x = (R[2,1] - R[1,2]) / S
+        y = (R[0,2] - R[2,0]) / S
+        z = (R[1,0] - R[0,1]) / S
+    elif R[0,0] > R[1,1] and R[0,0] > R[2,2]:
+        S = np.sqrt(1.0 + R[0,0] - R[1,1] - R[2,2]) * 2
+        w = (R[2,1] - R[1,2]) / S
+        x = 0.25 * S
+        y = (R[0,1] + R[1,0]) / S
+        z = (R[0,2] + R[2,0]) / S
+    elif R[1,1] > R[2,2]:
+        S = np.sqrt(1.0 + R[1,1] - R[0,0] - R[2,2]) * 2
+        w = (R[0,2] - R[2,0]) / S
+        x = (R[0,1] + R[1,0]) / S
+        y = 0.25 * S
+        z = (R[1,2] + R[2,1]) / S
+    else:
+        S = np.sqrt(1.0 + R[2,2] - R[0,0] - R[1,1]) * 2
+        w = (R[1,0] - R[0,1]) / S
+        x = (R[0,2] + R[2,0]) / S
+        y = (R[1,2] + R[2,1]) / S
+        z = 0.25 * S
+    quat = np.array([w, x, y, z])
+    return quat / np.linalg.norm(quat)
+
+grasp_R_world = grasp_pose_world[:3, :3]
+grasp_quat_wxyz = rotmat_to_quat(grasp_R_world)
+
+# Move to grasp position
+joints = solve_ik(grasp_pos_world, grasp_quat_wxyz)
+move_to_joints(joints)
+
+# Close gripper to grasp the red cube
+close_gripper()
+
+# Now we need to find where to place the red cube on top of the green cube
+# First, let's get the 3D points of the green cube to determine its extent
+# Project green mask pixels to 3D
+ys, xs = np.where(green_mask)
+if len(xs) == 0:
+    raise Exception("Green cube mask is empty")
+
+# Unproject to 3D points in camera frame
+points_cam = []
+for x, y in zip(xs, ys):
+    d = depth_image[y, x]
+    if d > 0:
+        u, v = float(x), float(y)
+        X = (u - intrinsics[0,2]) * d / intrinsics[0,0]
+        Y = (v - intrinsics[1,2]) * d / intrinsics[1,1]
+        Z = d
+        points_cam.append([X, Y, Z])
+
+points_cam = np.array(points_cam)
+
+# Transform to world frame
+points_world = np.hstack([points_cam, np.ones((len(points_cam), 1))]) @ world_to_cam.T
+points_world = points_world[:, :3]
+
+# Get oriented bounding box for green cube
+obb_green = get_oriented_bounding_box_from_3d_points(points_world)
+green_center = obb_green["center"]
+green_extent = obb_green["extent"]  # [x_extent, y_extent, z_extent]
+green_R = obb_green["R"]
+
+# Similarly, get the red cube's extent to know how high it sits when grasped
+ys_red, xs_red = np.where(red_mask)
+points_red_cam = []
+for x, y in zip(xs_red, ys_red):
+    d = depth_image[y, x]
+    if d > 0:
+        u, v = float(x), float(y)
+        X = (u - intrinsics[0,2]) * d / intrinsics[0,0]
+        Y = (v - intrinsics[1,2]) * d / intrinsics[1,1]
+        Z = d
+        points_red_cam.append([X, Y, Z])
+
+points_red_cam = np.array(points_red_cam)
+points_red_world = np.hstack([points_red_cam, np.ones((len(points_red_cam), 1))]) @ world_to_cam.T
+points_red_world = points_red_world[:, :3]
+
+obb_red = get_oriented_bounding_box_from_3d_points(points_red_world)
+red_extent = obb_red["extent"]
+
+# The green cube's top surface is at green_center + (z_extent/2) along the z-axis of its OBB
+# But we need to be careful about orientation. Since we're placing on top, we want the vertical direction.
+# Assuming the cubes are axis-aligned or nearly so, the z-extent corresponds to height.
+# For safety, let's assume the placement should be such that the bottom of the red cube touches the top of the green cube.
+
+# The top of the green cube in world coordinates:
+# If the green cube's local z-axis is aligned with world z, then top = center + [0,0,z_extent/2]
+# But we have the rotation matrix. Let's compute the top point properly.
+
+# Actually, for simplicity and since the goal says "on top", let's assume the cubes are placed with their bases horizontal.
+# The height of the green cube's top surface above its center is half the z-extent.
+# But which dimension is "vertical"? Typically, the smallest extent might be thickness, but for cubes they should be similar.
+
+# Let's assume the z-direction in world frame is up. We'll project the OBB onto world z.
+# However, a simpler approach: since we're placing on top, we want the new position to be directly above the green cube's center, at a height equal to green_z_extent/2 + red_z_extent/2 above the ground reference.
+
+# But we don't know the ground. Instead, let's think in terms of relative positions.
+# The red cube should be placed such that its bottom face is at the same height as the green cube's top face.
+
+# Let's define the target position for the red cube's center:
+# It should be directly above the green cube's center, at a vertical offset equal to (green_height/2 + red_height/2)
+# Where green_height is the extent in the vertical direction, and red_height similarly.
+
+# To find the vertical extent, we can look at the projection of the OBB axes onto the world z-axis.
+# But for robustness, let's assume the cubes are roughly axis-aligned and use the z-component of the extent.
+
+# Actually, the extent array gives the full size in each local axis. The local z-axis of the green cube may not be aligned with world z.
+# Let's compute the actual height difference needed.
+
+# The vector from green center to its top face center in world frame:
+# In local coords, top face center is at [0, 0, green_extent[2]/2]
+# Transform to world: green_R @ [0, 0, green_extent[2]/2]
+top_offset_local = np.array([0, 0, green_extent[2]/2])
+top_offset_world = green_R @ top_offset_local
+green_top_point = green_center + top_offset_world
+
+# Similarly, the bottom face center of the red cube in local coords is at [0, 0, -red_extent[2]/2]
+# When we place it, we want this bottom point to coincide with green_top_point.
+# So the red cube's center should be at: green_top_point - (red_R @ [0, 0, -red_extent[2]/2])
+# But wait, we don't know the red cube's orientation after placement. 
+
+# Simpler assumption: both cubes will be placed with their local z-axes aligned with world z (upright).
+# Then:
+# Green top height = green_center[2] + green_extent[2]/2
+# Red bottom should be at that height, so red center height = green_top_height + red_extent[2]/2
+
+# But this assumes alignment. Given the complexity, let's make a practical assumption:
+# Place the red cube directly above the green cube's center, at a height such that the gap between them is zero.
+# The vertical distance between centers should be (green_extent[2] + red_extent[2]) / 2 if both are upright.
+
+# However, to be safe and follow "use the extent", let's compute based on the current orientations.
+
+# Alternative approach: The placement position should be such that the red cube's lowest point is at the same level as the green cube's highest point in the vertical direction.
+
+# For now, let's assume the standard case where cubes are axis-aligned with world frame.
+# This is reasonable for a controlled environment.
+
+target_x = green_center[0]
+target_y = green_center[1]
+target_z = green_center[2] + green_extent[2]/2 + red_extent[2]/2
+
+target_position = np.array([target_x, target_y, target_z])
+
+# For orientation, we want the red cube to be upright (local z aligned with world z)
+# Identity rotation
+target_quat_wxyz = np.array([1.0, 0.0, 0.0, 0.0])
+
+# Solve IK for placement position
+placement_joints = solve_ik(target_position, target_quat_wxyz)
+move_to_joints(placement_joints)
+
+# Open gripper to release the red cube
+open_gripper()
+======================

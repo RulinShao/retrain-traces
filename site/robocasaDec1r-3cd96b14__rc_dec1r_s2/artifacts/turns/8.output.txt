@@ -1,0 +1,37 @@
+rc=0
+===== BoilPot =====
+You are controlling a Franka Emika robot arm with the API described below. The arm is mounted on a mobile base in a kitchen. The base stays still while the arm moves; navigate_to(fixture) drives it to stand in front of a fixture, and afterwards every position and orientation is in the new base frame.
+Goal: Take the pot filled with water and place it on the stove. Then turn on the stove burner to begin boiling the water.
+Success requires: the pot touches the stove and the burner nearest to the pot is on.
+All positions and orientations are in the robot base frame: x points forward (away from the robot), y to the robot's left, z up; quaternions are WXYZ.
+Write ONLY executable Python code (no code fences). Import numpy if needed.
+===== MicrowaveThawing =====
+You are controlling a Franka Emika robot arm with the API described below. The arm is mounted on a mobile base in a kitchen. The base stays still while the arm moves; navigate_to(fixture) drives it to stand in front of a fixture, and afterwards every position and orientation is in the new base frame.
+Goal: Pick the chicken drumstick from the counter and place it in the microwave. Then turn on the microwave.
+Success requires: the food is inside the microwave, the gripper is away from it AND the microwave is on.
+All positions and orientations are in the robot base frame: x points forward (away from the robot), y to the robot's left, z up; quaternions are WXYZ.
+Write ONLY executable Python code (no code fences). Import numpy if needed.
+===== TongBuffetSetup =====
+You are controlling a Franka Emika robot arm with the API described below. The arm is mounted on a mobile base in a kitchen. The base stays still while the arm moves; navigate_to(fixture) drives it to stand in front of a fixture, and afterwards every position and orientation is in the new base frame.
+Goal: Take the tongs from the drawer on the left and place them on the dining counter next to the tray containing the kebab skewer.
+Success requires: the tongs and the food tray both touch the dining counter with their centres within 0.5 m of each other, and the gripper is more than 0.15 m from the tongs and from the tray.
+All positions and orientations are in the robot base frame: x points forward (away from the robot), y to the robot's left, z up; quaternions are WXYZ.
+Write ONLY executable Python code (no code fences). Import numpy if needed.
+===== MakeIceLemonade =====
+You are controlling a Franka Emika robot arm with the API described below. The arm is mounted on a mobile base in a kitchen. The base stays still while the arm moves; navigate_to(fixture) drives it to stand in front of a fixture, and afterwards every position and orientation is in the new base frame.
+Goal: Grab a lemon wedge from the fridge and one ice cube from the ice bowl, and put them in the glass of lemonade.
+Success requires: the lemon wedge and at least one ice cube each touch the glass cup with their centres within 0.5 m horizontally of the cup's centre, and the gripper is more than 0.15 m from the lemon wedge and from both ice cubes.
+All positions and orientations are in the robot base frame: x points forward (away from the robot), y to the robot's left, z up; quaternions are WXYZ.
+Write ONLY executable Python code (no code fences). Import numpy if needed.
+===== ClearReceptaclesForCleaning =====
+You are controlling a Franka Emika robot arm with the API described below. The arm is mounted on a mobile base in a kitchen. The base stays still while the arm moves; navigate_to(fixture) drives it to stand in front of a fixture, and afterwards every position and orientation is in the new base frame.
+Goal: Pick the mug and strainer and place them in the sink. Then turn on the water.
+Success requires: both receptacles are fully inside the sink basin (5 cm tolerance) and the water is running.
+All positions and orientations are in the robot base frame: x points forward (away from the robot), y to the robot's left, z up; quaternions are WXYZ.
+Write ONLY executable Python code (no code fences). Import numpy if needed.
+===== GarnishPancake =====
+You are controlling a Franka Emika robot arm with the API described below. The arm is mounted on a mobile base in a kitchen. The base stays still while the arm moves; navigate_to(fixture) drives it to stand in front of a fixture, and afterwards every position and orientation is in the new base frame.
+Goal: Take the strawberry from the fridge and place it on top of the pancake, located on the dining counter.
+Success requires: the strawberry is on the pancake and the pancake on its plate (each touching, centre within 0.7 of the support's radius), the plate touches the dining counter, and the gripper is more than 0.25 m from the strawberry.
+All positions and orientations are in the robot base frame: x points forward (away from the robot), y to the robot's left, z up; quaternions are WXYZ.
+Write ONLY executable Python code (no code fences). Import numpy if needed.

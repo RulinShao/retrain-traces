@@ -1,0 +1,11 @@
+{
+  "name": "boilB_perceive",
+  "task": "BoilPot",
+  "steps": 1,
+  "batch": 8,
+  "reward": "rewards/boil_pot_touches_stove.py",
+  "goal": "Take the pot filled with water and place it on the stove.",
+  "note": "SKILL GUIDE (practice only). Goal now: put the pot ON the stove cooking surface.\n1) navigate_to('stove'); then get_observation() AGAIN (the base frame moved).\n2) PERCEIVE the stove top as your target (do NOT hardcode it): m=segment_sam3_text_prompt(img,'stove'); take the entry with the highest 'score' and its 'mask'; unproject every pixel with valid depth to the base frame: for (y,x) in the mask: d=depth[y,x]; if 0.05<d<=3: cam=[(x-K[0,2])*d/K[0,0],(y-K[1,2])*d/K[1,1],d,1]; b=pose_mat@cam; collect b[:3]; T=mean of all collected points (this is the stove top, at its real height).\n3) Perceive and grasp the pot: segment 'pot' (fallback point_prompt_molmo img,'pot'); smap=best mask; g,s=plan_grasp(depth,K,smap); gp=pose_mat@g[argmax(s)]; p=gp[:3,3]; q=rotm_wxyz(gp[:3,:3]); move_to_joints(solve_ik(p,q)); close_gripper(); move_to_joints(solve_ik(p+[0,0,0.15],[0,0,1,0])).\n4) Place the pot at T: move_to_joints(solve_ik(T+[0,0,0.20],[0,0,1,0])); move_to_joints(solve_ik(T+[0,0,0.03],[0,0,1,0])); open_gripper(). The pot must rest on the perceived stove top.\nrotm_wxyz(R): rotation matrix to unit quaternion [w,x,y,z]. Write plain Python only.",
+  "init_mode": "fresh",
+  "time": "01:00:00"
+}

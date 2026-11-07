@@ -1,0 +1,64 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "serving_mismatch: serving the submission p_boil failed: <HTTPError 400: 'Bad Request'>",
+ "gpu_hours": 14.0957,
+ "final_score": null,
+ "agent": "local",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": 262144
+ },
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "eval_backend": "tinker, decode=tinker(no_presence_penalty) (RoboCasa365 pool: every eval samples on Tinker, base or Tinker-trained adapter; dev / practice seeds only, hidden seeds refused); final=DEV (dev seeds 800021-800070, n=50, sampled on Tinker; never a Table 2 number: hidden finals need the local 27B)",
+ "trainer": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B",
+ "tinker": {
+  "calls": 30,
+  "usd": 61.3774,
+  "tinker_s": 5459.08
+ },
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 14.0957,
+ "gpu_hours_charging": "canonical",
+ "cost_model": "v2",
+ "gpu_hours_lost": 2.0083,
+ "measured_vs_canonical": 1.0,
+ "agent_gpu_h": 0.8673,
+ "measured_cost": {
+  "train_gpu_h": 0.0,
+  "reason_gpu_h": 0.8673,
+  "sandbox_gpu_h": 7.4044,
+  "usd_tinker": 61.3774,
+  "charged_gpu_h": 14.0957,
+  "tokens": {
+   "prompt": 1315879,
+   "completion": 91690
+  },
+  "unmeasured_calls": 0
+ },
+ "submission": {
+  "token": "79bcf8",
+  "how": "explicit",
+  "turn": 28,
+  "confirmed": true,
+  "confirmed_turn": 30,
+  "ended_by": "DONE",
+  "note": "Base=0/20 all 24 tasks (proven). No intermediate-variance sub-goal found (all precise steps 0/64; near-sat signals not GRPO-trainable; full BoilPot task_completed campaign 0/0/0). Since base=0, an adapter is weakly-dominant (cannot score below base). Submit p_boil: the one genuine nonzero-update nudge, trained on the task-relevant BoilPot sub-goal (pot-on-stove, 2/64 base); neutral elsewhere. Expected score ~0 (EV>=base).",
+  "policy": "base + p_boil (sha 28508c89ebdd)"
+ },
+ "skills_version": "6df138df-8645d430",
+ "initial_skills_digest": "352cc3f0ec300af292c575cbea31a87354740803b5ccda9823ba2fba951d9b30",
+ "env_text": "v2",
+ "turns_before_first_action": 13,
+ "tokens_before_first_action": 28072,
+ "first_action": "train",
+ "artifacts": {
+  "registry": "…/robocasaDec1r-3cd96b14/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

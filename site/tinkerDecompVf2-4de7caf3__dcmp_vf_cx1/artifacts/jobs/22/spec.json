@@ -1,0 +1,7 @@
+{
+ "name": "reverse_complete",
+ "init": "reverse12",
+ "task": "revstack",
+ "steps": 20,
+ "reward": "task_completed"
+}

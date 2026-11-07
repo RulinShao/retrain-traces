@@ -1,0 +1,9 @@
+{
+ "name": "success_clean",
+ "objective": "sft",
+ "init": "mixed12",
+ "data": "success_clean.jsonl",
+ "epochs": 5,
+ "batch": 8,
+ "lr": 0.0001
+}

@@ -1,0 +1,64 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "eval_failed: InfraError('eval job 43007440: n_scored 49/50 void 1 http_error 0 void_harness 0; unscored seeds 800060 (missing: no trial record (never ran, or the worker died before writing it))')",
+ "gpu_hours": 12.2301,
+ "final_score": null,
+ "agent": "local",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": 262144
+ },
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "eval_backend": "tinker, decode=tinker(no_presence_penalty) (RoboCasa365 pool: every eval samples on Tinker, base or Tinker-trained adapter; dev / practice seeds only, hidden seeds refused); final=DEV (dev seeds 800021-800070, n=50, sampled on Tinker; never a Table 2 number: hidden finals need the local 27B)",
+ "trainer": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B",
+ "tinker": {
+  "calls": 33,
+  "usd": 68.8953,
+  "tinker_s": 6718.63
+ },
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 12.2301,
+ "gpu_hours_charging": "canonical",
+ "cost_model": "v2",
+ "gpu_hours_lost": 0.0,
+ "measured_vs_canonical": 1.0,
+ "agent_gpu_h": 0.7245,
+ "measured_cost": {
+  "train_gpu_h": 0.0,
+  "reason_gpu_h": 0.7245,
+  "sandbox_gpu_h": 5.9506,
+  "usd_tinker": 68.8953,
+  "charged_gpu_h": 12.2301,
+  "tokens": {
+   "prompt": 1853904,
+   "completion": 90560
+  },
+  "unmeasured_calls": 0
+ },
+ "submission": {
+  "token": "2188e4",
+  "how": "default-loaded-stack",
+  "turn": 49,
+  "confirmed": true,
+  "confirmed_turn": 51,
+  "ended_by": "DONE",
+  "note": null,
+  "policy": "base"
+ },
+ "skills_version": "6df138df-8645d430",
+ "initial_skills_digest": "352cc3f0ec300af292c575cbea31a87354740803b5ccda9823ba2fba951d9b30",
+ "env_text": "v2",
+ "turns_before_first_action": 17,
+ "tokens_before_first_action": 20293,
+ "first_action": "train",
+ "artifacts": {
+  "registry": "…/robocasaDec1-be2b28b1/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

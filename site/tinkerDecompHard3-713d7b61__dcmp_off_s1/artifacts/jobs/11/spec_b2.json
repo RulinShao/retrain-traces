@@ -1,0 +1,9 @@
+{
+  "name": "b_rs20",
+  "task": "revstack",
+  "init": "b_rs10",
+  "reward": "shaped",
+  "steps": 10,
+  "batch": 8,
+  "rollouts": 16
+}

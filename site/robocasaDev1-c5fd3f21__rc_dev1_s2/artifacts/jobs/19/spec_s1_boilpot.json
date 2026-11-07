@@ -1,0 +1,1 @@
+{"name": "s1_boilpot", "task": "BoilPot", "steps": 8, "batch": 8, "reward": "rewards/stove_r.py", "init_mode": "fresh", "seed_start": 911001, "time": "03:30:00"}

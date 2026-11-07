@@ -1,0 +1,10 @@
+{
+  "name": "pw-shap1",
+  "task": "metaworldplus-push-wall",
+  "steps": 10,
+  "batch": 8,
+  "rollouts": 8,
+  "reward": "shaped",
+  "seed_start": 810001,
+  "lr": 2e-05
+}

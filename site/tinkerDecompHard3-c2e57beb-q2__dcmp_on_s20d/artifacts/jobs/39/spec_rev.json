@@ -1,0 +1,4 @@
+{"objective":"grpo","name":"grpo_rev","task":"revstack","batch":8,"rollouts":8,
+ "reward":"prog/grpo_reward.py","seed_start":810001,"steps":24,
+ "stop_when":{"plateau_steps":10,"min_gain":0.01},
+ "note":"Grasp the green cube by moving the end-effector to its plan_grasp pose (using that pose's full orientation), close the gripper and lift; then translate so the grasped green cube's center is directly above the red cube's center (the cube center is offset from the end-effector, so move to align the cube, not the end-effector, over the red cube) and lower gently to place it."}

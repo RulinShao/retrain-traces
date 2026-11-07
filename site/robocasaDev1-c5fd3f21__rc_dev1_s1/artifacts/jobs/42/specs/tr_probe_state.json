@@ -1,0 +1,1 @@
+{"task": "BoilPot", "steps": 1, "batch": 8, "name": "probe_state", "seed_start": 1470000, "reward": "specs/probestate.py", "time": "00:20:00", "init_mode": "fresh"}

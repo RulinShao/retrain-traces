@@ -1,0 +1,49 @@
+{
+ "status": "DONE",
+ "turns": 18,
+ "gpu_hours": 1.993,
+ "final_score": {
+  "loaded": "pw-sh2",
+  "per_task": {
+   "metaworldplus-push-wall": 1
+  },
+  "total": 1,
+  "n_per_task": 100,
+  "submission": "3272cf",
+  "confirmed": true
+ },
+ "agent": "local",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": null
+ },
+ "mode": "dev",
+ "policy_model": "tinker:Qwen/Qwen3.8-27B",
+ "gpu_hours_actual": 1.3282,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "3272cf",
+  "how": "explicit",
+  "turn": 16,
+  "confirmed": true,
+  "confirmed_turn": 17,
+  "ended_by": "DONE",
+  "note": "14 steps shaped-reward GRPO; dev 1/20 vs base 0/20",
+  "policy": "base + pw-sh2 (sha 5eba1d37ef1f)"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "cd1396689a699cf17538ac1b3b1d8d18445db6e60460f68ecb17cfd722eefd54",
+ "env_text": "v2",
+ "turns_before_first_action": 7,
+ "tokens_before_first_action": 7731,
+ "first_action": "eval",
+ "artifacts": {
+  "registry": "…/push-wall-r2/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

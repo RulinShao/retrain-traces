@@ -1,0 +1,1 @@
+{"task": ["nut", "restack"], "name": "C", "init": "nr_probe", "steps": 25, "batch": 8, "rollouts": 8, "reward": "shaped"}

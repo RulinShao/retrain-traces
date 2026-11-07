@@ -1,0 +1,1 @@
+{"task": "MicrowaveThawing", "steps": 1, "batch": 8, "reward": "rewards/g_chick.py", "init_mode": "fresh", "name": "g_chick", "seed_start": 900701}

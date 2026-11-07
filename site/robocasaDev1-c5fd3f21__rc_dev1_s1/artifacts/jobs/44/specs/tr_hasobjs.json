@@ -1,0 +1,1 @@
+{"task": "BoilPot", "steps": 1, "batch": 8, "name": "hasobjs", "seed_start": 1471000, "reward": "specs/hasobjects.py", "time": "00:20:00", "init_mode": "fresh"}

@@ -1,0 +1,1 @@
+{"task": "BoilPot", "name": "bp_sanity", "steps": 1, "batch": 8, "reward": "rewards/bp_sanity.py", "init_mode": "fresh", "time": "02:00:00"}

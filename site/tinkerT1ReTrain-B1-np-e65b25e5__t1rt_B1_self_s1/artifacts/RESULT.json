@@ -1,0 +1,236 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "eval_failed: InfraError('eval job 42883398 state FAILED: 0 cell summaries; ABORT: oracle gate FAILED [priv=2/5 vis=none_chain] on g3131 (root cause pending; not declared a bad node)')",
+ "gpu_hours": 52.04,
+ "final_score": null,
+ "agent": "local",
+ "mode": "dev",
+ "final_episodes": 50,
+ "policy_model": "Qwen3.8-27B",
+ "trainer": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B charge=canonical sim=l40s",
+ "tinker": {
+  "calls": 7,
+  "usd": 400.3017,
+  "tinker_s": 22193.49
+ },
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 34.246,
+ "gpu_hours_charging": "canonical",
+ "cost_model": "v2",
+ "gpu_hours_lost": 0.0,
+ "measured_vs_canonical": 0.658,
+ "agent_gpu_h": 0.3489,
+ "measured_cost": {
+  "train_gpu_h": 0.0,
+  "reason_gpu_h": 0.3489,
+  "sandbox_gpu_h": 29.004,
+  "usd_tinker": 400.3017,
+  "charged_gpu_h": 52.04,
+  "tokens": {
+   "prompt": 947995,
+   "completion": 40477
+  },
+  "unmeasured_calls": 0
+ },
+ "submission": {
+  "token": "ca1ee0",
+  "how": "default-loaded-stack",
+  "turn": 28,
+  "confirmed": true,
+  "confirmed_turn": 29,
+  "ended_by": "DONE",
+  "note": null,
+  "policy": "base + E (sha 3b71e6abb6b9)"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "fb22c4d40c635b130c495f5d714b90cef1f6ba969822f536689d10375046c5c3",
+ "suite": {
+  "name": "B1-setlevel",
+  "version": 1,
+  "hash": "sha256:992a3ebe189920ee",
+  "train": [
+   "lift",
+   "stack",
+   "wipe",
+   "nut",
+   "restack",
+   "revstack"
+  ],
+  "eval": [
+   {
+    "cell": "lift",
+    "split": "id"
+   },
+   {
+    "cell": "stack",
+    "split": "id"
+   },
+   {
+    "cell": "wipe",
+    "split": "id"
+   },
+   {
+    "cell": "nut",
+    "split": "id"
+   },
+   {
+    "cell": "restack",
+    "split": "id"
+   },
+   {
+    "cell": "revstack",
+    "split": "id"
+   },
+   {
+    "cell": "t1_stack_wide",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_big",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_d1",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_wide",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_big",
+    "split": "near"
+   },
+   {
+    "cell": "t1_nut_wide",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_d3",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_small",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_wider_big",
+    "split": "near"
+   },
+   {
+    "cell": "t1_stack_wider_small_d3",
+    "split": "far"
+   },
+   {
+    "cell": "t1_lift_far",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_small",
+    "split": "near"
+   },
+   {
+    "cell": "t1_nut_wider",
+    "split": "near"
+   },
+   {
+    "cell": "t2_l",
+    "split": "far"
+   },
+   {
+    "cell": "t2_s",
+    "split": "far"
+   },
+   {
+    "cell": "t2_p",
+    "split": "far"
+   },
+   {
+    "cell": "t2_ls",
+    "split": "far"
+   },
+   {
+    "cell": "t2_sp",
+    "split": "far"
+   },
+   {
+    "cell": "t2_pl",
+    "split": "far"
+   },
+   {
+    "cell": "t2_ss",
+    "split": "far"
+   },
+   {
+    "cell": "t2_lsl",
+    "split": "far"
+   },
+   {
+    "cell": "t2_spl",
+    "split": "far"
+   },
+   {
+    "cell": "t2_sssl",
+    "split": "far"
+   },
+   {
+    "cell": "twolift",
+    "split": "far"
+   },
+   {
+    "cell": "handover",
+    "split": "far"
+   },
+   {
+    "cell": "stackv2",
+    "split": "far"
+   }
+  ],
+  "splits": {
+   "lift": "id",
+   "stack": "id",
+   "wipe": "id",
+   "nut": "id",
+   "restack": "id",
+   "revstack": "id",
+   "t1_stack_wide": "near",
+   "t1_stack_big": "near",
+   "t1_stack_d1": "near",
+   "t1_lift_wide": "near",
+   "t1_lift_big": "near",
+   "t1_nut_wide": "near",
+   "t1_stack_d3": "near",
+   "t1_stack_small": "near",
+   "t1_stack_wider_big": "near",
+   "t1_stack_wider_small_d3": "far",
+   "t1_lift_far": "near",
+   "t1_lift_small": "near",
+   "t1_nut_wider": "near",
+   "t2_l": "far",
+   "t2_s": "far",
+   "t2_p": "far",
+   "t2_ls": "far",
+   "t2_sp": "far",
+   "t2_pl": "far",
+   "t2_ss": "far",
+   "t2_lsl": "far",
+   "t2_spl": "far",
+   "t2_sssl": "far",
+   "twolift": "far",
+   "handover": "far",
+   "stackv2": "far"
+  }
+ },
+ "env_text": "v2",
+ "turns_before_first_action": 8,
+ "tokens_before_first_action": 14739,
+ "first_action": "eval",
+ "artifacts": {
+  "registry": "…/tinkerT1ReTrain-B1-np-e65b25e5/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

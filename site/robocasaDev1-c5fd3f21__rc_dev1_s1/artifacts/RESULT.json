@@ -1,0 +1,65 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "serving_mismatch: serving the submission knobdiag+pack_probe2+potmoved failed: <HTTPError 400: 'Bad Request'>",
+ "gpu_hours": 10.9514,
+ "final_score": null,
+ "agent": "local",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": 262144
+ },
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "eval_backend": "tinker, decode=tinker(no_presence_penalty) (RoboCasa365 pool: every eval samples on Tinker, base or Tinker-trained adapter; dev / practice seeds only, hidden seeds refused); final=DEV (dev seeds 800021-800070, n=50, sampled on Tinker; never a Table 2 number: hidden finals need the local 27B)",
+ "trainer": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B",
+ "tinker": {
+  "calls": 33,
+  "usd": 58.6857,
+  "tinker_s": 5354.54
+ },
+ "tinker_budget_stop": true,
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 10.9514,
+ "gpu_hours_charging": "canonical",
+ "cost_model": "v2",
+ "gpu_hours_lost": 0.0,
+ "measured_vs_canonical": 1.0,
+ "agent_gpu_h": 3.2223,
+ "measured_cost": {
+  "train_gpu_h": 0.0,
+  "reason_gpu_h": 3.2223,
+  "sandbox_gpu_h": 5.753,
+  "usd_tinker": 58.6857,
+  "charged_gpu_h": 10.9514,
+  "tokens": {
+   "prompt": 7133404,
+   "completion": 348178
+  },
+  "unmeasured_calls": 0
+ },
+ "submission": {
+  "token": "08525a",
+  "how": "explicit",
+  "turn": 176,
+  "confirmed": true,
+  "confirmed_turn": 177,
+  "ended_by": "DONE",
+  "note": "No adapter stack achieved a full-task success. Base is 0/20 on all 24 tasks (hidden also 0). The model can navigate and perform single-stage pick/lift/place actions via templated helpers, but full multi-stage tasks (navigate + drawer/door/knob actuation + precise multi-item placement) executed 0/64 in every probe (BoilPot, PackIdenticalLunches, GarnishPancake, TongBuffetSetup, ArrangeBreadBowl). A single same-view pick+drop shows ~50-55/64 'object near target', but full success stayed 0. The shared site Tinker USD cap (15000) was exhausted (ledger 15010) mid-session, blocking all further training and evals. Submitting the 3 adapters with real (non-identity) LoRA weights (each a 1-step update toward a sub-goal: turn stove knob / place food in tupperware / move pot) over base.",
+  "policy": "base + knobdiag (sha 332b6d3d64d7) + pack_probe2 (sha ef23259c79c3) + potmoved (sha 2c8dae6fc462)"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "154ac45aff64962504f4405b63b1f433577633313d4dc94f40b08d0afa85de57",
+ "env_text": "v2",
+ "turns_before_first_action": 22,
+ "tokens_before_first_action": 32037,
+ "first_action": "train",
+ "artifacts": {
+  "registry": "…/robocasaDev1-c5fd3f21/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

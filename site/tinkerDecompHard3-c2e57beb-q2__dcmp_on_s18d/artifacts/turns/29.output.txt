@@ -1,0 +1,82 @@
+rc=0
+######## revstack ########
+seed 800069 rc=0 secs=17.5 tc=False stages=None
+   contacts: None
+   logtail: 0 |   Stdout: top_c [-0.56703441  0.04429414 -0.41364234] top_e [2.37994206 1.505571   0.42153479] bot_c [-0.46273018  0.04729187 -0.39161831] bot_e [2.22646539 2.11412124 0.47572465] | grasp pos [0.45514385 0.04944351 0.26081902] quat [ 0.03530177  0.05327155  0.99758717 -0.02712495] | place [-0.46273018  0.04729187  0.05701141] | done |  |   Stderr: 
+seed 800070 rc=0 secs=17.5 tc=False stages=None
+   contacts: None
+   logtail:  0 |   Stdout: top_c [-0.54925193 -0.13422414 -0.39285094] top_e [2.29337004 2.12576834 0.47301777] bot_c [-0.56041418 -0.121157   -0.38869324] bot_e [2.30387644 2.04195965 0.41893173] | grasp pos [0.45547338 0.04842239 0.2550392 ] quat [ 0.04826589  0.0328491   0.9977928  -0.03163662] | place [-0.56041418 -0.121157    0.0572815 ] | done |  |   Stderr: 
+seed 800071 rc=0 secs=17.5 tc=False stages=None
+   contacts: None
+   logtail: 0 |   Stdout: top_c [-0.53194718 -0.09466421 -0.40300755] top_e [2.2869269  2.16692872 0.47337784] bot_c [-0.52593765 -0.0864025  -0.36324482] bot_e [2.23913514 2.06672414 0.44867346] | grasp pos [0.44702117 0.05760843 0.24710055] quat [ 0.02826055 -0.01092756  0.99646791 -0.07831748] | place [-0.52593765 -0.0864025   0.09778083] | done |  |   Stderr: 
+seed 800072 rc=0 secs=17.5 tc=False stages=None
+   contacts: None
+   logtail: 0 |   Stdout: top_c [-0.47319562 -0.1278449  -0.42518396] top_e [2.44289502 2.15048546 0.46177294] bot_c [-0.49639873  0.00367616 -0.34772678] bot_e [2.19772657 2.13709633 0.44615766] | grasp pos [0.44529503 0.03176598 0.24307959] quat [ 0.09605691  0.05109721  0.9933061  -0.03879598] | place [-0.49639873  0.00367616  0.10623852] | done |  |   Stderr: 
+seed 800073 rc=0 secs=8.4 tc=False stages=None
+   contacts: None
+   logtail: 0 |   Stdout: top_c [-0.71073729 -0.30000602 -0.51067435] top_e [2.43342045 2.05117376 0.52768515] bot_c [-0.37670508  0.19128346 -0.30240457] bot_e [2.34623302 1.57513097 0.42903263] | grasp pos [0.45893132 0.02177576 0.24760845] quat [ 0.04137252  0.04079583  0.99789547 -0.02878635] | place [-0.37670508  0.19128346  0.17595431] | done |  |   Stderr: 
+seed 800074 rc=0 secs=13.4 tc=False stages=None
+   contacts: None
+   logtail:   Stdout: top_c [-0.57947307 -0.11628598 -0.38618087] top_e [2.37514374 2.04886855 0.4209959 ] bot_c [ 0.27976381 -0.13030025 -0.0724868 ] bot_e [1.04745014 0.4819336  0.398279  ] | grasp pos [-0.08451116  0.11640268 -0.1365117 ] quat [ 0.39210261 -0.53056639  0.55805817 -0.50331495] | place [ 0.27976381 -0.13030025  0.33715065] | done |  |   Stderr: 
+seed 800075 rc=0 secs=9.9 tc=False stages=None
+   contacts: None
+   logtail: 0 |   Stdout: top_c [-0.52744495  0.09323173 -0.36301931] top_e [2.29960033 2.13697508 0.45554096] bot_c [-0.52428896 -0.13511918 -0.43082333] bot_e [2.38120365 2.1420221  0.44791874] | grasp pos [0.48347871 0.04828195 0.26488647] quat [ 0.01494041  0.09280739  0.99399649 -0.05598713] | place [-0.52428896 -0.13511918  0.02090652] | done |  |   Stderr: 
+seed 800076 rc=0 secs=10.9 tc=False stages=None
+   contacts: None
+   logtail: 0 |   Stdout: top_c [-0.44249753  0.09045305 -0.4311544 ] top_e [2.44324952 1.56008981 0.48108218] bot_c [-0.5856981   0.00550106 -0.42906679] bot_e [2.37648988 1.45520559 0.39943144] | grasp pos [0.45760543 0.01617775 0.24933955] quat [ 0.0339142   0.06706451  0.99703469 -0.01655283] | place [-0.5856981   0.00550106  0.01119002] | done |  |   Stderr: 
+TASK COMPLETED: 0/8
+
+######## nut ########
+seed 800077 rc=1 secs=8.6 tc=False stages=None
+   contacts: None
+   logtail:  0.35 ] dot 0.567 |  |   Stderr: Traceback (most recent call last): |   File "…/tasks/base.py", line 174, in _exec_user_code |     exec(code, self._exec_globals, self._exec_globals) |   File "<string>", line 97, in <module> | AttributeError: 'numpy.ndarray' object has no attribute 'cross' | 
+seed 800078 rc=1 secs=9.4 tc=False stages=None
+   contacts: None
+   logtail:  0.285] dot -0.072 |  |   Stderr: Traceback (most recent call last): |   File "…/tasks/base.py", line 174, in _exec_user_code |     exec(code, self._exec_globals, self._exec_globals) |   File "<string>", line 97, in <module> | AttributeError: 'numpy.ndarray' object has no attribute 'cross' | 
+seed 800079 rc=1 secs=10.0 tc=False stages=None
+   contacts: None
+   logtail:   0.305] dot 0.305 |  |   Stderr: Traceback (most recent call last): |   File "…/tasks/base.py", line 174, in _exec_user_code |     exec(code, self._exec_globals, self._exec_globals) |   File "<string>", line 97, in <module> | AttributeError: 'numpy.ndarray' object has no attribute 'cross' | 
+seed 800080 rc=1 secs=10.8 tc=False stages=None
+   contacts: None
+   logtail:  0.28 ] dot 0.404 |  |   Stderr: Traceback (most recent call last): |   File "…/tasks/base.py", line 174, in _exec_user_code |     exec(code, self._exec_globals, self._exec_globals) |   File "<string>", line 97, in <module> | AttributeError: 'numpy.ndarray' object has no attribute 'cross' | 
+seed 800081 rc=1 secs=7.0 tc=False stages=None
+   contacts: None
+   logtail:  0.319] dot 0.121 |  |   Stderr: Traceback (most recent call last): |   File "…/tasks/base.py", line 174, in _exec_user_code |     exec(code, self._exec_globals, self._exec_globals) |   File "<string>", line 97, in <module> | AttributeError: 'numpy.ndarray' object has no attribute 'cross' | 
+seed 800082 rc=1 secs=7.5 tc=False stages=None
+   contacts: None
+   logtail:   0.263] dot 0.347 |  |   Stderr: Traceback (most recent call last): |   File "…/tasks/base.py", line 174, in _exec_user_code |     exec(code, self._exec_globals, self._exec_globals) |   File "<string>", line 97, in <module> | AttributeError: 'numpy.ndarray' object has no attribute 'cross' | 
+seed 800083 rc=1 secs=7.9 tc=False stages=None
+   contacts: None
+   logtail:  0.262] dot -0.106 |  |   Stderr: Traceback (most recent call last): |   File "…/tasks/base.py", line 174, in _exec_user_code |     exec(code, self._exec_globals, self._exec_globals) |   File "<string>", line 97, in <module> | AttributeError: 'numpy.ndarray' object has no attribute 'cross' | 
+seed 800084 rc=1 secs=7.8 tc=False stages=None
+   contacts: None
+   logtail:   0.306] dot 0.124 |  |   Stderr: Traceback (most recent call last): |   File "…/tasks/base.py", line 174, in _exec_user_code |     exec(code, self._exec_globals, self._exec_globals) |   File "<string>", line 97, in <module> | AttributeError: 'numpy.ndarray' object has no attribute 'cross' | 
+TASK COMPLETED: 0/8
+
+######## restack ########
+seed 800085 rc=1 secs=20.1 tc=False stages=None
+   contacts: None
+   logtail: an_grasp |     vtf.SE3.from_matrix(self._env.grasp_sample) @ vtf.SE3.from_translation(np.array([0, 0, 0.12])) |   File "…/transforms/_se3.py", line 92, in from_matrix |     assert matrix.shape[-2:] == (4, 4) or matrix.shape[-2:] == (3, 4) | AssertionError | 
+seed 800086 rc=1 secs=45.0 tc=False stages=None
+   contacts: None
+   logtail: n_grasp |     vtf.SE3.from_matrix(self._env.grasp_sample) @ vtf.SE3.from_translation(np.array([0, 0, 0.12])) |   File "…/transforms/_se3.py", line 92, in from_matrix |     assert matrix.shape[-2:] == (4, 4) or matrix.shape[-2:] == (3, 4) | AssertionError | 
+seed 800087 rc=0 secs=49.4 tc=False stages=None
+   contacts: None
+   logtail: ne") |  |  | Environment response: |   Sandbox failed: 0 |   Stdout: green [-0.494  0.01  -0.378] [2.206 2.132 0.47 ] red [-0.512  0.078 -0.366] [2.205 2.056 0.418] | green target xy [-0.424 -0.25 ] | green lift z 0.856 grasp z 0.241 | red2 [-0.508  0.07  -0.367] green2 [-0.497 -0.084 -0.376] [2.21  2.138 0.456] | place [-0.497 -0.084  0.062] | done |  |   Stderr: 
+seed 800088 rc=0 secs=38.8 tc=False stages=None
+   contacts: None
+   logtail: one") |  |  | Environment response: |   Sandbox failed: 0 |   Stdout: green [-0.432  0.291 -0.448] [2.345 0.807 0.212] red [-0.548  0.077 -0.379] [2.366 1.557 0.414] | green target xy [-0.385  0.376] | green lift z 0.81 grasp z 0.267 | red2 [-0.536  0.11  -0.361] green2 [-0.437  0.285 -0.45 ] [2.352 0.781 0.212] | place [-0.437  0.285 -0.125] | done |  |   Stderr: 
+seed 800089 rc=0 secs=19.0 tc=False stages=None
+   contacts: None
+   logtail: ne") |  |  | Environment response: |   Sandbox failed: 0 |   Stdout: green [-0.53   0.286 -0.354] [2.335 0.641 0.237] red [-0.646 -0.005 -0.402] [2.383 1.44  0.413] | green target xy [-0.52   0.311] | green lift z 0.682 grasp z 0.245 | red2 [-0.657 -0.009 -0.396] green2 [-0.535  0.281 -0.356] [2.338 0.614 0.238] | place [-0.535  0.281 -0.027] | done |  |   Stderr: 
+seed 800090 rc=0 secs=25.8 tc=False stages=None
+   contacts: None
+   logtail: e") |  |  | Environment response: |   Sandbox failed: 0 |   Stdout: green [-0.449 -0.151 -0.413] [2.496 2.136 0.419] red [-0.525 -0.098 -0.367] [2.278 2.097 0.456] | green target xy [-0.246 -0.292] | green lift z 0.893 grasp z 0.248 | red2 [-0.507  0.054 -0.355] green2 [-0.442 -0.145 -0.419] [2.488 2.139 0.426] | place [-0.442 -0.145  0.029] | done |  |   Stderr: 
+seed 800091 rc=1 secs=20.0 tc=False stages=None
+   contacts: None
+   logtail: lan_grasp |     vtf.SE3.from_matrix(self._env.grasp_sample) @ vtf.SE3.from_translation(np.array([0, 0, 0.12])) |   File "…/transforms/_se3.py", line 92, in from_matrix |     assert matrix.shape[-2:] == (4, 4) or matrix.shape[-2:] == (3, 4) | AssertionError | 
+seed 800092 rc=0 secs=23.6 tc=False stages=None
+   contacts: None
+   logtail: "done") |  |  | Environment response: |   Sandbox failed: 0 |   Stdout: green [-0.588 -0.17  -0.407] [2.369 2.133 0.452] red [-0.556  0.069 -0.373] [2.354 1.502 0.423] | green target xy [-0.601 -0.268] | green lift z 0.881 grasp z 0.25 | red2 [-0.51  0.14 -0.36] green2 [-0.521 -0.066 -0.358] [2.27  2.163 0.451] | place [-0.521 -0.066  0.067] | done |  |   Stderr: 
+TASK COMPLETED: 0/8
+

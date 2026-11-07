@@ -1,0 +1,9 @@
+{
+  "task": "restack",
+  "name": "rs_probe",
+  "steps": 5,
+  "batch": 8,
+  "rollouts": 8,
+  "reward": "shaped",
+  "note": "To compute the exact placement height, transform both cubes' oriented bounding boxes to the world frame first, then set place_z = green_world_center_z + green_world_extent[2]/2 + red_world_extent[2]/2, lift the red cube at least 0.2 m above its grasp height before moving laterally, and approach the placement from z_approach = 0.1 above."
+}

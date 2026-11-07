@@ -1,0 +1,170 @@
+rc=0
+=== adapters/p_boil ===
+total 912003
+drwxr-sr-x 2 root nobody       512 Nov  6 06:59 .
+drwxr-sr-x 5 root nobody       512 Nov  6 07:07 ..
+-rw-r--r-- 1 root nobody       692 Nov  6 06:58 adapter_config.json
+-rw------- 2 root nobody 933384128 Nov  6 06:58 adapter_model.safetensors
+-rw-r--r-- 1 root nobody      3606 Nov  6 06:59 call.json
+-rw-r--r-- 1 root nobody       155 Nov  6 06:58 rewards.json
+-rw-r--r-- 1 root nobody      4258 Nov  6 06:59 training.json
+=== adapters/p_mw ===
+total 912003
+drwxr-sr-x 2 root nobody       512 Nov  6 07:02 .
+drwxr-sr-x 5 root nobody       512 Nov  6 07:07 ..
+-rw-r--r-- 1 root nobody       692 Nov  6 07:02 adapter_config.json
+-rw------- 2 root nobody 933384128 Nov  6 07:02 adapter_model.safetensors
+-rw-r--r-- 1 root nobody      3642 Nov  6 07:02 call.json
+-rw-r--r-- 1 root nobody       151 Nov  6 07:02 rewards.json
+-rw-r--r-- 1 root nobody      4305 Nov  6 07:02 training.json
+=== rewards.json (boil) ===
+[
+ {
+  "step": 1,
+  "score_mean": 0.03125,
+  "rollouts": 64,
+  "task_completed": 0,
+  "nonzero_groups": 2,
+  "reward_errors": 1,
+  "service_errors": 0
+ }
+]=== training.json (boil) ===
+{
+ "resolved_spec": {
+  "steps": 1,
+  "batch": 8,
+  "seed_start": 900001,
+  "reward": "…/20261106T054425_1471570/reward_p_boil_062645.py",
+  "init": null,
+  "goal": null,
+  "note": null,
+  "time": "02:00:00",
+  "task": "BoilPot",
+  "name": "p_boil",
+  "train_defaults": {
+   "defaults": "identity-v2",
+   "defaulted": []
+  }
+ },
+ "artifacts": [
+  "rewards.json",
+  "call.json"
+ ],
+ "site_sources": {
+  "hyak_robocasa.py": "31f8bf0c1ab9f52e7aa2e3087597dd0de106f3de4a69cc7ab6494fcab7aecf03",
+  "hyak.py": "f03c0a941bf48187f075e20d20d54a85ea487e38eb6e21f737d538b48517a1ad",
+  "fairsc3.py": "4af47a86b7c3497ac7a71d13d0dd401aa348a5270a779981bdf06697f1cca326",
+  "base.py": "7d786987b7fef9e7797c28548f951033cef4124c226c54511742459860d98b22",
+  "hyak_robocasa_jobs.py": "d30e7e6f65f27efaeb16bb5170fc95c66a1fbc25705913dbcddf368cc8f43d56"
+ },
+ "trainer_backend": "tinker",
+ "trainer_label": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B",
+ "tinker_base_model": "Qwen/Qwen3.8-27B",
+ "tinker_state": "tinker://72bed806-72cb-5cf9-8810-a93750c4d172:train:0/weights/p_boil_state_s1",
+ "tinker_usd": 2.4134,
+ "tinker_infra_usd": 0.0,
+ "tinker_s": 99.4,
+ "rc_unit": {
+  "p_boil": {
+   "base": "BoilPot",
+   "description": null,
+   "reward_src": "import numpy as np\ndef _v(x):\n    try:\n        a = np.asarray(x, dtype=float).ravel()\n        if a.size == 3:\n            return a\n    except Exception:\n        pass\n    return None\ndef _box_of(reg):\n    pts = []\n    def walk(o):\n        if isinstance(o, dict):\n            for k, val in o.items():\n                if k in (\"p0\", \"px\", \"py\", \"pz\"):\n                    v = _v(val)\n                    if v is not None:\n                        pts.append(v)\n                else:\n                    walk(val)\n        elif isinstance(o, (list, tuple)):\n            for e in o:\n                walk(e)\n    walk(reg)\n    if len(pts) >= 2:\n        return (np.minimum.reduce(pts), np.maximum.reduce(pts))\n    return None\ndef _inside(pos, reg):\n    b = _box_of(reg)\n    if b is None:\n        return False\n    lo, hi = b\n    p = _v(pos)\n    if p is None:\n        return False\n    return bool(np.all(p >= lo - 0.02) and np.all(p <= hi + 0.02))\ndef _fx(state, *subs):\n    out = []\n    fx = state.get(\"fixtures\") or {}\n    for name, f in fx.items():\n        if any(s in str(name).lower() for s in subs):\n            out.append((name, f or {}))\n    return out\ndef _touch(contacts, *subs):\n    for c in (contacts or []):\n        cs = str(c).lower()\n        if any(s in cs for s in subs):\n            return True\n    return False\ndef _hdist(a, b):\n    pa, pb = _v(a), _v(b)\n    if pa is None or pb is None:\n        return 9.9\n    d = pa - pb\n    return float(np.sqrt(d[0]*d[0] + d[1]*d[1]))\ndef _obj_by(state, *subs, excl=()):\n    out = []\n    objs = state.get(\"objects\") or {}\n    for name, o in objs.items():\n        n = str(name).lower()\n        if any(s in n for s in subs) and not any(e in n for e in excl):\n            out.append((name, o or {}))\n    return out\n\ndef reward_fn(state):\n    try:\n        for name, o in _obj_by(state, \"pot\", \"pan\", excl=(\"pancake\",)):\n            if _touch(o.get(\"contacts\"), \"stove\"):\n                return 1\n            for fname, f in _fx(state, \"stove\"):\n                if _inside(o.get(\"pos\"), f.get(\"regions\")):\n                    return 1\n        return 0\n    except Exception:\n        return 0\n"
+  }
+ },
+ "rc_gstep": 1,
+ "stop_reason": "max_steps",
+ "budget_stop": null,
+ "charge_basis": "tinker: local sim job (measured)",
+ "family": "robocasa",
+ "tier": "s4mfx1",
+ "lora_dtype": null,
+ "lineage": "p_boil",
+ "seed_cursor": {
+  "lineage": "p_boil",
+  "origin": 900001,
+  "allocated": null,
+  "explicit": true
+ },
+ "seeds_consumed": [
+  900001,
+  900008
+ ],
+ "continuation": {
+  "kind": "fresh",
+  "parent": null,
+  "parent_lineage_id": null,
+  "parent_checkpoint_id": null,
+  "state_restored": false,
+  "resume_from_step": null
+ },
+ "lineage_id": "L-765ae0e02e90",
+ "checkpoint_id": "C-28508c89ebdd",
+ "train_defaults": {
+  "defaults": "identity-v2",
+  "defaulted": []
+ },
+ "policy_model": "Qwen3.8-27B"
+}=== call.json (boil) ===
+{
+ "jobs": [
+  "42996594"
+ ],
+ "gpu_hours": 0.4253,
+ "gpu_hours_actual": 0.4253,
+ "train_gpus": 1,
+ "lora_b": [
+  496,
+  496
+ ],
+ "sim_seeds": [
+  900001,
+  900008
+ ],
+ "adapter": "…/practice/peft_p_boil_step1",
+ "trainer_backend": "tinker",
+ "trainer_label": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B",
+ "tinker_base_model": "Qwen/Qwen3.8-27B",
+ "tinker_state": "tinker://72bed806-72cb-5cf9-8810-a93750c4d172:train:0/weights/p_boil_state_s1",
+ "tinker_usd": 2.4134,
+ "tinker_infra_usd": 0.0,
+ "tinker_s": 99.4,
+ "rc_unit": {
+  "p_boil": {
+   "base": "BoilPot",
+   "description": null,
+   "reward_src": "import numpy as np\ndef _v(x):\n    try:\n        a = np.asarray(x, dtype=float).ravel()\n        if a.size == 3:\n            return a\n    except Exception:\n        pass\n    return None\ndef _box_of(reg):\n    pts = []\n    def walk(o):\n        if isinstance(o, dict):\n            for k, val in o.items():\n                if k in (\"p0\", \"px\", \"py\", \"pz\"):\n                    v = _v(val)\n                    if v is not None:\n                        pts.append(v)\n                else:\n                    walk(val)\n        elif isinstance(o, (list, tuple)):\n            for e in o:\n                walk(e)\n    walk(reg)\n    if len(pts) >= 2:\n        return (np.minimum.reduce(pts), np.maximum.reduce(pts))\n    return None\ndef _inside(pos, reg):\n    b = _box_of(reg)\n    if b is None:\n        return False\n    lo, hi = b\n    p = _v(pos)\n    if p is None:\n        return False\n    return bool(np.all(p >= lo - 0.02) and np.all(p <= hi + 0.02))\ndef _fx(state, *subs):\n    out = []\n    fx = state.get(\"fixtures\") or {}\n    for name, f in fx.items():\n        if any(s in str(name).lower() for s in subs):\n            out.append((name, f or {}))\n    return out\ndef _touch(contacts, *subs):\n    for c in (contacts or []):\n        cs = str(c).lower()\n        if any(s in cs for s in subs):\n            return True\n    return False\ndef _hdist(a, b):\n    pa, pb = _v(a), _v(b)\n    if pa is None or pb is None:\n        return 9.9\n    d = pa - pb\n    return float(np.sqrt(d[0]*d[0] + d[1]*d[1]))\ndef _obj_by(state, *subs, excl=()):\n    out = []\n    objs = state.get(\"objects\") or {}\n    for name, o in objs.items():\n        n = str(name).lower()\n        if any(s in n for s in subs) and not any(e in n for e in excl):\n            out.append((name, o or {}))\n    return out\n\ndef reward_fn(state):\n    try:\n        for name, o in _obj_by(state, \"pot\", \"pan\", excl=(\"pancake\",)):\n            if _touch(o.get(\"contacts\"), \"stove\"):\n                return 1\n            for fname, f in _fx(state, \"stove\"):\n                if _inside(o.get(\"pos\"), f.get(\"regions\")):\n                    return 1\n        return 0\n    except Exception:\n        return 0\n"
+  }
+ },
+ "rc_gstep": 1,
+ "stop_reason": "max_steps",
+ "budget_stop": null,
+ "charge_basis": "tinker: local sim job (measured)",
+ "family": "robocasa",
+ "tier": "s4mfx1",
+ "lora_dtype": null,
+ "lineage": "p_boil",
+ "seed_cursor": {
+  "lineage": "p_boil",
+  "origin": 900001,
+  "allocated": null,
+  "explicit": true
+ },
+ "seeds_consumed": [
+  900001,
+  900008
+ ],
+ "continuation": {
+  "kind": "fresh",
+  "parent": null,
+  "parent_lineage_id": null,
+  "parent_checkpoint_id": null,
+  "state_restored": false,
+  "resume_from_step": null
+ },
+ "lineage_id": "L-765ae0e02e90",
+ "checkpoint_id": "C-28508c89ebdd",
+ "train_defaults": {
+  "defaults": "identity-v2",
+  "defaulted": []
+ }
+}

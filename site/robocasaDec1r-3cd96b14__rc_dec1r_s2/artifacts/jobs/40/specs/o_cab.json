@@ -1,0 +1,1 @@
+{"task": "CerealAndBowl", "steps": 1, "batch": 8, "reward": "rewards/o_cab.py", "init_mode": "fresh", "name": "o_cab", "seed_start": 902001}

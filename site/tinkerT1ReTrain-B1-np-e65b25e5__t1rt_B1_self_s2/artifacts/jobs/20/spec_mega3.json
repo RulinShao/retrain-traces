@@ -1,0 +1,9 @@
+{
+  "name": "mega3",
+  "task": ["lift", "stack", "restack", "wipe", "nut"],
+  "batch": 12,
+  "rollouts": 8,
+  "steps": 30,
+  "reward": "task_completed",
+  "lr": 2e-5
+}

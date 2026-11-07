@@ -1,0 +1,9 @@
+{
+  "name": "boil_move40_probe",
+  "task": "BoilPot",
+  "steps": 1,
+  "batch": 8,
+  "reward": "rewards/boil_pot_moved40.py",
+  "init_mode": "fresh",
+  "time": "01:00:00"
+}

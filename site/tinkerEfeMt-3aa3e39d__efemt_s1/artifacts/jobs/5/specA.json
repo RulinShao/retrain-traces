@@ -1,0 +1,10 @@
+{
+  "name": "A",
+  "task": ["metaworldplus-push-wall", "metaworldplus-pick-place", "metaworldplus-door-lock"],
+  "steps": 6,
+  "batch": 4,
+  "rollouts": 4,
+  "seed_start": 810001,
+  "lr": 2e-05,
+  "reward": "shaped"
+}

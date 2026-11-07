@@ -1,0 +1,5 @@
+{
+  "objective": "sft",
+  "name": "sftv1",
+  "data": "sft_data.jsonl"
+}

@@ -1,0 +1,125 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "train_failed: InfraError(\"RMIN_TINKER_BUDGET_USD='': trainer=tinker needs a positive spend cap in USD (rate card), checked against the ledger …/tinker/LEDGER.jsonl; export it where the session or call is submitted\")",
+ "gpu_hours": 0,
+ "final_score": null,
+ "agent": "local",
+ "mode": "dev",
+ "final_episodes": 50,
+ "policy_model": "Qwen3.8-27B",
+ "trainer": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B charge=canonical sim=a40",
+ "tinker": {
+  "calls": 0,
+  "usd": 0,
+  "tinker_s": 0
+ },
+ "capx_version": "7fda1bef602c",
+ "gpu_hours_actual": 0,
+ "gpu_hours_charging": "canonical",
+ "cost_model": "v2",
+ "gpu_hours_lost": 0,
+ "measured_vs_canonical": null,
+ "agent_gpu_h": 0.2089,
+ "measured_cost": {
+  "train_gpu_h": 0,
+  "reason_gpu_h": 0.2089,
+  "sandbox_gpu_h": 0,
+  "usd_tinker": 0,
+  "charged_gpu_h": 0,
+  "tokens": {
+   "prompt": 108424,
+   "completion": 25415
+  },
+  "unmeasured_calls": 0
+ },
+ "skills_version": null,
+ "initial_skills_digest": "fb22c4d40c635b130c495f5d714b90cef1f6ba969822f536689d10375046c5c3",
+ "suite": {
+  "name": "A-lift",
+  "version": 1,
+  "hash": "sha256:e7e657ad43456c4f",
+  "train": [
+   "lift"
+  ],
+  "eval": [
+   {
+    "cell": "lift",
+    "split": "id"
+   },
+   {
+    "cell": "t1_lift_wide",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_big",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_far",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_small",
+    "split": "near"
+   },
+   {
+    "cell": "stack",
+    "split": "retain"
+   },
+   {
+    "cell": "nut",
+    "split": "retain"
+   },
+   {
+    "cell": "wipe",
+    "split": "retain"
+   },
+   {
+    "cell": "restack",
+    "split": "retain"
+   },
+   {
+    "cell": "twolift",
+    "split": "retain"
+   },
+   {
+    "cell": "handover",
+    "split": "retain"
+   },
+   {
+    "cell": "revstack",
+    "split": "retain"
+   },
+   {
+    "cell": "stackv2",
+    "split": "retain"
+   }
+  ],
+  "splits": {
+   "lift": "id",
+   "t1_lift_wide": "near",
+   "t1_lift_big": "near",
+   "t1_lift_far": "near",
+   "t1_lift_small": "near",
+   "stack": "retain",
+   "nut": "retain",
+   "wipe": "retain",
+   "restack": "retain",
+   "twolift": "retain",
+   "handover": "retain",
+   "revstack": "retain",
+   "stackv2": "retain"
+  }
+ },
+ "turns_before_first_action": 6,
+ "tokens_before_first_action": 14110,
+ "first_action": "eval",
+ "artifacts": {
+  "registry": "…/tinkerSmokeAllowlistB-e65b25e5/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

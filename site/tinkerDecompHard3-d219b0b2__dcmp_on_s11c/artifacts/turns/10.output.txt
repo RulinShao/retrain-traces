@@ -1,0 +1,262 @@
+rc=0
+============================== NUT rollouts/1.jsonl
+--- seed 800001 rc 0 task_completed False sim_reward 0.00010740847905885695 secs 18.2
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+self: 0.0
+stdout_tail: 65">brown square block</points>
+Handle pixel: (345, 228)
+Center pixel: (359, 194)
+Block pixel: (312, 391)
+Handle 3D: [ 0.50744631  0.16704566 -0.0820076 ]
+Center 3D: [ 0.44162542  0.19665455 -0.10200114]
+Block 3D: [0.78935436 0.09513959 0.028001  ]
+Handle to center vector: [-0.06582089  0.02960889 -0.01999354]
+Insertion complete!
+
+  Stderr: 
+final_state: {"t": 1380, "table_z": 0.82, "objects": {"square_nut": {"pos": [-0.17306, 0.18099, 0.82999], "quat_wxyz": [-0.97867, -0.0, -0.0, 0.20546], "size": null, "init_pos": [-0.11122, 0.19539, 0.82999], "max_z": 0.85501, "lin_vel": [-0.0, 0.0, 0.0], "handle_pos": [-0.12362, 0.15927, 0.82999]}, "square_peg": {"pos": [0.23, 0.1, 0.85], "quat_wxyz": [1.0, 0.0, 0.0, 0.0], "size": null, "init_pos": [0.23, 0.1, 0.85], "max_z": 0.85, "lin_vel": [0.0, 0.0, 0.0]}, "round_peg": {"pos": [0.23, -0.1, 0.85], "quat_wxyz": [1.0, 0.0, 0.0, 0.0], "size": null, "init_pos": [0.23, -0.1, 0.85], "max_z": 0.85, "lin_vel": [0.0, 0.0, 0.0]}}, "grippers": {"arm0": {"pos": [0.21732, 0.09733, 1.08783], "quat_wxyz": [0.98522, 
+--- seed 800002 rc 1 task_completed False sim_reward 0.00040596516444630905 secs 1.4
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+self: 0.0
+stdout_tail: 
+  Stderr: Traceback (most recent call last):
+  File "…/tasks/base.py", line 174, in _exec_user_code
+    exec(code, self._exec_globals, self._exec_globals)
+  File "<string>", line 7
+    Here's my approach:
+        ^
+SyntaxError: unterminated string literal (detected at line 7)
+
+final_state: {"t": 0, "table_z": 0.82, "objects": {"square_nut": {"pos": [-0.11191, 0.14298, 0.82999], "quat_wxyz": [-0.72746, -0.0, -0.0, 0.68615], "size": null, "init_pos": [-0.11191, 0.14298, 0.82999], "max_z": 0.82999, "lin_vel": [0.0, 0.0, 0.0], "handle_pos": [-0.10875, 0.08907, 0.82999]}, "square_peg": {"pos": [0.23, 0.1, 0.85], "quat_wxyz": [1.0, 0.0, 0.0, 0.0], "size": null, "init_pos": [0.23, 0.1, 0.85], "max_z": 0.85, "lin_vel": [0.0, 0.0, 0.0]}, "round_peg": {"pos": [0.23, -0.1, 0.85], "quat_wxyz": [1.0, 0.0, 0.0, 0.0], "size": null, "init_pos": [0.23, -0.1, 0.85], "max_z": 0.85, "lin_vel": [0.0, 0.0, 0.0]}}, "grippers": {"arm0": {"pos": [-0.50685, 0.0, 1.37429], "quat_wxyz": [-1e-05, 0.99955,
+--- seed 800003 rc 0 task_completed False sim_reward 0.00019336527591338188 secs 17.8
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+self: 0.0
+stdout_tail:  pixel: (327, 194)
+Block pixel: (314, 391)
+Handle world: [ 0.38920051  0.10323046 -0.0820076 ]
+Center world: [ 0.44162542  0.13555799 -0.10200114]
+Block world: [0.78935436 0.09853743 0.028001  ]
+Handle to center vector: [ 0.05242491  0.03232753 -0.01999354]
+Handle insert position: [0.73692945 0.0662099  0.04799454]
+Task completed
+
+  Stderr: 
+final_state: {"t": 1380, "table_z": 0.82, "objects": {"square_nut": {"pos": [-0.15107, 0.07794, 0.82999], "quat_wxyz": [-0.30512, -0.0, -0.0, 0.95231], "size": null, "init_pos": [-0.11495, 0.14201, 0.82999], "max_z": 0.85149, "lin_vel": [-0.0, -0.0, 0.0], "handle_pos": [-0.19502, 0.04656, 0.82999]}, "square_peg": {"pos": [0.23, 0.1, 0.85], "quat_wxyz": [1.0, 0.0, 0.0, 0.0], "size": null, "init_pos": [0.23, 0.1, 0.85], "max_z": 0.85, "lin_vel": [0.0, 0.0, 0.0]}, "round_peg": {"pos": [0.23, -0.1, 0.85], "quat_wxyz": [1.0, 0.0, 0.0, 0.0], "size": null, "init_pos": [0.23, -0.1, 0.85], "max_z": 0.85, "lin_vel": [0.0, 0.0, 0.0]}}, "grippers": {"arm0": {"pos": [0.20846, 0.10757, 0.84003], "quat_wxyz": [0.62699,
+--- seed 800004 rc 1 task_completed False sim_reward 0.0003245423227441923 secs 1.4
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+self: 0.0
+stdout_tail: asks/base.py", line 174, in _exec_user_code
+    exec(code, self._exec_globals, self._exec_globals)
+  File "<string>", line 2, in <module>
+ImportError: cannot import name 'Quaternion' from 'scipy.spatial.transform' (…/transform/__init__.py)
+
+final_state: {"t": 0, "table_z": 0.82, "objects": {"square_nut": {"pos": [-0.11173, 0.19908, 0.82999], "quat_wxyz": [-0.95394, -0.0, -0.0, 0.29999], "size": null, "init_pos": [-0.11173, 0.19908, 0.82999], "max_z": 0.82999, "lin_vel": [-0.0, 0.0, 0.0], "handle_pos": [-0.06744, 0.16818, 0.82999]}, "square_peg": {"pos": [0.23, 0.1, 0.85], "quat_wxyz": [1.0, 0.0, 0.0, 0.0], "size": null, "init_pos": [0.23, 0.1, 0.85], "max_z": 0.85, "lin_vel": [0.0, 0.0, 0.0]}, "round_peg": {"pos": [0.23, -0.1, 0.85], "quat_wxyz": [1.0, 0.0, 0.0, 0.0], "size": null, "init_pos": [0.23, -0.1, 0.85], "max_z": 0.85, "lin_vel": [0.0, 0.0, 0.0]}}, "grippers": {"arm0": {"pos": [-0.50685, -0.0, 1.37429], "quat_wxyz": [-1e-05, 0.9995
+--- seed 800005 rc 0 task_completed False sim_reward 0.00010196236676724977 secs 16.9
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+self: 0.0
+stdout_tail: uded handle of the brown square nut': <points coords="1 1 568 365">extruded handle of the brown square nut</points>
+Generated text for 'brown square block': <points coords="1 1 614 765">brown square block</points>
+Handle world position: [ 0.42861578  0.06381519 -0.0820076 ]
+Block world position: [0.78935436 0.09853743 0.028001  ]
+
+  Stderr: 
+final_state: {"t": 1380, "table_z": 0.82, "objects": {"square_nut": {"pos": [-0.18284, 0.12692, 0.82999], "quat_wxyz": [-0.61518, -0.0, -0.0, 0.78838], "size": null, "init_pos": [-0.11217, 0.13768, 0.82999], "max_z": 0.83852, "lin_vel": [0.0, 0.0, 0.0], "handle_pos": [-0.19597, 0.07454, 0.82999]}, "square_peg": {"pos": [0.23, 0.1, 0.85], "quat_wxyz": [1.0, 0.0, 0.0, 0.0], "size": null, "init_pos": [0.23, 0.1, 0.85], "max_z": 0.85, "lin_vel": [0.0, 0.0, 0.0]}, "round_peg": {"pos": [0.23, -0.1, 0.85], "quat_wxyz": [1.0, 0.0, 0.0, 0.0], "size": null, "init_pos": [0.23, -0.1, 0.85], "max_z": 0.85, "lin_vel": [0.0, 0.0, 0.0]}}, "grippers": {"arm0": {"pos": [0.24542, 0.04742, 0.90546], "quat_wxyz": [0.73268, 0
+============================== RESTACK rollouts/2.jsonl
+--- seed 800006 rc 1 task_completed False sim_reward 0.0010284923216512254 secs 0.3
+stages: {'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+self: 0.0
+stdout_tail: ubes:
+
+
+Environment response:
+  Sandbox failed: 1
+  Stdout: 
+  Stderr: Traceback (most recent call last):
+  File "…/sim/obs_guard.py", line 252, in _run
+    exec(code, g, g)
+  File "<string>", line 1
+    Let me break down this task step by step:
+        ^^
+SyntaxError: invalid syntax
+
+final_state: {"t": 0, "table_z": 0.8, "objects": {"red_cube": {"pos": [0.07726, 0.03981, 0.81842], "quat_wxyz": [0.98606, -0.00019, -0.00111, 0.16636], "size": [0.04, 0.04, 0.04], "init_pos": [0.07726, 0.03981, 0.81842], "max_z": 0.81842, "lin_vel": [-0.0005, -0.0, 0.0463]}, "green_cube": {"pos": [0.06709, 0.0398, 0.85462], "quat_wxyz": [0.55271, -0.00253, -0.00199, 0.83337], "size": [0.04, 0.04, 0.04], "init_pos": [0.06709, 0.0398, 0.85462], "max_z": 0.85462, "lin_vel": [-0.0025, -0.0001, 0.1174]}}, "grippers": {"arm0": {"pos": [-0.12919, -0.00482, 0.99369], "quat_wxyz": [0.03974, -0.00715, 0.99918, -0.00098], "opening": 0.01678, "closed_cmd": false, "grasping": []}}, "contacts": [["green_cube", "red_cu
+--- seed 800007 rc 0 task_completed False sim_reward 0.028252780371492217 secs 17.2
+stages: {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+self: 0.0
+stdout_tail: sp
+target_position = red_target_center
+joints_target = solve_ik(target_position, grasp_quat_wxyz)
+move_to_joints(joints_target)
+
+# Lower the red cube gently onto the green cube
+# The current position should already be at the correct height
+# Just open the gripper
+open_gripper()
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+final_state: {"t": 228, "table_z": 0.8, "objects": {"red_cube": {"pos": [-0.03515, 0.12887, 0.82586], "quat_wxyz": [-0.0628, 0.34835, 0.06795, 0.93279], "size": [0.04, 0.04, 0.04], "init_pos": [-0.04486, 0.11141, 0.81842], "max_z": 0.82656, "lin_vel": [0.0006, -0.0013, 0.0007]}, "green_cube": {"pos": [0.0075, 0.16426, 0.81989], "quat_wxyz": [-0.21097, 0.6749, 0.21097, 0.6749], "size": [0.04, 0.04, 0.04], "init_pos": [-0.05502, 0.11141, 0.85462], "max_z": 0.86445, "lin_vel": [-0.0, -0.0, 0.0]}}, "grippers": {"arm0": {"pos": [-0.02634, 0.19341, 0.90568], "quat_wxyz": [0.11981, 0.27312, 0.76022, 0.57716], "opening": 0.0784, "closed_cmd": false, "grasping": []}}, "contacts": [["arm0", "red_cube"], ["green_cu
+--- seed 800008 rc 0 task_completed False sim_reward 0.00017013688108605263 secs 17.5
+stages: {'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+self: 0.0
+stdout_tail: ht) for placement
+identity_quat = np.array([1.0, 0.0, 0.0, 0.0])  # wxyz
+
+# Solve IK for placement position
+joints_place = solve_ik(np.array([target_x, target_y, target_z]), identity_quat)
+move_to_joints(joints_place)
+
+# Step 9: Open gripper to release red cube
+open_gripper()
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+final_state: {"t": 260, "table_z": 0.8, "objects": {"red_cube": {"pos": [-0.00278, 0.00882, 0.81979], "quat_wxyz": [-0.13032, -0.00119, 0.00015, 0.99147], "size": [0.04, 0.04, 0.04], "init_pos": [-0.00277, 0.00882, 0.81842], "max_z": 0.81979, "lin_vel": [-0.0, -0.0, 0.0]}, "green_cube": {"pos": [-0.013, 0.00882, 0.85954], "quat_wxyz": [0.6466, -0.00242, -0.00218, 0.76282], "size": [0.04, 0.04, 0.04], "init_pos": [-0.01295, 0.00882, 0.85461], "max_z": 0.85955, "lin_vel": [-0.0, -0.0, -0.0]}}, "grippers": {"arm0": {"pos": [-0.33657, 0.1551, 0.80913], "quat_wxyz": [-0.31235, 0.24133, 0.91732, 0.05214], "opening": 0.00591, "closed_cmd": false, "grasping": []}}, "contacts": [["arm0", "table"], ["green_cube", 
+--- seed 800009 rc 0 task_completed False sim_reward 0.0036680852460497654 secs 16.8
+stages: {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+self: 0.0
+stdout_tail: asp for simplicity
+joints_pre_place = solve_ik(pre_place_pos, quat_wxyz_final)
+move_to_joints(joints_pre_place)
+
+# Step 10: Lower gently to target position
+joints_place = solve_ik(target_pos, quat_wxyz_final)
+move_to_joints(joints_place)
+
+# Step 11: Open gripper
+open_gripper()
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+final_state: {"t": 192, "table_z": 0.8, "objects": {"red_cube": {"pos": [-0.04785, -0.19324, 0.81989], "quat_wxyz": [-0.50707, 0.49283, 0.50707, 0.49283], "size": [0.04, 0.04, 0.04], "init_pos": [-0.05561, -0.09781, 0.81842], "max_z": 0.82945, "lin_vel": [0.0, -0.0, 0.0]}, "green_cube": {"pos": [-0.40792, -0.71276, 0.01989], "quat_wxyz": [-0.0, 0.4644, 0.88563, -0.0], "size": [0.04, 0.04, 0.04], "init_pos": [-0.06577, -0.09779, 0.85469], "max_z": 0.8596, "lin_vel": [-0.0, 0.0, 0.0]}}, "grippers": {"arm0": {"pos": [-0.07359, -0.00082, 0.90087], "quat_wxyz": [-0.10333, -0.00562, 0.75345, 0.64931], "opening": 0.07836, "closed_cmd": false, "grasping": []}}, "contacts": [["red_cube", "table"]]}
+--- seed 800010 rc 0 task_completed False sim_reward 0.025695944841719914 secs 17.1
+stages: {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+self: 0.0
+stdout_tail: en cube's orientation
+# Let's use the green cube's orientation for better alignment
+placement_quat = rotmat_to_quat_wxyz(green_R)
+
+joints_place = solve_ik(target_placement_pos, placement_quat)
+move_to_joints(joints_place)
+
+# Step 9: Open gripper to place red cube
+open_gripper()
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+final_state: {"t": 260, "table_z": 0.8, "objects": {"red_cube": {"pos": [0.21514, -0.07325, 0.81989], "quat_wxyz": [0.38112, 0.38112, 0.59561, 0.59561], "size": [0.04, 0.04, 0.04], "init_pos": [0.14205, -0.11067, 0.81842], "max_z": 0.82823, "lin_vel": [-0.0, -0.0, -0.0]}, "green_cube": {"pos": [0.19401, -0.12883, 0.81987], "quat_wxyz": [0.35446, 0.56539, -0.34248, 0.66136], "size": [0.04, 0.04, 0.04], "init_pos": [0.13187, -0.1107, 0.85467], "max_z": 0.86592, "lin_vel": [0.0004, 0.0, 0.0002]}}, "grippers": {"arm0": {"pos": [0.27331, -0.09459, 0.90876], "quat_wxyz": [-0.03481, 0.59189, 0.10667, 0.79817], "opening": 0.07876, "closed_cmd": false, "grasping": []}}, "contacts": [["arm0", "green_cube"], ["arm0
+============================== REVSTACK rollouts/3.jsonl
+--- seed 800011 rc 0 task_completed False sim_reward 0.0008815885666221823 secs 18.4
+stages: {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+self: 0.6
+stdout_tail: 
+
+# Step 11: Release the green cube by opening the gripper
+open_gripper()
+
+# Step 12: Retract slightly after release
+retract_position = place_position.copy()
+retract_position[2] += 0.1
+joints_retract = solve_ik(retract_position, place_quat_world)
+move_to_joints(joints_retract)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+final_state: {"t": 355, "table_z": 0.8, "objects": {"green_cube": {"pos": [0.17366, 0.14991, 0.81989], "quat_wxyz": [-0.70657, 0.02746, -0.70657, -0.02746], "size": [0.04, 0.04, 0.04], "init_pos": [0.12731, 0.14034, 0.81851], "max_z": 0.82807, "lin_vel": [0.0, 0.0, 0.0]}, "red_cube": {"pos": [0.13462, -0.0771, 0.82486], "quat_wxyz": [-0.68917, 0.15697, -0.68979, -0.15683], "size": [0.05, 0.05, 0.05], "init_pos": [0.13133, -0.06892, 0.82351], "max_z": 0.8369, "lin_vel": [-0.0008, -0.0004, 0.0014]}}, "grippers": {"arm0": {"pos": [0.06366, -0.09262, 0.91324], "quat_wxyz": [0.33586, 0.76997, -0.4822, -0.24865], "opening": 0.07868, "closed_cmd": false, "grasping": []}}, "contacts": [["green_cube", "table"], [
+--- seed 800012 rc 0 task_completed False sim_reward 1.7682486456727098e-06 secs 17.3
+stages: {'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+self: 0.0
+stdout_tail: p 15: Open gripper to release the green cube
+open_gripper()
+
+# Step 16: Retract slightly
+retract_pos = np.array([red_center[0], red_center[1], place_z + z_approach])
+retract_quat = grasp_quat
+
+joints_retract = solve_ik(retract_pos, retract_quat)
+move_to_joints(joints_retract)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+final_state: {"t": 255, "table_z": 0.8, "objects": {"green_cube": {"pos": [-0.16133, -0.10077, 0.81989], "quat_wxyz": [0.96691, 0.0, -0.0, 0.25513], "size": [0.04, 0.04, 0.04], "init_pos": [-0.16133, -0.10077, 0.81851], "max_z": 0.81989, "lin_vel": [-0.0, 0.0, 0.0]}, "red_cube": {"pos": [0.02674, -0.00991, 0.82489], "quat_wxyz": [-0.26527, -0.0, 0.0, 0.96417], "size": [0.05, 0.05, 0.05], "init_pos": [0.02674, -0.00991, 0.82351], "max_z": 0.82489, "lin_vel": [0.0, 0.0, 0.0]}}, "grippers": {"arm0": {"pos": [0.24239, -0.34085, 1.1818], "quat_wxyz": [0.96462, 0.10322, 0.2426, 0.00053], "opening": 0.0792, "closed_cmd": false, "grasping": []}}, "contacts": [["green_cube", "table"], ["red_cube", "table"]]}
+--- seed 800013 rc 0 task_completed False sim_reward 3.153517970644337e-07 secs 19.2
+stages: {'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+self: 0.0
+stdout_tail: joints_place)
+
+# Step 13: Open the gripper to release the green cube
+open_gripper()
+
+# Step 14: Retract the robot
+retract_position = place_position.copy()
+retract_position[2] += 0.1
+joints_retract = solve_ik(retract_position, quaternion_identity)
+move_to_joints(joints_retract)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+final_state: {"t": 461, "table_z": 0.8, "objects": {"green_cube": {"pos": [-0.1838, 0.13533, 0.81989], "quat_wxyz": [-0.93603, -0.0, 0.0, 0.35192], "size": [0.04, 0.04, 0.04], "init_pos": [-0.1838, 0.13533, 0.81851], "max_z": 0.81989, "lin_vel": [0.0, 0.0, 0.0]}, "red_cube": {"pos": [-0.11222, 0.11717, 0.82489], "quat_wxyz": [0.61718, 0.0, 0.0, 0.78682], "size": [0.05, 0.05, 0.05], "init_pos": [-0.11222, 0.11717, 0.82351], "max_z": 0.82489, "lin_vel": [-0.0, -0.0, 0.0]}}, "grippers": {"arm0": {"pos": [0.22283, -0.33973, 1.08493], "quat_wxyz": [0.94841, 0.16081, 0.2709, -0.03568], "opening": 0.07914, "closed_cmd": false, "grasping": []}}, "contacts": [["green_cube", "table"], ["red_cube", "table"]]}
+--- seed 800014 rc 0 task_completed False sim_reward 0.0002229718500827288 secs 18.8
+stages: {'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+self: 0.0
+stdout_tail: lace_pos, grasp_quat_world)
+move_to_joints(joints_place)
+
+# Step 12: Release the green cube
+open_gripper()
+
+# Step 13: Retract slightly
+retract_pos = place_pos.copy()
+retract_pos[2] += 0.1
+
+joints_retract = solve_ik(retract_pos, grasp_quat_world)
+move_to_joints(joints_retract)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+final_state: {"t": 396, "table_z": 0.8, "objects": {"green_cube": {"pos": [0.13026, 0.18655, 0.81989], "quat_wxyz": [-0.63601, 0.30901, -0.63601, -0.30901], "size": [0.04, 0.04, 0.04], "init_pos": [-0.05568, 0.12833, 0.81851], "max_z": 0.82912, "lin_vel": [0.0, 0.0, 0.0]}, "red_cube": {"pos": [0.06869, -0.09113, 0.82489], "quat_wxyz": [-0.62764, 0.0, -0.0, 0.7785], "size": [0.05, 0.05, 0.05], "init_pos": [0.04803, -0.07466, 0.82351], "max_z": 0.83173, "lin_vel": [-0.0, 0.0, 0.0]}}, "grippers": {"arm0": {"pos": [-0.01496, -0.11617, 0.92246], "quat_wxyz": [0.2488, 0.85812, -0.01472, -0.44891], "opening": 0.07928, "closed_cmd": false, "grasping": []}}, "contacts": [["green_cube", "table"], ["red_cube", "tab
+--- seed 800015 rc 0 task_completed False sim_reward 0.037225322526180535 secs 7.5
+stages: {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': True, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+self: 0.75
+stdout_tail: _ik(place_pos, grasp_quat_wxyz)
+move_to_joints(joints_place)
+
+# Step 8: Open gripper to release
+open_gripper()
+
+# Step 9: Retract slightly
+retract_pos = place_pos.copy()
+retract_pos[2] += 0.1
+joints_retract = solve_ik(retract_pos, grasp_quat_wxyz)
+move_to_joints(joints_retract)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+final_state: {"t": 363, "table_z": 0.8, "objects": {"green_cube": {"pos": [0.13692, -0.06391, 0.81989], "quat_wxyz": [-0.52877, -0.0, -0.0, 0.84876], "size": [0.04, 0.04, 0.04], "init_pos": [-0.17539, 0.1311, 0.81851], "max_z": 1.02926, "lin_vel": [0.0, 0.0, 0.0]}, "red_cube": {"pos": [0.07268, -0.03121, 0.82489], "quat_wxyz": [0.41651, 0.0, 0.0, 0.90913], "size": [0.05, 0.05, 0.05], "init_pos": [0.0491, -0.05133, 0.82351], "max_z": 0.83857, "lin_vel": [-0.0, -0.0, 0.0]}}, "grippers": {"arm0": {"pos": [0.08388, -0.06817, 0.88893], "quat_wxyz": [-0.0403, 0.66938, -0.72567, 0.15401], "opening": 0.07936, "closed_cmd": false, "grasping": []}}, "contacts": [["green_cube", "table"], ["red_cube", "table"]]}

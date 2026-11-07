@@ -1,0 +1,66 @@
+rc=0
+=== workspace ===
+total 1828
+drwxr-sr-x  5 root nobody  8192 Nov  6 02:41 .
+drwxr-xr-x  4 root root      80 Nov  6 02:41 ..
+-rw-r--r--  1 root nobody  2601 Nov  6 02:05 ENVIRONMENT.json
+-rw-r--r--  1 root nobody  2094 Nov  6 02:41 SCOREBOARD.md
+-rw-r--r--  1 root nobody   297 Nov  6 02:41 STATUS.json
+-rw-r--r--  1 root nobody   741 Nov  6 02:05 _submit.py
+lrwxrwxrwx  1 root nobody    19 Nov  6 02:05 adapters -> ../session/adapters
+-rw-r--r--  1 root nobody   396 Nov  6 02:05 cancel.py
+-rw-r--r--  1 root nobody   788 Nov  6 02:05 eval.py
+-rw-r--r--  1 root nobody  1401 Nov  6 02:05 finish.py
+drwxr-sr-x  2 root nobody   512 Nov  6 02:05 jobs
+-rw-r--r--  1 root nobody   559 Nov  6 02:05 load.py
+-rw-r--r--  1 root nobody  3008 Nov  6 02:05 preset.py
+-rw-r--r--  1 root nobody  1229 Nov  6 02:05 rollout.py
+drwxr-sr-x  5 root nobody   512 Nov  6 02:05 skills
+-rw-r--r--  1 root nobody   795 Nov  6 02:05 status.py
+drwxr-sr-x 26 root nobody  8192 Nov  6 02:05 tasks
+-r--r--r--  1 root nobody 10038 Nov  6 02:05 tasks.json
+-rw-r--r--  1 root nobody   595 Nov  6 02:05 train.py
+-rw-r--r--  1 root nobody  1581 Nov  6 02:05 unit.py
+-rw-r--r--  1 root nobody   568 Nov  6 02:05 wait.py
+=== jobs ===
+total 17
+drwxr-sr-x 2 root nobody  512 Nov  6 02:05 .
+drwxr-sr-x 5 root nobody 8192 Nov  6 02:41 ..
+=== adapters ===
+total 1
+drwxr-sr-x 2 root nobody 512 Nov  6 02:05 .
+drwxr-xr-x 3 root root    60 Nov  6 02:41 ..
+=== rollouts ===
+=== presets ===
+=== optional skills ===
+PLAYBOOK.md
+=== preset help ===
+usage: python3 preset.py --task T --name NAME ( --program FILE --seeds N | --from rollouts/<job>.jsonl --where "<predicate over r>" )
+
+Build start states for practice on task T, saved per source seed and kept only if every state restores. Then a train spec with
+"start_preset": "NAME" on task T starts each practice rollout from those states. Two ways to pick the states:
+  * prefix program (--program FILE --seeds N): your prefix program (a .py in your workspace, written with the task's own API, the
+    functions in its eval prompt) runs once on each of N fresh dev seeds (1-32) on T's simulator, and the state it reaches is saved.
+  * from rollouts (--from rollouts/<job>.jsonl --where "<predicate>"): the end state of each episode of a prior rollout job of
+    yours on T that the predicate matches (at most 32) is saved, at that episode's own dev seed. The rollout itself kept no
+    restorable state, so each matched episode's program is run again at its seed on T's practice simulator and the state it
+    reaches is the one saved (compare the record's log_tail with the rollout's stdout_tail to see whether the re-run went the
+    same way). --where is a python expression over each rollout row r, e.g. "not r['task_completed']"; it is evaluated in the
+    reward box (never imported).
+The record (per seed: seed, sandbox_rc, secs, wall_s, log_tail, restorable, drift_mm, error; and your program, or the --from /
+--where source) is written to presets/NAME.json. Charged as an eval of the see=== rollout help ===
+usage: python3 rollout.py --adapter A[,B...]|base|loaded --task T --seeds N [--reward FILE]  -- run the policy (that adapter stack) on N
+fresh dev seeds of task T and return, per seed, its program, the tail of what the program printed and the run facts (seed,
+sandbox_rc, secs, wall_s, task), plus task_completed and stdout_tail on a task whose verifier you can see, and there, where the
+site runs the programs on the task's practice simulator, sim_reward, stages and final_state. --reward FILE (a .py in
+your workspace defining reward(result) -> float) also scores each seed with your reward over those keys (not the program).
+Charged as an eval of N seeds. The rows are written to rollouts/<job id>.jsonl; the job result and SCOREBOARD.md give the mean of
+your reward.
+
+options:
+  -h, --help         show this help message and exit
+  --adapter ADAPTER
+  --task TASK
+  --seeds SEEDS
+  --reward REWARD    a .py file in your workspace defining reward(result) ->
+                     float

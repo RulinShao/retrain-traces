@@ -1,0 +1,1 @@
+{"task": "TongBuffetSetup", "steps": 1, "batch": 8, "reward": "rewards/g_tong.py", "init_mode": "fresh", "name": "g_tong", "seed_start": 900801}

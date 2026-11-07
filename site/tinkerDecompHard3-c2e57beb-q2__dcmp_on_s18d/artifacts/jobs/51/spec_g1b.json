@@ -1,0 +1,11 @@
+{
+  "objective": "grpo",
+  "task": ["revstack"],
+  "name": "g1rev2",
+  "init": "g1rev",
+  "steps": 12,
+  "batch": 8,
+  "rollouts": 8,
+  "reward": "reward_rev.py",
+  "note": "A grasp is only useful if the cube visibly rises with the closed gripper: after close_gripper, lift straight up slowly 0.05 m and take a new observation; only if the green cube is at a higher Z, continue to the placement, otherwise return to the green cube, re-open and re-grasp. Move slowly: never rush the lateral transport; lower the cube gently onto the stack and open the gripper only when the cube rests on the red cube."
+}

@@ -1,0 +1,1 @@
+{"objective": "sft", "data": "sft_diag.jsonl", "name": "diag", "epochs": 1, "min_reward": 1.0}

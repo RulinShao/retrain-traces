@@ -1,0 +1,188 @@
+rc=0
+s_c]
+            
+            u_c = xs_c.astype(np.float64)
+            v_c = ys_c.astype(np.float64)
+            z_c = zs_c.astype(np.float64)
+            
+            x_cam_c = (u_c - cx) * z_c / fx
+            y_cam_c = (v_c - cy) * z_c / fy
+            z_cam_c = z_c
+            
+            pts_cam_c = np.stack([x_cam_c, y_cam_c, z_cam_c], axis=-1)
+            pts_world_c = (R_cam @ pts_cam_c.T).T + t_cam
+            center_pos_world = np.mean(pts_world_c, axis=0)
+        else:
+            center_pos_world = handle_pos_world
+    else:
+        center_pos_world = handle_pos_world
+else:
+    center_pos_world = handle_pos_world
+
+# Step 6: Get the target peg (brown square block) position
+# Segment the brown square block
+masks_block = segment_sam3_text_prompt(rgb, "brown square block")
+if not masks_block:
+    raise Exception("Failed to segment brown square block")
+
+best_mask_block = max(masks_block, key=lambda m: m.get("score", 0))["mask"]
+mask_coords_block = np.where(best_mask_block)
+ys_b, xs_b = mask_coords_block
+valid_depth_b = depth[ys_b, xs_b] > 0.01
+if np.sum(valid_depth_b) > 10:
+    xs_b = xs_b[valid_depth_b]
+    ys_b = ys_b[valid_depth_b]
+    zs_b = depth[ys_b, xs_b]
+    
+    u_b = xs_b.astype(np.float64)
+    v_b = ys_b.astype(np.float64)
+    z_b = zs_b.astype(np.float64)
+    
+    x_cam_b = (u_b - cx) * z_b / fx
+    y_cam_b = (v_b - cy) * z_b / fy
+    z_cam_b = z_b
+    
+    pts_cam_b = np.stack([x_cam_b, y_cam_b, z_cam_b], axis=-1)
+    pts_world_b = (R_cam @ pts_cam_b.T).T + t_cam
+    block_pos_world = np.mean(pts_world_b, axis=0)
+else:
+    raise Exception("Not enough points for block")
+
+# Step 7: Determine the grasp orientation
+# The handle grasp pose should have the gripper aligned with the handle
+# We need to figure out the orientation of the gripper when grasping the handle
+# The gripper approaches the handle from above, so the z-axis of the gripper (finger direction) 
+# should point downward (toward the handle)
+
+# The handle position is where the grasp happens. We assume the gripper z-axis points down
+# in the world frame for a top-down grasp.
+# But we need to consider the orientation of the nut.
+
+# Let's use the OBB of the handle points to get orientation
+ob_result = get_oriented_bounding_box_from_3d_points(pts_world)
+R_ob = ob_result["R"]
+
+# The grip orientation: we want the gripper to align with the long axis of the handle
+# For a typical grasp, the gripper z-axis should point in the direction of approach
+# Let's assume the approach is from above, so gripper z = world z (down)
+# But the gripper needs to be oriented to grasp the handle.
+
+# Let's use a simpler approach: the gripper z-axis points from the handle toward the center of the nut
+# This way, when we move the nut to the block, the center will be above the block
+vec_handle_to_center = center_pos_world - handle_pos_world
+if np.linalg.norm(vec_handle_to_center) < 1e-6:
+    # Fallback: just point down
+    approach_dir = np.array([0, 0, -1.0])
+else:
+    approach_dir = vec_handle_to_center / np.linalg.norm(vec_handle_to_center)
+
+# The gripper z-axis should be opposite to approach direction (gripper points toward object)
+# Actually, for a grasp, the gripper z-axis typically points in the direction the fingers close
+# Let's set the gripper z-axis to point downward (negative world z) for a top-down approach
+gripper_z = np.array([0.0, 0.0, -1.0])
+
+# Create a rotation matrix with z-axis as gripper_z
+# We need to construct a full rotation. Let's use the handle-to-center vector t
+
+
+===== RESTACK best =====
+r=0.0422 seed=811198
+```python
+import numpy as np
+import math
+
+# Step 1: Get observation
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Segment the green cube and red cube
+green_masks = segment_sam3_text_prompt(rgb, "green cube")
+red_masks = segment_sam3_text_prompt(rgb, "red cube")
+
+if not green_masks or not red_masks:
+    print("Could not segment both cubes.")
+    exit()
+
+green_mask = green_masks[0]["mask"]
+red_mask = red_masks[0]["mask"]
+
+# Step 3: Get 3D points for each cube using depth
+def get_3d_points_from_mask(mask, depth, intrinsics):
+    ys, xs = np.where(mask)
+    if len(xs) == 0:
+        return None
+    u = xs.astype(np.float64)
+    v = ys.astype(np.float64)
+    z = depth[ys, xs].astype(np.float64)
+    valid = z > 0
+    u, v, z = u[valid], v[valid], z[valid]
+    fx, fy = intrinsics[0, 0], intrinsics[1, 1]
+    cx, cy = intrinsics[0, 2], intrinsics[1, 2]
+    x = (u - cx) * z / fx
+    y = (v - cy) * z / fy
+    points = np.stack([x, y, z], axis=-1)
+    return points
+
+green_points = get_3d_points_from_mask(green_mask, depth, intrinsics)
+red_points = get_3d_points_from_mask(red_mask, depth, intrinsics)
+
+if green_points is None or red_points is None:
+    print("Could not get 3D points for both cubes.")
+    exit()
+
+# Step 4: Get oriented bounding boxes
+green_bbox = get_oriented_bounding_box_from_3d_points(green_points)
+red_bbox = get_oriented_bounding_box_from_3d_points(red_points)
+
+green_center = green_bbox["center"]  # (3,) in camera frame
+green_extent = green_bbox["extent"]  # (3,) in camera frame
+green_R = green_bbox["R"]
+
+red_center = red_bbox["center"]  # (3,) in camera frame
+red_extent = red_bbox["extent"]
+red_R = red_bbox["R"]
+
+# The placement height: top of green cube + half of red cube's vertical extent
+# In camera frame, z is depth (positive forward), y is down, x is right
+# We need to figure out the vertical axis. For a cube sitting on a table,
+# the "vertical" in world is roughly the y-axis in camera frame (or we need to use the rotation).
+# Actually, let's think about this differently. The top surface of the green cube is at:
+# green_center + green_R @ [0, 0, green_extent[2]/2] if the cube is axis-aligned with z up
+# But the cube might be rotated. Let's use the extent in the local frame.
+# The top of the green cube in camera frame:
+green_top = green_center + green_R @ np.array([0, 0, green_extent[2] / 2])
+
+# The bottom of the red cube needs to be placed at the top of the green cube
+# The bottom of the red cube in its local frame is at [0, 0, -red_extent[2]/2]
+# So we want: red_center + red_R @ [0, 0, -red_extent[2]/2] = green_top
+# => red_center = green_top - red_R @ [0, 0, -red_extent[2]/2]
+red_center_target_camera = green_top - red_R @ np.array([0, 0, -red_extent[2] / 2])
+
+# Step 5: Transform from camera frame to world frame
+# pose_mat is the camera extrinsic: transforms camera frame to world frame (4x4)
+# A point in camera frame p_cam -> world frame: p_world = pose_mat @ [p_cam, 1]
+red_center_target_world = pose_mat @ np.append(red_center_target_camera, 1.0)
+red_center_target_world = red_center_target_world[:3]
+
+# Step 6: We need the orientation of the red cube in world frame
+# The red cube's rotation in camera frame is red_R (3x3)
+# We need to convert this to a quaternion in world frame.
+# First, get the camera rotation in world frame from pose_mat
+cam_rot_world = pose_mat[:3, :3]  # 3x3 rotation from camera to world
+
+# The red cube's rotation in world frame:
+red_R_world = cam_rot_world @ red_R  # 3x3 rotation matrix
+
+# Convert rotation matrix to quaternion (w, x, y, z)
+def rotmat_to_quat_wxyz(R):
+    trace = np.trace(R)
+    if trace > 0:
+        S = np.sqrt(trace + 1.0) * 2
+        w = 0.25 * S
+        x = (R[2, 1] - R[1, 2]) / S
+        y = (R[0, 2] - R[2, 0]) / S
+        z = (R[1, 0] - R[0, 1]) / S
+    elif R[0, 0] > R[1, 1] and R[0, 0] > R[2

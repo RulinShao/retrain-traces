@@ -1,0 +1,103 @@
+rc=0
+======================================================================
+seed 800096 tc False rc 1 secs 0.4
+stages: {'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+  green_cube: pos=[0.185, 0.032, 0.819] init=[0.185, 0.032, 0.819]
+  red_cube: pos=[-0.034, -0.055, 0.824] init=[-0.034, -0.055, 0.824]
+  grip arm0: pos=[-0.117, 0.001, 0.99] opening=0.017 grasping=[]
+stdout_tail: t response:
+  Sandbox failed: 1
+  Stdout: 
+  Stderr: Traceback (most recent call last):
+  File "…/sim/obs_guard.py", line 252, in _run
+    exec(code, g, g)
+  File "<string>", line 302, in <module>
+  File "<string>", line 174, in main
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+seed 800097 tc False rc 0 secs 17.6
+stages: {'reach the green_cube': True, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+  green_cube: pos=[-0.174, -0.109, 0.82] init=[-0.14, -0.08, 0.819]
+  red_cube: pos=[0.15, -0.143, 0.825] init=[0.15, -0.143, 0.824]
+  grip arm0: pos=[0.212, -0.201, 1.084] opening=0.079 grasping=[]
+stdout_tail: _pos, identity_quat)
+move_to_joints(joints_place)
+
+# Open gripper to release the green cube
+open_gripper()
+
+# Retract slightly upward
+retract_pos = np.array([place_x, place_y, place_z + 0.1])
+joints_retract = solve_ik(retract_pos, identity_quat)
+move_to_joints(joints_retract)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+======================================================================
+seed 800098 tc False rc 0 secs 18.3
+stages: {'reach the green_cube': True, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+  green_cube: pos=[0.065, -0.131, 0.82] init=[0.069, -0.112, 0.819]
+  red_cube: pos=[0.001, -0.011, 0.825] init=[-0.007, -0.01, 0.824]
+  grip arm0: pos=[-0.02, 0.015, 0.87] opening=0.079 grasping=[]
+stdout_tail: nts_place = solve_ik(place_pos, quat_wxyz)
+move_to_joints(joints_place)
+
+# Open gripper to release
+open_gripper()
+
+# Lift slightly after release
+release_pos = place_pos.copy()
+release_pos[2] += 0.1
+joints_release = solve_ik(release_pos, quat_wxyz)
+move_to_joints(joints_release)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+======================================================================
+seed 800099 tc False rc 0 secs 16.7
+stages: {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+  green_cube: pos=[0.14, -0.097, 0.82] init=[-0.12, -0.089, 0.819]
+  red_cube: pos=[0.038, 0.046, 0.825] init=[0.038, 0.046, 0.824]
+  grip arm0: pos=[0.105, -0.018, 1.077] opening=0.079 grasping=[]
+stdout_tail: s[2] += 0.1
+joints = solve_ik(retract_pos, place_quat)
+move_to_joints(joints)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: Green cube center: [ 0.44889221 -0.09004006 -0.08532547], extent: [0.06235438 0.05667798 0.04467462]
+Red cube center: [ 0.60924499  0.04507669 -0.07781988], extent: [0.07154435 0.0772108  0.05630075]
+
+  Stderr: 
+======================================================================
+seed 800100 tc False rc 0 secs 16.7
+stages: {'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+  green_cube: pos=[0.047, -0.07, 0.82] init=[0.047, -0.07, 0.819]
+  red_cube: pos=[0.036, 0.095, 0.825] init=[0.036, 0.095, 0.824]
+  grip arm0: pos=[0.085, -0.007, 1.103] opening=0.079 grasping=[]
+stdout_tail: _joints(joints_place)
+
+    # Release the green cube
+    open_gripper()
+
+    # Retract slightly upward to clear the stack
+    retract_pos = place_pos.copy()
+    retract_pos[2] += 0.15
+    joints_retract = solve_ik(retract_pos, place_q)
+    move_to_joints(joints_retract)
+
+main()
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 

@@ -1,0 +1,1 @@
+{"task": "MicrowaveThawing", "steps": 1, "batch": 8, "reward": "rewards/p_mw.py", "init_mode": "fresh", "name": "p_mw", "seed_start": 900101}

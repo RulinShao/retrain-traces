@@ -1,0 +1,8 @@
+{
+  "task": "nut",
+  "name": "nut1",
+  "steps": 20,
+  "batch": 8,
+  "rollouts": 16,
+  "reward": "shaped"
+}

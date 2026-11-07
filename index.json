@@ -1,0 +1,3849 @@
+{
+ "updated": "2026-11-07T14:53:03.646Z",
+ "recent_hours": 72,
+ "sections": {
+  "live": [
+   {
+    "status": "running",
+    "turns": 115,
+    "last_t": "2026-11-07T14:38:40.417Z",
+    "gpu_hours": 32.9424,
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_lb_s1",
+    "loaded": [],
+    "cells": {
+     "revstack": {
+      "label": "sftrev1",
+      "score": 1,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "restack": {
+      "label": "nu1",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "nut": {
+      "label": "nu1",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     }
+    },
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 0.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 0.0,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": null,
+    "cause": null,
+    "id": "tinkerDecompLongPair-b00b8686__dcmp_lb_s1",
+    "batch": "tinkerDecompLongPair-b00b8686",
+    "session": "dcmp_lb_s1",
+    "path": "site/tinkerDecompLongPair-b00b8686__dcmp_lb_s1",
+    "batch_job": "43020585",
+    "batch_job_state": "RUNNING",
+    "idle_s": 845,
+    "in_command": true
+   },
+   {
+    "status": "running",
+    "turns": 31,
+    "last_t": "2026-11-07T13:32:34.670Z",
+    "gpu_hours": 22.2298,
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": true,
+     "version": null,
+     "skills_version": "nogit-db86b5a3",
+     "source": "session.start"
+    },
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_lb_s2c",
+    "loaded": [],
+    "cells": {
+     "nut": {
+      "label": "g2b",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "restack": {
+      "label": "g2b",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "revstack": {
+      "label": "g3a",
+      "score": 12,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 11.0,
+      "seeds": "dev"
+     }
+    },
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 11.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 11.0,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": null,
+    "cause": null,
+    "id": "tinkerDecompLongPair-b00b8686__dcmp_lb_s2c",
+    "batch": "tinkerDecompLongPair-b00b8686",
+    "session": "dcmp_lb_s2c",
+    "path": "site/tinkerDecompLongPair-b00b8686__dcmp_lb_s2c",
+    "batch_job": "43020585",
+    "batch_job_state": "RUNNING",
+    "idle_s": 4811,
+    "in_command": true
+   },
+   {
+    "status": "running",
+    "turns": 42,
+    "last_t": "2026-11-07T14:50:14.155Z",
+    "gpu_hours": 16.971,
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": true,
+     "version": null,
+     "skills_version": "nogit-f1700b86",
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_armEf_s1",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": null,
+    "cause": null,
+    "id": "tinkerDecompArmE-17197587__dcmp_armEf_s1",
+    "batch": "tinkerDecompArmE-17197587",
+    "session": "dcmp_armEf_s1",
+    "path": "site/tinkerDecompArmE-17197587__dcmp_armEf_s1",
+    "batch_job": "43032989",
+    "batch_job_state": "RUNNING",
+    "idle_s": 151,
+    "in_command": true
+   },
+   {
+    "status": "running",
+    "turns": 25,
+    "last_t": "2026-11-07T14:42:11.670Z",
+    "gpu_hours": 8.2307,
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": true,
+     "version": null,
+     "skills_version": "nogit-f1700b86",
+     "source": "session.start"
+    },
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_armEf_s2",
+    "loaded": [],
+    "cells": {
+     "restack": {
+      "label": "rs1",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     }
+    },
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 0.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 0.0,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": null,
+    "cause": null,
+    "id": "tinkerDecompArmE-17197587__dcmp_armEf_s2",
+    "batch": "tinkerDecompArmE-17197587",
+    "session": "dcmp_armEf_s2",
+    "path": "site/tinkerDecompArmE-17197587__dcmp_armEf_s2",
+    "batch_job": "43032989",
+    "batch_job_state": "RUNNING",
+    "idle_s": 634,
+    "in_command": true
+   }
+  ],
+  "recent": [
+   {
+    "status": "DONE",
+    "turns": 57,
+    "last_t": "2026-11-07T14:45:19.740Z",
+    "gpu_hours": {
+     "canonical": 14.2674,
+     "actual": 12.76
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": true,
+     "version": null,
+     "skills_version": "3246dddf-df764206",
+     "source": "session.start"
+    },
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_armb_rc3r_s2",
+    "loaded": [
+     "rc_rev_t1"
+    ],
+    "cells": {
+     "restack": {
+      "label": "rc_a_t1",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "revstack": {
+      "label": "rc_rev_t1",
+      "score": 2,
+      "n": 30,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 5.7,
+      "seeds": "dev"
+     }
+    },
+    "final": 8,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 5.7,
+    "rank_basis": "dev",
+    "rank_lift_pp": 5.7,
+    "submitted": {
+     "what": "rc_rev_t1 (284e5317bf7b)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-07T14:45:19.740Z",
+    "cause": null,
+    "id": "tinkerArmBrev3r-4d8f2259__armb_rc3r_s2",
+    "batch": "tinkerArmBrev3r-4d8f2259",
+    "session": "armb_rc3r_s2",
+    "path": "site/tinkerArmBrev3r-4d8f2259__armb_rc3r_s2",
+    "batch_job": "43013174",
+    "batch_job_state": "ENDED",
+    "idle_s": 446,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 28,
+    "last_t": "2026-11-07T13:47:09.431Z",
+    "gpu_hours": {
+     "canonical": 15.1897,
+     "actual": 13.478
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": true,
+     "version": null,
+     "skills_version": "3246dddf-df764206",
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_armb_rc3r_s1",
+    "loaded": [
+     "p3_rvs",
+     "p3_nr"
+    ],
+    "cells": {
+     "restack": {
+      "label": "p1_nr",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "nut": {
+      "label": "p1_nr",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "revstack": {
+      "label": "p3_rvs+p3_nr",
+      "score": 4,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 3.0,
+      "seeds": "dev"
+     }
+    },
+    "final": 1,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 3.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 3.0,
+    "submitted": {
+     "what": "p3_rvs (0178f9ccf799) + p3_nr (fad992952ae3)",
+     "source": "SUBMISSION.json",
+     "how": "explicit"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-07T13:47:09.431Z",
+    "cause": null,
+    "id": "tinkerArmBrev3r-4d8f2259__armb_rc3r_s1",
+    "batch": "tinkerArmBrev3r-4d8f2259",
+    "session": "armb_rc3r_s1",
+    "path": "site/tinkerArmBrev3r-4d8f2259__armb_rc3r_s1",
+    "batch_job": "43013174",
+    "batch_job_state": "ENDED",
+    "idle_s": 3936,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 29,
+    "last_t": "2026-11-07T11:52:18.226Z",
+    "gpu_hours": {
+     "canonical": 15.8,
+     "actual": 8.0367
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "tinker:Qwen/Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_efemt_s1",
+    "loaded": [
+     "B"
+    ],
+    "cells": {
+     "metaworldplus-push-wall": {
+      "label": "B",
+      "score": 7,
+      "n": 10,
+      "base": 1,
+      "base_n": 5,
+      "lift_pp": 50.0,
+      "seeds": "dev"
+     },
+     "metaworldplus-pick-place": {
+      "label": "A",
+      "score": 4,
+      "n": 5,
+      "base": 1,
+      "base_n": 5,
+      "lift_pp": 60.0,
+      "seeds": "dev"
+     },
+     "metaworldplus-door-lock": {
+      "label": "A",
+      "score": 4,
+      "n": 5,
+      "base": 2,
+      "base_n": 5,
+      "lift_pp": 40.0,
+      "seeds": "dev"
+     }
+    },
+    "final": 83,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 60.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 60.0,
+    "submitted": {
+     "what": "B (ef9001a51bc2)",
+     "source": "SUBMISSION.json",
+     "how": "explicit"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-07T11:52:18.226Z",
+    "cause": null,
+    "id": "tinkerEfeMt-3aa3e39d__efemt_s1",
+    "batch": "tinkerEfeMt-3aa3e39d",
+    "session": "efemt_s1",
+    "path": "site/tinkerEfeMt-3aa3e39d__efemt_s1",
+    "batch_job": "43020491",
+    "batch_job_state": "ENDED",
+    "idle_s": 10827,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 5,
+    "last_t": "2026-11-07T00:06:18.369Z",
+    "gpu_hours": {
+     "canonical": 1.3572,
+     "actual": 5.2102
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl-uniform",
+    "loaded": [
+     "e2e_c1"
+    ],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": {
+     "what": "e2e_c1 (c6175600c47c)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-07T00:06:18.369Z",
+    "cause": "eval_failed: InfraError('eval job 43013319: n_scored 97/100 void 0 http_error 0 void_harness 3; unscored seeds 6,43,50 (void_harness: Failed to communicate wit\u2026",
+    "id": "mtprobe-mt3__e2e_Alift_uni_s1_mpmt",
+    "batch": "mtprobe-mt3",
+    "session": "e2e_Alift_uni_s1_mpmt",
+    "path": "site/mtprobe-mt3__e2e_Alift_uni_s1_mpmt",
+    "batch_job": "42997205",
+    "batch_job_state": "ENDED",
+    "idle_s": 53186,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 178,
+    "last_t": "2026-11-06T22:35:16.294Z",
+    "gpu_hours": {
+     "canonical": 10.9514,
+     "actual": 10.9514
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_rc_dev1_s1",
+    "loaded": [],
+    "cells": {
+     "BoilPot": {
+      "label": "base",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "PackIdenticalLunches": {
+      "label": "base",
+      "score": 0,
+      "n": 5,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     }
+    },
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 0.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 0.0,
+    "submitted": {
+     "what": "knobdiag (332b6d3d64d7) + pack_probe2 (ef23259c79c3) + potmoved (2c8dae6fc462)",
+     "source": "SUBMISSION.json",
+     "how": "explicit"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T22:35:16.294Z",
+    "cause": "serving_mismatch: serving the submission knobdiag+pack_probe2+potmoved failed: <HTTPError 400: 'Bad Request'>",
+    "id": "robocasaDev1-c5fd3f21__rc_dev1_s1",
+    "batch": "robocasaDev1-c5fd3f21",
+    "session": "rc_dev1_s1",
+    "path": "site/robocasaDev1-c5fd3f21__rc_dev1_s1",
+    "batch_job": "42970375",
+    "batch_job_state": "ENDED",
+    "idle_s": 58647,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 31,
+    "last_t": "2026-11-06T22:24:20.943Z",
+    "gpu_hours": {
+     "canonical": 14.0957,
+     "actual": 14.0957
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": true,
+     "version": null,
+     "skills_version": "6df138df-8645d430",
+     "source": "session.start"
+    },
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_rc_dec1r_s2",
+    "loaded": [],
+    "cells": {
+     "BoilPot": {
+      "label": "p_boil",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     }
+    },
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 0.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 0.0,
+    "submitted": {
+     "what": "p_boil (28508c89ebdd)",
+     "source": "SUBMISSION.json",
+     "how": "explicit"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T22:24:20.943Z",
+    "cause": "serving_mismatch: serving the submission p_boil failed: <HTTPError 400: 'Bad Request'>",
+    "id": "robocasaDec1r-3cd96b14__rc_dec1r_s2",
+    "batch": "robocasaDec1r-3cd96b14",
+    "session": "rc_dec1r_s2",
+    "path": "site/robocasaDec1r-3cd96b14__rc_dec1r_s2",
+    "batch_job": "42995599",
+    "batch_job_state": "ENDED",
+    "idle_s": 59304,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 134,
+    "last_t": "2026-11-06T22:06:00.301Z",
+    "gpu_hours": {
+     "canonical": 15.3478,
+     "actual": 15.3478
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_rc_dev1_s2",
+    "loaded": [],
+    "cells": {
+     "BoilPot": {
+      "label": "base",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "MicrowaveThawing": {
+      "label": "pr_pickup_ssm",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "CerealAndBowl": {
+      "label": "pr_pickup_ssm",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "GetToastedBread": {
+      "label": "pr_pickup_ssm",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     }
+    },
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 0.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 0.0,
+    "submitted": {
+     "what": "pr_pickup_ssm (b1030ae921dc) + pr_micr_start (9370d712fde9) + sg_bp_burner (bf121c2f4d3f)",
+     "source": "SUBMISSION.json",
+     "how": "explicit"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T22:06:00.301Z",
+    "cause": "serving_mismatch: serving the submission pr_pickup_ssm+pr_micr_start+sg_bp_burner failed: <HTTPError 400: 'Bad Request'>",
+    "id": "robocasaDev1-c5fd3f21__rc_dev1_s2",
+    "batch": "robocasaDev1-c5fd3f21",
+    "session": "rc_dev1_s2",
+    "path": "site/robocasaDev1-c5fd3f21__rc_dev1_s2",
+    "batch_job": "42970375",
+    "batch_job_state": "ENDED",
+    "idle_s": 60403,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 52,
+    "last_t": "2026-11-06T21:28:55.710Z",
+    "gpu_hours": {
+     "canonical": 12.2301,
+     "actual": 12.2301
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": true,
+     "version": null,
+     "skills_version": "6df138df-8645d430",
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_rc_dec1_s1",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": {
+     "what": "base",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T21:28:55.710Z",
+    "cause": "eval_failed: InfraError('eval job 43007440: n_scored 49/50 void 1 http_error 0 void_harness 0; unscored seeds 800060 (missing: no trial record (never ran, or t\u2026",
+    "id": "robocasaDec1-be2b28b1__rc_dec1_s1",
+    "batch": "robocasaDec1-be2b28b1",
+    "session": "rc_dec1_s1",
+    "path": "site/robocasaDec1-be2b28b1__rc_dec1_s1",
+    "batch_job": "42982735",
+    "batch_job_state": "ENDED",
+    "idle_s": 62629,
+    "in_command": false
+   },
+   {
+    "status": "CAPPED",
+    "turns": 23,
+    "last_t": "2026-11-06T19:53:53.971Z",
+    "gpu_hours": {
+     "canonical": 1.978,
+     "actual": 2.0068
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 43,
+    "policy": "tinker:Qwen/Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_efeS2_push_s43",
+    "loaded": [
+     "pw-shap1"
+    ],
+    "cells": {
+     "metaworldplus-push-wall": {
+      "label": "base",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     }
+    },
+    "final": 3,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 0.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 0.0,
+    "submitted": {
+     "what": "pw-shap1 (03b6b6b89555)",
+     "source": "SUBMISSION.json",
+     "how": "default-on-exhaustion"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T19:53:53.971Z",
+    "cause": null,
+    "id": "push-wall-r2__efeS2_push_s43",
+    "batch": "push-wall-r2",
+    "session": "efeS2_push_s43",
+    "path": "site/push-wall-r2__efeS2_push_s43",
+    "batch_job": "42996625",
+    "batch_job_state": "ENDED",
+    "idle_s": 68331,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 5,
+    "last_t": "2026-11-06T19:50:47.465Z",
+    "gpu_hours": {
+     "canonical": 1.0058,
+     "actual": 1.7725
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl-uniform",
+    "loaded": [
+     "e2e_c1"
+    ],
+    "cells": {},
+    "final": 80,
+    "final_vs_base": {
+     "score": 80,
+     "n": 100,
+     "base": 44,
+     "base_n": 100,
+     "seeds": "hidden 1-100",
+     "lift_pp": 36.0,
+     "source": "rmin_out/base_hidden_27b/base_hidden_27b.json on hyak (base on the hidden seeds, jobs 42178467,42178468,42178469,42178470,42178471,42178472,42178473,42178475,42178476)"
+    },
+    "best_dev_lift_pp": null,
+    "rank_basis": "hidden",
+    "rank_lift_pp": 36.0,
+    "submitted": {
+     "what": "e2e_c1 (768760352789)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T19:50:47.465Z",
+    "cause": null,
+    "id": "mtprobe-mt3__e2e_Astack_uni_s1_mpmt",
+    "batch": "mtprobe-mt3",
+    "session": "e2e_Astack_uni_s1_mpmt",
+    "path": "site/mtprobe-mt3__e2e_Astack_uni_s1_mpmt",
+    "batch_job": "42997205",
+    "batch_job_state": "ENDED",
+    "idle_s": 68517,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 0,
+    "last_t": "2026-11-06T19:48:57.804Z",
+    "gpu_hours": {
+     "canonical": 15.3481,
+     "actual": 13.7275
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": null,
+     "version": null,
+     "skills_version": null,
+     "source": null
+    },
+    "seed": null,
+    "policy": "Qwen3.8-27B",
+    "agent": "gpt-6-astra",
+    "loaded": [],
+    "cells": {},
+    "final": 6,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": {
+     "what": "success_clean (5caabbd1a22c)",
+     "source": "SUBMISSION.json",
+     "how": "explicit"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T19:48:57.804Z",
+    "cause": null,
+    "id": "tinkerDecompVf2-4de7caf3__dcmp_vf_cx1",
+    "batch": "tinkerDecompVf2-4de7caf3",
+    "session": "dcmp_vf_cx1",
+    "path": "site/tinkerDecompVf2-4de7caf3__dcmp_vf_cx1",
+    "batch_job": "42955996",
+    "batch_job_state": "ENDED",
+    "idle_s": 68626,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 5,
+    "last_t": "2026-11-06T19:44:38.790Z",
+    "gpu_hours": {
+     "canonical": 0.8125,
+     "actual": 1.5475
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl-uniform",
+    "loaded": [
+     "e2e_c1"
+    ],
+    "cells": {},
+    "final": 47,
+    "final_vs_base": {
+     "score": 47,
+     "n": 100,
+     "base": 14,
+     "base_n": 100,
+     "seeds": "hidden 1-100",
+     "lift_pp": 33.0,
+     "source": "rmin_out/base_hidden_27b/base_hidden_27b.json on hyak (base on the hidden seeds, jobs 42178467,42178468,42178469,42178470,42178471,42178472,42178473,42178475,42178476)"
+    },
+    "best_dev_lift_pp": null,
+    "rank_basis": "hidden",
+    "rank_lift_pp": 33.0,
+    "submitted": {
+     "what": "e2e_c1 (e7756ca2f90b)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T19:44:38.790Z",
+    "cause": null,
+    "id": "mtprobe-mt3__e2e_Awipe_uni_s1_mpmt",
+    "batch": "mtprobe-mt3",
+    "session": "e2e_Awipe_uni_s1_mpmt",
+    "path": "site/mtprobe-mt3__e2e_Awipe_uni_s1_mpmt",
+    "batch_job": "42997205",
+    "batch_job_state": "ENDED",
+    "idle_s": 68886,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 0,
+    "last_t": "2026-11-06T19:29:59.861Z",
+    "gpu_hours": {
+     "canonical": 8.2761,
+     "actual": 5.7608
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": null,
+     "version": null,
+     "skills_version": null,
+     "source": null
+    },
+    "seed": null,
+    "policy": "Qwen3.8-27B",
+    "agent": "gpt-6-astra",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T19:29:59.861Z",
+    "cause": "model_endpoint: codex exec exited 1:",
+    "id": "tinkerDecompMu2-57d71fa5__dcmp_mu2_cx1",
+    "batch": "tinkerDecompMu2-57d71fa5",
+    "session": "dcmp_mu2_cx1",
+    "path": "site/tinkerDecompMu2-57d71fa5__dcmp_mu2_cx1",
+    "batch_job": "42977305",
+    "batch_job_state": "ENDED",
+    "idle_s": 69764,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 51,
+    "last_t": "2026-11-06T19:23:54.125Z",
+    "gpu_hours": {
+     "canonical": 13.2289,
+     "actual": 10.7133
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 21,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_vf_q1",
+    "loaded": [
+     "t2_revstack"
+    ],
+    "cells": {},
+    "final": 4,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": {
+     "what": "t2_revstack (aa34f89dd73f)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T19:23:54.125Z",
+    "cause": null,
+    "id": "tinkerDecompVf2-4de7caf3__dcmp_vf_q1",
+    "batch": "tinkerDecompVf2-4de7caf3",
+    "session": "dcmp_vf_q1",
+    "path": "site/tinkerDecompVf2-4de7caf3__dcmp_vf_q1",
+    "batch_job": "42955996",
+    "batch_job_state": "ENDED",
+    "idle_s": 70129,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 188,
+    "last_t": "2026-11-06T19:15:55.534Z",
+    "gpu_hours": {
+     "canonical": 8.5481,
+     "actual": 8.5481
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": true,
+     "version": null,
+     "skills_version": "6df138df-8645d430",
+     "source": "session.start"
+    },
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_rc_dec1_s2",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": {
+     "what": "base",
+     "source": "SUBMISSION.json",
+     "how": "explicit"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T19:15:55.534Z",
+    "cause": "eval_failed: InfraError('eval job 43003607: n_scored 49/50 void 1 http_error 0 void_harness 0; unscored seeds 800057 (missing: no trial record (never ran, or t\u2026",
+    "id": "robocasaDec1-be2b28b1__rc_dec1_s2",
+    "batch": "robocasaDec1-be2b28b1",
+    "session": "rc_dec1_s2",
+    "path": "site/robocasaDec1-be2b28b1__rc_dec1_s2",
+    "batch_job": "42982735",
+    "batch_job_state": "ENDED",
+    "idle_s": 70609,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 18,
+    "last_t": "2026-11-06T18:58:40.664Z",
+    "gpu_hours": {
+     "canonical": 1.993,
+     "actual": 1.3282
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 44,
+    "policy": "tinker:Qwen/Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_efeS2_push_s44",
+    "loaded": [
+     "pw-sh2"
+    ],
+    "cells": {
+     "metaworldplus-push-wall": {
+      "label": "pw-sh2",
+      "score": 1,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 5.0,
+      "seeds": "dev"
+     }
+    },
+    "final": 1,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 5.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 5.0,
+    "submitted": {
+     "what": "pw-sh2 (5eba1d37ef1f)",
+     "source": "SUBMISSION.json",
+     "how": "explicit"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T18:58:40.664Z",
+    "cause": null,
+    "id": "push-wall-r2__efeS2_push_s44",
+    "batch": "push-wall-r2",
+    "session": "efeS2_push_s44",
+    "path": "site/push-wall-r2__efeS2_push_s44",
+    "batch_job": "42996625",
+    "batch_job_state": "ENDED",
+    "idle_s": 71644,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 112,
+    "last_t": "2026-11-06T18:45:37.211Z",
+    "gpu_hours": {
+     "canonical": 15.6421,
+     "actual": 15.2756
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 18,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_on_s18d",
+    "loaded": [
+     "g1rev2",
+     "g2nr"
+    ],
+    "cells": {
+     "revstack": {
+      "label": "g1rev",
+      "score": 1,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "nut": {
+      "label": "g2nr",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "restack": {
+      "label": "g2nr",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     }
+    },
+    "final": 6,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 0.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 0.0,
+    "submitted": {
+     "what": "g1rev2 (8ed3cce4d220) + g2nr (05be13147319)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T18:45:37.211Z",
+    "cause": null,
+    "id": "tinkerDecompHard3-c2e57beb-q2__dcmp_on_s18d",
+    "batch": "tinkerDecompHard3-c2e57beb-q2",
+    "session": "dcmp_on_s18d",
+    "path": "site/tinkerDecompHard3-c2e57beb-q2__dcmp_on_s18d",
+    "batch_job": "42939097",
+    "batch_job_state": "ENDED",
+    "idle_s": 72426,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 5,
+    "last_t": "2026-11-06T17:25:45.125Z",
+    "gpu_hours": {
+     "canonical": 1.9442,
+     "actual": 2.2986
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl-uniform",
+    "loaded": [
+     "e2e_c1"
+    ],
+    "cells": {},
+    "final": 95,
+    "final_vs_base": {
+     "score": 95,
+     "n": 100,
+     "base": 57,
+     "base_n": 100,
+     "seeds": "hidden 1-100",
+     "lift_pp": 38.0,
+     "source": "rmin_out/base_hidden_27b/base_hidden_27b.json on hyak (base on the hidden seeds, jobs 42178467,42178468,42178469,42178470,42178471,42178472,42178473,42178475,42178476)"
+    },
+    "best_dev_lift_pp": null,
+    "rank_basis": "hidden",
+    "rank_lift_pp": 38.0,
+    "submitted": {
+     "what": "e2e_c1 (7c1c49ed597f)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T17:25:45.125Z",
+    "cause": null,
+    "id": "mtprobe-st__e2e_Alift_uni_s1_mpst",
+    "batch": "mtprobe-st",
+    "session": "e2e_Alift_uni_s1_mpst",
+    "path": "site/mtprobe-st__e2e_Alift_uni_s1_mpst",
+    "batch_job": "42990513",
+    "batch_job_state": "ENDED",
+    "idle_s": 77219,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 86,
+    "last_t": "2026-11-06T17:24:46.442Z",
+    "gpu_hours": {
+     "canonical": 14.0517,
+     "actual": 13.4298
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 20,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_on_s20d",
+    "loaded": [
+     "grpo_rev2"
+    ],
+    "cells": {
+     "restack": {
+      "label": "grpo_rev+grpo_rest",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "revstack": {
+      "label": "grpo_rev",
+      "score": 1,
+      "n": 20,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 4.0,
+      "seeds": "dev"
+     },
+     "nut": {
+      "label": "grpo_nut",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     }
+    },
+    "final": 3,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 4.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 4.0,
+    "submitted": {
+     "what": "grpo_rev2 (c6603b5eed69)",
+     "source": "SUBMISSION.json",
+     "how": "explicit"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T17:24:46.442Z",
+    "cause": null,
+    "id": "tinkerDecompHard3-c2e57beb-q2__dcmp_on_s20d",
+    "batch": "tinkerDecompHard3-c2e57beb-q2",
+    "session": "dcmp_on_s20d",
+    "path": "site/tinkerDecompHard3-c2e57beb-q2__dcmp_on_s20d",
+    "batch_job": "42939097",
+    "batch_job_state": "ENDED",
+    "idle_s": 77277,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 16,
+    "last_t": "2026-11-06T16:50:58.240Z",
+    "gpu_hours": {
+     "canonical": 1.507,
+     "actual": 0.8956
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 42,
+    "policy": "tinker:Qwen/Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_efeS2_golf_s42",
+    "loaded": [],
+    "cells": {},
+    "final": 0,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": {
+     "what": "base",
+     "source": "SUBMISSION.json",
+     "how": "explicit"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T16:50:58.240Z",
+    "cause": null,
+    "id": "golf-putt-r2__efeS2_golf_s42",
+    "batch": "golf-putt-r2",
+    "session": "efeS2_golf_s42",
+    "path": "site/golf-putt-r2__efeS2_golf_s42",
+    "batch_job": "42997439",
+    "batch_job_state": "ENDED",
+    "idle_s": 79306,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 5,
+    "last_t": "2026-11-06T16:49:49.028Z",
+    "gpu_hours": {
+     "canonical": 3.6964,
+     "actual": 3.9631
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl-uniform",
+    "loaded": [
+     "e2e_c1"
+    ],
+    "cells": {},
+    "final": 91,
+    "final_vs_base": {
+     "score": 91,
+     "n": 100,
+     "base": 14,
+     "base_n": 100,
+     "seeds": "hidden 1-100",
+     "lift_pp": 77.0,
+     "source": "rmin_out/base_hidden_27b/base_hidden_27b.json on hyak (base on the hidden seeds, jobs 42178467,42178468,42178469,42178470,42178471,42178472,42178473,42178475,42178476)"
+    },
+    "best_dev_lift_pp": null,
+    "rank_basis": "hidden",
+    "rank_lift_pp": 77.0,
+    "submitted": {
+     "what": "e2e_c1 (a896802d57cb)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T16:49:49.028Z",
+    "cause": null,
+    "id": "mtprobe-st__e2e_Awipe_uni_s1_mpst",
+    "batch": "mtprobe-st",
+    "session": "e2e_Awipe_uni_s1_mpst",
+    "path": "site/mtprobe-st__e2e_Awipe_uni_s1_mpst",
+    "batch_job": "42990513",
+    "batch_job_state": "ENDED",
+    "idle_s": 79375,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 16,
+    "last_t": "2026-11-06T16:31:03.437Z",
+    "gpu_hours": {
+     "canonical": 1.345,
+     "actual": 0.8306
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 41,
+    "policy": "tinker:Qwen/Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_efeS2_golf_s41",
+    "loaded": [],
+    "cells": {
+     "embodied-olympics-fun-golf-putt": {
+      "label": "base",
+      "score": 0,
+      "n": 5,
+      "base": 0,
+      "base_n": 5,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     }
+    },
+    "final": 0,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 0.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 0.0,
+    "submitted": {
+     "what": "base",
+     "source": "SUBMISSION.json",
+     "how": "explicit"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T16:31:03.437Z",
+    "cause": null,
+    "id": "golf-putt-r2__efeS2_golf_s41",
+    "batch": "golf-putt-r2",
+    "session": "efeS2_golf_s41",
+    "path": "site/golf-putt-r2__efeS2_golf_s41",
+    "batch_job": "42997439",
+    "batch_job_state": "ENDED",
+    "idle_s": 80501,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 5,
+    "last_t": "2026-11-06T15:26:43.945Z",
+    "gpu_hours": {
+     "canonical": 2.2025,
+     "actual": 2.5622
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl-uniform",
+    "loaded": [
+     "e2e_c1"
+    ],
+    "cells": {},
+    "final": 65,
+    "final_vs_base": {
+     "score": 65,
+     "n": 100,
+     "base": 44,
+     "base_n": 100,
+     "seeds": "hidden 1-100",
+     "lift_pp": 21.0,
+     "source": "rmin_out/base_hidden_27b/base_hidden_27b.json on hyak (base on the hidden seeds, jobs 42178467,42178468,42178469,42178470,42178471,42178472,42178473,42178475,42178476)"
+    },
+    "best_dev_lift_pp": null,
+    "rank_basis": "hidden",
+    "rank_lift_pp": 21.0,
+    "submitted": {
+     "what": "e2e_c1 (85d955294cd8)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T15:26:43.945Z",
+    "cause": null,
+    "id": "mtprobe-st__e2e_Astack_uni_s1_mpst",
+    "batch": "mtprobe-st",
+    "session": "e2e_Astack_uni_s1_mpst",
+    "path": "site/mtprobe-st__e2e_Astack_uni_s1_mpst",
+    "batch_job": "42990513",
+    "batch_job_state": "ENDED",
+    "idle_s": 84361,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 10,
+    "last_t": "2026-11-06T14:54:50.072Z",
+    "gpu_hours": {
+     "canonical": 0.447,
+     "actual": 0.5284
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_armc_off_s2b",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T14:54:50.072Z",
+    "cause": "model_endpoint: HTTPError: HTTP Error 400: Bad Request",
+    "id": "armC_factoff-cff587df-s2__armc_off_s2b",
+    "batch": "armC_factoff-cff587df-s2",
+    "session": "armc_off_s2b",
+    "path": "site/armC_factoff-cff587df-s2__armc_off_s2b",
+    "batch_job": "42996439",
+    "batch_job_state": "ENDED",
+    "idle_s": 86274,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 11,
+    "last_t": "2026-11-06T14:42:55.653Z",
+    "gpu_hours": {
+     "canonical": 0.579,
+     "actual": 0.5544
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_armc_on_s1b",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T14:42:55.653Z",
+    "cause": "model_endpoint: HTTPError: HTTP Error 400: Bad Request",
+    "id": "armC_facton-dad6a736-s1__armc_on_s1b",
+    "batch": "armC_facton-dad6a736-s1",
+    "session": "armc_on_s1b",
+    "path": "site/armC_facton-dad6a736-s1__armc_on_s1b",
+    "batch_job": "42995880",
+    "batch_job_state": "ENDED",
+    "idle_s": 86989,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 10,
+    "last_t": "2026-11-06T14:30:46.429Z",
+    "gpu_hours": {
+     "canonical": 0.465,
+     "actual": 0.5655
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_armc_off_s1b",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T14:30:46.429Z",
+    "cause": "model_endpoint: HTTPError: HTTP Error 400: Bad Request",
+    "id": "armC_factoff-cff587df-s1__armc_off_s1b",
+    "batch": "armC_factoff-cff587df-s1",
+    "session": "armc_off_s1b",
+    "path": "site/armC_factoff-cff587df-s1__armc_off_s1b",
+    "batch_job": "42995914",
+    "batch_job_state": "ENDED",
+    "idle_s": 87718,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 7,
+    "last_t": "2026-11-06T04:37:31.210Z",
+    "gpu_hours": {
+     "canonical": 19.351,
+     "actual": 20.3925
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl+6task-uniform-seg3",
+    "loaded": [
+     "e2e_c2"
+    ],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": {
+     "what": "e2e_c2 (ca9420b399bc)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T04:37:31.210Z",
+    "cause": "eval_failed: InfraError('eval job 42958531 state FAILED: 0 cell summaries; ABORT: oracle gate FAILED [priv=2/5 vis=none_chain] on g3129 (root cause pending; no\u2026",
+    "id": "tinkerE2E-B1-6task-seg3s2b-40e43eb5__e2e_B1a6_uni_s2_g3",
+    "batch": "tinkerE2E-B1-6task-seg3s2b-40e43eb5",
+    "session": "e2e_B1a6_uni_s2_g3",
+    "path": "site/tinkerE2E-B1-6task-seg3s2b-40e43eb5__e2e_B1a6_uni_s2_g3",
+    "batch_job": "42923684",
+    "batch_job_state": "ENDED",
+    "idle_s": 123312,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 46,
+    "last_t": "2026-11-06T03:25:32.293Z",
+    "gpu_hours": {
+     "canonical": 9.3639,
+     "actual": 4.947
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 11,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_on_s11c",
+    "loaded": [],
+    "cells": {
+     "nut": {
+      "label": "a_nutrestack",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "restack": {
+      "label": "a_nutrestack",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "revstack": {
+      "label": "b_revstack",
+      "score": 0,
+      "n": 20,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": -1.0,
+      "seeds": "dev"
+     }
+    },
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 0.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 0.0,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T03:25:32.293Z",
+    "cause": "preset_failed: InfraError('preset build diag5_rev (job 42957205, CANCELLED by 1387877): no rows written; see \u2026/rmin_out_zlab/tinkerDecompHa\u2026",
+    "id": "tinkerDecompHard3-d219b0b2__dcmp_on_s11c",
+    "batch": "tinkerDecompHard3-d219b0b2",
+    "session": "dcmp_on_s11c",
+    "path": "site/tinkerDecompHard3-d219b0b2__dcmp_on_s11c",
+    "batch_job": "42885116",
+    "batch_job_state": "ENDED",
+    "idle_s": 127631,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 90,
+    "last_t": "2026-11-06T03:12:40.561Z",
+    "gpu_hours": {
+     "canonical": 15.5275,
+     "actual": 14.0487
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 3,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_on_s3",
+    "loaded": [
+     "rv7"
+    ],
+    "cells": {
+     "nut": {
+      "label": "base",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "revstack": {
+      "label": "rv6",
+      "score": 1,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 5.0,
+      "seeds": "dev"
+     },
+     "restack": {
+      "label": "base",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     }
+    },
+    "final": 2,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 5.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 5.0,
+    "submitted": {
+     "what": "rv7 (047b44aecb10)",
+     "source": "SUBMISSION.json",
+     "how": "explicit"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T03:12:40.561Z",
+    "cause": null,
+    "id": "tinkerDecompHard3-709f09af__dcmp_on_s3",
+    "batch": "tinkerDecompHard3-709f09af",
+    "session": "dcmp_on_s3",
+    "path": "site/tinkerDecompHard3-709f09af__dcmp_on_s3",
+    "batch_job": "42870467",
+    "batch_job_state": "ENDED",
+    "idle_s": 128403,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 74,
+    "last_t": "2026-11-06T01:08:45.761Z",
+    "gpu_hours": {
+     "canonical": 2.568,
+     "actual": 2.7499
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 10,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_on_s10c",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T01:08:45.761Z",
+    "cause": "preset_failed: InfraError('preset build diag_observe (job 42933350, CANCELLED by 1387877): no rows written; see \u2026/rmin_out_zlab/tinkerDecom\u2026",
+    "id": "tinkerDecompHard3-d219b0b2__dcmp_on_s10c",
+    "batch": "tinkerDecompHard3-d219b0b2",
+    "session": "dcmp_on_s10c",
+    "path": "site/tinkerDecompHard3-d219b0b2__dcmp_on_s10c",
+    "batch_job": "42885116",
+    "batch_job_state": "ENDED",
+    "idle_s": 135838,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 38,
+    "last_t": "2026-11-06T00:50:42.902Z",
+    "gpu_hours": {
+     "canonical": 0.847,
+     "actual": 1.0341
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 19,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_on_s19d",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T00:50:42.902Z",
+    "cause": "preset_failed: InfraError('preset build d_diag (job 42949558, FAILED): no rows written; ABORT: sim service exited before the trainer finished: ABORT: render pr\u2026",
+    "id": "tinkerDecompHard3-c2e57beb-q2__dcmp_on_s19d",
+    "batch": "tinkerDecompHard3-c2e57beb-q2",
+    "session": "dcmp_on_s19d",
+    "path": "site/tinkerDecompHard3-c2e57beb-q2__dcmp_on_s19d",
+    "batch_job": "42939097",
+    "batch_job_state": "ENDED",
+    "idle_s": 136921,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 16,
+    "last_t": "2026-11-05T22:05:27.221Z",
+    "gpu_hours": {
+     "canonical": 0.465,
+     "actual": 0.8122
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 15,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_on_s15d",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T22:05:27.221Z",
+    "cause": "preset_failed: InfraError('sbatch failed rc=1 after 7 attempts: sbatch: error: Batch job submission failed: Socket timed out on send/recv operation')",
+    "id": "tinkerDecompHard3-c2e57beb__dcmp_on_s15d",
+    "batch": "tinkerDecompHard3-c2e57beb",
+    "session": "dcmp_on_s15d",
+    "path": "site/tinkerDecompHard3-c2e57beb__dcmp_on_s15d",
+    "batch_job": "42931908",
+    "batch_job_state": "ENDED",
+    "idle_s": 146836,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 7,
+    "last_t": "2026-11-05T20:52:35.577Z",
+    "gpu_hours": {
+     "canonical": 19.639,
+     "actual": 20.5133
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl+6task-uniform-seg3",
+    "loaded": [
+     "e2e_c2"
+    ],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": {
+     "what": "e2e_c2 (81fc87b26e30)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T20:52:35.577Z",
+    "cause": "eval_failed: InfraError('eval job 42918039 state FAILED: 0 cell summaries; ABORT: oracle gate FAILED [priv=2/5 vis=none_chain] on g3125 (root cause pending; no\u2026",
+    "id": "tinkerE2E-B1-6task-seg3-40e43eb5__e2e_B1a6_uni_s1_g3",
+    "batch": "tinkerE2E-B1-6task-seg3-40e43eb5",
+    "session": "e2e_B1a6_uni_s1_g3",
+    "path": "site/tinkerE2E-B1-6task-seg3-40e43eb5__e2e_B1a6_uni_s1_g3",
+    "batch_job": "42869363",
+    "batch_job_state": "ENDED",
+    "idle_s": 151208,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 36,
+    "last_t": "2026-11-05T20:39:22.133Z",
+    "gpu_hours": {
+     "canonical": 4.6257,
+     "actual": 4.5622
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 7,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_on_s7b",
+    "loaded": [],
+    "cells": {
+     "nut": {
+      "label": "g1",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "restack": {
+      "label": "g1",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "revstack": {
+      "label": "g2",
+      "score": 1,
+      "n": 20,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 4.0,
+      "seeds": "dev"
+     }
+    },
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 4.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 4.0,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T20:39:22.133Z",
+    "cause": "train_failed: InfraError('sbatch failed rc=1 after 7 attempts: sbatch: error: Batch job submission failed: Socket timed out on send/recv operation')",
+    "id": "tinkerDecompHard3-44310a1e-b__dcmp_on_s7b",
+    "batch": "tinkerDecompHard3-44310a1e-b",
+    "session": "dcmp_on_s7b",
+    "path": "site/tinkerDecompHard3-44310a1e-b__dcmp_on_s7b",
+    "batch_job": "42877530",
+    "batch_job_state": "ENDED",
+    "idle_s": 152001,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 25,
+    "last_t": "2026-11-05T20:37:11.984Z",
+    "gpu_hours": {
+     "canonical": 0.915,
+     "actual": 0.9933
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 9,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_on_s9c",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T20:37:11.984Z",
+    "cause": "preset_failed: InfraError('sbatch failed rc=1 after 7 attempts: sbatch: error: Batch job submission failed: Socket timed out on send/recv operation')",
+    "id": "tinkerDecompHard3-d219b0b2__dcmp_on_s9c",
+    "batch": "tinkerDecompHard3-d219b0b2",
+    "session": "dcmp_on_s9c",
+    "path": "site/tinkerDecompHard3-d219b0b2__dcmp_on_s9c",
+    "batch_job": "42885116",
+    "batch_job_state": "ENDED",
+    "idle_s": 152132,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 23,
+    "last_t": "2026-11-05T18:33:49.653Z",
+    "gpu_hours": {
+     "canonical": 0.737,
+     "actual": 0.8781
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 12,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_on_s12c",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T18:33:49.653Z",
+    "cause": "rollout_failed: InfraError('rollout practice runs on nut (job 42913203, FAILED): no rows written; ABORT: gpu preflight failed on host=g3097 job=42913203 -- GPU\u2026",
+    "id": "tinkerDecompHard3-d219b0b2__dcmp_on_s12c",
+    "batch": "tinkerDecompHard3-d219b0b2",
+    "session": "dcmp_on_s12c",
+    "path": "site/tinkerDecompHard3-d219b0b2__dcmp_on_s12c",
+    "batch_job": "42885116",
+    "batch_job_state": "ENDED",
+    "idle_s": 159534,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 2,
+    "last_t": "2026-11-05T17:57:00.859Z",
+    "gpu_hours": {
+     "canonical": 0,
+     "actual": 0
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl+6task-uniform-seg3",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T17:57:00.859Z",
+    "cause": "train_failed: InfraError(\"RMIN_TINKER_BUDGET_USD='': trainer=tinker needs a positive spend cap in USD (rate card), checked against the ledger \u2026/ru\u2026",
+    "id": "tinkerE2E-B1-6task-seg3s2-40e43eb5__e2e_B1a6_uni_s2_g3",
+    "batch": "tinkerE2E-B1-6task-seg3s2-40e43eb5",
+    "session": "e2e_B1a6_uni_s2_g3",
+    "path": "site/tinkerE2E-B1-6task-seg3s2-40e43eb5__e2e_B1a6_uni_s2_g3",
+    "batch_job": "42919377",
+    "batch_job_state": "ENDED",
+    "idle_s": 161743,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 7,
+    "last_t": "2026-11-05T15:58:38.088Z",
+    "gpu_hours": {
+     "canonical": 19.617,
+     "actual": 14.9546
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 3,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl+6task-uniform-seg3",
+    "loaded": [
+     "e2e_c2"
+    ],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": {
+     "what": "e2e_c2 (82b77b953689)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T15:58:38.088Z",
+    "cause": "eval_failed: InfraError('eval job 42905864 state FAILED: 0 cell summaries; ABORT: oracle gate FAILED [priv=2/5 vis=none_chain] on g3131 (root cause pending; no\u2026",
+    "id": "tinkerE2E-B1-6task-seg3-40e43eb5__e2e_B1a6_uni_s3_g3",
+    "batch": "tinkerE2E-B1-6task-seg3-40e43eb5",
+    "session": "e2e_B1a6_uni_s3_g3",
+    "path": "site/tinkerE2E-B1-6task-seg3-40e43eb5__e2e_B1a6_uni_s3_g3",
+    "batch_job": "42869363",
+    "batch_job_state": "ENDED",
+    "idle_s": 168845,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 46,
+    "last_t": "2026-11-05T14:44:44.620Z",
+    "gpu_hours": {
+     "canonical": 15.9713,
+     "actual": 12.0382
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 4,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_on_s4",
+    "loaded": [
+     "pp3",
+     "v1"
+    ],
+    "cells": {},
+    "final": 4,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": {
+     "what": "pp3 (ae665504c149) + v1 (d09a25ef52ad)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T14:44:44.620Z",
+    "cause": null,
+    "id": "tinkerDecompHard3-709f09af__dcmp_on_s4",
+    "batch": "tinkerDecompHard3-709f09af",
+    "session": "dcmp_on_s4",
+    "path": "site/tinkerDecompHard3-709f09af__dcmp_on_s4",
+    "batch_job": "42870467",
+    "batch_job_state": "ENDED",
+    "idle_s": 173279,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 23,
+    "last_t": "2026-11-05T14:18:23.021Z",
+    "gpu_hours": {
+     "canonical": 14.708,
+     "actual": 11.7815
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_off_s2",
+    "loaded": [
+     "r2_nr",
+     "r2_rev"
+    ],
+    "cells": {
+     "nut": {
+      "label": "base",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "restack": {
+      "label": "base",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "revstack": {
+      "label": "base",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     }
+    },
+    "final": 2,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 0.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 0.0,
+    "submitted": {
+     "what": "r2_nr (5da9a7532d99) + r2_rev (bc7a227a9f24)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T14:18:23.021Z",
+    "cause": null,
+    "id": "tinkerDecompHard3-713d7b61__dcmp_off_s2",
+    "batch": "tinkerDecompHard3-713d7b61",
+    "session": "dcmp_off_s2",
+    "path": "site/tinkerDecompHard3-713d7b61__dcmp_off_s2",
+    "batch_job": "42867854",
+    "batch_job_state": "ENDED",
+    "idle_s": 174860,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 23,
+    "last_t": "2026-11-05T14:04:11.175Z",
+    "gpu_hours": {
+     "canonical": 15.965,
+     "actual": 12.1882
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_off_s1",
+    "loaded": [],
+    "cells": {
+     "nut": {
+      "label": "base",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "restack": {
+      "label": "base",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "revstack": {
+      "label": "a_nr20+b_rs30",
+      "score": 5,
+      "n": 100,
+      "base": 3,
+      "base_n": 100,
+      "lift_pp": 2.0,
+      "seeds": "dev"
+     }
+    },
+    "final": 3,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 2.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 2.0,
+    "submitted": {
+     "what": "a_nr20 (d44389fba451) + b_rs30 (3be378fb6ee1)",
+     "source": "SUBMISSION.json",
+     "how": "explicit"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T14:04:11.175Z",
+    "cause": null,
+    "id": "tinkerDecompHard3-713d7b61__dcmp_off_s1",
+    "batch": "tinkerDecompHard3-713d7b61",
+    "session": "dcmp_off_s1",
+    "path": "site/tinkerDecompHard3-713d7b61__dcmp_off_s1",
+    "batch_job": "42867854",
+    "batch_job_state": "ENDED",
+    "idle_s": 175712,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 30,
+    "last_t": "2026-11-05T13:50:53.443Z",
+    "gpu_hours": {
+     "canonical": 52.04,
+     "actual": 34.246
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_t1rt_B1_self_s1",
+    "loaded": [
+     "E"
+    ],
+    "cells": {
+     "lift": {
+      "label": "E",
+      "score": 91,
+      "n": 100,
+      "base": 77,
+      "base_n": 100,
+      "lift_pp": 14.0,
+      "seeds": "dev"
+     },
+     "stack": {
+      "label": "main1",
+      "score": 70,
+      "n": 100,
+      "base": 44,
+      "base_n": 100,
+      "lift_pp": 26.0,
+      "seeds": "dev"
+     },
+     "wipe": {
+      "label": "main1",
+      "score": 87,
+      "n": 100,
+      "base": 20,
+      "base_n": 100,
+      "lift_pp": 67.0,
+      "seeds": "dev"
+     },
+     "nut": {
+      "label": "base",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "restack": {
+      "label": "base",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "revstack": {
+      "label": "E",
+      "score": 12,
+      "n": 100,
+      "base": 3,
+      "base_n": 100,
+      "lift_pp": 9.0,
+      "seeds": "dev"
+     }
+    },
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 67.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 67.0,
+    "submitted": {
+     "what": "E (3b71e6abb6b9)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T13:50:53.443Z",
+    "cause": "eval_failed: InfraError('eval job 42883398 state FAILED: 0 cell summaries; ABORT: oracle gate FAILED [priv=2/5 vis=none_chain] on g3131 (root cause pending; no\u2026",
+    "id": "tinkerT1ReTrain-B1-np-e65b25e5__t1rt_B1_self_s1",
+    "batch": "tinkerT1ReTrain-B1-np-e65b25e5",
+    "session": "t1rt_B1_self_s1",
+    "path": "site/tinkerT1ReTrain-B1-np-e65b25e5__t1rt_B1_self_s1",
+    "batch_job": "42803850",
+    "batch_job_state": "ENDED",
+    "idle_s": 176509,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 2,
+    "last_t": "2026-11-05T13:40:12.337Z",
+    "gpu_hours": {
+     "canonical": 8.959,
+     "actual": 8.9589
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl+6task-uniform-seg3",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T13:40:12.337Z",
+    "cause": "train_failed: InfraError('trainer rc=134 job 42869370 state FAILED')",
+    "id": "tinkerE2E-B1-6task-seg3-40e43eb5__e2e_B1a6_uni_s2_g3",
+    "batch": "tinkerE2E-B1-6task-seg3-40e43eb5",
+    "session": "e2e_B1a6_uni_s2_g3",
+    "path": "site/tinkerE2E-B1-6task-seg3-40e43eb5__e2e_B1a6_uni_s2_g3",
+    "batch_job": "42869363",
+    "batch_job_state": "ENDED",
+    "idle_s": 177151,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 9,
+    "last_t": "2026-11-05T09:33:49.629Z",
+    "gpu_hours": {
+     "canonical": 0.146,
+     "actual": 0.1106
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 7,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_on_s7",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T09:33:49.629Z",
+    "cause": "rollout_failed: <HTTPError 401: 'Unauthorized'>",
+    "id": "tinkerDecompHard3-c177223b-s78__dcmp_on_s7",
+    "batch": "tinkerDecompHard3-c177223b-s78",
+    "session": "dcmp_on_s7",
+    "path": "site/tinkerDecompHard3-c177223b-s78__dcmp_on_s7",
+    "batch_job": "42873681",
+    "batch_job_state": "ENDED",
+    "idle_s": 191934,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 13,
+    "last_t": "2026-11-05T09:30:14.842Z",
+    "gpu_hours": {
+     "canonical": 0.143,
+     "actual": 0.1622
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 8,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_on_s8",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T09:30:14.842Z",
+    "cause": "rollout_failed: <HTTPError 403: 'Forbidden'>",
+    "id": "tinkerDecompHard3-c177223b-s78__dcmp_on_s8",
+    "batch": "tinkerDecompHard3-c177223b-s78",
+    "session": "dcmp_on_s8",
+    "path": "site/tinkerDecompHard3-c177223b-s78__dcmp_on_s8",
+    "batch_job": "42873681",
+    "batch_job_state": "ENDED",
+    "idle_s": 192149,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 11,
+    "last_t": "2026-11-05T09:20:44.843Z",
+    "gpu_hours": {
+     "canonical": 0.155,
+     "actual": 0.29
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 5,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_on_s5",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T09:20:44.843Z",
+    "cause": "rollout_failed: <HTTPError 401: 'Unauthorized'>",
+    "id": "tinkerDecompHard3-c177223b__dcmp_on_s5",
+    "batch": "tinkerDecompHard3-c177223b",
+    "session": "dcmp_on_s5",
+    "path": "site/tinkerDecompHard3-c177223b__dcmp_on_s5",
+    "batch_job": "42872433",
+    "batch_job_state": "ENDED",
+    "idle_s": 192719,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 8,
+    "last_t": "2026-11-05T09:14:16.937Z",
+    "gpu_hours": {
+     "canonical": 0.146,
+     "actual": 0.1594
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 6,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_on_s6",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T09:14:16.937Z",
+    "cause": "rollout_failed: <HTTPError 403: 'Forbidden'>",
+    "id": "tinkerDecompHard3-c177223b__dcmp_on_s6",
+    "batch": "tinkerDecompHard3-c177223b",
+    "session": "dcmp_on_s6",
+    "path": "site/tinkerDecompHard3-c177223b__dcmp_on_s6",
+    "batch_job": "42872433",
+    "batch_job_state": "ENDED",
+    "idle_s": 193107,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 7,
+    "last_t": "2026-11-05T08:58:31.578Z",
+    "gpu_hours": {
+     "canonical": 19.49,
+     "actual": 17.8405
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl+6task-uniform-seg2",
+    "loaded": [
+     "e2e_c2"
+    ],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": {
+     "what": "e2e_c2 (4de9f939ebf4)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T08:58:31.578Z",
+    "cause": "eval_failed: InfraError('eval job 42862455 state FAILED: 0 cell summaries; ABORT: oracle gate FAILED [priv=2/5 vis=none_chain] on g3125 (root cause pending; no\u2026",
+    "id": "tinkerE2E-B1-6task-seg2c-40e43eb5__e2e_B1a6_uni_s2_g2",
+    "batch": "tinkerE2E-B1-6task-seg2c-40e43eb5",
+    "session": "e2e_B1a6_uni_s2_g2",
+    "path": "site/tinkerE2E-B1-6task-seg2c-40e43eb5__e2e_B1a6_uni_s2_g2",
+    "batch_job": "42840957",
+    "batch_job_state": "ENDED",
+    "idle_s": 194052,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 13,
+    "last_t": "2026-11-05T08:57:00.574Z",
+    "gpu_hours": {
+     "canonical": 2.692,
+     "actual": 2.4414
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_on_s2",
+    "loaded": [],
+    "cells": {
+     "nut": {
+      "label": "base",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "restack": {
+      "label": "base",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "revstack": {
+      "label": "base",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     }
+    },
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 0.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 0.0,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T08:57:00.574Z",
+    "cause": "train_failed: InfraError(\"Tinker checkpoint \u2026/global_step_13/actor has \u2026",
+    "id": "tinkerDecompHard3-713d7b61__dcmp_on_s2",
+    "batch": "tinkerDecompHard3-713d7b61",
+    "session": "dcmp_on_s2",
+    "path": "site/tinkerDecompHard3-713d7b61__dcmp_on_s2",
+    "batch_job": "42867854",
+    "batch_job_state": "ENDED",
+    "idle_s": 194143,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 7,
+    "last_t": "2026-11-05T07:32:16.334Z",
+    "gpu_hours": {
+     "canonical": 19.354,
+     "actual": 18.4562
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl+6task-uniform-seg2",
+    "loaded": [
+     "e2e_c2"
+    ],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": {
+     "what": "e2e_c2 (a2723a6157d6)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T07:32:16.334Z",
+    "cause": "eval_failed: InfraError('eval job 42865885 state FAILED: 0 cell summaries; ABORT: oracle gate FAILED [priv=2/5 vis=none_chain] on g3125 (root cause pending; no\u2026",
+    "id": "tinkerE2E-B1-6task-seg2c-40e43eb5__e2e_B1a6_uni_s1_g2",
+    "batch": "tinkerE2E-B1-6task-seg2c-40e43eb5",
+    "session": "e2e_B1a6_uni_s1_g2",
+    "path": "site/tinkerE2E-B1-6task-seg2c-40e43eb5__e2e_B1a6_uni_s1_g2",
+    "batch_job": "42840957",
+    "batch_job_state": "ENDED",
+    "idle_s": 199227,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 7,
+    "last_t": "2026-11-05T07:19:29.503Z",
+    "gpu_hours": {
+     "canonical": 19.357,
+     "actual": 17.6886
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 3,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl+6task-uniform-seg2",
+    "loaded": [
+     "e2e_c2"
+    ],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": {
+     "what": "e2e_c2 (69afbf006308)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T07:19:29.503Z",
+    "cause": "eval_failed: InfraError('eval job 42863437 state FAILED: 0 cell summaries; ABORT: oracle gate FAILED [priv=2/5 vis=none_chain] on g3131 (root cause pending; no\u2026",
+    "id": "tinkerE2E-B1-6task-seg2c-40e43eb5__e2e_B1a6_uni_s3_g2",
+    "batch": "tinkerE2E-B1-6task-seg2c-40e43eb5",
+    "session": "e2e_B1a6_uni_s3_g2",
+    "path": "site/tinkerE2E-B1-6task-seg2c-40e43eb5__e2e_B1a6_uni_s3_g2",
+    "batch_job": "42840957",
+    "batch_job_state": "ENDED",
+    "idle_s": 199994,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 36,
+    "last_t": "2026-11-05T06:24:24.427Z",
+    "gpu_hours": {
+     "canonical": 8.695,
+     "actual": 7.3691
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 3,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_t1rt_B1_self_s3",
+    "loaded": [],
+    "cells": {
+     "lift": {
+      "label": "m1",
+      "score": 15,
+      "n": 20,
+      "base": 13,
+      "base_n": 20,
+      "lift_pp": 10.0,
+      "seeds": "dev"
+     },
+     "stack": {
+      "label": "base",
+      "score": 11,
+      "n": 20,
+      "base": 11,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "wipe": {
+      "label": "m1",
+      "score": 14,
+      "n": 20,
+      "base": 2,
+      "base_n": 20,
+      "lift_pp": 60.0,
+      "seeds": "dev"
+     },
+     "nut": {
+      "label": "base",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "restack": {
+      "label": "base",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "revstack": {
+      "label": "r1",
+      "score": 1,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 5.0,
+      "seeds": "dev"
+     }
+    },
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 60.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 60.0,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T06:24:24.427Z",
+    "cause": "train_failed: InfraError(\"start_preset 'restack_grasped' is not usable: FileNotFoundError: [Errno 2] No such file or directory: '\u2026/<user>/rmin_out\u2026",
+    "id": "tinkerT1ReTrain-B1-np-e65b25e5__t1rt_B1_self_s3",
+    "batch": "tinkerT1ReTrain-B1-np-e65b25e5",
+    "session": "t1rt_B1_self_s3",
+    "path": "site/tinkerT1ReTrain-B1-np-e65b25e5__t1rt_B1_self_s3",
+    "batch_job": "42803850",
+    "batch_job_state": "ENDED",
+    "idle_s": 203299,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 10,
+    "last_t": "2026-11-05T03:25:10.250Z",
+    "gpu_hours": {
+     "canonical": 0,
+     "actual": 0
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_smoke_allowB_A_s1",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T03:25:10.250Z",
+    "cause": "train_failed: InfraError(\"RMIN_TINKER_BUDGET_USD='': trainer=tinker needs a positive spend cap in USD (rate card), checked against the ledger \u2026/ru\u2026",
+    "id": "tinkerSmokeAllowlistB-e65b25e5__smoke_allowB_A_s1",
+    "batch": "tinkerSmokeAllowlistB-e65b25e5",
+    "session": "smoke_allowB_A_s1",
+    "path": "site/tinkerSmokeAllowlistB-e65b25e5__smoke_allowB_A_s1",
+    "batch_job": "42816545",
+    "batch_job_state": "ENDED",
+    "idle_s": 214053,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 7,
+    "last_t": "2026-11-05T01:05:37.900Z",
+    "gpu_hours": {
+     "canonical": 19.352,
+     "actual": 17.4262
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl+6task-uniform",
+    "loaded": [
+     "e2e_c2"
+    ],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": {
+     "what": "e2e_c2 (21850eeb1fa9)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T01:05:37.900Z",
+    "cause": "eval_failed: InfraError('eval job 42840064 state FAILED: 0 cell summaries; ABORT: oracle gate FAILED [priv=2/5 vis=none_chain] on g3125 (root cause pending; no\u2026",
+    "id": "tinkerE2E-B1-6task-7e488699__e2e_B1a6_uni_s2",
+    "batch": "tinkerE2E-B1-6task-7e488699",
+    "session": "e2e_B1a6_uni_s2",
+    "path": "site/tinkerE2E-B1-6task-7e488699__e2e_B1a6_uni_s2",
+    "batch_job": "42798924",
+    "batch_job_state": "ENDED",
+    "idle_s": 222425,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 28,
+    "last_t": "2026-11-05T00:46:33.929Z",
+    "gpu_hours": {
+     "canonical": 24.768,
+     "actual": 15.5031
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_t1rt_B1_self_s2",
+    "loaded": [],
+    "cells": {
+     "lift": {
+      "label": "multi1",
+      "score": 16,
+      "n": 20,
+      "base": 13,
+      "base_n": 20,
+      "lift_pp": 15.0,
+      "seeds": "dev"
+     },
+     "stack": {
+      "label": "base",
+      "score": 11,
+      "n": 20,
+      "base": 11,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "wipe": {
+      "label": "multi1",
+      "score": 17,
+      "n": 20,
+      "base": 2,
+      "base_n": 20,
+      "lift_pp": 75.0,
+      "seeds": "dev"
+     },
+     "nut": {
+      "label": "base",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "restack": {
+      "label": "base",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "revstack": {
+      "label": "rev1",
+      "score": 1,
+      "n": 20,
+      "base": 0,
+      "base_n": 20,
+      "lift_pp": 5.0,
+      "seeds": "dev"
+     }
+    },
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 75.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 75.0,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-05T00:46:33.929Z",
+    "cause": "train_failed: InfraError('sbatch failed rc=-15: ')",
+    "id": "tinkerT1ReTrain-B1-np-e65b25e5__t1rt_B1_self_s2",
+    "batch": "tinkerT1ReTrain-B1-np-e65b25e5",
+    "session": "t1rt_B1_self_s2",
+    "path": "site/tinkerT1ReTrain-B1-np-e65b25e5__t1rt_B1_self_s2",
+    "batch_job": "42803850",
+    "batch_job_state": "ENDED",
+    "idle_s": 223570,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 7,
+    "last_t": "2026-11-04T23:05:55.517Z",
+    "gpu_hours": {
+     "canonical": 19.354,
+     "actual": 17.4359
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl+6task-uniform",
+    "loaded": [
+     "e2e_c2"
+    ],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": {
+     "what": "e2e_c2 (fc8a7c100e0b)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-04T23:05:55.517Z",
+    "cause": "eval_failed: InfraError('eval job 42839267 state FAILED: 0 cell summaries; ABORT: oracle gate FAILED [priv=2/5 vis=none_chain] on g3129 (root cause pending; no\u2026",
+    "id": "tinkerE2E-B1-6task-7e488699__e2e_B1a6_uni_s1",
+    "batch": "tinkerE2E-B1-6task-7e488699",
+    "session": "e2e_B1a6_uni_s1",
+    "path": "site/tinkerE2E-B1-6task-7e488699__e2e_B1a6_uni_s1",
+    "batch_job": "42798924",
+    "batch_job_state": "ENDED",
+    "idle_s": 229607,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 7,
+    "last_t": "2026-11-04T21:43:18.906Z",
+    "gpu_hours": {
+     "canonical": 19.358,
+     "actual": 17.3802
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 3,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl+6task-uniform",
+    "loaded": [
+     "e2e_c2"
+    ],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": {
+     "what": "e2e_c2 (f568f123c887)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-04T21:43:18.906Z",
+    "cause": "eval_failed: InfraError('eval job 42838021 state FAILED: 0 cell summaries; ABORT: oracle gate FAILED [priv=2/5 vis=none_chain] on g3129 (root cause pending; no\u2026",
+    "id": "tinkerE2E-B1-6task-7e488699__e2e_B1a6_uni_s3",
+    "batch": "tinkerE2E-B1-6task-7e488699",
+    "session": "e2e_B1a6_uni_s3",
+    "path": "site/tinkerE2E-B1-6task-7e488699__e2e_B1a6_uni_s3",
+    "batch_job": "42798924",
+    "batch_job_state": "ENDED",
+    "idle_s": 234564,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 2,
+    "last_t": "2026-11-04T18:59:33.870Z",
+    "gpu_hours": {
+     "canonical": 0,
+     "actual": 0
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl+6task-uniform-seg2",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-04T18:59:33.870Z",
+    "cause": "train_failed: InfraError(\"RMIN_TINKER_BUDGET_USD='': trainer=tinker needs a positive spend cap in USD (rate card), checked against the ledger \u2026/ru\u2026",
+    "id": "tinkerE2E-B1-6task-seg2-40e43eb5__e2e_B1a6_uni_s2_g2",
+    "batch": "tinkerE2E-B1-6task-seg2-40e43eb5",
+    "session": "e2e_B1a6_uni_s2_g2",
+    "path": "site/tinkerE2E-B1-6task-seg2-40e43eb5__e2e_B1a6_uni_s2_g2",
+    "batch_job": "42838103",
+    "batch_job_state": "ENDED",
+    "idle_s": 244390,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 2,
+    "last_t": "2026-11-04T18:59:33.870Z",
+    "gpu_hours": {
+     "canonical": 0,
+     "actual": 0
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 3,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl+6task-uniform-seg2",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-04T18:59:33.870Z",
+    "cause": "train_failed: InfraError(\"RMIN_TINKER_BUDGET_USD='': trainer=tinker needs a positive spend cap in USD (rate card), checked against the ledger \u2026/ru\u2026",
+    "id": "tinkerE2E-B1-6task-seg2-40e43eb5__e2e_B1a6_uni_s3_g2",
+    "batch": "tinkerE2E-B1-6task-seg2-40e43eb5",
+    "session": "e2e_B1a6_uni_s3_g2",
+    "path": "site/tinkerE2E-B1-6task-seg2-40e43eb5__e2e_B1a6_uni_s3_g2",
+    "batch_job": "42838103",
+    "batch_job_state": "ENDED",
+    "idle_s": 244390,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 2,
+    "last_t": "2026-11-04T18:59:33.869Z",
+    "gpu_hours": {
+     "canonical": 0,
+     "actual": 0
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl+6task-uniform-seg2",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-04T18:59:33.869Z",
+    "cause": "train_failed: InfraError(\"RMIN_TINKER_BUDGET_USD='': trainer=tinker needs a positive spend cap in USD (rate card), checked against the ledger \u2026/ru\u2026",
+    "id": "tinkerE2E-B1-6task-seg2-40e43eb5__e2e_B1a6_uni_s1_g2",
+    "batch": "tinkerE2E-B1-6task-seg2-40e43eb5",
+    "session": "e2e_B1a6_uni_s1_g2",
+    "path": "site/tinkerE2E-B1-6task-seg2-40e43eb5__e2e_B1a6_uni_s1_g2",
+    "batch_job": "42838103",
+    "batch_job_state": "ENDED",
+    "idle_s": 244390,
+    "in_command": false
+   }
+  ],
+  "best": [
+   {
+    "status": "DONE",
+    "turns": 5,
+    "last_t": "2026-11-06T16:49:49.028Z",
+    "gpu_hours": {
+     "canonical": 3.6964,
+     "actual": 3.9631
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl-uniform",
+    "loaded": [
+     "e2e_c1"
+    ],
+    "cells": {},
+    "final": 91,
+    "final_vs_base": {
+     "score": 91,
+     "n": 100,
+     "base": 14,
+     "base_n": 100,
+     "seeds": "hidden 1-100",
+     "lift_pp": 77.0,
+     "source": "rmin_out/base_hidden_27b/base_hidden_27b.json on hyak (base on the hidden seeds, jobs 42178467,42178468,42178469,42178470,42178471,42178472,42178473,42178475,42178476)"
+    },
+    "best_dev_lift_pp": null,
+    "rank_basis": "hidden",
+    "rank_lift_pp": 77.0,
+    "submitted": {
+     "what": "e2e_c1 (a896802d57cb)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T16:49:49.028Z",
+    "cause": null,
+    "id": "mtprobe-st__e2e_Awipe_uni_s1_mpst",
+    "batch": "mtprobe-st",
+    "session": "e2e_Awipe_uni_s1_mpst",
+    "path": "site/mtprobe-st__e2e_Awipe_uni_s1_mpst",
+    "batch_job": "42990513",
+    "batch_job_state": "ENDED",
+    "idle_s": 79375,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 5,
+    "last_t": "2026-11-06T17:25:45.125Z",
+    "gpu_hours": {
+     "canonical": 1.9442,
+     "actual": 2.2986
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl-uniform",
+    "loaded": [
+     "e2e_c1"
+    ],
+    "cells": {},
+    "final": 95,
+    "final_vs_base": {
+     "score": 95,
+     "n": 100,
+     "base": 57,
+     "base_n": 100,
+     "seeds": "hidden 1-100",
+     "lift_pp": 38.0,
+     "source": "rmin_out/base_hidden_27b/base_hidden_27b.json on hyak (base on the hidden seeds, jobs 42178467,42178468,42178469,42178470,42178471,42178472,42178473,42178475,42178476)"
+    },
+    "best_dev_lift_pp": null,
+    "rank_basis": "hidden",
+    "rank_lift_pp": 38.0,
+    "submitted": {
+     "what": "e2e_c1 (7c1c49ed597f)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T17:25:45.125Z",
+    "cause": null,
+    "id": "mtprobe-st__e2e_Alift_uni_s1_mpst",
+    "batch": "mtprobe-st",
+    "session": "e2e_Alift_uni_s1_mpst",
+    "path": "site/mtprobe-st__e2e_Alift_uni_s1_mpst",
+    "batch_job": "42990513",
+    "batch_job_state": "ENDED",
+    "idle_s": 77219,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 5,
+    "last_t": "2026-11-06T19:50:47.465Z",
+    "gpu_hours": {
+     "canonical": 1.0058,
+     "actual": 1.7725
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl-uniform",
+    "loaded": [
+     "e2e_c1"
+    ],
+    "cells": {},
+    "final": 80,
+    "final_vs_base": {
+     "score": 80,
+     "n": 100,
+     "base": 44,
+     "base_n": 100,
+     "seeds": "hidden 1-100",
+     "lift_pp": 36.0,
+     "source": "rmin_out/base_hidden_27b/base_hidden_27b.json on hyak (base on the hidden seeds, jobs 42178467,42178468,42178469,42178470,42178471,42178472,42178473,42178475,42178476)"
+    },
+    "best_dev_lift_pp": null,
+    "rank_basis": "hidden",
+    "rank_lift_pp": 36.0,
+    "submitted": {
+     "what": "e2e_c1 (768760352789)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T19:50:47.465Z",
+    "cause": null,
+    "id": "mtprobe-mt3__e2e_Astack_uni_s1_mpmt",
+    "batch": "mtprobe-mt3",
+    "session": "e2e_Astack_uni_s1_mpmt",
+    "path": "site/mtprobe-mt3__e2e_Astack_uni_s1_mpmt",
+    "batch_job": "42997205",
+    "batch_job_state": "ENDED",
+    "idle_s": 68517,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 5,
+    "last_t": "2026-11-06T19:44:38.790Z",
+    "gpu_hours": {
+     "canonical": 0.8125,
+     "actual": 1.5475
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl-uniform",
+    "loaded": [
+     "e2e_c1"
+    ],
+    "cells": {},
+    "final": 47,
+    "final_vs_base": {
+     "score": 47,
+     "n": 100,
+     "base": 14,
+     "base_n": 100,
+     "seeds": "hidden 1-100",
+     "lift_pp": 33.0,
+     "source": "rmin_out/base_hidden_27b/base_hidden_27b.json on hyak (base on the hidden seeds, jobs 42178467,42178468,42178469,42178470,42178471,42178472,42178473,42178475,42178476)"
+    },
+    "best_dev_lift_pp": null,
+    "rank_basis": "hidden",
+    "rank_lift_pp": 33.0,
+    "submitted": {
+     "what": "e2e_c1 (e7756ca2f90b)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T19:44:38.790Z",
+    "cause": null,
+    "id": "mtprobe-mt3__e2e_Awipe_uni_s1_mpmt",
+    "batch": "mtprobe-mt3",
+    "session": "e2e_Awipe_uni_s1_mpmt",
+    "path": "site/mtprobe-mt3__e2e_Awipe_uni_s1_mpmt",
+    "batch_job": "42997205",
+    "batch_job_state": "ENDED",
+    "idle_s": 68886,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 5,
+    "last_t": "2026-11-06T15:26:43.945Z",
+    "gpu_hours": {
+     "canonical": 2.2025,
+     "actual": 2.5622
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl-uniform",
+    "loaded": [
+     "e2e_c1"
+    ],
+    "cells": {},
+    "final": 65,
+    "final_vs_base": {
+     "score": 65,
+     "n": 100,
+     "base": 44,
+     "base_n": 100,
+     "seeds": "hidden 1-100",
+     "lift_pp": 21.0,
+     "source": "rmin_out/base_hidden_27b/base_hidden_27b.json on hyak (base on the hidden seeds, jobs 42178467,42178468,42178469,42178470,42178471,42178472,42178473,42178475,42178476)"
+    },
+    "best_dev_lift_pp": null,
+    "rank_basis": "hidden",
+    "rank_lift_pp": 21.0,
+    "submitted": {
+     "what": "e2e_c1 (85d955294cd8)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T15:26:43.945Z",
+    "cause": null,
+    "id": "mtprobe-st__e2e_Astack_uni_s1_mpst",
+    "batch": "mtprobe-st",
+    "session": "e2e_Astack_uni_s1_mpst",
+    "path": "site/mtprobe-st__e2e_Astack_uni_s1_mpst",
+    "batch_job": "42990513",
+    "batch_job_state": "ENDED",
+    "idle_s": 84361,
+    "in_command": false
+   }
+  ],
+  "pinned": [
+   {
+    "status": "DONE",
+    "turns": 11,
+    "last_t": "2026-10-23T02:57:53.055Z",
+    "gpu_hours": {
+     "canonical": 15.596,
+     "actual": 20.2442
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": null,
+     "version": null,
+     "skills_version": null,
+     "source": null
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3a_min_M_s1",
+    "loaded": [],
+    "cells": {
+     "lift": {
+      "label": "lift30",
+      "score": 87,
+      "n": 100,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 20.0,
+      "seeds": "dev"
+     },
+     "stack": {
+      "label": "stack30",
+      "score": 53,
+      "n": 100,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 2.0,
+      "seeds": "dev"
+     }
+    },
+    "final": 118,
+    "final_vs_base": {
+     "score": 118,
+     "n": 900,
+     "base": 118,
+     "base_n": 900,
+     "seeds": "hidden 1-100",
+     "lift_pp": 0.0,
+     "source": "rmin_out/base_hidden_27b/base_hidden_27b.json on hyak (base on the hidden seeds, jobs 42178467,42178468,42178469,42178470,42178471,42178472,42178473,42178475,42178476)"
+    },
+    "best_dev_lift_pp": 20.0,
+    "rank_basis": "hidden",
+    "rank_lift_pp": 0.0,
+    "submitted": {
+     "what": "base",
+     "source": "loaded at the end (no SUBMISSION.json)"
+    },
+    "outcome": "submission-error",
+    "outcome_note": "lift30+stack30 verified at +19 dev, then `load.py unload` and `touch DONE` in one command, so the base was scored (behaviour pass 7)",
+    "ended_t": "2026-10-23T02:57:53.055Z",
+    "cause": null,
+    "id": "batch3a-46b913b__b3a_min_M_s1",
+    "batch": "batch3a-46b913b",
+    "session": "b3a_min_M_s1",
+    "path": "site/batch3a-46b913b__b3a_min_M_s1",
+    "batch_job": "42154019",
+    "batch_job_state": "ENDED",
+    "idle_s": 1338883,
+    "in_command": false
+   },
+   {
+    "status": "running",
+    "turns": 51,
+    "last_t": "2026-10-24T01:24:09.096Z",
+    "gpu_hours": 0,
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": true,
+     "version": "8",
+     "skills_version": "ea39163-15ab3e1e",
+     "source": "fallback"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_st_lift_min_s1",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": null,
+    "cause": null,
+    "id": "single1023-c2190dc__st_lift_min_s1",
+    "batch": "single1023-c2190dc",
+    "session": "st_lift_min_s1",
+    "path": "site/single1023-c2190dc__st_lift_min_s1",
+    "batch_job": "42210175",
+    "batch_job_state": "ENDED",
+    "idle_s": 1258107,
+    "in_command": true
+   },
+   {
+    "status": "running",
+    "turns": 15,
+    "last_t": "2026-10-23T21:34:36.799Z",
+    "gpu_hours": 0,
+    "harness": "fixed",
+    "arm": "library",
+    "playbook": {
+     "on": true,
+     "version": "8",
+     "skills_version": "ea39163-15ab3e1e",
+     "source": "fallback"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_st_stack_fix_s1",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": null,
+    "cause": null,
+    "id": "single1023-c2190dc__st_stack_fix_s1",
+    "batch": "single1023-c2190dc",
+    "session": "st_stack_fix_s1",
+    "path": "site/single1023-c2190dc__st_stack_fix_s1",
+    "batch_job": "42210175",
+    "batch_job_state": "ENDED",
+    "idle_s": 1271880,
+    "in_command": true
+   }
+  ]
+ },
+ "reports": [
+  "reports/sessions-by-score-2026-10-25.html",
+  "reports/bubble-2026-10-25.html",
+  "reports/bubble-2026-10-24.html"
+ ]
+}

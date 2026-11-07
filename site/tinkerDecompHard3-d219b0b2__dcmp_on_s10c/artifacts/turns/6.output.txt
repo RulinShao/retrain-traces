@@ -1,0 +1,97 @@
+rc=0
+7,11c7,8
+< Goal: grasp and insert the `brown square nut` onto the `brown square block`.
+< Note that you would grasp the nut by its handle. You can try language query `extruded handle of the brown square nut` to get a good grasp at the handle.
+< The brown square nut and the extruded handle of the brown square nut are part of the same rigid body.
+< The grasp pose query for 'extruded handle of the brown square nut' returns an end-effector pose expressed in world frame, located on the handle region.
+< The nut's object center pose obtained via 'white hollow center of the brown square nut' and the handle grasp pose obtained via 'extruded handle of the brown square nut' have a fixed rigid transform, which must be applied correctly when inserting the nut onto the peg.
+---
+> Goal: Gently place the red cube on top of the green cube and then open the gripper. Nothing should be dropped from a height.
+> Use the extent of the cubes to calculate the exact height for placement.
+13,14c10
+< The functions (APIs) below are already imported to the environment.
+< If you want to use numpy, or scipy for spatial transformations, you need to import it explicitly.
+---
+> The functions (APIs) below are already imported to the environment. If you want to use numpy, scipy, torch, etc. you need to import them explicitly.
+77a74,102
+> 
+> plan_grasp(depth: numpy.ndarray, intrinsics: numpy.ndarray, segmentation: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+>   Doc:
+>     Plan grasp candidates using Contact-GraspNet for a single instance.
+>     
+>     This is a thin wrapper around the Contact-GraspNet planner. It does not
+>     apply any camera/world transforms or TCP offsets: the caller is
+>     responsible for transforming the resulting grasp poses into the desired
+>     frame and applying TCP offsets if necessary.
+>     
+>     Args:
+>         depth:
+>             Depth image in meters.
+>             Shape: (H, W), dtype float32/float64.
+>         intrinsics:
+>             Camera intrinsic matrix.
+>             Shape: (3, 3), dtype float64.
+>         segmentation:
+>             Instance segmentation map where each integer > 0 corresponds to a
+>             unique object instance ID.
+>             Shape: (H, W) or (H, W, 1), dtype int32/int64.
+>     
+>     Returns:
+>         grasp_poses:
+>             np.ndarray of shape (K, 4, 4), dtype float64.
+>             Homogeneous transforms for each candidate grasp IN THE CAMERA FRAME.
+>         grasp_scores:
+>             np.ndarray of shape (K,), dtype float64.
+>             Confidence score for each candidate grasp.
+====REVSTACK
+6,14c6,15
+< You are controlling a Franka Emika robot with API described below.
+< Goal: grasp and insert the `brown square nut` onto the `brown square block`.
+< Note that you would grasp the nut by its handle. You can try language query `extruded handle of the brown square nut` to get a good grasp at the handle.
+< The brown square nut and the extruded handle of the brown square nut are part of the same rigid body.
+< The grasp pose query for 'extruded handle of the brown square nut' returns an end-effector pose expressed in world frame, located on the handle region.
+< The nut's object center pose obtained via 'white hollow center of the brown square nut' and the handle grasp pose obtained via 'extruded handle of the brown square nut' have a fixed rigid transform, which must be applied correctly when inserting the nut onto the peg.
+< You may write python code comments for reasoning but ONLY write the executable Python code and do not write it in code fences.
+< The functions (APIs) below are already imported to the environment.
+< If you want to use numpy, or scipy for spatial transformations, you need to import it explicitly.
+---
+> You are controlling a Franka Emika robot with the API described below.
+> Goal: Pick up the green cube and gently stack it on top of the red cube, then release it.
+> 
+> Key rules:
+> - Always use z_approach=0.1 when approaching an object for grasping or placing.
+> - After grasping, lift the cube to a safe height (at least +0.2m in Z) before moving laterally to the placement location.
+> - The stacking height formula is: place_z = red_center_z + red_extent[2]/2 + green_extent[2]/2
+> - Nothing should be dropped from a height. Always approach with z_approach for controlled descent.
+> 
+> Write ONLY executable Python code (no code fences). Import numpy if needed.
+77a79,107
+> 
+> plan_grasp(depth: numpy.ndarray, intrinsics: numpy.ndarray, segmentation: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+>   Doc:
+>     Plan grasp candidates using Contact-GraspNet for a single instance.
+>     
+>     This is a thin wrapper around the Contact-GraspNet planner. It does not
+>     apply any camera/world transforms or TCP offsets: the caller is
+>     responsible for transforming the resulting grasp poses into the desired
+>     frame and applying TCP offsets if necessary.
+>     
+>     Args:
+>         depth:
+>             Depth image in meters.
+>             Shape: (H, W), dtype float32/float64.
+>         intrinsics:
+>             Camera intrinsic matrix.
+>             Shape: (3, 3), dtype float64.
+>         segmentation:
+>             Instance segmentation map where each integer > 0 corresponds to a
+>             unique object instance ID.
+>             Shape: (H, W) or (H, W, 1), dtype int32/int64.
+>     
+>     Returns:
+>         grasp_poses:
+>             np.ndarray of shape (K, 4, 4), dtype float64.
+>             Homogeneous transforms for each candidate grasp IN THE CAMERA FRAME.
+>         grasp_scores:
+>             np.ndarray of shape (K,), dtype float64.
+>             Confidence score for each candidate grasp.

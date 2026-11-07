@@ -1,0 +1,183 @@
+rc=0
+===== preset.py =====
+"""python3 preset.py --task T --name NAME ( --program FILE --seeds N | --from rollouts/<job>.jsonl --where "<predicate over r>" )
+
+Build start states for practice on task T, saved per source seed and kept only if every state restores. Then a train spec with
+"start_preset": "NAME" on task T starts each practice rollout from those states. Two ways to pick the states:
+  * prefix program (--program FILE --seeds N): your prefix program (a .py in your workspace, written with the task's own API, the
+    functions in its eval prompt) runs once on each of N fresh dev seeds (1-32) on T's simulator, and the state it reaches is saved.
+  * from rollouts (--from rollouts/<job>.jsonl --where "<predicate>"): the end state of each episode of a prior rollout job of
+    yours on T that the predicate matches (at most 32) is saved, at that episode's own dev seed. The rollout itself kept no
+    restorable state, so each matched episode's program is run again at its seed on T's practice simulator and the state it
+    reaches is the one saved (compare the record's log_tail with the rollout's stdout_tail to see whether the re-run went the
+    same way). --where is a python expression over each rollout row r, e.g. "not r['task_completed']"; it is evaluated in the
+    reward box (never imported).
+The record (per seed: seed, sandbox_rc, secs, wall_s, log_tail, restorable, drift_mm, error; and your program, or the --from /
+--where source) is written to presets/NAME.json. Charged as an eval of the seeds built. Refused before anything runs: a program
+that names a privileged API or the simulator's objects; a --from whose matched rows include a hidden seed."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("--task", required=True)
+p.add_argument("--name", required=True, help="the preset's name (letters, digits, _ . -)")
+p.add_argument("--program", help="prefix-program mode: a .py file in your workspace (the prefix program)")
+p.add_argument("--seeds", type=int, help="prefix-program mode: number of fresh dev seeds (1-32)")
+p.add_argument("--from", dest="from_rollouts", metavar="rollouts/<job>.jsonl",
+               help="from-rollouts mode: a prior rollout job's rows (use with --where)")
+p.add_argument("--where", help="from-rollouts mode: a python predicate over each rollout row r, e.g. \"not r['task_completed']\"")
+a = p.parse_args()
+if a.from_rollouts:
+    if a.program or a.seeds is not None:
+        p.error("--from (from-rollouts mode) and --program/--seeds (prefix-program mode) are mutually exclusive")
+    if not a.where:
+        p.error("--from needs --where \"<predicate over each rollout row r>\"")
+    submit("preset", {"task": a.task, "name": a.name, "from": a.from_rollouts, "where": a.where})
+else:
+    if not a.program or a.seeds is None:
+        p.error("prefix-program mode needs --program and --seeds (or use --from with --where)")
+    submit("preset", {"task": a.task, "program": a.program, "name": a.name, "seeds": a.seeds})
+===== rollout.py =====
+"""python3 rollout.py --adapter A[,B...]|base|loaded --task T --seeds N [--reward FILE]  -- run the policy (that adapter stack) on N
+fresh dev seeds of task T and return, per seed, its program, the tail of what the program printed and the run facts (seed,
+sandbox_rc, secs, wall_s, task), plus task_completed and stdout_tail on a task whose verifier you can see, and there, where the
+site runs the programs on the task's practice simulator, sim_reward, stages and final_state. --reward FILE (a .py in
+your workspace defining reward(result) -> float) also scores each seed with your reward over those keys (not the program).
+Charged as an eval of N seeds. The rows are written to rollouts/<job id>.jsonl; the job result and SCOREBOARD.md give the mean of
+your reward.
+--magic "prefix:<stage>=set FILE.json | attach OBJECT" (DEV practice): at each seed's reset the simulator edits the scene so that
+the checklist's stages up to <stage> are done (set: FILE = {"objects": {name: [x,y,z] or [x,y,z,qw,qx,qy,qz]}, "robot": {"joints":
+[...], "gripper": "open"|"closed"|fraction}, "attach": OBJECT (optional: after the poses, OBJECT into the gripper),
+"grasp_point": POINT (optional, with attach: that point of OBJECT at the gripper instead of its centre, e.g. a handle)};
+attach: OBJECT in the closed gripper), checks it (25 settle steps, 5 mm / 10 deg,
+penetration < 2 mm, the stages hold, the task not already done) and runs the program from there; a refused edit is the row's
+`magic.reason` and the program does not run. Rows carry `magic` and `label: "privileged practice (magic)"`, are never success data
+for a train, and eval.py never takes --magic. --magic-presets NAME also saves the states before / after each valid edit as presets
+NAME_pre / NAME_post (a unit from NAME_pre gets as default done the post state's `signature`).
+--magic-prefix stage=<k|name> [--suffix policy|oracle] (the magic ladder, DEV practice): each seed starts at the boundary of the
+task's ladder cut k (the state is the environment's, not a file of yours; the cuts are listed in a refusal), then the suffix
+runs: policy (default) = the stack's programs, rows as with --magic; oracle = the task's human-expert oracle tail on the privileged
+API (doability probe: COUNTS ONLY, n/N, labelled "upper bound / doability", never rows, never training data). All ladder calls of
+a task run on its first ladder call's seeds; the job result and SCOREBOARD.md give the success per cut over them."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("--adapter", required=True)
+p.add_argument("--task", required=True)
+p.add_argument("--seeds", type=int, required=True)
+p.add_argument("--reward", help="a .py file in your workspace defining reward(result) -> float")
+p.add_argument("--magic", help="prefix:<stage>=set FILE.json | prefix:<stage>=attach OBJECT (DEV practice)")
+p.add_argument("--magic-presets", help="with --magic or --magic-prefix (policy suffix): save the states before / after each "
+                                        "edit as presets NAME_pre / NAME_post")
+p.add_argument("--magic-prefix", help="stage=<k|name>: start at the boundary of the task's ladder cut k (DEV practice)")
+p.add_argument("--suffix", choices=("policy", "oracle"), help="with --magic-prefix: the stack's programs (default) or the oracle probe")
+a = p.parse_args()
+submit("rollout", {"adapter": a.adapter, "task": a.task, "seeds": a.seeds, **({"reward": a.reward} if a.reward else {}),
+                   **({"magic": a.magic} if a.magic else {}), **({"magic_presets": a.magic_presets} if a.magic_presets else {}),
+                   **({"magic_prefix": a.magic_prefix} if a.magic_prefix else {}), **({"suffix": a.suffix} if a.suffix else {})})
+===== eval.py =====
+"""python3 eval.py --adapter A[,B...]|base|loaded --task T --seeds N [--reward FILE]  -- success count of that adapter stack on N
+fresh dev seeds. --reward FILE (a .py in your workspace defining reward(result) -> float) also writes the per-seed rows to
+rollouts/<job id>.jsonl (as rollout.py does), each scored with your reward."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("--adapter", required=True)
+p.add_argument("--task", required=True)
+p.add_argument("--seeds", type=int, required=True)
+p.add_argument("--reward", help="a .py file in your workspace defining reward(result) -> float")
+a = p.parse_args()
+submit("eval", {"adapter": a.adapter, "task": a.task, "seeds": a.seeds, **({"reward": a.reward} if a.reward else {})})
+===== train.py =====
+"""python3 train.py SPEC  -- train an adapter from your spec file (JSON or YAML; any keys). The environment reads
+`name` (adapter name, default a<job id>), `init` (an adapter name to start from) and `steps`; the site's trainer reads the rest."""
+import sys
+from _submit import submit
+
+if len(sys.argv) != 2 or sys.argv[1] in ("-h", "--help"):
+    import os
+    doc = os.path.join(os.path.dirname(os.path.abspath(__file__)), "skills", "trainer", "SKILL.md")   # the site's trainer contract
+    sys.exit(open(doc).read() if os.path.isfile(doc) else __doc__)
+submit("train", {"spec": sys.argv[1]})
+===== verifier.py =====
+"""python3 verifier.py design --task T --goal TEXT [--unit U] [--purpose TEXT] [--name N]  -- a verifier for your goal on task T:
+a fresh-context writer drafts it from the task's state schema, predicate library and your own recorded rows of T, a fresh-context
+judge proposes states that would pass without reaching the goal, and the lint executes five checks on states (start state 0,
+crashed / no-op rows 0, goal states 1, near misses 0, monotone over stages). Result: verifiers/N.py (a reward file: use it as
+--reward / a train spec's reward) and verifiers/N.audit.json (the checks, the judge's tests, the self-check), or a refusal that
+names the failing check. Record a few rollouts of T first (rollout.py). The subagents' time is charged to your GPU-hour budget
+(shown in the result); the call takes a few minutes."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+sub = p.add_subparsers(dest="action", required=True)
+d = sub.add_parser("design")
+d.add_argument("--task", required=True)
+d.add_argument("--goal", required=True, help="the goal or sub-goal in your words, e.g. 'red on green, released and at rest'")
+d.add_argument("--unit", help="the practice unit (unit.py) the verifier is for")
+d.add_argument("--purpose", help="what you will use it for, e.g. 'reward of the first sub-goal'")
+d.add_argument("--name", help="the verifier's file name (default: <task>_v<k>)")
+a = p.parse_args()
+submit("verifier", {"action": a.action, "task": a.task, "goal": a.goal,
+                    **{k: v for k, v in (("unit", a.unit), ("purpose", a.purpose), ("name", a.name)) if v}})
+===== unit.py =====
+"""python3 unit.py register NAME --task T --reward FILE [--start-preset P] [--done FILE]  -- a subtask unit of task T: afterwards
+NAME works as a task in train.py (a spec with "task": "NAME" trains on T with reward FILE, from your preset P when given),
+rollout.py --task NAME (T's practice simulator, from P's states when given; rows scored by FILE and, with --done, `unit_done`) and
+eval.py --task NAME (the same, counted: successes = done(r) holds, or reward(r) >= 1.0 without --done; the unit's own SCOREBOARD
+row, never a final score). FILE defines reward(r) -> float, --done a file defining done(r) -> bool (both .py in your workspace,
+r = the rollout row's keys); P is a preset you built with preset.py on T. Record: units/NAME.json. Nothing is charged.
+python3 unit.py list  -- the session's units."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+sub = p.add_subparsers(dest="action", required=True)
+r = sub.add_parser("register")
+r.add_argument("name")
+r.add_argument("--task", required=True)
+r.add_argument("--reward", required=True, help="a .py file in your workspace defining reward(r) -> float")
+r.add_argument("--start-preset", help="a preset you built with preset.py on the task")
+r.add_argument("--done", help="a .py file in your workspace defining done(r) -> bool")
+sub.add_parser("list")
+a = p.parse_args()
+args = {"action": a.action}
+if a.action == "register":
+    args.update(name=a.name, task=a.task, reward=a.reward, **{k: v for k, v in (("start_preset", a.start_preset), ("done", a.done)) if v})
+submit("unit", args)
+===== reward_check.py =====
+"""python3 reward_check.py --reward FILE --against NAME  -- score your reward FILE (a .py defining reward(r) -> float) on the states
+of magic preset pair NAME (NAME_pre and NAME_post, from rollout.py --magic --magic-presets NAME) and on your rollout rows whose
+program crashed (sandbox_rc not 0), and state the means and whether the reward rises from pre to post and scores crashes lowest.
+Facts only; nothing is charged or refused."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("--reward", required=True)
+p.add_argument("--against", required=True, help="a magic preset pair's name (NAME, NAME_pre or NAME_post)")
+a = p.parse_args()
+submit("reward_check", {"reward": a.reward, "against": a.against})
+===== _submit.py =====
+"""Shared by train.py, eval.py, load.py, wait.py, cancel.py, finish.py: write one request file to jobs/; the environment picks it up when
+the current shell command finishes, and writes jobs/<id>.json with its state and result."""
+import json, os
+
+JOBS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "jobs")
+
+
+def submit(kind, args):
+    os.makedirs(JOBS, exist_ok=True)
+    n = 1
+    while True:
+        try:
+            f = open(os.path.join(JOBS, f"{n}.request.json"), "x")
+            break
+        except FileExistsError:
+            n += 1
+    with f:
+        json.dump({"id": n, "kind": kind, "args": args}, f)
+    print(f"job {n}: {kind} requested; it is picked up when this command finishes (see python3 status.py {n})")

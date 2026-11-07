@@ -1,0 +1,11 @@
+{
+  "name": "boilC_robust",
+  "task": "BoilPot",
+  "steps": 10,
+  "batch": 8,
+  "reward": "rewards/boil_pot_touches_stove.py",
+  "goal": "Take the pot filled with water and place it on the stove.",
+  "note": "SKILL GUIDE (practice only). Objective this trial: get the pot to rest ON the stove cooking surface (height ~0.85 m, NOT the floor).\nSetup: navigate_to('stove'); then obs=get_observation() again (the base frame moved); img=obs['robot0_robotview']['images']['rgb']; depth=obs['robot0_robotview']['images']['depth']; K=obs['robot0_robotview']['intrinsics']; pose=obs['robot0_robotview']['pose_mat'].\nPerceive the STOVE TOP as the target at its real height: m=segment_sam3_text_prompt(img,'stove'); if empty try 'stovetop','cooktop','burner'; take the mask with the most pixels; for each (y,x) pixel with 0.05<depth[y,x]<=3: cam=np.array([(x-K[0,2])*d/K[0,0],(y-K[1,2])*d/K[1,1],d,1.0]); b=pose@cam; keep the candidate point with the LARGEST z as T (the top surface). If nothing found set T=np.array([0.45,0.0,0.85]).\nPerceive and GRASP the pot, retrying up to 3 names: for name in ['pot','saucepan','pot with water','metal pot']: m=segment_sam3_text_prompt(img,name); if a mask has >200 pixels: smap=that mask as 0/1; g,s=plan_grasp(depth,K,smap); if len(g)>0: gi=int(np.argmax(s)); gp=pose@g[gi]; p=gp[:3,3]; q=rotm_wxyz(gp[:3,:3]); move_to_joints(solve_ik(p+[0,0,0.06],q)); move_to_joints(solve_ik(p,q)); open_gripper(); close_gripper(); move_to_joints(solve_ik(p+[0,0,0.18],[0,0,1,0])); break. If no segment, fall back to u,v=point_prompt_molmo(img,'pot'); if u is not None: d=depth[v,u]; if 0.05<d<=3: p=pose@np.array([(u-K[0,2])*d/K[0,0],(v-K[1,2])*d/K[1,1],d,1.0]); p=p[:3]; q=np.array([0,0,1,0]); grasp the same way.\nPlace the pot on the stove: move_to_joints(solve_ik(T+[0,0,0.20],[0,0,1,0])); move_to_joints(solve_ik(T,[0,0,1,0])); open_gripper(); then move up. The pot must END at height ~0.85 m resting on the stove, never on the floor (z~0.05).\nrotm_wxyz(R): rotation matrix to unit quaternion [w,x,y,z]. Write plain executable Python only, no code fences.",
+  "init_mode": "fresh",
+  "time": "02:00:00"
+}

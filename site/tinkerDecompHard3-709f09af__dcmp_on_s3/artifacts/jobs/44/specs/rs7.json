@@ -1,0 +1,11 @@
+{
+  "task": "restack",
+  "name": "rs7",
+  "init": "rs6",
+  "reward": "shaped",
+  "steps": 8,
+  "batch": 8,
+  "rollouts": 8,
+  "lr": 2e-05,
+  "note": "This is a two-stage task. First grasp the green cube (currently on top), move it to a clear empty spot on the table and open the gripper to release it. Then re-locate the green cube, grasp the red cube (now exposed on the table), lift at least 0.2 m in z before moving laterally, and place the red cube on top of the green cube with place_z = green_center_z + green_half_extent + red_half_extent, then open the gripper."
+}

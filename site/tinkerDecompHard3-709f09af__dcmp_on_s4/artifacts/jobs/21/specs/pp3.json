@@ -1,0 +1,1 @@
+{"task": ["restack", "nut"], "name": "pp3", "steps": 19, "batch": 8, "rollouts": 8, "lr": 2e-5, "reward": "reward_pp2.py", "init_mode": "fresh"}

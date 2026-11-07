@@ -1,0 +1,1 @@
+{"task": "PlaceVeggiesInDrawer", "steps": 1, "batch": 8, "reward": "rewards/o_fridge.py", "init_mode": "fresh", "name": "o_fridge", "seed_start": 902101}

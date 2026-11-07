@@ -1,0 +1,111 @@
+rc=0
+
+- Goal: RoboCasa365 GarnishPancake (Garnishing Dishes), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Take the strawberry from the fridge and place it on top of the pancake, located on the dining counter. Success requires: the strawberry is on the pancake and the pancake on its plate (each touching, centre within 0.7 of the support's radius), the plate touches the dining counter, and the gripper is more than 0.25 m from the strawberry. 4 subtasks; skills: doors, navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## CerealAndBowl
+
+- Goal: RoboCasa365 CerealAndBowl (Snack Preparation), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Open the cabinet. Pick the cereal and bowl from the cabinet and place them on the counter next to the milk. Then close the cabinet. Success requires: the cereal box and the bowl both touch the counter next to the cabinet and the cabinet door is closed. 4 subtasks; skills: doors, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## PackIdenticalLunches
+
+- Goal: RoboCasa365 PackIdenticalLunches (Packing Lunches), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Place one [*vegetable*] and one [*meat*] in each tupperware on the nearby counter, to pack two identical lunches. Success requires: each of the two tupperwares holds exactly one vegetable and exactly one meat (touching it, centre within 0.7 of its radius), no item counts for both, and the gripper is more than 0.25 m from every packed item. 15 subtasks; skills: navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## StirVegetables
+
+- Goal: RoboCasa365 StirVegetables (Sauteing Vegetables), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Put the [*vegetables*] in the pot. Retrieve the spatula and lightly stir the vegetables in the pot. Success requires: for at least 5 control steps the robot held the spatula and stirred: both vegetables in the pot, the pot within 0.15 m of the named burner with that burner on, the spatula touching the vegetables, and both vegetables moving more than 0.5 mm per step. 4 subtasks; skills: navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+
+## GatherTableware
+
+- Goal: RoboCasa365 GatherTableware (Arranging Cabinets), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Gather all objects into one cabinet and sort the glasses and bowls to opposite sides. Success requires: the three glasses stand close together: the largest glass-to-glass distance times 1.5 is less than the largest bowl-to-glass distance, and the gripper is more than 0.25 m from every glass. 4 subtasks; skills: navigation, pick_place.
+- Seeds: dev seeds from 800071 upward (eval.py draws fresh ones); hidden seeds 800021-800070 are reserved for the final score
+- Base: 0/20 (seeds 800001-800020)
+===
+===
+{
+ "overview": {
+  "robot": "A Franka Emika robot arm in CaP-X Robosuite simulation, driven through the perception and control APIs listed in each task's eval prompt (CaP-X API tier s4).",
+  "program": "Per trial the policy writes one single-turn Python program: executable code only, comments allowed, no code fences.",
+  "success": "Each task's own success check.",
+  "evaluation": "Hidden seeds; the one adapter stack you submit serves every task."
+ },
+ "families": [],
+ "tasks": [
+  {
+   "name": "TongBuffetSetup",
+   "eval": "robocasa:TongBuffetSetup",
+   "cell": "TongBuffetSetup s4mfx1 (TongBuffetSetup_s4mfx1.yaml)",
+   "about": "RoboCasa365 TongBuffetSetup (Arranging Buffet), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Take the tongs from the drawer on the *left/right* and place them on the dining counter next to the tray containing the [*food*]. Success requires: the tongs and the food tray both touch the dining counter with their centres within 0.5 m of each other, and the gripper is more than 0.15 m from the tongs and from the tray. 4 subtasks; skills: drawers, navigation, pick_place.",
+   "train": "yes: GRPO-LoRA on Tinker, on the task or on a sub-goal of it (`goal` + your reward_fn(state))"
+  },
+  {
+   "name": "PlaceVeggiesInDrawer",
+   "eval": "robocasa:PlaceVeggiesInDrawer",
+   "cell": "PlaceVeggiesInDrawer s4mfx1 (PlaceVeggiesInDrawer_s4mfx1.yaml)",
+   "about": "RoboCasa365 PlaceVeggiesInDrawer (Loading Fridge), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Place the [*vegetables*] inside the fridge drawer. Close the drawer after placing the vegetables. Success requires: both vegetables are fully inside the top fridge drawer, that drawer is closed (at most 2% open), and the gripper is more than 0.25 m from both vegetables. 8 subtasks; skills: drawers, navigation, pick_place.",
+   "train": "yes: GRPO-LoRA on Tinker, on the task or on a sub-goal of it (`goal` + your reward_fn(state))"
+  },
+  {
+   "name": "OrganizeMetallicUtensils",
+   "eval": "robocasa:OrganizeMetallicUtensils",
+   "cell": "OrganizeMetallicUtensils s4mfx1 (OrganizeMetallicUtensils_s4mfx1.yaml)",
+   "about": "RoboCasa365 OrganizeMetallicUtensils (Organizing Utensils), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Pick up the metallic utensils from the counter and place them in the open drawer. Make sure not to pick up any wooden utensils. Success requires: every metallic utensil is fully inside the drawer and not touching the dining counter, every wooden spoon still touches the dining counter and is not in the drawer, and the gripper is more than 0.25 m from every utensil. 7 subtasks; skills: drawers, navigation, pick_place.",
+   "train": "yes: GRPO-LoRA on Tinker, on the task or on a sub-goal of it (`goal` + your reward_fn(state))"
+  },
+  {
+   "name": "BoilPot",
+   "eval": "robocasa:BoilPot",
+   "cell": "BoilPot s4mfx1 (BoilPot_s4mfx1.yaml)",
+   "about": "RoboCasa365 BoilPot (Boiling), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Take the pot filled with water and place it on the stove. Then turn on the stove burner to begin boiling the water. Success requires: the pot touches the stove and the burner nearest to the pot is on. 4 subtasks; skills: knobs, navigation, pick_place.",
+   "train": "yes: GRPO-LoRA on Tinker, on the task or on a sub-goal of it (`goal` + your reward_fn(state))"
+  },
+  {
+   "name": "SimmeringSauce",
+   "eval": "robocasa:SimmeringSauce",
+   "cell": "SimmeringSauce s4mfx1 (SimmeringSauce_s4mfx1.yaml)",
+   "about": "RoboCasa365 SimmeringSauce (Reheating Food), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Place the pan on the [*burner location*] burner on the stove. Then place the tomato and the onion in the pan and turn on the [*burner location*] burner. Success requires: the pan touches the stove with its centre within 0.08 m of the named burner, the tomato and the onion are in the pan (touching it, centre within 0.7 of the pan's radius), and that burner is on. 4 subtasks; skills: knobs, navigation, pick_place.",
+   "train": "yes: GRPO-LoRA on Tinker, on the task or on a sub-goal of it (`goal` + your reward_fn(state))"
+  },
+  {
+   "name": "HeatMultipleWater",
+   "eval": "robocasa:HeatMultipleWater",
+   "cell": "HeatMultipleWater s4mfx1 (HeatMultipleWater_s4mfx1.yaml)",
+   "about": "RoboCasa365 HeatMultipleWater (Boiling), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Pick the kettle from the cabinet and place it on a stove burner. Then pick the pot from the counter and place it on another stove burner. Finally, turn both burners on. Success requires: the pot touches the stove with its centre within 0.15 m of a burner that is on, the kettle touches the stove with its centre within 0.08 m of a different burner that is on, and the gripper is more than 0.25 m from both. 4 subtasks; skills: knobs, navigation, pick_place.",
+   "train": "yes: GRPO-LoRA on Tinker, on the task or on a sub-goal of it (`goal` + your reward_fn(state))"
+  },
+  {
+   "name": "BlendVegetableSauce",
+   "eval": "robocasa:BlendVegetableSauce",
+   "cell": "BlendVegetableSauce s4mfx1 (BlendVegetableSauce_s4mfx1.yaml)",
+   "about": "RoboCasa365 BlendVegetableSauce (Mixing Ingredients), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): The [*vegetable*] is done being boiled. Turn off the stove burner for the saucepan. Place the [*vegetable*] in the blender and turn on the blender to make a vegetable sauce. Success requires: the saucepan's burner is off, the vegetable is fully inside the blender (1 cm tolerance), and the lid is seated and the blender is switched on. 6 subtasks; skills: buttons, knobs, lids, navigation, pick_place.",
+   "train": "yes: GRPO-LoRA on Tinker, on the task or on a sub-goal of it (`goal` + your reward_fn(state))"
+  },
+  {
+   "name": "BlendMarinade",
+   "eval": "robocasa:BlendMarinade",
+   "cell": "BlendMarinade s4mfx1 (BlendMarinade_s4mfx1.yaml)",
+   "about": "RoboCasa365 BlendMarinade (Preparing Marinade), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Grab the [*vegetables*] from the fridge, place them in the blender, close the lid, and turn on the blender to create a marinade. Success requires: both marinade vegetables are fully inside the blender (1 cm tolerance), the lid is seated and the blender is switched on. 9 subtasks; skills: buttons, lids, navigation, pick_place.",
+   "train": "yes: GRPO-LoRA on Tinker, on the task or on a sub-goal of it (`goal` + your reward_fn(state))"
+  },
+  {
+   "name": "BlendIngredients",
+   "eval": "robocasa:BlendIngredients",
+   "cell": "BlendIngredients s4mfx1 (BlendIngredients_s4mfx1.yaml)",
+   "about": "RoboCasa365 BlendIngredients (Making Smoothies), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Open the blender lid, put the fruit in the blender, close the lid, and start the blender. Success requires: the fruit is fully inside the blender (1 cm tolerance), the lid is seated and the blender is switched on. 4 subtasks; skills: buttons, lids, navigation, pick_place.",
+   "train": "yes: GRPO-LoRA on Tinker, on the task or on a sub-goal of it (`goal` + your reward_fn(state))"
+  },
+  {
+   "name": "SteamInMicrowave",
+   "eval": "robocasa:SteamInMicrowave",
+   "cell": "SteamInMicrowave s4mfx1 (SteamInMicrowave_s4mfx1.yaml)",
+   "about": "RoboCasa365 SteamInMicrowave (Steaming Food), mobile tier (navigate_to, robocasa-fixes-v1), target kitchens, single-turn code. Instruction (its bracketed parts vary with the seed): Pick the [*vegetable*] from the sink and place it in the bowl. Then pick the bowl and place it in the microwave. Then close the microwave door and press the start button. Success requires: the vegetable is in the bowl, the bowl is fully inside the microwave, the door is closed and the microwave has been started with its start button. 6 subtasks; skills: buttons, doors, navigation, pick_place.",
+   "train": "yes: GRPO-LoRA on Tinker, on the task or on a sub-goal of it (`goal` + your reward_fn(state))"
+  },
+  {

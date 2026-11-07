@@ -1,0 +1,1 @@
+{"task": "MicrowaveThawing", "steps": 1, "batch": 8, "reward": "rewards/d_chickloose.py", "init_mode": "fresh", "name": "d_chickloose", "seed_start": 901401}

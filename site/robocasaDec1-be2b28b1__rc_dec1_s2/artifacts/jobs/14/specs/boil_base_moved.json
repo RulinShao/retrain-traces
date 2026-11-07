@@ -1,0 +1,9 @@
+{
+  "name": "boil_base_moved",
+  "task": "BoilPot",
+  "steps": 2,
+  "batch": 8,
+  "reward": "rewards/any_object_moved.py",
+  "init_mode": "fresh",
+  "time": "01:00:00"
+}

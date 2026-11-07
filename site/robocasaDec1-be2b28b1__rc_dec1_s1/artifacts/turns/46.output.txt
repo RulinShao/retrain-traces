@@ -1,0 +1,268 @@
+rc=0
+=== FULL BoilPot program (seed 800079) ===
+# Code block 0
+import numpy as np
+
+# Step 1: Navigate to the sink (where the pot with water is likely)
+navigate_to("sink")
+
+# Get observation at sink
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Segment the pot
+masks = segment_sam3_text_prompt(rgb, "pot")
+if not masks:
+    # Try alternative prompts
+    masks = segment_sam3_text_prompt(rgb, "metal pot")
+if not masks:
+    masks = segment_sam3_text_prompt(rgb, "cooking pot")
+
+# Use the first mask
+if masks:
+    mask = masks[0]["mask"]
+    # Create segmentation map (single instance)
+    seg_map = np.zeros(mask.shape, dtype=np.int32)
+    seg_map[mask] = 1
+    
+    # Plan grasp
+    grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, seg_map)
+    
+    if len(grasp_poses) > 0:
+        # Select best grasp
+        best_idx = np.argmax(grasp_scores)
+        grasp_pose_cam = grasp_poses[best_idx]
+        
+        # Transform grasp pose from camera frame to world frame
+        # grasp_pose_cam is in camera frame, pose_mat maps camera to world
+        grasp_pose_world = pose_mat @ grasp_pose_cam
+        
+        # Extract position and orientation
+        grasp_pos = grasp_pose_world[:3, 3]
+        # Extract rotation matrix from the 4x4
+        R_grasp = grasp_pose_world[:3, :3]
+        
+        # Convert rotation matrix to quaternion
+        # Using the standard conversion
+        trace = np.trace(R_grasp)
+        if trace > 0:
+            S = np.sqrt(trace + 1.0) * 2
+            w = 0.25 * S
+            x = (R_grasp[2, 1] - R_grasp[1, 2]) / S
+            y = (R_grasp[0, 2] - R_grasp[2, 0]) / S
+            z = (R_grasp[1, 0] - R_grasp[0, 1]) / S
+        elif (R_grasp[0, 0] > R_grasp[1, 1]) and (R_grasp[0, 0] > R_grasp[2, 2]):
+            S = np.sqrt(1.0 + R_grasp[0, 0] - R_grasp[1, 1] - R_grasp[2, 2]) * 2
+            w = (R_grasp[2, 1] - R_grasp[1, 2]) / S
+            x = 0.25 * S
+            y = (R_grasp[0, 1] + R_grasp[1, 0]) / S
+            z = (R_grasp[0, 2] + R_grasp[2, 0]) / S
+        elif R_grasp[1, 1] > R_grasp[2, 2]:
+            S = np.sqrt(1.0 + R_grasp[1, 1] - R_grasp[0, 0] - R_grasp[2, 2]) * 2
+            w = (R_grasp[0, 2] - R_grasp[2, 0]) / S
+            x = (R_grasp[0, 1] + R_grasp[1, 0]) / S
+            y = 0.25 * S
+            z = (R_grasp[1, 2] + R_grasp[2, 1]) / S
+        else:
+            S = np.sqrt(1.0 + R_grasp[2, 2] - R_grasp[0, 0] - R_grasp[1, 1]) * 2
+            w = (R_grasp[1, 0] - R_grasp[0, 1]) / S
+            x = (R_grasp[0, 2] + R_grasp[2, 0]) / S
+            y = (R_grasp[1, 2] + R_grasp[2, 1]) / S
+            z = 0.25 * S
+        
+        quaternion = np.array([w, x, y, z])
+        # Normalize
+        quaternion = quaternion / np.linalg.norm(quaternion)
+        
+        # Solve IK
+        joints = solve_ik(grasp_pos, quaternion)
+        
+        # Move to grasp position (slightly above to avoid collision)
+        # First move to a position above the grasp point
+        approach_pos = grasp_pos.copy()
+        approach_pos[2] += 0.1  # 10cm above
+        approach_joints = solve_ik(approach_pos, quaternion)
+        move_to_joints(approach_joints)
+        
+        # Open gripper
+        open_gripper()
+        
+        # Move to grasp position
+        move_to_joints(joints)
+        
+        # Close gripper to grasp the pot
+        close_gripper()
+        
+        # Lift the pot
+        lift_pos = grasp_pos.copy()
+        lift_pos[2] += 0.15  # Lift 15cm
+        lift_joints = solve_ik(lift_pos, quaternion)
+        move_to_joints(lift_joints)
+        
+        # Navigate to the stove
+        navigate_to("stove")
+        
+        # Get new observation at stove
+        obs_stove = get_observation()
+        rgb_stove = obs_stove["robot0_robotview"]["images"]["rgb"]
+        depth_stove = obs_stove["robot0_robotview"]["images"]["depth"]
+        intrinsics_stove = obs_stove["robot0_robotview"]["intrinsics"]
+        pose_mat_stove = obs_stove["robot0_robotview"]["pose_mat"]
+        
+        # Segment the stove to find where to place the pot
+        stove_masks = segment_sam3_text_prompt(rgb_stove, "stove")
+        if not stove_masks:
+            stove_masks = segment_sam3_text_prompt(rgb_stove, "burner")
+        
+        if stove_masks:
+            stove_mask = stove_masks[0]["mask"]
+            # Find the center of the stove in pixel coordinates
+            ys, xs = np.where(stove_mask)
+            if len(xs) > 0:
+                cx = np.mean(xs)
+                cy = np.mean(ys)
+                
+                # Get depth at the center
+                # Find valid depth pixels near the center
+                valid_depths = []
+                for dx in range(-20, 21, 5):
+                    for dy in range(-20, 21, 5):
+                        px = int(cx + dx)
+                        py = int(cy + dy)
+                        if 0 <= px < depth_stove.shape[1] and 0 <= py < depth_stove.shape[0]:
+                            d = depth_stove[py, px]
+                            if 0.05 < d <= 3.0:
+                                valid_depths.append(d)
+                
+                if valid_depths:
+                    avg_depth = np.mean(valid_depths)
+                    
+                    # Convert pixel to 3D point in camera frame
+                    u = cx
+                    v = cy
+                    x_cam = (u - intrinsics_stove[0, 2]) * avg_depth / intrinsics_stove[0, 0]
+                    y_cam = (v - intrinsics_stove[1, 2]) * avg_depth / intrinsics_stove[1, 1]
+                    z_cam = avg_depth
+                    
+                    point_cam = np.array([x_cam, y_cam, z_cam])
+                    
+                    # Transform to world frame
+                    point_world = pose_mat_stove[:3, :3] @ point_cam + pose_mat_stove[:3, 3]
+                    
+                    # Place the pot on the stove
+                    # The pot should be placed with fingers pointing down
+                    place_quat = np.array([0, 0, 1, 0])  # Fingers pointing down
+                    
+                    # Move to a position above the stove
+                    place_pos = point_world.copy()
+                    place_pos[2] += 0.1  # 10cm above the stove surface
+                    
+                    place_joints = solve_ik(place_pos, place_quat)
+                    move_to_joints(place_joints)
+                    
+                    # Lower the pot onto the stove
+                    lower_pos = point_world.copy()
+                    lower_pos[2] -= 0.02  # Slightly below to ensure contact
+                    lower_joints = solve_ik(lower_pos, place_quat)
+                    move_to_joints(lower_joints)
+                    
+                    # Open gripper to release the pot
+                    open_gripper()
+                    
+                    # Lift the arm
+                    lift_joints = solve_ik(place_pos, place_quat)
+                    move_to_joints(lift_joints)
+        
+        # Turn on the stove burner
+        # We need to interact with the stove to turn it on
+        # Let's try to find and click on the stove control
+        obs_final = get_observation()
+        rgb_final = obs_final["robot0_robotview"]["images"]["rgb"]
+        
+        # Try to point to the stove knob or control
+        point_result = point_prompt_molmo(rgb_final, "stove knob")
+        if point_result:
+            for key, coords in point_result.items():
+                if coords[0] is not None and coords[1] is not None:
+                    # We found a point, but we need to figure out how to turn on the stove
+                    # For now, let's assume we need to move the arm to interact with it
+                    pass
+        
+        # Since the API doesn't have a direct "turn on stove" function,
+        # we may need to simulate turning it on by moving the arm to the knob
+        # Let's try to segment the knob and grasp it
+        knob_masks = segment_sam3_text_prompt(rgb_final, "stove knob")
+        if not knob_masks:
+            knob_masks = segment_sam3_text_prompt(rgb_final, "burner control")
+        
+        if knob_masks:
+            knob_mask = knob_masks[0]["mask"]
+            seg_map_knob = np.zeros(knob_mask.shape, dtype=np.int32)
+            seg_map_knob[knob_mask] = 1
+            
+            depth_final = obs_final["robot0_robotview"]["images"]["depth"]
+            intrinsics_final = obs_final["robot0_robotview"]["intrinsics"]
+            pose_mat_final = obs_final["robot0_robotview"]["pose_mat"]
+            
+            grasp_poses_knob, grasp_scores_knob = plan_grasp(depth_final, intrinsics_final, seg_map_knob)
+            
+            if len(grasp_poses_knob) > 0:
+                best_idx_knob = np.argmax(grasp_scores_knob)
+                grasp_pose_cam_knob = grasp_poses_knob[best_idx_knob]
+                grasp_pose_world_knob = pose_mat_final @ grasp_pose_cam_knob
+                
+                grasp_pos_knob = grasp_pose_world_knob[:3, 3]
+                R_grasp_knob = grasp_pose_world_knob[:3, :3]
+                
+                # Convert to quaternion
+                trace = np.trace(R_grasp_knob)
+                if trace > 0:
+                    S = np.sqrt(trace + 1.0) * 2
+                    w = 0.25 * S
+                    x = (R_grasp_knob[2, 1] - R_grasp_knob[1, 2]) / S
+                    y = (R_grasp_knob[0, 2] - R_grasp_knob[2, 0]) / S
+                    z = (R_grasp_knob[1, 0] - R_grasp_knob[0, 1]) / S
+                elif (R_grasp_knob[0, 0] > R_grasp_knob[1, 1]) and (R_grasp_knob[0, 0] > R_grasp_knob[2, 2]):
+                    S = np.sqrt(1.0 + R_grasp_knob[0, 0] - R_grasp_knob[1, 1] - R_grasp_knob[2, 2]) * 2
+                    w = (R_grasp_knob[2, 1] - R_grasp_knob[1, 2]) / S
+                    x = 0.25 * S
+                    y = (R_grasp_knob[0, 1] + R_grasp_knob[1, 0]) / S
+                    z = (R_grasp_knob[0, 2] + R_grasp_knob[2, 0]) / S
+                elif R_grasp_knob[1, 1] > R_grasp_knob[2, 2]:
+                    S = np.sqrt(1.0 + R_grasp_knob[1, 1] - R_grasp_knob[0, 0] - R_grasp_knob[2, 2]) * 2
+                    w = (R_grasp_knob[0, 2] - R_grasp_knob[2, 0]) / S
+                    x = (R_grasp_knob[0, 1] + R_grasp_knob[1, 0]) / S
+                    y = 0.25 * S
+                    z = (R_grasp_knob[1, 2] + R_grasp_knob[2, 1]) / S
+                else:
+                    S = np.sqrt(1.0 + R_grasp_knob[2, 2] - R_grasp_knob[0, 0] - R_grasp_knob[1, 1]) * 2
+                    w = (R_grasp_knob[1, 0] - R_grasp_knob[0, 1]) / S
+                    x = (R_grasp_knob[0, 2] + R_grasp_knob[2, 0]) / S
+                    y = (R_grasp_knob[1, 2] + R_grasp_knob[2, 1]) / S
+                    z = 0.25 * S
+                
+                quaternion_knob = np.array([w, x, y, z])
+                quaternion_knob = quaternion_knob / np.linalg.norm(quaternion_knob)
+                
+                # Move to grasp the knob
+                approach_pos_knob = grasp_pos_knob.copy()
+                approach_pos_knob[2] += 0.05
+                approach_joints_knob = solve_ik(approach_pos_knob, quaternion_knob)
+                move_to_joints(approach_joints_knob)
+                
+                open_gripper()
+                
+                knob_joints = solve_ik(grasp_pos_knob, quaternion_knob)
+                move_to_joints(knob_joints)
+                
+                close_gripper()
+                
+                # Turn the knob (simulate by moving)
+                # For now, just release
+                open_gripper()
+                
+                # Move away
+                move_to_joints(approach_joints_knob)

@@ -1,0 +1,44 @@
+rc=0
+preset row keys: ['drift_mm', 'error', 'final_state', 'log_tail', 'restorable', 'sandbox_rc', 'secs', 'seed', 'stages', 'task_completed', 'wall_s']
+--- sample row (truncated):
+  seed = 800101
+  sandbox_rc = 0
+  secs = 23.7
+  wall_s = 23.7
+  log_tail len 342
+  restorable = True
+  drift_mm = 0.0063
+  error = None
+  task_completed = None
+  stages = None
+  final_state = None
+===== SKILL.md cost / rollout / preset sections =====
+12:running train its completed steps, latest mean reward and GPU-hours so far, as the site reports them. `tasks/<task>/eval_prompt.txt` (when
+27:| `python3 cancel.py ID` | Stop a running train or eval. A train keeps the adapter of its last saved step (if the site saved one), registered with the steps it ran; the job is charged the GPU time it used. |
+39:site's cost estimate at admission and are charged the site's cost per call (skills/trainer/SKILL.md, Cost); the
+44:code, not the complete external GPU/software environment. A skill edit alone does not change the installed trainer.
+57:Each of these runs on the next unused dev seeds, is charged as an eval of N seeds, and writes its rows where you can read them.
+58:A rollout or eval row carries `program`, `seed`, `sandbox_rc`, `secs`, `wall_s`, `log_tail` (the tail of what the program
+60:rollout.py row is also the practice episode record: the policy's program for that seed runs once on the task's practice
+61:simulator (one attempt, as a practice rollout), so the row adds `sim_reward` (the simulator's own dense reward, the one `shaped` trains on), `stages` (its
+62:ordered checklist for the task, {name: reached}, where it keeps one), `final_state` (object poses, gripper and contacts at
+63:the end) and `trace` (the same, every few simulation steps of the episode). eval.py rows come from the evaluation runner, which records no `stages` or `final_state`. A reward file (`--reward
+64:FILE`, a `.py` in your workspace defining `reward(result) -> float`) sees every row key except `program`. A rollout.py job's result (`signals`) and its History line also state, over its rows, how many reach each stage and how many distinct values `task_completed`, `sim_reward` and each stage flag take (1 = the same on every row).
+68:| `python3 rollout.py --adapter A[,B...]\|base\|loaded --task T --seeds N [--reward FILE]` | The stack on N dev seeds of T; rows in `rollouts/<id>.jsonl`, with `self_reward` (or `self_reward_error`) per row when `--reward` is given. Example: `python3 rollout.py --adapter loaded --task stack --seeds 8 --reward rewards/lifted.py` |
+69:| `python3 preset.py --task T --program FILE --name NAME --seeds N` | Your prefix program FILE (only the task's own API) runs once on each of N dev seeds (1-32) of T; each reached state is saved and the preset is kept only if every state restores. Record in `presets/NAME.json`; a train spec `"start_preset": "NAME"` on T then practises from those states. Example: `python3 preset.py --task stack --program prefixes/grasp.py --name stack_grasped --seeds 16` |
+70:| `python3 eval.py --adapter ... --task T --seeds N --reward FILE` | The eval's success count as without `--reward`, plus its rows in `rollouts/<id>.jsonl` scored by your reward. Example: `python3 eval.py --adapter loaded --task stack --seeds 20 --reward rewards/lifted.py` |
+80:1. Look at what the policy does. `python3 rollout.py --adapter base --task T --seeds 8` writes `rollouts/<id>.jsonl`: per seed
+84:2. Look at the state an episode ended in. Each rollout.py row has it (`stages`, `final_state`), and every train records it for
+87:   checklist for the task where it keeps one (names like `reach ...`, `grasp ...`, `lift ...`; true once reached); `final_state` holds object poses
+89:   `python3 -c "import json; r = json.loads(open('adapters/NAME/failures.jsonl').readline()); print(r['stages']); print(json.dumps(r['final_state'])[:800])"`
+98:   A reward may also read `final_state` (e.g. the cube's height above `init_pos`) or what the program printed (`stdout_tail`;
+109:   steps you can already do, then `python3 preset.py --task T --program prefixes/grasp.py --name T_grasped --seeds 16`.
+110:   `presets/T_grasped.json` lists, per seed, whether the state restores and what the prefix printed, and (on a task whose
+111:   verifier you see) `task_completed`, `stages` and `final_state` of the reached state, so you can check the prefix reached what
+112:   you meant before practising from it: a train spec with `"start_preset": "T_grasped"` and a reward for the remaining part.
+115:   `--reward`) have no `stages` / `final_state`, so a reward that reads them scores nothing there; one that reads what the
+117:   `python3 rollout.py --adapter A[,B] --task T --seeds 8 --reward rewards/grasped.py` (rollout rows carry `stages` and
+118:   `final_state`) and in the next train's `practice_rows.jsonl` and its stage histogram.
+126:python3 unit.py register T_place --task T --reward rewards/placed.py --start-preset T_grasped --done rewards/placed_done.py
+130:set `reward` or `start_preset` then); `python3 rollout.py --adapter A --task T_place --seeds 8` runs T_place's episodes on T's
+133:them as the scoreboard row `T_place (unit of T)`. From a start preset, a unit's rollouts and evals run on that preset's own seeds

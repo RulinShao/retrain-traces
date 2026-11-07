@@ -1,0 +1,1 @@
+{"task": ["restack"], "name": "g4r", "init": "g3a", "init_mode": "resume", "steps": 40, "seed_start": 814001, "reward": "rewards/staged_g2b.py"}

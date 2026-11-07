@@ -1,0 +1,1 @@
+{"task": "BoilPot", "name": "diag_bp_b", "steps": 1, "batch": 8, "reward": "rewards/bp_burner.py", "init_mode": "fresh", "time": "02:00:00"}

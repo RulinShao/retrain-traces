@@ -1,0 +1,4 @@
+{"objective":"grpo","name":"grpo_rest","task":"restack","batch":8,"rollouts":8,
+ "reward":"prog/grpo_reward.py","seed_start":812000,"steps":24,
+ "stop_when":{"plateau_steps":10,"min_gain":0.01},
+ "note":"First unstack the green cube off the red cube, then grasp the red cube by moving the end-effector to its plan_grasp pose (full orientation), close and lift; then translate so the grasped red cube's center is directly above the green cube's center (align the cube, not the end-effector, over the target) and lower gently to place it."}

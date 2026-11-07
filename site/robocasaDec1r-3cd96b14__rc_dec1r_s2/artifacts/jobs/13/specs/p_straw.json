@@ -1,0 +1,1 @@
+{"task": "GarnishPancake", "steps": 1, "batch": 8, "reward": "rewards/p_straw.py", "init_mode": "fresh", "name": "p_straw", "seed_start": 900501}

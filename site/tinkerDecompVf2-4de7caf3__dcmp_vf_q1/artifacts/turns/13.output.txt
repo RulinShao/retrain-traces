@@ -1,0 +1,87 @@
+rc=0
+======================================================================
+JOB 2 restack
+seed=800009 tc=False rc=0 table_z=0.8
+   red_cube: init=(-0.056, -0.098, 0.818) final=(-0.01, -0.156, 0.82)
+   green_cube: init=(-0.066, -0.098, 0.855) final=(-0.414, -0.704, 0.02)
+seed=800010 tc=False rc=0 table_z=0.8
+   red_cube: init=(0.142, -0.111, 0.818) final=(0.142, -0.111, 0.82)
+   green_cube: init=(0.132, -0.111, 0.855) final=(0.132, -0.111, 0.86)
+seed=800011 tc=False rc=1 table_z=0.8
+   red_cube: init=(0.102, 0.117, 0.818) final=(0.102, 0.117, 0.818)
+   green_cube: init=(0.092, 0.117, 0.855) final=(0.092, 0.117, 0.855)
+seed=800012 tc=False rc=0 table_z=0.8
+   red_cube: init=(-0.085, -0.084, 0.818) final=(-0.085, -0.084, 0.82)
+   green_cube: init=(-0.095, -0.084, 0.855) final=(-0.095, -0.084, 0.86)
+seed=800013 tc=False rc=0 table_z=0.8
+   red_cube: init=(-0.099, 0.113, 0.818) final=(-0.128, 0.125, 0.82)
+   green_cube: init=(-0.109, 0.113, 0.855) final=(-0.173, 0.101, 0.82)
+seed=800014 tc=False rc=0 table_z=0.8
+   red_cube: init=(-0.016, 0.107, 0.818) final=(-0.016, 0.107, 0.82)
+   green_cube: init=(-0.026, 0.107, 0.855) final=(-0.026, 0.107, 0.86)
+seed=800015 tc=True rc=1 table_z=0.8
+   red_cube: init=(-0.094, 0.109, 0.818) final=(-0.105, 0.114, 0.868)
+   green_cube: init=(-0.104, 0.109, 0.855) final=(-0.105, 0.128, 0.904)
+seed=800016 tc=False rc=0 table_z=0.8
+   red_cube: init=(-0.005, -0.01, 0.818) final=(-0.006, -0.029, 0.82)
+   green_cube: init=(-0.015, -0.01, 0.855) final=(0.023, 0.003, 0.82)
+======================================================================
+JOB 3 revstack
+seed=800017 tc=False rc=0 table_z=0.8
+   green_cube: init=(0.13, -0.01, 0.819) final=(0.135, -0.18, 0.82)
+   red_cube: init=(0.13, -0.121, 0.824) final=(0.14, -0.124, 0.825)
+seed=800018 tc=False rc=0 table_z=0.8
+   green_cube: init=(0.059, 0.08, 0.819) final=(0.054, 0.076, 0.82)
+   red_cube: init=(-0.015, -0.049, 0.824) final=(-0.009, -0.054, 0.825)
+seed=800019 tc=False rc=1 table_z=0.8
+   green_cube: init=(0.066, 0.139, 0.819) final=(0.066, 0.139, 0.819)
+   red_cube: init=(-0.153, 0.031, 0.824) final=(-0.153, 0.031, 0.824)
+seed=800020 tc=False rc=0 table_z=0.8
+   green_cube: init=(0.093, -0.095, 0.819) final=(0.089, -0.142, 0.82)
+   red_cube: init=(0.055, 0.09, 0.824) final=(0.07, 0.1, 0.825)
+seed=800021 tc=False rc=0 table_z=0.8
+   green_cube: init=(-0.013, -0.108, 0.819) final=(0.085, -0.127, 0.82)
+   red_cube: init=(0.172, -0.033, 0.824) final=(0.169, -0.008, 0.825)
+seed=800022 tc=False rc=0 table_z=0.8
+   green_cube: init=(-0.138, 0.043, 0.819) final=(-0.112, 0.092, 0.82)
+   red_cube: init=(0.022, 0.091, 0.824) final=(0.022, 0.091, 0.825)
+seed=800023 tc=False rc=0 table_z=0.8
+   green_cube: init=(0.027, 0.136, 0.819) final=(0.129, 0.163, 0.82)
+   red_cube: init=(0.143, 0.099, 0.824) final=(0.184, 0.114, 0.824)
+seed=800024 tc=False rc=0 table_z=0.8
+   green_cube: init=(0.122, -0.019, 0.819) final=(0.225, -0.022, 0.82)
+   red_cube: init=(-0.1, -0.009, 0.824) final=(-0.154, -0.027, 0.825)
+======================================================================
+JOB 1 nut
+seed=800001 tc=False rc=0 table_z=0.82
+   square_nut: init=(-0.111, 0.195, 0.83) final=(-0.173, 0.181, 0.83)
+   square_peg: init=(0.23, 0.1, 0.85) final=(0.23, 0.1, 0.85)
+   round_peg: init=(0.23, -0.1, 0.85) final=(0.23, -0.1, 0.85)
+seed=800002 tc=False rc=1 table_z=0.82
+   square_nut: init=(-0.112, 0.143, 0.83) final=(-0.112, 0.143, 0.83)
+   square_peg: init=(0.23, 0.1, 0.85) final=(0.23, 0.1, 0.85)
+   round_peg: init=(0.23, -0.1, 0.85) final=(0.23, -0.1, 0.85)
+seed=800003 tc=False rc=1 table_z=0.82
+   square_nut: init=(-0.115, 0.142, 0.83) final=(-0.115, 0.142, 0.83)
+   square_peg: init=(0.23, 0.1, 0.85) final=(0.23, 0.1, 0.85)
+   round_peg: init=(0.23, -0.1, 0.85) final=(0.23, -0.1, 0.85)
+seed=800004 tc=False rc=1 table_z=0.82
+   square_nut: init=(-0.112, 0.199, 0.83) final=(-0.112, 0.199, 0.83)
+   square_peg: init=(0.23, 0.1, 0.85) final=(0.23, 0.1, 0.85)
+   round_peg: init=(0.23, -0.1, 0.85) final=(0.23, -0.1, 0.85)
+seed=800005 tc=False rc=0 table_z=0.82
+   square_nut: init=(-0.112, 0.138, 0.83) final=(-0.047, 0.21, 0.83)
+   square_peg: init=(0.23, 0.1, 0.85) final=(0.23, 0.1, 0.85)
+   round_peg: init=(0.23, -0.1, 0.85) final=(0.23, -0.1, 0.85)
+seed=800006 tc=False rc=1 table_z=0.82
+   square_nut: init=(-0.111, 0.187, 0.83) final=(-0.111, 0.187, 0.83)
+   square_peg: init=(0.23, 0.1, 0.85) final=(0.23, 0.1, 0.85)
+   round_peg: init=(0.23, -0.1, 0.85) final=(0.23, -0.1, 0.85)
+seed=800007 tc=False rc=1 table_z=0.82
+   square_nut: init=(-0.114, 0.221, 0.83) final=(-0.114, 0.221, 0.83)
+   square_peg: init=(0.23, 0.1, 0.85) final=(0.23, 0.1, 0.85)
+   round_peg: init=(0.23, -0.1, 0.85) final=(0.23, -0.1, 0.85)
+seed=800008 tc=False rc=0 table_z=0.82
+   square_nut: init=(-0.113, 0.172, 0.83) final=(-0.113, 0.172, 0.83)
+   square_peg: init=(0.23, 0.1, 0.85) final=(0.23, 0.1, 0.85)
+   round_peg: init=(0.23, -0.1, 0.85) final=(0.23, -0.1, 0.85)

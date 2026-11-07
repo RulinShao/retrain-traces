@@ -1,0 +1,7 @@
+task: embodied-olympics-fun-golf-putt
+steps: 10
+batch: 8
+rollouts: 8
+seed_start: 810001
+lr: 5e-05
+reward: progress

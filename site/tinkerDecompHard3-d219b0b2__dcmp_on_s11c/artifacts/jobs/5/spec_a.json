@@ -1,0 +1,10 @@
+{
+  "name": "a_nutrestack",
+  "task": ["nut", "restack"],
+  "weights": [1, 1],
+  "steps": 20,
+  "batch": 8,
+  "rollouts": 8,
+  "reward": "shaped",
+  "note": "Tip: after you grasp and lift an object, call get_observation() again and recompute the held object's current world-frame position from its depth segmentation, then drive that measured position (not the originally planned pose) above the target before descending."
+}

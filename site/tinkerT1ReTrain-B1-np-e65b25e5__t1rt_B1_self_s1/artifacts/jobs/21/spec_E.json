@@ -1,0 +1,1 @@
+{"task": ["lift", "stack", "wipe"], "name": "E", "init": "D", "steps": 10, "batch": 12, "rollouts": 8, "reward": "task_completed"}

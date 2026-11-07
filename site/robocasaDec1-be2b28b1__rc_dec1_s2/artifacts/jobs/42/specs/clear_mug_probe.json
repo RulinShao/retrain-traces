@@ -1,0 +1,10 @@
+{
+  "name": "clear_mug_sink_probe",
+  "task": "ClearReceptaclesForCleaning",
+  "steps": 1,
+  "batch": 8,
+  "reward": "rewards/clear_mug_sink.py",
+  "goal": "Pick up the mug and place it in the sink.",
+  "init_mode": "fresh",
+  "time": "01:00:00"
+}

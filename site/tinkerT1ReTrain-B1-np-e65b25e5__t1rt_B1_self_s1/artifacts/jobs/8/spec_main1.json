@@ -1,0 +1,7 @@
+{
+  "task": ["lift", "stack", "wipe", "nut", "restack"],
+  "name": "main1",
+  "steps": 50,
+  "batch": 10,
+  "rollouts": 8
+}

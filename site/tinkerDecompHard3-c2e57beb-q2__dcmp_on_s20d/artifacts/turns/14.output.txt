@@ -1,0 +1,99 @@
+rc=0
+##### seed 800009
+final_state: {"t": 355, "table_z": 0.8, "objects": {"green_cube": {"pos": [-0.10082, -0.03283, 0.81989], "quat_wxyz": [0.61859, 0.61859, 0.34256, 0.34256], "size": [0.04, 0.04, 0.04], "init_pos": [-0.11659, -0.11737, 0.81851], "max_z": 1.01399, "lin_vel": [0.0, -0.0, 0.0]}, "red_cube": {"pos": [0.02542, 0.10636, 0.82489], "quat_wxyz": [-0.08675, 0.70177, 0.08675, 0.70177], "size": [0.05, 0.05, 0.05], "init_pos": [-0.02027, 0.09179, 0.82351], "max_z": 0.83499, "lin_vel": [0.0, -0.0, 0.0]}}, "grippers": {"arm0": {"pos": [-0.08067, 0.12225, 0.92064], "quat_wxyz": [0.09283, 0.69959, -0.54644, -0.45096], "opening": 0.0791, "closed_cmd": false, "grasping": []}}, "contacts": [["green_cube", "table"], ["red_cube", "table"]]}
+
+##### seed 800010
+final_state: {"t": 0, "table_z": 0.8, "objects": {"green_cube": {"pos": [0.18836, -0.13281, 0.81851], "quat_wxyz": [0.8835, -0.0, -0.0, 0.46843], "size": [0.04, 0.04, 0.04], "init_pos": [0.18836, -0.13281, 0.81851], "max_z": 0.81851, "lin_vel": [0.0, -0.0, 0.0469]}, "red_cube": {"pos": [-0.09096, 0.05438, 0.82351], "quat_wxyz": [-0.988, 0.0, 0.0, 0.15443], "size": [0.05, 0.05, 0.05], "init_pos": [-0.09096, 0.05438, 0.82351], "max_z": 0.82351, "lin_vel": [0.0, -0.0, 0.0469]}}, "grippers": {"arm0": {"pos": [-0.10793, -0.02241, 1.01061], "quat_wxyz": [0.06563, 0.03323, 0.99728, -0.00341], "opening": 0.01678, "closed_cmd": false, "grasping": []}}, "contacts": [["green_cube", "table"], ["red_cube", "table"]]}
+
+.stack([xs_3d, ys_3d, zs_3d], axis=1)
+
+# Transform to world frame
+points_hom = np.hstack([points_cam, np.ones((len(points_cam), 1))])
+points_world = (pose_mat @ points_hom.T).T[:, :3]
+
+# Get oriented bounding box for red cube
+obb_red = get_oriented_bounding_box_from_3d_points(points_world)
+red_center = obb_red["center"]
+red_extent = obb_red["extent"]
+
+# Step 7: Compute the extent of the green cube
+# Similarly, get 3D points for the green cube
+ys_g, xs_g = np.where(green_mask)
+if len(xs_g) == 0:
+    raise Exception("Green cube mask is empty")
+
+xs_g = xs_g.astype(np.float64)
+ys_g = ys_g.astype(np.float64)
+zs_g = depth[ys_g, xs_g]
+
+valid_g = zs_g > 0
+xs_g = xs_g[valid_g]
+ys_g = ys_g[valid_g]
+zs_g = zs_g[valid_g]
+
+if len(xs_g) == 0:
+    raise Exception("No valid depth points for green cube")
+
+xs_g_3d = (xs_g - cx) * zs_g / fx
+ys_g_3d = (ys_g - cy) * zs_g / fy
+zs_g_3d = zs_g
+
+points_cam_g = np.stack([xs_g_3d, ys_g_3d, zs_g_3d], axis=1)
+points_hom_g = np.hstack([points_cam_g, np.ones((len(points_cam_g), 1))])
+points_world_g = (pose_mat @ points_hom_g.T).T[:, :3]
+
+obb_green = get_oriented_bounding_box_from_3d_points(points_world_g)
+green_extent = obb_green["extent"]
+
+# Step 8: Compute placement position
+z_approach = 0.1
+place_z = red_center[2] + red_extent[2] / 2 + green_extent[2] / 2
+place_x = red_center[0]
+place_y = red_center[1]
+
+# Approach position for placing (above the target)
+approach_place = np.array([place_x, place_y, place_z + z_approach])
+
+# Step 9: Execute the pick and place sequence
+
+# Move to approach position above green cube
+approach_grasp = grasp_pos_world.copy()
+approach_grasp[2] += z_approach
+
+joints_approach = solve_ik(approach_grasp, grasp_quat_world)
+move_to_joints(joints_approach)
+
+# Descend to grasp position
+joints_grasp = solve_ik(grasp_pos_world, grasp_quat_world)
+move_to_joints(joints_grasp)
+
+# Close gripper
+close_gripper()
+
+# Lift the green cube to safe height
+lift_height = grasp_pos_world[2] + 0.2
+lift_pos = grasp_pos_world.copy()
+lift_pos[2] = lift_height
+
+joints_lift = solve_ik(lift_pos, grasp_quat_world)
+move_to_joints(joints_lift)
+
+# Move laterally to placement location
+joints_move = solve_ik(approach_place, grasp_quat_world)
+move_to_joints(joints_move)
+
+# Descend to place position
+joints_place = solve_ik(np.array([place_x, place_y, place_z]), grasp_quat_world)
+move_to_joints(joints_place)
+
+# Open gripper to release
+open_gripper()
+
+# Retract slightly
+retract_pos = np.array([place_x, place_y, place_z + 0.1])
+joints_retract = solve_ik(retract_pos, grasp_quat_world)
+move_to_joints(joints_retract)
+```
+##### seed 800015
+final_state: {"t": 363, "table_z": 0.8, "objects": {"green_cube": {"pos": [0.13685, -0.06394, 0.81989], "quat_wxyz": [-0.52698, -0.0, -0.0, 0.84988], "size": [0.04, 0.04, 0.04], "init_pos": [-0.17539, 0.1311, 0.81851], "max_z": 1.02925, "lin_vel": [0.0, 0.0, 0.0]}, "red_cube": {"pos": [0.0725, -0.03132, 0.82489], "quat_wxyz": [0.41225, 0.0, 0.0, 0.91107], "size": [0.05, 0.05, 0.05], "init_pos": [0.0491, -0.05133, 0.82351], "max_z": 0.83856, "lin_vel": [-0.0, -0.0, 0.0]}}, "grippers": {"arm0": {"pos": [0.08388, -0.06818, 0.88893], "quat_wxyz": [-0.04032, 0.66925, -0.72579, 0.15401], "opening": 0.07936, "closed_cmd": false, "grasping": []}}, "contacts": [["green_cube", "table"], ["red_cube", "table"]]}
+

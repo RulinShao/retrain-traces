@@ -1,0 +1,352 @@
+rc=0
+============================== rollouts/1.jsonl
+--- seed 800001 rc 0 completed False sim_reward 0.031841438292149124
+stages: {'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+log_tail: cp_to_red_offset
+
+# Keep the same orientation as during grasp
+desired_tcp_quat = grasp_quat_wxyz
+
+# Solve IK for the placement position
+place_joints = solve_ik(desired_tcp_pos, desired_tcp_quat)
+move_to_joints(place_joints)
+
+# Open gripper to release the red cube
+open_gripper()
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+--- seed 800002 rc 0 completed False sim_reward 0.011841424388744914
+stages: {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+log_tail: t it upright)
+# Let's keep the same orientation as the grasp
+target_quat = grasp_quat_wxyz.copy()
+
+# Solve IK for placement position
+placement_joints = solve_ik(target_position, target_quat)
+move_to_joints(placement_joints)
+
+# Open gripper to release the red cube
+open_gripper()
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+--- seed 800003 rc 0 completed False sim_reward 0.00758977231127822
+stages: {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+log_tail: Red cube center: [ 0.45550396 -0.05473421 -0.08859162], extent: [0.05955587 0.05086991 0.03808091]
+Green cube center: [ 0.43978308 -0.05249771 -0.03538452], extent: [0.05815358 0.05906271 0.04802322]
+Grasp position (world): [ 0.37288414 -0.13516739 -0.05104578]
+Grasp quaternion (world): [0.1708506  0.27243572 0.75445363 0.5721788 ]
+
+  Stderr: 
+--- seed 800004 rc 0 completed False sim_reward 0.00713775897001348
+stages: {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+log_tail: ([0.0, 0.0, 0.05])
+joints_pre_place = solve_ik(pre_place_pos, place_quat_wxyz)
+move_to_joints(joints_pre_place)
+
+# Step 12: Lower gently to placement position
+joints_place = solve_ik(place_pos, place_quat_wxyz)
+move_to_joints(joints_place)
+
+# Step 13: Open gripper
+open_gripper()
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+--- seed 800005 rc 0 completed False sim_reward 0.05290369241596689
+stages: {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+log_tail: ce_position[2] += 0.05  # 5cm above
+pre_place_joints = solve_ik(pre_place_position, target_quat_wxyz)
+move_to_joints(pre_place_joints)
+
+# Move to place position
+place_joints = solve_ik(target_position, target_quat_wxyz)
+move_to_joints(place_joints)
+
+# Open gripper
+open_gripper()
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+--- seed 800006 rc 0 completed False sim_reward 0.008316932154918771
+stages: {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+log_tail: as green cube for stability
+placement_R = green_R
+placement_quat_wxyz = rotmat_to_quat(placement_R)
+
+# Step 10: Move to placement position
+joints_place = solve_ik(placement_pos, placement_quat_wxyz)
+move_to_joints(joints_place)
+
+# Step 11: Open gripper to release
+open_gripper()
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+--- seed 800007 rc 1 completed False sim_reward 0.002188850434222872
+stages: {'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+log_tail: esponse:
+  Sandbox failed: 1
+  Stdout: 
+  Stderr: Traceback (most recent call last):
+  File "…/sim/obs_guard.py", line 252, in _run
+    exec(code, g, g)
+  File "<string>", line 10
+    - Calculate their 3D positions and sizes
+                      ^
+SyntaxError: invalid decimal literal
+
+--- seed 800008 rc 0 completed False sim_reward 0.019367281837966585
+stages: {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+log_tail: p_pos_world - red_center
+
+offset = grasp_pos_world - red_center
+
+# Target TCP position for placement
+tcp_target = red_center_target + offset
+
+joints_place = solve_ik(tcp_target, grasp_quat_wxyz)
+move_to_joints(joints_place)
+
+# Open gripper to release the red cube
+open_gripper()
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+============================== rollouts/2.jsonl
+--- seed 800009 rc 0 completed False sim_reward 0.005911420847557969
+stages: {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+log_tail: place_pos, placement_quat_w)
+move_to_joints(joints_place)
+
+# Step 12: Open gripper to release
+open_gripper()
+
+# Step 13: Retract slightly
+retract_pos = place_pos.copy()
+retract_pos[2] += 0.1
+joints_retract = solve_ik(retract_pos, placement_quat_w)
+move_to_joints(joints_retract)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+--- seed 800010 rc 1 completed False sim_reward 0.00015281036676798032
+stages: {'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+log_tail: ct)
+
+
+Environment response:
+  Sandbox failed: 1
+  Stdout: 
+  Stderr: Traceback (most recent call last):
+  File "…/sim/obs_guard.py", line 252, in _run
+    exec(code, g, g)
+  File "<string>", line 95, in <module>
+IndexError: arrays used as indices must be of integer (or boolean) type
+
+--- seed 800011 rc 0 completed False sim_reward 0.0007468998925193732
+stages: {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+log_tail: 
+
+# Step 11: Release the green cube by opening the gripper
+open_gripper()
+
+# Step 12: Retract slightly after release
+retract_position = place_position.copy()
+retract_position[2] += 0.1
+joints_retract = solve_ik(retract_position, place_quat_world)
+move_to_joints(joints_retract)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+--- seed 800012 rc 0 completed False sim_reward 1.6847439861938929e-06
+stages: {'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+log_tail: p 15: Open gripper to release the green cube
+open_gripper()
+
+# Step 16: Retract slightly
+retract_pos = np.array([red_center[0], red_center[1], place_z + z_approach])
+retract_quat = grasp_quat
+
+joints_retract = solve_ik(retract_pos, retract_quat)
+move_to_joints(joints_retract)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+--- seed 800013 rc 1 completed False sim_reward 0.0013247620215122158
+stages: {'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+log_tail: act)
+
+
+Environment response:
+  Sandbox failed: 1
+  Stdout: 
+  Stderr: Traceback (most recent call last):
+  File "…/sim/obs_guard.py", line 252, in _run
+    exec(code, g, g)
+  File "<string>", line 92, in <module>
+IndexError: arrays used as indices must be of integer (or boolean) type
+
+--- seed 800014 rc 0 completed False sim_reward 0.08304293164179766
+stages: {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+log_tail: ce = solve_ik(place_pos, place_quat_wxyz)
+move_to_joints(joints_place)
+
+# Open gripper to release
+open_gripper()
+
+# Retract slightly
+retract_pos = place_pos.copy()
+retract_pos[2] += z_approach
+joints_retract = solve_ik(retract_pos, place_quat_wxyz)
+move_to_joints(joints_retract)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+--- seed 800015 rc 0 completed False sim_reward 0.03725587282015354
+stages: {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': True, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+log_tail: e_ik(place_pos, grasp_quat_wxyz)
+move_to_joints(joints_place)
+
+# Step 8: Open gripper to release
+open_gripper()
+
+# Step 9: Retract slightly
+retract_pos = place_pos.copy()
+retract_pos[2] += 0.1
+joints_retract = solve_ik(retract_pos, grasp_quat_wxyz)
+move_to_joints(joints_retract)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+--- seed 800016 rc 0 completed False sim_reward 0.0012205732024362231
+stages: {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+log_tail:  to placement position
+joints_place = solve_ik(place_pos, grasp_quat_wxyz)
+move_to_joints(joints_place)
+
+# Release the green cube
+open_gripper()
+
+# Lift back up to safe height
+joints_release_lift = solve_ik(lateral_move_pos, grasp_quat_wxyz)
+move_to_joints(joints_release_lift)
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: 
+  Stderr: 
+============================== rollouts/3.jsonl
+--- seed 800017 rc 0 completed False sim_reward 0.0002693809994682716
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+log_tail: re nut': <points coords="1 1 643 318">extruded handle of the brown square nut</points>
+Generated text for 'brown square block': <points coords="1 1 607 764">brown square block</points>
+Generated text for 'white hollow center of the brown square nut': <points coords="1 1 670 383">white hollow center of the brown square nut</points>
+
+  Stderr: 
+--- seed 800018 rc 1 completed False sim_reward 0.0003230761479690036
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+log_tail: .09174174 0.028001  ]
+
+  Stderr: Traceback (most recent call last):
+  File "…/tasks/base.py", line 174, in _exec_user_code
+    exec(code, self._exec_globals, self._exec_globals)
+  File "<string>", line 104, in <module>
+AttributeError: 'tuple' object has no attribute 'as_rotvec'
+
+--- seed 800019 rc 0 completed False sim_reward 0.00028030952872581944
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+log_tail: 648  -0.01163357]
+ [-0.00648158  0.01312719 -0.99989283]]
+Block center in world: [-0.11775941 -0.32340299 -0.09156993]
+Block rotation:
+[[ 0.33131034 -0.94331115 -0.01993803]
+ [-0.94348824 -0.3314029   0.00143634]
+ [-0.00796244  0.01833542 -0.99980019]]
+Handle extent: [0.12888336 0.09566678 0.02207972], max axis: 0
+Task completed!
+
+  Stderr: 
+--- seed 800020 rc 1 completed False sim_reward 0.00042176028975402505
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+log_tail: Traceback (most recent call last):
+  File "…/tasks/base.py", line 174, in _exec_user_code
+    exec(code, self._exec_globals, self._exec_globals)
+  File "<string>", line 4
+    3. Get the 3D position of the handle grasp point
+               ^
+SyntaxError: invalid decimal literal
+
+--- seed 800021 rc 1 completed False sim_reward 0.0004146768139350553
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+log_tail: …/tasks/base.py", line 174, in _exec_user_code
+    exec(code, self._exec_globals, self._exec_globals)
+  File "<string>", line 9
+    7. Move the nut to align with the block's peg
+                                           ^
+SyntaxError: unterminated string literal (detected at line 9)
+
+--- seed 800022 rc 1 completed False sim_reward 0.000333873223510106
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+log_tail: ._exec_globals)
+  File "<string>", line 6
+    4. Insert the nut onto the block, accounting for the rigid transform between the handle grasp pose and the nut's center
+                                                                                                                  ^
+SyntaxError: unterminated string literal (detected at line 6)
+
+--- seed 800023 rc 1 completed False sim_reward 0.0002796546697236834
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+log_tail: ndbox failed: 1
+  Stdout: 
+  Stderr: Traceback (most recent call last):
+  File "…/tasks/base.py", line 174, in _exec_user_code
+    exec(code, self._exec_globals, self._exec_globals)
+  File "<string>", line 1
+    Let me break down the task:
+        ^^
+SyntaxError: invalid syntax
+
+--- seed 800024 rc 1 completed False sim_reward 0.00039230696809064983
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+log_tail:  Traceback (most recent call last):
+  File "…/tasks/base.py", line 174, in _exec_user_code
+    exec(code, self._exec_globals, self._exec_globals)
+  File "<string>", line 52, in <module>
+  File "<string>", line 34, in pixel_to_world
+IndexError: invalid index to scalar variable.
+

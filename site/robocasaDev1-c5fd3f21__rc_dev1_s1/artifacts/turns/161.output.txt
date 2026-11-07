@@ -1,0 +1,83 @@
+rc=0
+=== trainer SKILL reward section ===
+3:description: The hyak RoboCasa365 trainer contract: every field train.py reads, the reward state, what each failure returns, costs, and what a train produces.
+4----
+5-# Trainer on this site (hyak, RoboCasa365 kitchens, GRPO LoRA on Tinker)
+6-
+7-`python3 train.py SPEC` submits one practice call; SPEC is a JSON or YAML file in the workspace. `python3 train.py --help` prints this file.
+8:Relative paths in SPEC (a reward file, an init adapter path) resolve against the workspace, where `train.py` runs.
+9-Your shell on this site writes only in the workspace and has no network and no Slurm client; all compute goes through train.py and eval.py.
+10-
+11-## What a practice call is
+12-GRPO on a LoRA adapter (rank 32) of Qwen3.8-27B, sampled and updated on Tinker; the RoboCasa simulator and its perception
+13-servers (Molmo2 pointing, SAM3, GraspNet, PyRoKi) run on one GPU of this site. Each step: `batch` prompts x 8 rollouts. A
+14-rollout is one program written by the model, run once in the task's kitchen on one practice seed (from 900001); its
+15:score is the reward below. GRPO's update comes from reward differences among a prompt's 8 rollouts: a prompt whose rollouts all
+16:get the same reward adds nothing. Sampling during practice: temperature 1.0, top_p 0.95, top_k 20, thinking off, at most 8192
+17-tokens. Evaluation (eval.py) samples the base or one adapter on Tinker on dev seeds (eval.py draws them from 800071 upward);
+18-the session's final score is a DEV final on dev seeds 800021-800070 (n=50, labelled DEV), and hidden seeds (1-100) are never
+19-evaluated on this path.
+20-
+21-One call practises one task. A long task is decomposed by practising its sub-goals: set `goal` to the sub-goal sentence (it
+22:replaces the prompt's `Goal:` line in practice only) and `reward` to a reward_fn(state) that scores that sub-goal on the final
+23-state. Evaluation always uses the task's own prompt and its own success check.
+24-
+25-## Spec fields (a spec with any other field fails; see Failures)
+26-| field | type | default | accepted |
+27-|---|---|---|---|
+28-| `task` | string | this session's task when there is one | one task of tasks.json (a list is refused) |
+--
+31:| `reward` | string | `task_completed` | `task_completed` (the task's own success check) or a .py file defining `reward_fn(state)` |
+32-| `goal` | string | none | one line, at most 500 characters: the sub-goal, replacing the training prompt's Goal line |
+33-| `note` | string | none | at most 4000 characters, inserted after the prompt's Success/Goal line as a SKILL GUIDE block (practice only) |
+34-| `init` | string | the adapter you trained last | an adapter trained here (its training.json names a `tinker_state`): weights and optimizer state continue |
+35-| `init_mode` | string | none | `resume` or `fresh` (see Continuation; `branch` is not available) |
+36-| `seed_start` | integer | your lineage's next unused block | >= 900001; step k, prompt i runs seed seed_start + batch x (k-1) + i |
+37-| `time` | HH:MM:SS | 3 x the fit, at least 2 h | the call's Slurm limit |
+--
+39:## Reward (`reward_fn(state)`)
+40:`reward_fn(state)` returns 1/True for success, 0 otherwise (any other value counts as 0). It runs once per rollout on the
+41:final state, at most 2 s, under the reward guard: numpy and math are the only imports; no files, printing, dunder names or
+42-classes (a refused file fails the train before any job). `state` (frame: the robot's arm base; x forward,
+43-y left, z up; metres):
+44-- `objects`: per object name: `pos`, `init_pos`, `euler_xyz_deg`, `horizontal_radius`, `gripper_dist` (m from the gripper),
+45-  `contacts` (fixtures and objects it touches)
+46-- `fixtures`: per fixture name: `type`, `regions` (interior regions: `p0`, `px`, `py`, `pz` corners), `state` (its joints'
+47-  openings in [0, 1], burner / button / lever states where the fixture reports them), `init_state`
+--
+51:def reward_fn(state):
+52-    fridge = state["fixtures"].get("fridge") or {}
+53-    doors = [v for k, v in (fridge.get("state") or {}).items() if "door" in k]
+54-    return int(bool(doors) and max(doors) > 0.5)
+55-```
+=== do adapter dirs have practice_rows/failures with final_state? ===
+--- pack_probe2 ---
+adapter_config.json
+adapter_model.safetensors
+call.json
+rewards.json
+training.json
+--- pack_probe1 ---
+adapter_config.json
+adapter_model.safetensors
+call.json
+rewards.json
+training.json
+--- boil_probe2 ---
+adapter_config.json
+adapter_model.safetensors
+call.json
+rewards.json
+training.json
+--- gp_probe1 ---
+adapter_config.json
+adapter_model.safetensors
+call.json
+rewards.json
+training.json
+--- potmoved ---
+adapter_config.json
+adapter_model.safetensors
+call.json
+rewards.json
+training.json

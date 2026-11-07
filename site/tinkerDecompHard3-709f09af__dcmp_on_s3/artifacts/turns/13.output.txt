@@ -1,0 +1,401 @@
+rc=0
+rc=0
+============================== rollouts/6.jsonl
+-------------------- 800065 rc= 0 secs= None completed= False
+PROGRAM:
+# Code block 0
+import numpy as np
+
+# Step 1: Get observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Segment the red cube and green cube
+red_cube_masks = segment_sam3_text_prompt(rgb_image, "red cube")
+green_cube_masks = segment_sam3_text_prompt(rgb_image, "green cube")
+
+# Handle case where segmentation might fail
+if not red_cube_masks or not green_cube_masks:
+    raise Exception("Failed to segment red or green cube")
+
+# Get the best mask for each cube (highest score)
+red_mask_info = max(red_cube_masks, key=lambda x: x.get("score", 0))
+green_mask_info = max(green_cube_masks, key=lambda x: x.get("score", 0))
+
+red_mask = red_mask_info["mask"]
+green_mask = green_mask_info["mask"]
+
+# Step 3: Create segmentation maps for grasp planning
+# For red cube - create a binary mask with value 1
+red_seg_map = np.zeros_like(depth_image, dtype=np.int32)
+red_seg_map[red_mask] = 1
+
+# Step 4: Plan grasp for red cube
+grasp_poses, grasp_scores = plan_grasp(depth_image, intrinsics, red_seg_map)
+
+# Select the best grasp
+best_grasp_idx = np.argmax(grasp_scores)
+best_grasp_pose_cam = grasp_poses[best_grasp_idx]  # In camera frame
+
+# Step 5: Transform grasp pose from camera frame to world frame
+# The pose_mat is camera extrinsic (camera to world)
+# So we need to apply pose_mat @ grasp_pose_cam
+grasp_pose_world = pose_mat @ best_grasp_pose_cam
+
+# Extract position and orientation from grasp pose
+grasp_position_cam = best_grasp_pose_cam[:3, 3]
+grasp_orientation_cam = best_grasp_pose_cam[:3, :3]
+
+# Convert rotation matrix to quaternion (wxyz)
+def rotmat_to_quat_wxyz(R):
+    trace = R[0,0] + R[1,1] + R[2,2]
+    if trace > 0:
+        S = np.sqrt(trace + 1.0) * 2
+        w = 0.25 * S
+        x = (R[2,1] - R[1,2]) / S
+        y = (R[0,2] - R[2,0]) / S
+        z = (R[1,0] - R[0,1]) / S
+    elif R[0,0] > R[1,1] and R[0,0] > R[2,2]:
+        S = np.sqrt(1.0 + R[0,0] - R[1,1] - R[2,2]) * 2
+        w = (R[2,1] - R[1,2]) / S
+        x = 0.25 * S
+        y = (R[0,1] + R[1,0]) / S
+        z = (R[0,2] + R[2,0]) / S
+    elif R[1,1] > R[2,2]:
+        S = np.sqrt(1.0 + R[1,1] - R[0,0] - R[2,2]) * 2
+        w = (R[0,2] - R[2,0]) / S
+        x = (R[0,1] + R[1,0]) / S
+        y = 0.25 * S
+        z = (R[1,2] + R[2,1]) / S
+    else:
+        S = np.sqrt(1.0 + R[2,2] - R[0,0] - R[1,1]) * 2
+        w = (R[1,0] - R[0,1]) / S
+        x = (R[0,2] + R[2,0]) / S
+        y = (R[1,2] + R[2,1]) / S
+        z = 0.25 * S
+    
+    quat = np.array([w, x, y, z])
+    return quat / np.linalg.norm(quat)
+
+grasp_quat_cam = rotmat_to_quat_wxyz(grasp_orientation_cam)
+
+# Transform position to world frame
+grasp_position_world = (pose_mat @ np.append(grasp_position_cam, 1))[:3]
+# Transform orientation to world frame
+grasp_orientation_world = pose_mat[:3,:3] @ grasp_orientation_cam
+grasp_quat_world = rotmat_to_quat_wxyz(gras
+TAIL: 
+
+-------------------- 800066 rc= 0 secs= None completed= False
+PROGRAM:
+# Code block 0
+import numpy as np
+
+# Get observation
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Segment red cube
+red_masks = segment_sam3_text_prompt(rgb, "red cube")
+green_masks = segment_sam3_text_prompt(rgb, "green cube")
+
+# Get the best mask for each
+if not red_masks or not green_masks:
+    raise ValueError("Could not segment red or green cube")
+
+red_mask = red_masks[0]["mask"]
+green_mask = green_masks[0]["mask"]
+
+# Create segmentation map with instance IDs
+segmentation_map = np.zeros(depth.shape[:2], dtype=np.int32)
+segmentation_map[red_mask] = 1
+segmentation_map[green_mask] = 2
+
+# Get 3D points for red cube
+def get_3d_points_from_mask(mask, depth, intrinsics):
+    """Get 3D points from a binary mask and depth image."""
+    H, W = depth.shape
+    ys, xs = np.where(mask)
+    if len(xs) == 0:
+        return None
+    
+    # Get depth values
+    depths = depth[ys, xs]
+    
+    # Filter out invalid depth values
+    valid = depths > 0
+    xs = xs[valid]
+    ys = ys[valid]
+    depths = depths[valid]
+    
+    if len(xs) == 0:
+        return None
+    
+    # Back-project to 3D
+    fx = intrinsics[0, 0]
+    fy = intrinsics[1, 1]
+    cx = intrinsics[0, 2]
+    cy = intrinsics[1, 2]
+    
+    x_cam = (xs - cx) * depths / fx
+    y_cam = (ys - cy) * depths / fy
+    z_cam = depths
+    
+    points_cam = np.column_stack([x_cam, y_cam, z_cam])
+    
+    # Transform from camera frame to world frame
+    # pose_mat is camera extrinsic (camera to world)
+    R_c2w = pose_mat[:3, :3]
+    t_c2w = pose_mat[:3, 3]
+    
+    points_world = (R_c2w @ points_cam.T).T + t_c2w
+    
+    return points_world
+
+# Get 3D points for red and green cubes
+red_points = get_3d_points_from_mask(red_mask, depth, intrinsics)
+green_points = get_3d_points_from_mask(green_mask, depth, intrinsics)
+
+if red_points is None or green_points is None:
+    raise ValueError("Could not get 3D points for cubes")
+
+# Get oriented bounding boxes
+red_bbox = get_oriented_bounding_box_from_3d_points(red_points)
+green_bbox = get_oriented_bounding_box_from_3d_points(green_points)
+
+print(f"Red cube center: {red_bbox['center']}, extent: {red_bbox['extent']}")
+print(f"Green cube center: {green_bbox['center']}, extent: {green_bbox['extent']}")
+
+# The green cube's top face is at center_y + extent_y/2 (assuming Y is up)
+# But we need to be careful about coordinate system
+# In camera frame, Y is typically down, but in world frame it might be different
+# Let's assume world frame has Z up (common in robotics)
+
+# Actually, let's check the orientation. The extent gives us the size along each axis of the OBB.
+# We need to find which axis is vertical (up direction in world frame)
+
+# For now, let's assume the cubes are axis-aligned in world frame and Z is up
+# Green cube top height = green_center_z + green_extent_z / 2
+green_top_z = green_bbox['center']
+TAIL: Red cube center: [ 0.48565473  0.11657282 -0.09018069], extent: [0.06083939 0.05755601 0.03234239]
+Green cube center: [ 0.47451584  0.11554347 -0.0363952 ], extent: [0.06588683 0.05796024 0.05000854]
+Placement position: [ 0.47451584  0.11554347 -0.01139093]
+Grasp position: [ 0.44745388  0.01579954 -0.05377386]
+Grasp quaternion: [0.08617183 0.09035584 0.76027129 0.63749338]
+Grasp joints: [-1.01241219  1.61451113  0.65195096 -1.7722882  -2.3544004   3.60467982
+ -0.53007585]
+
+
+-------------------- 800067 rc= 1 secs= None completed= False
+PROGRAM:
+# Code block 0
+Let me break down this task step by step:
+
+1. First, I need to get the current observation to see the scene
+2. Identify the red cube and green cube in the image
+3. Determine their positions and sizes (extents)
+4. Plan a grasp for the red cube
+5. Pick up the red cube
+6. Calculate the exact height to place it on top of the green cube using the cube extents
+7. Move the red cube to be directly above the green cube at the correct height
+8. Place it gently (lower slowly)
+9. Open the gripper
+
+Let me start by getting the observation and identifying the cubes:
+TAIL: Traceback (most recent call last):
+  File "…/tools/suite_launch.py", line 969, in _exec_user_code
+    exec(code, g, g)
+  File "<string>", line 1
+    Let me break down this task step by step:
+        ^^
+SyntaxError: invalid syntax
+
+
+-------------------- 800068 rc= 0 secs= None completed= False
+PROGRAM:
+# Code block 0
+import numpy as np
+
+# Get current observation
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Segment the red cube
+red_masks = segment_sam3_text_prompt(rgb, "red cube")
+if not red_masks:
+    raise Exception("Could not find red cube")
+
+# Use the first detected red cube mask
+red_mask = red_masks[0]["mask"]
+
+# Segment the green cube
+green_masks = segment_sam3_text_prompt(rgb, "green cube")
+if not green_masks:
+    raise Exception("Could not find green cube")
+
+# Use the first detected green cube mask
+green_mask = green_masks[0]["mask"]
+
+# Create segmentation map for grasp planning (only red cube)
+seg_map = np.zeros_like(red_mask, dtype=np.int32)
+seg_map[red_mask] = 1
+
+# Plan grasp for the red cube
+grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, seg_map)
+
+# Select the best grasp
+best_idx = np.argmax(grasp_scores)
+grasp_pose_cam = grasp_poses[best_idx]  # In camera frame
+
+# Transform grasp pose from camera frame to world frame
+# The camera extrinsic matrix transforms camera coords to world coords
+grasp_pose_world = pose_mat @ grasp_pose_cam
+
+# Extract position and orientation
+grasp_pos_world = grasp_pose_world[:3, 3]
+grasp_quat_wxyz = np.array([1.0, 0.0, 0.0, 0.0])  # Default identity quaternion
+
+# We need to extract the rotation from the grasp pose and convert to quaternion
+R_cam_to_world = pose_mat[:3, :3]
+R_grasp_in_cam = grasp_pose_cam[:3, :3]
+R_grasp_in_world = R_cam_to_world @ R_grasp_in_cam
+
+# Convert rotation matrix to quaternion (wxyz)
+def rotmat_to_quat(R):
+    trace = R[0,0] + R[1,1] + R[2,2]
+    if trace > 0:
+        S = np.sqrt(trace + 1.0) * 2
+        w = 0.25 * S
+        x = (R[2,1] - R[1,2]) / S
+        y = (R[0,2] - R[2,0]) / S
+        z = (R[1,0] - R[0,1]) / S
+    elif (R[0,0] > R[1,1]) and (R[0,0] > R[2,2]):
+        S = np.sqrt(1.0 + R[0,0] - R[1,1] - R[2,2]) * 2
+        w = (R[2,1] - R[1,2]) / S
+        x = 0.25 * S
+        y = (R[0,1] + R[1,0]) / S
+        z = (R[0,2] + R[2,0]) / S
+    elif R[1,1] > R[2,2]:
+        S = np.sqrt(1.0 + R[1,1] - R[0,0] - R[2,2]) * 2
+        w = (R[0,2] - R[2,0]) / S
+        x = (R[0,1] + R[1,0]) / S
+        y = 0.25 * S
+        z = (R[1,2] + R[2,1]) / S
+    else:
+        S = np.sqrt(1.0 + R[2,2] - R[0,0] - R[1,1]) * 2
+        w = (R[1,0] - R[0,1]) / S
+        x = (R[0,2] + R[2,0]) / S
+        y = (R[1,2] + R[2,1]) / S
+        z = 0.25 * S
+    quat = np.array([w, x, y, z])
+    return quat / np.linalg.norm(quat)
+
+grasp_quat_wxyz = rotmat_to_quat(R_grasp_in_world)
+
+# Solve IK to move to grasp position
+joints = solve_ik(grasp_pos_world, grasp_quat_wxyz)
+move_to_joints(joints)
+
+# Close gripper to grasp the red cube
+close_gripper()
+
+# Now we need to find where to place the red cube on top of the green cube
+# First, let's get the 3D points of the green cube to determine its size and position
+# Get pixels belonging
+TAIL: 
+
+============================== rollouts/7.jsonl
+-------------------- 800069 rc= 0 secs= None completed= False
+PROGRAM:
+# Code block 0
+import numpy as np
+
+# Step 1: Get observation
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Segment the green cube and red cube
+green_masks = segment_sam3_text_prompt(rgb, "green cube")
+red_masks = segment_sam3_text_prompt(rgb, "red cube")
+
+if not green_masks or not red_masks:
+    raise ValueError("Failed to segment green or red cube")
+
+green_mask = green_masks[0]["mask"]
+red_mask = red_masks[0]["mask"]
+
+# Step 3: Create segmentation maps for plan_grasp (integer labels)
+seg_green = np.zeros(depth.shape[:2], dtype=np.int32)
+seg_green[green_mask] = 1
+
+seg_red = np.zeros(depth.shape[:2], dtype=np.int32)
+seg_red[red_mask] = 1
+
+# Step 4: Plan grasp for green cube
+grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, seg_green)
+
+if len(grasp_poses) == 0:
+    raise ValueError("No grasp candidates found for green cube")
+
+# Select the best grasp pose (highest score)
+best_idx = np.argmax(grasp_scores)
+grasp_pose_cam = grasp_poses[best_idx]
+
+# Transform grasp pose from camera frame to world frame
+# The pose_mat is the camera extrinsic matrix (camera to world)
+# We need to transform the grasp pose into world frame
+grasp_pose_world = pose_mat @ grasp_pose_cam
+
+# Extract position and orientation
+grasp_pos_world = grasp_pose_world[:3, 3]
+grasp_quat_wxyz = np.array([1.0, 0.0, 0.0, 0.0])  # Default identity quaternion; we'll use the rotation matrix
+
+# Convert rotation matrix to quaternion
+def rotmat_to_quat(R):
+    trace = R[0, 0] + R[1, 1] + R[2, 2]
+    if trace > 0:
+        S = np.sqrt(trace + 1.0) * 2
+        w = 0.25 * S
+        x = (R[2, 1] - R[1, 2]) / S
+        y = (R[0, 2] - R[2, 0]) / S
+        z = (R[1, 0] - R[0, 1]) / S
+    elif R[0, 0] > R[1, 1] and R[0, 0] > R[2, 2]:
+        S = np.sqrt(1.0 + R[0, 0] - R[1, 1] - R[2, 2]) * 2
+        w = (R[2, 1] - R[1, 2]) / S
+        x = 0.25 * S
+        y = (R[0, 1] + R[1, 0]) / S
+        z = (R[0, 2] + R[2, 0]) / S
+    elif R[1, 1] > R[0, 0] and R[1, 1] > R[2, 2]:
+        S = np.sqrt(1.0 + R[1, 1] - R[0, 0] - R[2, 2]) * 2
+        w = (R[0, 2] - R[2, 0]) / S
+        x = (R[0, 1] + R[1, 0]) / S
+        y = 0.25 * S
+        z = (R[1, 2] + R[2, 1]) / S
+    else:
+        S = np.sqrt(1.0 + R[2, 2] - R[0, 0] - R[1, 1]) * 2
+        w = (R[1, 0] - R[0, 1]) / S
+        x = (R[0, 2] + R[2, 0]) / S
+        y = (R[1, 2] + R[2, 1]) / S
+        z = 0.25 * S
+    quat = np.array([w, x, y, z])
+    return quat / np.linalg.norm(quat)
+
+grasp_rot_world = grasp_pose_world[:3, :3]
+grasp_quat_wxyz = rotmat_to_quat(grasp_rot_world)
+
+# Step 5: Compute 3D points for green and red cubes to get bounding boxes
+def mask_to_3d_points(mask, depth, intrinsics):
+    ys, xs = np.where(mask)
+    if len(xs) == 0:

@@ -1,0 +1,1 @@
+{"task": "BoilPot", "steps": 1, "batch": 8, "reward": "rewards/g_pot.py", "init_mode": "fresh", "name": "g_pot", "seed_start": 900601}

@@ -1,0 +1,159 @@
+rc=0
+########## FULL PROGRAM ##########
+# Code block 0
+import numpy as np
+
+# Step 1: Navigate to the stove
+navigate_to("stove")
+
+# Step 2: Get observation
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 3: Segment the pot
+masks = segment_sam3_text_prompt(rgb, "pot")
+if not masks:
+    # Try alternative prompts
+    masks = segment_sam3_text_prompt(rgb, "pot with water")
+    if not masks:
+        masks = segment_sam3_text_prompt(rgb, "metal pot")
+
+if masks:
+    # Use the first mask
+    mask = masks[0]["mask"]
+    
+    # Create segmentation map
+    segmentation = np.zeros(depth.shape, dtype=np.int32)
+    segmentation[mask] = 1
+    
+    # Plan grasp
+    grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, segmentation)
+    
+    if len(grasp_poses) > 0:
+        # Select the best grasp
+        best_idx = np.argmax(grasp_scores)
+        best_grasp = grasp_poses[best_idx]
+        
+        # Transform grasp from camera frame to world frame
+        # best_grasp is in camera frame, we need to apply pose_mat to get world frame
+        world_grasp = pose_mat @ best_grasp
+        
+        # Extract position and orientation
+        target_pos = world_grasp[:3, 3]
+        target_rot = world_grasp[:3, :3]
+        
+        # Convert rotation matrix to quaternion
+        # Using the standard algorithm
+        trace = np.trace(target_rot)
+        if trace > 0:
+            S = np.sqrt(trace + 1.0) * 2
+            w = 0.25 * S
+            x = (target_rot[2, 1] - target_rot[1, 2]) / S
+            y = (target_rot[0, 2] - target_rot[2, 0]) / S
+            z = (target_rot[1, 0] - target_rot[0, 1]) / S
+        elif (target_rot[0, 0] > target_rot[1, 1]) and (target_rot[0, 0] > target_rot[2, 2]):
+            S = np.sqrt(1.0 + target_rot[0, 0] - target_rot[1, 1] - target_rot[2, 2]) * 2
+            w = (target_rot[2, 1] - target_rot[1, 2]) / S
+            x = 0.25 * S
+            y = (target_rot[0, 1] + target_rot[1, 0]) / S
+            z = (target_rot[0, 2] + target_rot[2, 0]) / S
+        elif target_rot[1, 1] > target_rot[2, 2]:
+            S = np.sqrt(1.0 + target_rot[1, 1] - target_rot[0, 0] - target_rot[2, 2]) * 2
+            w = (target_rot[0, 2] - target_rot[2, 0]) / S
+            x = (target_rot[0, 1] + target_rot[1, 0]) / S
+            y = 0.25 * S
+            z = (target_rot[1, 2] + target_rot[2, 1]) / S
+        else:
+            S = np.sqrt(1.0 + target_rot[2, 2] - target_rot[0, 0] - target_rot[1, 1]) * 2
+            w = (target_rot[1, 0] - target_rot[0, 1]) / S
+            x = (target_rot[0, 2] + target_rot[2, 0]) / S
+            y = (target_rot[1, 2] + target_rot[2, 1]) / S
+            z = 0.25 * S
+        
+        quaternion_wxyz = np.array([w, x, y, z])
+        
+        # Solve IK
+        joints = solve_ik(target_pos, quaternion_wxyz)
+        
+        # Move to grasp position
+        move_to_joints(joints)
+        
+        # Close gripper to grasp the pot
+        close_gripper()
+        
+        # Lift the pot slightly
+        lift_pos = target_pos.copy()
+        lift_pos[2] += 0.15  # Lift up by 15 cm
+        lift_joints = solve_ik(lift_pos, quaternion_wxyz)
+        move_to_joints(lift_joints)
+        
+        # Now navigate to the stove (already there, but let's make sure)
+        # Actually we're already at the stove, so we need to place the pot on it
+        
+        # Get new observation to find the stove surface
+        obs = get_observation()
+        rgb = obs["robot0_robotview"]["images"]["rgb"]
+        depth = obs["robot0_robotview"]["images"]["depth"]
+        intrinsics = obs["robot0_robotview"]["intrinsics"]
+        pose_mat = obs["robot0_robotview"]["pose_mat"]
+        
+        # Segment the stove
+        stove_masks = segment_sam3_text_prompt(rgb, "stove")
+        if stove_masks:
+            stove_mask = stove_masks[0]["mask"]
+            
+            # Find the center of the stove in the image
+            ys, xs = np.where(stove_mask)
+            if len(xs) > 0:
+                cx = np.mean(xs)
+                cy = np.mean(ys)
+                
+                # Get depth at the center
+                depth_val = depth[int(cy), int(cx)]
+                
+                if depth_val > 0.05 and depth_val < 3:
+                    # Convert to 3D point in camera frame
+                    cam_x = (cx - intrinsics[0, 2]) * depth_val / intrinsics[0, 0]
+                    cam_y = (cy - intrinsics[1, 2]) * depth_val / intrinsics[1, 1]
+                    cam_z = depth_val
+                    
+                    cam_point = np.array([cam_x, cam_y, cam_z])
+                    
+                    # Transform to world frame
+                    world_point = pose_mat[:3, :3] @ cam_point + pose_mat[:3, 3]
+                    
+                    # Place the pot on the stove - lower it to the stove surface
+                    # The pot should be placed on top of the stove, so we need to adjust z
+                    # The world_point is the center of the stove, we want to place the pot on top
+                    # Let's lower the pot to just above the stove surface
+                    place_pos = world_point.copy()
+                    place_pos[2] += 0.05  # Slightly above the stove surface
+                    
+                    # Use a downward-facing orientation for placing
+                    place_quat = np.array([0, 0, 1, 0])  # Fingers pointing down
+                    
+                    place_joints = solve_ik(place_pos, place_quat)
+                    move_to_joints(place_joints)
+                    
+                    # Open gripper to release the pot
+                    open_gripper()
+                    
+                    # Lift the gripper up
+                    lift_pos2 = place_pos.copy()
+                    lift_pos2[2] += 0.15
+                    lift_joints2 = solve_ik(lift_pos2, place_quat)
+                    move_to_joints(lift_joints2)
+
+# The pot should now be on the stove. The burner nearest to the pot should be turned on.
+# Since the task says "turn on the stove burner to begin boiling the water", and the success
+# condition is "the burner nearest to the pot is on", I assume that placing the pot on the stove
+# and the environment automatically turns on the nearest burner, or there's an implicit action.
+# However, looking at the API, there's no explicit "turn_on_burner" function.
+# The success condition might be satisfied by the placement itself if the environment
+# auto-enables the burner when a pot is placed on it.
+
+########## FULL LOG_TAIL (all perception/action lines) ##########
+

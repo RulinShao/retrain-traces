@@ -1,0 +1,46 @@
+rc=0
+skills/trainer/SKILL.md:8:Relative paths in SPEC (a reward file, an init adapter path) resolve against the workspace, where `train.py` runs.
+skills/trainer/SKILL.md:13:servers (Molmo2 pointing, SAM3, GraspNet, PyRoKi) run on one GPU of this site. Each step: `batch` prompts x 8 rollouts. A
+skills/trainer/SKILL.md:15:score is the reward below. GRPO's update comes from reward differences among a prompt's 8 rollouts: a prompt whose rollouts all
+skills/trainer/SKILL.md:22:replaces the prompt's `Goal:` line in practice only) and `reward` to a reward_fn(state) that scores that sub-goal on the final
+skills/trainer/SKILL.md:23:state. Evaluation always uses the task's own prompt and its own success check.
+skills/trainer/SKILL.md:30:| `batch` | integer | 8 | 1-16 prompts per step (each rolled out 8 times) |
+skills/trainer/SKILL.md:32:| `goal` | string | none | one line, at most 500 characters: the sub-goal, replacing the training prompt's Goal line |
+skills/trainer/SKILL.md:33:| `note` | string | none | at most 4000 characters, inserted after the prompt's Success/Goal line as a SKILL GUIDE block (practice only) |
+skills/trainer/SKILL.md:36:| `seed_start` | integer | your lineage's next unused block | >= 900001; step k, prompt i runs seed seed_start + batch x (k-1) + i |
+skills/trainer/SKILL.md:46:- `fixtures`: per fixture name: `type`, `regions` (interior regions: `p0`, `px`, `py`, `pz` corners), `state` (its joints'
+skills/trainer/SKILL.md:47:  openings in [0, 1], burner / button / lever states where the fixture reports them), `init_state`
+skills/trainer/SKILL.md:49:Example (the sub-goal "Open the fridge door."):
+skills/trainer/SKILL.md:53:    doors = [v for k, v in (fridge.get("state") or {}).items() if "door" in k]
+skills/trainer/SKILL.md:54:    return int(bool(doors) and max(doors) > 0.5)
+skills/trainer/SKILL.md:63:A request this site cannot run as written ends `failed` in `jobs/<id>.json` with this text; nothing is charged:
+skills/trainer/SKILL.md:103:the task, sub-goal and reward the call trained) and `training.json` (`resolved_spec`, `tinker_state`, `tinker_usd`, `rc_gstep`
+skills/tools/SKILL.md:3:description: Submit training and evaluation jobs, inspect results, and select the policy to score.
+skills/tools/SKILL.md:10:`SCOREBOARD.md` has dev scores and lineage. While a train or eval is submitted, `jobs/<id>.json` (`progress`, `progress_line`; `status.py`),
+skills/tools/SKILL.md:12:running train its completed steps, latest mean reward and GPU-hours so far, as the site reports them. `tasks/<task>/eval_prompt.txt` (when
+skills/tools/SKILL.md:13:the site provides it) is the prompt the policy receives at evaluation; training prompts are checked against it. `tasks/INDEX.md` lists each task's goal line, dev and
+skills/tools/SKILL.md:14:hidden seed ranges, recorded base score, API names and key rules, taken from tasks.json, the eval prompts and the base scores. State comes from the environment; this skill is editable guidance.
+skills/tools/SKILL.md:19:| `python3 eval.py --adapter A[,B...]\|base\|loaded --task T --seeds N` | Evaluate on the next N unused dev seeds (the result lists them; the base column has its own) with the task's `tasks/<task>/eval_prompt.txt` verbatim (no training `note`/`goal`; the final score uses the same prompt). A stack's score on a task is known only from an eval of that stack (`--adapter A,B`); neither the scoreboard nor the environment derives it from its adapters' single scores. `loaded` is the stack loaded when the request is picked up, so not an adapter whose train is still running. Results are written only when all seeds finish, so an eval that reaches its time limit usually fails with no count (rarely: a count over the seeds that finished, with `partial`). Where the site can resume an eval (eval port dq-t1v2), an eval stopped by the cluster (time limit, preemption, node failure) continues its remaining seeds in a new Slurm job, at most 3 times; its status then says `continued from seed k in job J`, and its result lists every Slurm job (`jobs`) and each continuation (`continued`: `job` stopped, `cause`, `from` seed, `of` seeds, `continued_in` job), as it lists site retries. |
+skills/tools/SKILL.md:23:| `python3 status.py [ID...]` | Read job states and results; no IDs shows all jobs. The last line states what finishing now would score. |
+skills/tools/SKILL.md:24:| `python3 wait.py all\|ID... [--max 4h\|90m]` | Submit a wait barrier: your next turn starts when those jobs finish or after `--max` (default 2h), whichever comes first. If the bound comes first, the result states each job's queue state, reason, position and time pending, and "no job finished". The barrier runs in the environment after your command returns, so `--max` is not limited by the per-command time limit. |
+skills/tools/SKILL.md:32:Read `jobs/<id>.json` or the next observation to distinguish done, failed and refused requests.
+skills/tools/SKILL.md:43:`training.json` in the adapter contains site-resolved parameters and artifact names. `site_sources` identifies the site
+skills/tools/SKILL.md:47:(adapters with version and weights sha, eval-prompt hash) and a token; `finish.py --confirm TOKEN` in a later turn ends the
+skills/tools/SKILL.md:51:stack. Submitted jobs finish before the score. A file named `DONE` starts the two-step finish like `finish.py` with no
+skills/tools/SKILL.md:69:| `python3 preset.py --task T --program FILE --name NAME --seeds N` | Your prefix program FILE (only the task's own API) runs once on each of N dev seeds (1-32) of T; each reached state is saved and the preset is kept only if every state restores. Record in `presets/NAME.json`; a train spec `"start_preset": "NAME"` on T then practises from those states. Example: `python3 preset.py --task stack --program prefixes/grasp.py --name stack_grasped --seeds 16` |
+skills/tools/SKILL.md:82:   shows where they stop (an exception, a grasp that never closes, a place at the wrong height).
+skills/tools/SKILL.md:87:   checklist for the task where it keeps one (names like `reach ...`, `grasp ...`, `lift ...`; true once reached); `final_state` holds object poses
+skills/tools/SKILL.md:88:   (`pos`, `init_pos`, `max_z`), the gripper (`pos`, `opening`, `grasping`) and `contacts`. Print one row to see the keys:
+skills/tools/SKILL.md:91:3. Write a verifier for a sub-goal you choose, for example "the cube is grasped" (`rewards/grasped.py`):
+skills/tools/SKILL.md:95:       grasped = any(v for k, v in stages.items() if k.startswith("grasp"))
+skills/tools/SKILL.md:96:       return 1.0 if grasped else 0.0
+skills/tools/SKILL.md:100:   Before training on it, score rows you already have: `python3 -c "import json; from rewards.grasped import reward; rows = [json.loads(l) for l in open('adapters/NAME/practice_rows.jsonl')]; print(sum(map(reward, rows)), len(rows))"`.
+skills/tools/SKILL.md:130:4. Practise the sub-goal: a train spec with `"reward": "rewards/grasped.py"` (and a `note` naming the sub-goal if you want the
+skills/tools/SKILL.md:131:   prompt to say it). `practice_rows.jsonl` then shows how often the sub-goal was reached per step.
+skills/tools/SKILL.md:133:5. Build start states for the next sub-goal. A prefix program (`prefixes/grasp.py`, the task's own API only) that performs the
+skills/tools/SKILL.md:134:   steps you can already do, then `python3 preset.py --task T --program prefixes/grasp.py --name T_grasped --seeds 16`.
+skills/tools/SKILL.md:135:   `presets/T_grasped.json` lists, per seed, whether the state restores and what the prefix printed, and (on a task whose
+skills/tools/SKILL.md:137:   you meant before practising from it: a train spec with `"start_preset": "T_grasped"` and a reward for the remaining part.
+skills/tools/SKILL.md:142:   `python3 rollout.py --adapter A[,B] --task T --seeds 8 --reward rewards/grasped.py` (rollout rows carry `stages` and
+skills/tools/SKILL.md:151:python3 unit.py register T_place --task T --reward rewards/placed.py --start-preset T_grasped --done rewards/placed_done.py
+skills/tools/SKILL.md:154:Afterwards `"task": "T_place"` in a train spec trains on T from `T_grasped`'s states with `rewards/placed.py` (the spec does not

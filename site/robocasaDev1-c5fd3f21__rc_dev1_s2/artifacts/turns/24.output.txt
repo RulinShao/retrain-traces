@@ -1,0 +1,128 @@
+rc=0
+####################################################################################################
+JOB 1 BoilPot
+================================================================================
+seed 800071 rc 0
+Generated text for 'stove knob': <points coords="1 1 468 696 2 527 696 3 592 696 4 662 696">stove knob</points>
+
+================================================================================
+seed 800072 rc 0
+text for 'the pot filled with water': There are none.
+No points parsed from model output; skipping visualization.
+Pot point: {'the pot filled with water': (None, None)}
+Pot masks: 200
+Grasp poses shape: (11, 4, 4)
+Grasp position: [0.68670085 0.57186685 0.47019669]
+Grasp quaternion: [-0.28477073  0.66255828  0.63598277 -0.27467813]
+Joints: [ 0.4013451   1.02428782  0.58912545 -0.48204154  0.18167719  1.47439706
+  0.21330991]
+Stove masks: 200
+Stove position: [ 0.36306769 -0.04320792  0.21960261]
+Place joints: [ 0.32402176 -0.43820825 -0.47520161 -2.77444315 -0.27918345  2.35991049
+ -2.26746058]
+
+================================================================================
+seed 800073 rc 0
+<empty>
+================================================================================
+seed 800074 rc 0
+<empty>
+================================================================================
+seed 800075 rc 1
+oint_prompt_fn(Image.fromarray(rgb), point_coords)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "…/vision/sam3.py", line 205, in point_prompt_fn
+    raise RuntimeError(f"Failed to communicate with SAM3 service at {SERVICE_URL}: {e}")
+RuntimeError: Failed to communicate with SAM3 service at http://127.0.0.1:16449: Request to http://127.0.0.1:16449/segment_point failed after 5 retries / 120.00s. Last error: 422 Client Error: Unprocessable Entity for url: http://127.0.0.1:16449/segment_point
+
+####################################################################################################
+JOB 3 BoilPot
+================================================================================
+seed 800081 rc 0
+<empty>
+================================================================================
+seed 800082 rc 0
+<empty>
+================================================================================
+seed 800083 rc 0
+Task completed: Pot placed on stove
+
+================================================================================
+seed 800084 rc 0
+Generated text for 'stove knob': <points coords="1 1 352 745 2 536 745 3 608 745 4 673 745">stove knob</points>
+
+================================================================================
+seed 800085 rc 0
+<empty>
+####################################################################################################
+JOB 2 BlendIngredients
+================================================================================
+seed 800076 rc 0
+Generated text for 'kiwi': <points coords="1 1 449 586">kiwi</points>
+Generated text for 'blender lid': <points coords="1 1 539 617">blender lid</points>
+Generated text for 'blender lid': <points coords="1 1 457 633">blender lid</points>
+Generated text for 'blender': <points coords="1 1 496 686">blender</points>
+Generated text for 'blender lid': <points coords="1 1 505 611">blender lid</points>
+Generated text for 'blender button': <points coords="1 1 483 745">blender button</points>
+
+================================================================================
+seed 800077 rc 0
+Generated text for 'blender lid': <points coords="1 1 543 629">blender lid</points>
+Generated text for 'apple': <points coords="1 1 589 735">apple</points>
+Generated text for 'blender body': <points coords="1 1 504 702">blender body</points>
+Generated text for 'blender lid': <points coords="1 1 499 640">blender lid</points>
+Generated text for 'blender body': <points coords="1 1 502 704">blender body</points>
+Generated text for 'blender button': <points coords="1 1 502 643">blender button</points>
+
+================================================================================
+seed 800078 rc 0
+<empty>
+================================================================================
+seed 800079 rc 0
+<empty>
+================================================================================
+seed 800080 rc 0
+<empty>
+####################################################################################################
+JOB 4 MakeIceLemonade
+================================================================================
+seed 800086 rc 1
+Generated text for 'lemon wedge': There are none.
+No points parsed from model output; skipping visualization.
+Traceback (most recent call last):
+  File "…/tasks/base.py", line 174, in _exec_user_code
+    exec(code, self._exec_globals, self._exec_globals)
+  File "<string>", line 343, in <module>
+  File "<string>", line 226, in main
+ValueError: matmul: Input operand 1 has a mismatch in its core dimension 0, with gufunc signature (n?,k),(k,m?)->(n?,m?) (size 3 is different from 4)
+
+================================================================================
+seed 800087 rc 0
+<empty>
+================================================================================
+seed 800088 rc 0
+Generated text for 'lemon wedge': There are none.
+No points parsed from model output; skipping visualization.
+Generated text for 'ice bowl': There are none.
+No points parsed from model output; skipping visualization.
+Generated text for 'glass of lemonade': There are none.
+No points parsed from model output; skipping visualization.
+Generated text for 'ice cube': There are none.
+No points parsed from model output; skipping visualization.
+
+================================================================================
+seed 800089 rc 0
+<empty>
+================================================================================
+seed 800090 rc 1
+ are none.
+No points parsed from model output; skipping visualization.
+Generated text for 'glass of lemonade': There are none.
+No points parsed from model output; skipping visualization.
+Traceback (most recent call last):
+  File "…/tasks/base.py", line 174, in _exec_user_code
+    exec(code, self._exec_globals, self._exec_globals)
+  File "<string>", line 396, in <module>
+  File "<string>", line 231, in main
+IndexError: only integers, slices (`:`), ellipsis (`...`), numpy.newaxis (`None`) and integer or boolean arrays are valid indices
+

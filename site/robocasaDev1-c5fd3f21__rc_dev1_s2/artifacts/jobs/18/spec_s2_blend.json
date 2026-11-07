@@ -1,0 +1,1 @@
+{"name": "s2_blend", "task": "BlendIngredients", "steps": 8, "batch": 8, "reward": "rewards/blender_r.py", "init_mode": "fresh", "seed_start": 912001, "time": "900"}

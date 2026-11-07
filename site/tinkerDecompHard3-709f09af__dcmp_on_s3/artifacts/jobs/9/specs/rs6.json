@@ -1,0 +1,1 @@
+{"name": "rs6", "task": "restack", "steps": 6, "batch": 8, "rollouts": 8, "reward": "shaped"}

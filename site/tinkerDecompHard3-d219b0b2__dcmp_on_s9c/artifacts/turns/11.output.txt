@@ -1,0 +1,94 @@
+rc=0
+============================== restack ==============================
+--- seed 800001 rc=0 secs=16.5 tc=False sim_reward=0.03045539200143614
+stages: {'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+log_tail: tcp_to_red_offset |  | # Keep the same orientation as during grasp | desired_tcp_quat = grasp_quat_wxyz |  | # Solve IK for the placement position | place_joints = solve_ik(desired_tcp_pos, desired_tcp_quat) | move_to_joints(place_joints) |  | # Open gripper to release the red cube | open_gripper() |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+--- seed 800002 rc=0 secs=16.4 tc=False sim_reward=0.01187201339755005
+stages: {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+log_tail: nt it upright) | # Let's keep the same orientation as the grasp | target_quat = grasp_quat_wxyz.copy() |  | # Solve IK for placement position | placement_joints = solve_ik(target_position, target_quat) | move_to_joints(placement_joints) |  | # Open gripper to release the red cube | open_gripper() |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+--- seed 800003 rc=0 secs=17.1 tc=False sim_reward=0.0025332836707654405
+stages: {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+log_tail: d cube center: [ 0.45550396 -0.05473421 -0.08859162], extent: [0.05955587 0.05086991 0.03808091] | Green cube center: [ 0.44020515 -0.05256967 -0.03527235], extent: [0.05794294 0.06026264 0.04747367] | Grasp position (world): [ 0.37603089 -0.13757014 -0.05125523] | Grasp quaternion (world): [0.1708489  0.27249133 0.75444501 0.57216418] |  |   Stderr: 
+--- seed 800004 rc=0 secs=17.0 tc=False sim_reward=0.007926678233213968
+stages: {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+log_tail: [0.0, 0.0, 0.05]) | joints_pre_place = solve_ik(pre_place_pos, place_quat_wxyz) | move_to_joints(joints_pre_place) |  | # Step 12: Lower gently to placement position | joints_place = solve_ik(place_pos, place_quat_wxyz) | move_to_joints(joints_place) |  | # Step 13: Open gripper | open_gripper() |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+--- seed 800005 rc=0 secs=9.7 tc=False sim_reward=0.04872031654028734
+stages: {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+log_tail: ce_position[2] += 0.05  # 5cm above | pre_place_joints = solve_ik(pre_place_position, target_quat_wxyz) | move_to_joints(pre_place_joints) |  | # Move to place position | place_joints = solve_ik(target_position, target_quat_wxyz) | move_to_joints(place_joints) |  | # Open gripper | open_gripper() |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+--- seed 800006 rc=0 secs=8.7 tc=False sim_reward=0.00829315644206223
+stages: {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+log_tail:  as green cube for stability | placement_R = green_R | placement_quat_wxyz = rotmat_to_quat(placement_R) |  | # Step 10: Move to placement position | joints_place = solve_ik(placement_pos, placement_quat_wxyz) | move_to_joints(joints_place) |  | # Step 11: Open gripper to release | open_gripper() |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+--- seed 800007 rc=1 secs=0.4 tc=False sim_reward=0.002188850434222872
+stages: {'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+log_tail: esponse: |   Sandbox failed: 1 |   Stdout:  |   Stderr: Traceback (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 10 |     - Calculate their 3D positions and sizes |                       ^ | SyntaxError: invalid decimal literal | 
+--- seed 800008 rc=0 secs=8.4 tc=False sim_reward=0.018711088453109356
+stages: {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+log_tail: p_pos_world - red_center |  | offset = grasp_pos_world - red_center |  | # Target TCP position for placement | tcp_target = red_center_target + offset |  | joints_place = solve_ik(tcp_target, grasp_quat_wxyz) | move_to_joints(joints_place) |  | # Open gripper to release the red cube | open_gripper() |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+--- seed 800009 rc=0 secs=8.5 tc=False sim_reward=0.003697272471488197
+stages: {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+log_tail: p same orientation as grasp | pre_place_joints = solve_ik(pre_place_position, quat_wxyz) | move_to_joints(pre_place_joints) |  | # Step 10: Lower gently to placement position | move_to_joints(solve_ik(place_position, quat_wxyz)) |  | # Step 11: Open gripper to release red cube | open_gripper() |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+--- seed 800010 rc=0 secs=6.2 tc=False sim_reward=0.025695944841719914
+stages: {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+log_tail: en cube's orientation | # Let's use the green cube's orientation for better alignment | placement_quat = rotmat_to_quat_wxyz(green_R) |  | joints_place = solve_ik(target_placement_pos, placement_quat) | move_to_joints(joints_place) |  | # Step 9: Open gripper to place red cube | open_gripper() |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+============================== revstack ==============================
+--- seed 800011 rc=0 secs=18.4 tc=False sim_reward=0.0008875308893120104
+stages: {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+log_tail:  |  | # Step 11: Release the green cube by opening the gripper | open_gripper() |  | # Step 12: Retract slightly after release | retract_position = place_position.copy() | retract_position[2] += 0.1 | joints_retract = solve_ik(retract_position, place_quat_world) | move_to_joints(joints_retract) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+--- seed 800012 rc=0 secs=17.3 tc=False sim_reward=1.768265590590401e-06
+stages: {'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+log_tail: ep 15: Open gripper to release the green cube | open_gripper() |  | # Step 16: Retract slightly | retract_pos = np.array([red_center[0], red_center[1], place_z + z_approach]) | retract_quat = grasp_quat |  | joints_retract = solve_ik(retract_pos, retract_quat) | move_to_joints(joints_retract) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+--- seed 800013 rc=0 secs=19.2 tc=False sim_reward=3.153799351812703e-07
+stages: {'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+log_tail: joints_place) |  | # Step 13: Open the gripper to release the green cube | open_gripper() |  | # Step 14: Retract the robot | retract_position = place_position.copy() | retract_position[2] += 0.1 | joints_retract = solve_ik(retract_position, quaternion_identity) | move_to_joints(joints_retract) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+--- seed 800014 rc=0 secs=18.8 tc=False sim_reward=0.00022296819434426685
+stages: {'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+log_tail: ace_pos, grasp_quat_world) | move_to_joints(joints_place) |  | # Step 12: Release the green cube | open_gripper() |  | # Step 13: Retract slightly | retract_pos = place_pos.copy() | retract_pos[2] += 0.1 |  | joints_retract = solve_ik(retract_pos, grasp_quat_world) | move_to_joints(joints_retract) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+--- seed 800015 rc=0 secs=8.0 tc=False sim_reward=0.03730834179223515
+stages: {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': True, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+log_tail: e_ik(place_pos, grasp_quat_wxyz) | move_to_joints(joints_place) |  | # Step 8: Open gripper to release | open_gripper() |  | # Step 9: Retract slightly | retract_pos = place_pos.copy() | retract_pos[2] += 0.1 | joints_retract = solve_ik(retract_pos, grasp_quat_wxyz) | move_to_joints(joints_retract) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+--- seed 800016 rc=0 secs=9.0 tc=False sim_reward=0.0012124447624112938
+stages: {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+log_tail:  to placement position | joints_place = solve_ik(place_pos, grasp_quat_wxyz) | move_to_joints(joints_place) |  | # Release the green cube | open_gripper() |  | # Lift back up to safe height | joints_release_lift = solve_ik(lateral_move_pos, grasp_quat_wxyz) | move_to_joints(joints_release_lift) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+--- seed 800017 rc=0 secs=8.9 tc=False sim_reward=0.09979001093185871
+stages: {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+log_tail: e = solve_ik(place_pos, grasp_quat_wxyz) | move_to_joints(joints_place) |  | # Release the cube | open_gripper() |  | # Retract slightly after release | retract_pos = place_pos.copy() | retract_pos[2] += 0.05 | joints_retract = solve_ik(retract_pos, grasp_quat_wxyz) | move_to_joints(joints_retract) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+--- seed 800018 rc=1 secs=6.4 tc=False sim_reward=0.0012219424670248946
+stages: {'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+log_tail: act) |  |  | Environment response: |   Sandbox failed: 1 |   Stdout:  |   Stderr: Traceback (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 89, in <module> | IndexError: arrays used as indices must be of integer (or boolean) type | 
+--- seed 800019 rc=0 secs=8.0 tc=False sim_reward=0.0011225168486364012
+stages: {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+log_tail: oints_place) |  | # Open gripper to release | open_gripper() |  | # Lift up slightly after release | release_lift_position = place_position.copy() | release_lift_position[2] += safe_lift_height | joints_release = solve_ik(release_lift_position, grasp_quat_world) | move_to_joints(joints_release) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+--- seed 800020 rc=0 secs=7.3 tc=False sim_reward=0.001955262716382869
+stages: {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+log_tail: ove_to_joints(joints_place) |  | # Step 14: Open gripper to release the green cube | open_gripper() |  | # Step 15: Retract slightly | retract_position = place_position.copy() | retract_position[2] += 0.1 |  | joints_retract = solve_ik(retract_position, place_quat) | move_to_joints(joints_retract) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+============================== nut ==============================
+--- seed 800021 rc=1 secs=1.4 tc=False sim_reward=0.0004146768139350553
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+log_tail: g/cap-x/capx/envs/tasks/base.py", line 174, in _exec_user_code |     exec(code, self._exec_globals, self._exec_globals) |   File "<string>", line 4 |     2. I need to find the brown square block (peg) where I'll insert the nut |                                                           ^ | SyntaxError: unterminated string literal (detected at line 4) | 
+--- seed 800022 rc=1 secs=1.4 tc=False sim_reward=0.000333873223510106
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+log_tail: ._exec_globals) |   File "<string>", line 6 |     4. Insert the nut onto the block, accounting for the rigid transform between the handle grasp pose and the nut's center |                                                                                                                   ^ | SyntaxError: unterminated string literal (detected at line 6) | 
+--- seed 800023 rc=1 secs=1.4 tc=False sim_reward=0.0002796546697236834
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+log_tail: ndbox failed: 1 |   Stdout:  |   Stderr: Traceback (most recent call last): |   File "…/tasks/base.py", line 174, in _exec_user_code |     exec(code, self._exec_globals, self._exec_globals) |   File "<string>", line 1 |     Let me break down the task: |         ^^ | SyntaxError: invalid syntax | 
+--- seed 800024 rc=0 secs=13.6 tc=False sim_reward=0.00039230696809064983
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+log_tail: erated text for 'brown square block': <points coords="1 1 607 764">brown square block</points> | Handle pixel: (367, 216) | Center pixel: (343, 197) | Block pixel: (310, 391) | Handle 3D: [-0.39326528  0.53131116 -4.99832881] | Center 3D: [-0.66229778  0.41660859 -5.85972272] | Block 3D: [ 0.9748996  -0.17004016 -3.38515297] | Grasped the nut |  |   Stderr: 
+--- seed 800025 rc=1 secs=1.4 tc=False sim_reward=0.0003238182749637052
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+log_tail: se.py", line 174, in _exec_user_code |     exec(code, self._exec_globals, self._exec_globals) |   File "<string>", line 5 |     3. I need to understand the spatial relationship between the nut's center and its handle |                                                                     ^ | SyntaxError: unterminated string literal (detected at line 5) | 
+--- seed 800026 rc=0 secs=16.8 tc=False sim_reward=0.00018135692702838654
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+log_tail: rdinates: (314, 391) | Handle 3D position: [ 0.38920051  0.09196896 -0.0820076 ] | Center 3D position: [ 0.44162542  0.12983019 -0.10200114] | Block 3D position: [0.78935436 0.09853743 0.028001  ] | Offset from handle to center: [ 0.05242491  0.03786123 -0.01999354] | Target handle position for insertion: [0.73692945 0.0606762  0.09799454] |  |   Stderr: 
+--- seed 800027 rc=0 secs=2.7 tc=False sim_reward=0.0002880183489597509
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+log_tail: t for 'brown square block': <points coords="1 1 788 362">brown square block</points> | Handle pixel: (402, 184) | Center pixel: (372, 195) | Block pixel: (403, 185) | Handle 3D position: [-0.13513806  0.27402995 -1.1600076 ] | Center 3D position: [-0.11646532  0.22147503 -1.18000114] | Block 3D position: [-0.13326114  0.27590687 -1.1600076 ] |  |   Stderr: 
+--- seed 800028 rc=0 secs=16.0 tc=False sim_reward=4.073848565491199e-05
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+log_tail: : [ 0.68126869  1.62109983 -0.0471954  -1.32365274 -1.6990478   0.58523035 |   0.72088814] | Lift position: [0.50744631 0.19895325 0.0179924 ] | Moving to insertion position: [0.85517526 0.06921997 0.04799454] | Insert down position: [ 0.85517526  0.06921997 -0.00200546] | Retract position: [0.85517526 0.06921997 0.19799454] | Task completed! |  |   Stderr: 
+--- seed 800029 rc=1 secs=1.3 tc=False sim_reward=0.00038631569246898583
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+log_tail: ec_globals) |   File "<string>", line 9 |     - The grasp pose is on the handle, but I need to account for the rigid transform between the handle and the nut's center |                                                                                                                    ^ | SyntaxError: unterminated string literal (detected at line 9) | 
+--- seed 800030 rc=0 secs=4.7 tc=False sim_reward=0.00039582988495630013
+stages: {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+log_tail:  <points coords="1 1 611 765">brown square block</points> | Block point: {'brown square block': (312, 391)} | Handle masks found: 3 | Handle text masks found: 200 | Handle 3D position: [ 0.47553871  0.08821512 -0.0820076 ] | Nut center 3D position: [ 0.44162542  0.1527414  -0.10200114] | Block 3D position: [0.78935436 0.09513959 0.028001  ] |  |   Stderr: 

@@ -1,0 +1,9 @@
+{
+  "name": "b_revstack",
+  "task": "revstack",
+  "steps": 20,
+  "batch": 8,
+  "rollouts": 8,
+  "reward": "shaped",
+  "note": "Tip: after you grasp and lift the green cube, call get_observation() again and recompute the green cube's current world-frame position from its depth segmentation, then drive that measured position (not the originally planned pose) above the red cube before descending."
+}

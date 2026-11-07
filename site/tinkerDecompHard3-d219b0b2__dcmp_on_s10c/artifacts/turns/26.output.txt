@@ -1,0 +1,49 @@
+rc=0
+=== seed 800001 stages {'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+   t 227
+   table_z 0.8
+   objects {'red_cube': {'pos': [0.09185, 0.0582, 0.81979], 'quat_wxyz': [-0.97514, -0.00027, 0.00117, 0.22157], 'size': [0.04, 0.0
+   grippers {'arm0': {'pos': [-0.49423, -0.77158, 1.59697], 'quat_wxyz': [0.93292, 0.34822, 0.09169, -0.00035], 'opening': 0.0787, '
+   contacts [['green_cube', 'red_cube'], ['red_cube', 'table']]
+=== seed 800002 stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+   t 180
+   table_z 0.8
+   objects {'red_cube': {'pos': [0.06937, -0.07495, 0.8257], 'quat_wxyz': [-0.22843, -0.54032, -0.45525, 0.66979], 'size': [0.04, 0
+   grippers {'arm0': {'pos': [0.04433, 0.04404, 0.91342], 'quat_wxyz': [-0.05001, 0.02415, 0.76811, 0.6379], 'opening': 0.07836, 'cl
+   contacts [['arm0', 'red_cube'], ['green_cube', 'table'], ['red_cube', 'table']]
+=== seed 800003 stages {'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+   t 196
+   table_z 0.8
+   objects {'red_cube': {'pos': [-0.12228, -0.05004, 0.81954], 'quat_wxyz': [-0.33269, -0.0442, 0.08009, 0.93859], 'size': [0.04, 0
+   grippers {'arm0': {'pos': [-0.08724, 0.01104, 0.87497], 'quat_wxyz': [0.4267, -0.14179, 0.82483, 0.34276], 'opening': 0.07876, 'c
+   contacts [['arm0', 'green_cube'], ['green_cube', 'red_cube'], ['red_cube', 'table']]
+=== seed 800004 stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+   t 254
+   table_z 0.8
+   objects {'red_cube': {'pos': [0.0714, 0.07402, 0.81989], 'quat_wxyz': [-0.93013, -0.0, 0.0, 0.36724], 'size': [0.04, 0.04, 0.04]
+   grippers {'arm0': {'pos': [0.18502, 0.07407, 0.95261], 'quat_wxyz': [-0.15234, 0.77283, 0.21149, 0.57862], 'opening': 0.07876, 'c
+   contacts [['green_cube', 'table'], ['red_cube', 'table']]
+=== seed 800005 stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+   t 458
+   table_z 0.8
+   objects {'red_cube': {'pos': [0.07903, -0.04174, 0.82303], 'quat_wxyz': [-0.39063, 0.64671, 0.28469, 0.59002], 'size': [0.04, 0.
+   grippers {'arm0': {'pos': [0.00857, -0.04079, 0.81042], 'quat_wxyz': [0.04924, 0.55931, 0.82737, 0.01435], 'opening': 0.08221, 'c
+   contacts [['arm0', 'green_cube'], ['arm0', 'red_cube'], ['arm0', 'table'], ['green_cube', 'red_cube'], ['green_cube', 'table'], [
+=== seed 800006 stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+   t 260
+   table_z 0.8
+   objects {'red_cube': {'pos': [0.09523, 0.10114, 0.8258], 'quat_wxyz': [0.36585, -0.56176, 0.71263, -0.20675], 'size': [0.04, 0.0
+   grippers {'arm0': {'pos': [0.2169, 0.04503, 0.92814], 'quat_wxyz': [-0.64068, 0.32709, -0.46575, 0.51538], 'opening': 0.07844, 'c
+   contacts [['arm0', 'red_cube'], ['arm0', 'table'], ['green_cube', 'table'], ['red_cube', 'table']]
+=== seed 800007 stages {'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+   t 0
+   table_z 0.8
+   objects {'red_cube': {'pos': [-0.04486, 0.11141, 0.81842], 'quat_wxyz': [-0.41353, -0.00103, 0.00047, 0.91049], 'size': [0.04, 0
+   grippers {'arm0': {'pos': [-0.11861, -0.02723, 0.99521], 'quat_wxyz': [0.04581, 0.04089, 0.99811, -0.00303], 'opening': 0.01678, 
+   contacts [['green_cube', 'red_cube'], ['red_cube', 'table']]
+=== seed 800008 stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': True, 'place the red on the green': False}
+   t 219
+   table_z 0.8
+   objects {'red_cube': {'pos': [0.05483, 0.04629, 0.81989], 'quat_wxyz': [-0.29982, 0.64039, 0.29982, 0.64039], 'size': [0.04, 0.0
+   grippers {'arm0': {'pos': [-0.00066, -0.01394, 0.91199], 'quat_wxyz': [0.21318, 0.46097, 0.66981, 0.54168], 'opening': 0.07842, '
+   contacts [['green_cube', 'table'], ['red_cube', 'table']]

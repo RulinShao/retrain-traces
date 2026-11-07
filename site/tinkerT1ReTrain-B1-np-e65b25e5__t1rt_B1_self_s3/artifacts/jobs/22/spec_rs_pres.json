@@ -1,0 +1,9 @@
+{
+  "task": "restack",
+  "name": "rs_pres",
+  "steps": 5,
+  "batch": 8,
+  "rollouts": 8,
+  "reward": "shaped",
+  "start_preset": "restack_grasped"
+}

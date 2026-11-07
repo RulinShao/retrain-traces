@@ -1,0 +1,208 @@
+rc=0
+---STATUS---
+{
+ "gpu_hours_spent": 0.0,
+ "gpu_hours_reserved": 0,
+ "gpu_hours_remaining": 16.0,
+ "loaded": [],
+ "adapters": [],
+ "running_jobs": [],
+ "job_progress": {},
+ "finish_now": "If you finish now, the scored policy is: base (`python3 finish.py` submits the loaded stack)",
+ "pending_submission": null
+}---SCOREBOARD---
+# SCOREBOARD
+
+playbook: 6df138df-8645d430
+agent: local
+mode: dev
+dev seeds: from 800071
+policy: Qwen3.8-27B
+eval_backend: tinker, decode=tinker(no_presence_penalty) (RoboCasa365 pool: every eval samples on Tinker, base or Tinker-trained adapter; dev / practice seeds only, hidden seeds refused); final=DEV (dev seeds 800021-800070, n=50, sampled on Tinker; never a Table 2 number: hidden finals need the local 27B)
+
+Dev-seed success count per task x adapter stack (k/n = rate): the eval with the most seeds (equal n: the newest); smaller evals are in History and the job records. Adapter cells also give the base column's rate at the same n; `untested` = no eval of that stack on that task yet.
+
+| task | base |
+|---|---|
+| TongBuffetSetup | 0/20 = 0% |
+| PlaceVeggiesInDrawer | 0/20 = 0% |
+| OrganizeMetallicUtensils | 0/20 = 0% |
+| BoilPot | 0/20 = 0% |
+| SimmeringSauce | 0/20 = 0% |
+| HeatMultipleWater | 0/20 = 0% |
+| BlendVegetableSauce | 0/20 = 0% |
+| BlendMarinade | 0/20 = 0% |
+| BlendIngredients | 0/20 = 0% |
+| SteamInMicrowave | 0/20 = 0% |
+| MicrowaveDefrostMeat | 0/20 = 0% |
+| MicrowaveThawing | 0/20 = 0% |
+| WashFruitColander | 0/20 = 0% |
+| GetToastedBread | 0/20 = 0% |
+| ClearReceptaclesForCleaning | 0/20 = 0% |
+| HeatKebabSandwich | 0/20 = 0% |
+| ToasterOvenBroilFish | 0/20 = 0% |
+| ArrangeBreadBowl | 0/20 = 0% |
+| MakeIceLemonade | 0/20 = 0% |
+| GarnishPancake | 0/20 = 0% |
+| CerealAndBowl | 0/20 = 0% |
+| PackIdenticalLunches | 0/20 = 0% |
+| StirVegetables | 0/20 = 0% |
+| GatherTableware | 0/20 = 0% |
+
+GPU-hours: 0.000 spent, 16.000 remaining of 16.0 (0 job(s) running)
+Expected cost per call (the estimate checked against what remains): train.py (1 step 0.21, 10 steps 1.34, 50 steps 6.37) GPU-h; eval.py per task (5 seeds 0.09, 20 seeds 0.12, 100 seeds 0.27) GPU-h
+Loaded on your serving endpoint: base
+Submitted: none (python3 finish.py submits a policy)
+
+## Adapters
+
+| name | init | steps | spec | state |
+|---|---|---|---|---|
+
+## Self-reward (rollout.py --reward: your reward over the rollout facts; not a success count)
+
+- none yet
+
+## History (latest 30)
+
+---tasks.json---
+{
+ "overview": {
+  "robot": "A Franka Emika robot arm mounted on a mobile base (RoboCasa365's PandaOmron) in RoboCasa365 kitchen scenes, driven through the perception, navigation and control APIs listed in each task's eval prompt (mobile tier s4mfx1: the S4 reduced API plus navigate_to, benchmark robocasa-fixes-v1).",
+  "program": "Per trial the policy writes one single-turn Python program: executable code only, comments allowed, no code fences.",
+  "success": "Each task's own success check on the final state.",
+  "evaluation": "The final evaluation runs every listed task on seeds 800021-800070, which dev evals and practice never draw; the one adapter stack you submit serves every task."
+ },
+ "families": [
+  {
+   "family": "other",
+   "example": {
+    "task": "ArrangeBreadBowl",
+    "goal": "Goal: Pick up the heated bread from the toaster oven and place it in the bowl. Then move the bread bowl to the dining counter.\nSuccess requires: both breads are in the bowl (each touching the bowl with its centre within 0.7 of the bowl's radius, or resting on the other bread that is), the bowl touches the dining counter, and the gripper is more than 0.25 m from the bowl.\nAll positions and orientations are in the robot base frame: x points forward (away from the robot), y to the robot's left, z up; quaternions are WXYZ."
+   },
+   "tasks_sharing_this_form": "Tasks sharing this form, each differing in: BlendIngredients: Open the blender lid, put the tangerine in the blender, close the lid, and start the blender.; BlendMarinade: Grab the garlic and onion from the fridge, place them in the blender, close the lid, and turn on the blender to create a marinade.; BlendVegetableSauce: The carrot is done being boiled. Turn off the stove burner for the saucepan. Place the carrot in the blender and turn on the blender to make a vegetable sauce.; BoilPot: Take the pot filled with water and place it on the stove. Then turn on the stove burner to begin boiling the water.; CerealAndBowl: Open the cabinet. Pick the cereal and bowl from the cabinet and place them on the counter next to the milk. Then close the cabinet.; ClearReceptaclesForCleaning: Pick the mug and strainer and place them in the sink. Then turn on the water.; GarnishPancake: Take the strawberry from the fridge and place it on top of the pancake, located on the dining counter.; GatherTableware: Gather all objects into one cabinet and sort the glasses and bowls to opposite sides.; GetToastedBread: Start the toaster. Once the lever pops up, take the bread to the plate on the dining counter.; HeatKebabSandwich: Pick up the kebab skewer and baguette bread, and place them inside the toaster oven. Close the toaster oven door and start by setting the timer.; HeatMultipleWater: Pick the kettle from the cabinet and place it on a stove burner. Then pick the pot from the counter and place it on another stove burner. Finally, turn both burners on.; MakeIceLemonade: Grab a lemon wedge from the fridge and one ice cube from the ice bowl, and put them in the glass of lemonade.; MicrowaveDefrostMeat: Place the tupperware containing the frozen steak in the microwave. Close the microwave door and press the start button to defrost the meat.; MicrowaveThawing: Pick the chicken drumstick from the counter and place it in the microwave. Then turn on the microwave.; OrganizeMetallicUtensils: Pick up the metallic utensils from the counter and place them in the open drawer. Make sure not to pick up any wooden utensils.; PackIdenticalLunches: Place one onion and one chicken drumstick in each tupperware on the nearby counter, to pack two identical lunches.; PlaceVeggiesInDrawer: Place the potatos inside the fridge drawer. Close the drawer after placing the vegetables.; SimmeringSauce: Place the pan on the rear center burner on the stove. Then place the tomato and the onion in the pan and turn on the rear center burner.; SteamInMicrowave: Pick the eggplant from the sink and place it in the bowl. Then pick the bowl and place it in the microwave. Then close the microwave door and press the start button.; StirVegetables: Put the lime and broccoli in the pot. Retrieve the spatula and lightly stir the vegetables in the pot.; ToasterOvenBroilFish: Place the fish on the rack of the toaster oven, and slide the rack back inside. Close the toaster oven door and set the temperature to the max to begin broiling the fish.; TongBuffetSetup: Take the tongs from the drawer on the left and place them on the dining counter next to the tray containing the kebab skewer.; WashFruitColander: Put the colander in the sink, put the orange, mango, kiwi in the colander, and turn on the sink faucet and pour water over the colander."
+  }
+ ],
+ "tasks": [
+  {
+   "name": "TongBuffetSetup",
+   "differs": "Take the tongs from the drawer on the left and place them on the dining counter next to the tray containing the kebab skewer.",
+   "text_file": "tasks/TongBuffetSetup.md"
+  },
+  {
+   "name": "PlaceVeggiesInDrawer",
+   "differs": "Place the potatos inside the fridge drawer. Close the drawer after placing the vegetables.",
+   "text_file": "tasks/PlaceVeggiesInDrawer.md"
+  },
+  {
+   "name": "OrganizeMetallicUtensils",
+   "differs": "Pick up the metallic utensils from the counter and place them in the open drawer. Make sure not to pick up any wooden utensils.",
+   "text_file": "tasks/OrganizeMetallicUtensils.md"
+  },
+  {
+   "name": "BoilPot",
+   "differs": "Take the pot filled with water and place it on the stove. Then turn on the stove burner to begin boiling the water.",
+   "text_file": "tasks/BoilPot.md"
+  },
+  {
+   "name": "SimmeringSauce",
+   "differs": "Place the pan on the rear center burner on the stove. Then place the tomato and the onion in the pan and turn on the rear center burner.",
+   "text_file": "tasks/SimmeringSauce.md"
+  },
+  {
+   "name": "HeatMultipleWater",
+   "differs": "Pick the kettle from the cabinet and place it on a stove burner. Then pick the pot from the counter and place it on another stove burner. Finally, turn both burners on.",
+   "text_file": "tasks/HeatMultipleWater.md"
+  },
+  {
+   "name": "BlendVegetableSauce",
+   "differs": "The carrot is done being boiled. Turn off the stove burner for the saucepan. Place the carrot in the blender and turn on the blender to make a vegetable sauce.",
+   "text_file": "tasks/BlendVegetableSauce.md"
+  },
+  {
+   "name": "BlendMarinade",
+   "differs": "Grab the garlic and onion from the fridge, place them in the blender, close the lid, and turn on the blender to create a marinade.",
+   "text_file": "tasks/BlendMarinade.md"
+  },
+  {
+   "name": "BlendIngredients",
+   "differs": "Open the blender lid, put the tangerine in the blender, close the lid, and start the blender.",
+   "text_file": "tasks/BlendIngredients.md"
+  },
+  {
+   "name": "SteamInMicrowave",
+   "differs": "Pick the eggplant from the sink and place it in the bowl. Then pick the bowl and place it in the microwave. Then close the microwave door and press the start button.",
+   "text_file": "tasks/SteamInMicrowave.md"
+  },
+  {
+   "name": "MicrowaveDefrostMeat",
+   "differs": "Place the tupperware containing the frozen steak in the microwave. Close the microwave door and press the start button to defrost the meat.",
+   "text_file": "tasks/MicrowaveDefrostMeat.md"
+  },
+  {
+   "name": "MicrowaveThawing",
+   "differs": "Pick the chicken drumstick from the counter and place it in the microwave. Then turn on the microwave.",
+   "text_file": "tasks/MicrowaveThawing.md"
+  },
+  {
+   "name": "WashFruitColander",
+   "differs": "Put the colander in the sink, put the orange, mango, kiwi in the colander, and turn on the sink faucet and pour water over the colander.",
+   "text_file": "tasks/WashFruitColander.md"
+  },
+  {
+   "name": "GetToastedBread",
+   "differs": "Start the toaster. Once the lever pops up, take the bread to the plate on the dining counter.",
+   "text_file": "tasks/GetToastedBread.md"
+  },
+  {
+   "name": "ClearReceptaclesForCleaning",
+   "differs": "Pick the mug and strainer and place them in the sink. Then turn on the water.",
+   "text_file": "tasks/ClearReceptaclesForCleaning.md"
+  },
+  {
+   "name": "HeatKebabSandwich",
+   "differs": "Pick up the kebab skewer and baguette bread, and place them inside the toaster oven. Close the toaster oven door and start by setting the timer.",
+   "text_file": "tasks/HeatKebabSandwich.md"
+  },
+  {
+   "name": "ToasterOvenBroilFish",
+   "differs": "Place the fish on the rack of the toaster oven, and slide the rack back inside. Close the toaster oven door and set the temperature to the max to begin broiling the fish.",
+   "text_file": "tasks/ToasterOvenBroilFish.md"
+  },
+  {
+   "name": "ArrangeBreadBowl",
+   "differs": "example of family other",
+   "text_file": "tasks/ArrangeBreadBowl.md"
+  },
+  {
+   "name": "MakeIceLemonade",
+   "differs": "Grab a lemon wedge from the fridge and one ice cube from the ice bowl, and put them in the glass of lemonade.",
+   "text_file": "tasks/MakeIceLemonade.md"
+  },
+  {
+   "name": "GarnishPancake",
+   "differs": "Take the strawberry from the fridge and place it on top of the pancake, located on the dining counter.",
+   "text_file": "tasks/GarnishPancake.md"
+  },
+  {
+   "name": "CerealAndBowl",
+   "differs": "Open the cabinet. Pick the cereal and bowl from the cabinet and place them on the counter next to the milk. Then close the cabinet.",
+   "text_file": "tasks/CerealAndBowl.md"
+  },
+  {
+   "name": "PackIdenticalLunches",
+   "differs": "Place one onion and one chicken drumstick in each tupperware on the nearby counter, to pack two identical lunches.",
+   "text_file": "tasks/PackIdenticalLunches.md"
+  },
+  {
+   "name": "StirVegetables",
+   "differs": "Put the lime and broccoli in the pot. Retrieve the spatula and lightly stir the vegetables in the pot.",
+   "text_file": "tasks/StirVegetables.md"
+  },
+  {
+   "name": "GatherTableware",
+   "differs": "Gather all objects into one cabinet and sort the glasses and bowls to opposite sides.",
+   "text_file": "tasks/GatherTableware.md"
+  }
+ ]
+}

@@ -1,0 +1,1 @@
+{"name": "t2_revstack", "task": "revstack", "steps": 20, "batch": 8, "rollouts": 8, "reward": "task_completed", "seed_start": 830001}

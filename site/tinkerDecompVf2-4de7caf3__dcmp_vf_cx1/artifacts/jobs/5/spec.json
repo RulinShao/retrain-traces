@@ -1,0 +1,7 @@
+{
+ "name": "reverse12",
+ "task": "revstack",
+ "steps": 12,
+ "init_mode": "fresh",
+ "reward": "rewards/progress.py"
+}

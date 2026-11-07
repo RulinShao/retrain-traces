@@ -1,0 +1,9 @@
+name: pw-sh2
+task: metaworldplus-push-wall
+init: pw-sh1
+steps: 4
+batch: 8
+rollouts: 8
+reward: shaped
+lr: 5.0e-05
+seed_start: 830001

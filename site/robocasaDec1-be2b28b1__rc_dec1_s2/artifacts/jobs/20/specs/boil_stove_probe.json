@@ -1,0 +1,10 @@
+{
+  "name": "boil_stove_probe",
+  "task": "BoilPot",
+  "steps": 1,
+  "batch": 8,
+  "reward": "rewards/boil_pot_on_stove.py",
+  "goal": "Take the pot and place it on the stove burner.",
+  "init_mode": "fresh",
+  "time": "01:00:00"
+}

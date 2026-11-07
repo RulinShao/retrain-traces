@@ -1,0 +1,159 @@
+rc=0
+############ probe_r8
+== seed 800177 rc 0
+f -> %s" % (dz, dxy, "STACKED" if (abs(dz) < 0.015 and dxy < 0.02) else "MISS"))
+print("DONE")
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: B gt -0.021 rh 0.025 gcxy [0.542 0.035]
+G cand 20 sc 0.22 gp [ 0.57  -0.061 -0.009]
+H held [0.559 0.035] off 0.017
+P place [ 0.553 -0.061  0.004]
+SELF dz -0.100 dxy 0.017 -> MISS
+DONE
+
+  Stderr:
+== seed 800178 rc 0
+%s" % (dz, dxy, "STACKED" if (abs(dz) < 0.015 and dxy < 0.02) else "MISS"))
+print("DONE")
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: B gt -0.021 rh 0.025 gcxy [ 0.571 -0.084]
+G cand 36 sc 0.26 gp [ 0.51  -0.178 -0.05 ]
+H held [ 0.585 -0.084] off 0.014
+P place [ 0.497 -0.179  0.004]
+SELF dz -0.100 dxy 0.014 -> MISS
+DONE
+
+  Stderr:
+== seed 800179 rc 0
+-> %s" % (dz, dxy, "STACKED" if (abs(dz) < 0.015 and dxy < 0.02) else "MISS"))
+print("DONE")
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: B gt -0.021 rh 0.025 gcxy [0.619 0.007]
+G cand 12 sc 0.26 gp [ 0.636 -0.096 -0.062]
+H held [0.636 0.008] off 0.016
+P place [ 0.619 -0.097  0.004]
+SELF dz -0.100 dxy 0.016 -> MISS
+DONE
+
+  Stderr:
+== seed 800180 rc 0
+> %s" % (dz, dxy, "STACKED" if (abs(dz) < 0.015 and dxy < 0.02) else "MISS"))
+print("DONE")
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: B gt -0.021 rh 0.025 gcxy [ 0.452 -0.11 ]
+G cand 13 sc 0.22 gp [ 0.431 -0.216 -0.038]
+H held [ 0.466 -0.109] off 0.013
+P place [ 0.418 -0.217  0.004]
+SELF dz -0.100 dxy 0.013 -> MISS
+DONE
+
+  Stderr:
+== seed 800181 rc 0
+-> %s" % (dz, dxy, "STACKED" if (abs(dz) < 0.015 and dxy < 0.02) else "MISS"))
+print("DONE")
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: B gt -0.021 rh 0.025 gcxy [ 0.543 -0.104]
+G cand 9 sc 0.24 gp [ 0.603 -0.197 -0.021]
+H held [ 0.558 -0.103] off 0.015
+P place [ 0.588 -0.198  0.004]
+SELF dz -0.100 dxy 0.015 -> MISS
+DONE
+
+  Stderr:
+== seed 800182 rc 0
+%s" % (dz, dxy, "STACKED" if (abs(dz) < 0.015 and dxy < 0.02) else "MISS"))
+print("DONE")
+
+
+Environment response:
+  Sandbox failed: 0
+  Stdout: B gt -0.021 rh 0.025 gcxy [ 0.61  -0.029]
+G cand 25 sc 0.20 gp [ 0.593 -0.135 -0.068]
+H held [ 0.627 -0.029] off 0.017
+P place [ 0.577 -0.135  0.004]
+SELF dz -0.100 dxy 0.017 -> MISS
+DONE
+
+  Stderr:
+############ probe_nut2
+== seed 800183 rc 0
+8 -0.082]
+B nutc [ 0.79  -0.101  0.026] blockc [ 0.435  0.203 -0.083] btop -0.082
+B off [ 0.406 -0.289  0.108]
+Generated text for 'extruded handle of the brown square nut': <points coords="1 1 727 324">extruded handle of the brown square nut</points>
+TRY 0 dz 0.147
+I ins [ 0.029  0.492 -0.062]
+SELF dxy 0.198 dz 0.031 -> MISS
+DONE
+
+  Stderr:
+== seed 800184 rc 0
+0.099 -0.082]
+B nutc [ 0.79  -0.101  0.026] blockc [ 0.784  0.097 -0.004] btop 0.028
+B off [ 0.282 -0.2    0.108]
+Generated text for 'extruded handle of the brown square nut': <points coords="1 1 599 765">extruded handle of the brown square nut</points>
+TRY 0 dz 0.11
+I ins [0.502 0.298 0.048]
+SELF dxy 0.198 dz 0.031 -> MISS
+DONE
+
+  Stderr:
+== seed 800185 rc 0
+84 -0.082]
+B nutc [ 0.443  0.132 -0.101] blockc [ 0.445  0.14  -0.083] btop -0.082
+B off [-0.002 -0.052 -0.019]
+Generated text for 'extruded handle of the brown square nut': <points coords="1 1 615 398">extruded handle of the brown square nut</points>
+TRY 0 dz 0.146
+I ins [ 0.448  0.193 -0.062]
+SELF dxy 0.198 dz 0.030 -> MISS
+DONE
+
+  Stderr:
+== seed 800186 rc 0
+3 -0.082]
+B nutc [ 0.79  -0.101  0.026] blockc [ 0.458  0.185 -0.083] btop -0.082
+B off [ 0.28  -0.294  0.108]
+Generated text for 'extruded handle of the brown square nut': <points coords="1 1 646 439">extruded handle of the brown square nut</points>
+TRY 0 dz 0.264
+I ins [ 0.178  0.479 -0.062]
+SELF dxy 0.424 dz 0.109 -> MISS
+DONE
+
+  Stderr:
+== seed 800187 rc 0
+9  -0.082]
+B nutc [ 0.443  0.134 -0.101] blockc [ 0.442  0.142 -0.083] btop -0.082
+B off [ 0.015 -0.055 -0.019]
+Generated text for 'extruded handle of the brown square nut': <points coords="1 1 668 336">extruded handle of the brown square nut</points>
+TRY 0 dz 0.252
+I ins [ 0.427  0.198 -0.062]
+SELF dxy 0.198 dz 0.031 -> MISS
+DONE
+
+  Stderr:
+== seed 800188 rc 0
+8 -0.082]
+B nutc [ 0.79  -0.101  0.026] blockc [ 0.452  0.209 -0.083] btop -0.082
+B off [ 0.309 -0.258  0.108]
+Generated text for 'extruded handle of the brown square nut': <points coords="1 1 604 402">extruded handle of the brown square nut</points>
+TRY 0 dz 0.266
+I ins [ 0.143  0.468 -0.062]
+SELF dxy 0.458 dz 0.109 -> MISS
+DONE
+
+  Stderr:

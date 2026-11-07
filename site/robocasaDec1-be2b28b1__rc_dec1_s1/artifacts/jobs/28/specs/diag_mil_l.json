@@ -1,0 +1,1 @@
+{"task": "MakeIceLemonade", "name": "diag_mil_l", "steps": 1, "batch": 8, "reward": "rewards/mil_lemon.py", "init_mode": "fresh", "time": "02:00:00"}

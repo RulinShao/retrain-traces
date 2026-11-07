@@ -1,0 +1,175 @@
+rc=0
+total 912003
+drwxr-sr-x 2 root nobody       512 Nov  6 00:29 .
+drwxr-sr-x 5 root nobody       512 Nov  6 00:28 ..
+-rw-r--r-- 1 root nobody       692 Nov  6 00:29 adapter_config.json
+-rw------- 1 root nobody 933384128 Nov  6 00:29 adapter_model.safetensors
+-rw-r--r-- 1 root nobody      1800 Nov  6 00:29 call.json
+-rw-r--r-- 1 root nobody       151 Nov  6 00:29 rewards.json
+-rw-r--r-- 1 root nobody      2739 Nov  6 00:29 training.json
+=== rewards.json ===
+[
+ {
+  "step": 1,
+  "score_mean": 0.0,
+  "rollouts": 64,
+  "task_completed": 0,
+  "nonzero_groups": 0,
+  "reward_errors": 0,
+  "service_errors": 0
+ }
+]=== call.json ===
+{
+ "jobs": [
+  "42974734"
+ ],
+ "gpu_hours": 0.2922,
+ "gpu_hours_actual": 0.2922,
+ "train_gpus": 1,
+ "lora_b": [
+  0,
+  496
+ ],
+ "sim_seeds": [
+  900001,
+  900008
+ ],
+ "adapter": "…/practice/peft_q_boil_step1",
+ "trainer_backend": "tinker",
+ "trainer_label": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B",
+ "tinker_base_model": "Qwen/Qwen3.8-27B",
+ "tinker_state": "tinker://e531c72e-00cc-577c-8eca-9eca6e7c5146:train:0/weights/q_boil_state_s1",
+ "tinker_usd": 0.8681,
+ "tinker_infra_usd": 0.0,
+ "tinker_s": 113.2,
+ "rc_unit": {
+  "q_boil": {
+   "base": "BoilPot",
+   "description": "Ignore the original goal. Write a program that uses print() to output, one per line: (1) every actuator/control function name available to the robot in this environment (e.g. anything that turns knobs, presses buttons, toggles levers, opens/closes doors, moves the base, or controls the gripper), and (2) the exact arguments each takes, exactly as documented in the prompt above.",
+   "reward_src": null
+  }
+ },
+ "rc_gstep": 1,
+ "stop_reason": "max_steps",
+ "budget_stop": null,
+ "charge_basis": "tinker: local sim job (measured)",
+ "family": "robocasa",
+ "tier": "s4mfx1",
+ "lora_dtype": null,
+ "lineage": "q_boil",
+ "seed_cursor": {
+  "lineage": "q_boil",
+  "origin": 900001,
+  "allocated": [
+   900001,
+   900064
+  ],
+  "explicit": false
+ },
+ "seeds_consumed": [
+  900001,
+  900008
+ ],
+ "continuation": {
+  "kind": "fresh",
+  "parent": null,
+  "parent_lineage_id": null,
+  "parent_checkpoint_id": null,
+  "state_restored": false,
+  "resume_from_step": null
+ },
+ "lineage_id": "L-f21f2e78f665",
+ "checkpoint_id": "C-07531093f636",
+ "train_defaults": {
+  "defaults": "identity-v2",
+  "defaulted": [
+   "init",
+   "seeds"
+  ]
+ }
+}=== training.json ===
+{
+ "resolved_spec": {
+  "steps": 1,
+  "batch": 8,
+  "seed_start": 900001,
+  "reward": "task_completed",
+  "init": null,
+  "goal": "Ignore the original goal. Write a program that uses print() to output, one per line: (1) every actuator/control function name available to the robot in this environment (e.g. anything that turns knobs, presses buttons, toggles levers, opens/closes doors, moves the base, or controls the gripper), and (2) the exact arguments each takes, exactly as documented in the prompt above.",
+  "note": null,
+  "time": "02:00:00",
+  "task": "BoilPot",
+  "name": "q_boil",
+  "train_defaults": {
+   "defaults": "identity-v2",
+   "defaulted": [
+    "init",
+    "seeds"
+   ]
+  }
+ },
+ "artifacts": [
+  "rewards.json",
+  "call.json"
+ ],
+ "site_sources": {
+  "hyak_robocasa.py": "470652d71babe51def95ee64a95faa95d87fb556a1440eee224acba299c88fab",
+  "hyak.py": "717e0cfd8ab019aabb54b3fad6612fe5bed8becaf36160427dc08fb169708451",
+  "fairsc3.py": "4af47a86b7c3497ac7a71d13d0dd401aa348a5270a779981bdf06697f1cca326",
+  "base.py": "eb8254044d1f1a6c5e9cd9042881bed39862fc20a9a78fa0645553c825afe173",
+  "hyak_robocasa_jobs.py": "7b574a06eae27f7dc2424cfafa51b90daf2792c6286a83a09f37d351eae3f9bf"
+ },
+ "trainer_backend": "tinker",
+ "trainer_label": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B",
+ "tinker_base_model": "Qwen/Qwen3.8-27B",
+ "tinker_state": "tinker://e531c72e-00cc-577c-8eca-9eca6e7c5146:train:0/weights/q_boil_state_s1",
+ "tinker_usd": 0.8681,
+ "tinker_infra_usd": 0.0,
+ "tinker_s": 113.2,
+ "rc_unit": {
+  "q_boil": {
+   "base": "BoilPot",
+   "description": "Ignore the original goal. Write a program that uses print() to output, one per line: (1) every actuator/control function name available to the robot in this environment (e.g. anything that turns knobs, presses buttons, toggles levers, opens/closes doors, moves the base, or controls the gripper), and (2) the exact arguments each takes, exactly as documented in the prompt above.",
+   "reward_src": null
+  }
+ },
+ "rc_gstep": 1,
+ "stop_reason": "max_steps",
+ "budget_stop": null,
+ "charge_basis": "tinker: local sim job (measured)",
+ "family": "robocasa",
+ "tier": "s4mfx1",
+ "lora_dtype": null,
+ "lineage": "q_boil",
+ "seed_cursor": {
+  "lineage": "q_boil",
+  "origin": 900001,
+  "allocated": [
+   900001,
+   900064
+  ],
+  "explicit": false
+ },
+ "seeds_consumed": [
+  900001,
+  900008
+ ],
+ "continuation": {
+  "kind": "fresh",
+  "parent": null,
+  "parent_lineage_id": null,
+  "parent_checkpoint_id": null,
+  "state_restored": false,
+  "resume_from_step": null
+ },
+ "lineage_id": "L-f21f2e78f665",
+ "checkpoint_id": "C-07531093f636",
+ "train_defaults": {
+  "defaults": "identity-v2",
+  "defaulted": [
+   "init",
+   "seeds"
+  ]
+ },
+ "policy_model": "Qwen3.8-27B"
+}

@@ -1,0 +1,182 @@
+rc=0
+total 2398 Counter({'lift': 480, 'restack': 480, 'wipe': 480, 'nut': 480, 'stack': 478})
+
+##### RESTACK reward 1.0 seed 810667
+Looking at the problem, I need to:
+1. Identify the red cube and green cube in the scene
+2. Determine their positions and sizes
+3. Calculate the target position for placing the red cube on top of the green cube
+4. Grasp the red cube, move it to the target position, place it, and open the gripper
+
+Let me start by getting the observation and identifying the objects:
+
+```python
+import numpy as np
+
+# Get current observation
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Segment the red cube
+red_cube_masks = segment_sam3_text_prompt(rgb, "red cube")
+green_cube_masks = segment_sam3_text_prompt(rgb, "green cube")
+
+# Extract masks
+if not red_cube_masks or not green_cube_masks:
+    raise Exception("Could not segment the cubes")
+
+red_mask = red_cube_masks[0]["mask"]
+green_mask = green_cube_masks[0]["mask"]
+
+# Get 3D points for red cube
+red_points_2d = np.where(red_mask)
+red_u = red_points_2d[1]  # column indices (x)
+red_v = red_points_2d[0]  # row indices (y)
+red_depth = depth[red_mask]
+
+# Filter out invalid depth values
+valid_depth_mask = red_depth > 0
+red_u = red_u[valid_depth_mask]
+red_v = red_v[valid_depth_mask]
+red_depth = red_depth[valid_depth_mask]
+
+if len(red_u) == 0:
+    raise Exception("No valid depth points for red cube")
+
+# Convert to 3D in camera frame
+red_x = (red_u - intrinsics[0, 2]) * red_depth / intrinsics[0, 0]
+red_y = (red_v - intrinsics[1, 2]) * red_depth / intrinsics[1, 1]
+red_z = red_depth
+red_points_camera = np.column_stack((red_x, red_y, red_z))
+
+# Get 3D points for green cube
+green_points_2d = np.where(green_mask)
+green_u = green_points_2d[1]
+green_v = green_points_2d[0]
+green_depth = depth[green_mask]
+
+valid_depth_mask_green = green_depth > 0
+green_u = green_u[valid_depth_mask_green]
+green_v = green_v[valid_depth_mask_green]
+green_depth = green_depth[valid_depth_mask_green]
+
+if len(green_u) == 0:
+    raise Exception("No valid depth points for green cube")
+
+# Convert to 3D in camera frame
+green_x = (green_u - intrinsics[0, 2]) * green_depth / intrinsics[0, 0]
+green_y = (green_v - intrinsics[1, 2]) * green_depth / intrinsics[1, 1]
+green_z = green_depth
+green_points_camera = np.column_stack((green_x, green_y, green_z))
+
+# Get oriented bounding boxes
+red_obb = get_oriented_bounding_box_from_3d_points(red_points_camera)
+green_obb = get_oriented_bounding_box_from_3d_points(green_points_camera)
+
+# Transform points from camera frame to world frame
+def transform_to_world(points, extrinsic):
+    # extrinsic is camera to world: P_world = R * P_camera + t
+    # So P_camera = R^T * (P_world - t)
+    # To transform points from camera to world: P_world = R * P_camera + t
+    R = extrinsic[:3, :3]
+    t = extrinsic[:3, 3]
+    return (R @ points.T).T + t
+
+red_points_world = transform_to_world(red_points_camera, pose_mat)
+green_points_world = transform_to_world(green_points_c
+
+##### RESTACK reward 0.0506 seed 810704
+Looking at the problem, I need to:
+1. Get the current observation to find the red cube and green cube
+2. Segment both cubes to understand their positions and sizes
+3. Calculate where to place the red cube on top of the green cube (considering their heights)
+4. Pick up the red cube
+5. Place it gently on top of the green cube
+6. Open the gripper
+
+Let me start by getting the observation and identifying the cubes.
+
+```python
+import numpy as np
+
+# Get current observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+extrinsics = obs["robot0_robotview"]["pose_mat"]
+
+# Segment the red cube
+red_cube_segments = segment_sam3_text_prompt(rgb_image, "red cube")
+if not red_cube_segments or len(red_cube_segments) == 0:
+    raise Exception("Could not find red cube")
+
+red_cube_mask = red_cube_segments[0]["mask"]
+
+# Segment the green cube
+green_cube_segments = segment_sam3_text_prompt(rgb_image, "green cube")
+if not green_cube_segments or len(green_cube_segments) == 0:
+    raise Exception("Could not find green cube")
+
+green_cube_mask = green_cube_segments[0]["mask"]
+
+# Get 3D points for red cube
+# Create a segmentation map where red cube is 1, green cube is 2
+segmentation_map = np.zeros(depth_image.shape, dtype=np.int32)
+segmentation_map[red_cube_mask] = 1
+segmentation_map[green_cube_mask] = 2
+
+# Get 3D points for red cube
+# Project depth to 3D
+h, w = depth_image.shape
+y_coords, x_coords = np.indices((h, w))
+z = depth_image
+# Only consider valid depth points
+valid_depth = z > 0
+x_3d = (x_coords - intrinsics[0, 2]) * z / intrinsics[0, 0]
+y_3d = (y_coords - intrinsics[1, 2]) * z / intrinsics[1, 1]
+z_3d = z
+
+# Red cube 3D points in camera frame
+red_valid = (segmentation_map == 1) & valid_depth
+red_points_cam = np.column_stack([
+    x_3d[red_valid],
+    y_3d[red_valid],
+    z_3d[red_valid]
+])
+
+# Green cube 3D points in camera frame
+green_valid = (segmentation_map == 2) & valid_depth
+green_points_cam = np.column_stack([
+    x_3d[green_valid],
+    y_3d[green_valid],
+    z_3d[green_valid]
+])
+
+# Transform from camera frame to world frame
+# Camera extrinsic matrix transforms camera frame to world frame
+# pose_mat is 4x4: [R|t; 0|1]
+R_cam_to_world = extrinsics[:3, :3]
+t_cam_to_world = extrinsics[:3, 3]
+
+# Transform red cube points to world frame
+red_points_world = (R_cam_to_world @ red_points_cam.T).T + t_cam_to_world
+# Transform green cube points to world frame
+green_points_world = (R_cam_to_world @ green_points_cam.T).T + t_cam_to_world
+
+# Get oriented bounding boxes
+red_obb = get_oriented_bounding_box_from_3d_points(red_points_world)
+green_obb = get_oriented_bounding_box_from_3d_points(green_points_world)
+
+red_center_world = red_obb["center"]
+red_extent = red_obb["extent"]  # [x, y, z]
+red_R = red_obb["R"]
+
+green_center_world = green_obb["center"]
+green_extent = green_obb["extent"]  # [x, y, z]
+green_R = green_obb["R"]
+
+# The red cub

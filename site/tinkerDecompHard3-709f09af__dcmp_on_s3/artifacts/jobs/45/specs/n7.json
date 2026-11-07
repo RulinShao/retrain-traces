@@ -1,0 +1,11 @@
+{
+  "task": "nut",
+  "name": "n7",
+  "init": "n6",
+  "reward": "shaped",
+  "steps": 8,
+  "batch": 8,
+  "rollouts": 8,
+  "lr": 2e-05,
+  "note": "Grasp the nut by its extruded handle using the handle grasp pose. The nut center and the handle grasp pose are a fixed rigid offset, so to insert the nut, place the NUT CENTER (not the handle) aligned over the block/peg hole: target = block_center - (nut_center - handle_grasp). Move slowly straight down into the hole and release."
+}

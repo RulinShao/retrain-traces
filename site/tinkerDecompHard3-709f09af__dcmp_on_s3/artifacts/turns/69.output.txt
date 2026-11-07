@@ -1,0 +1,145 @@
+rc=0
+========== seed 800190 rc 0
+# Code block 0
+import numpy as np
+
+# Step 1: Get observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+extrinsics = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Segment red and green cubes
+red_cube_masks = segment_sam3_text_prompt(rgb_image, "red cube")
+green_cube_masks = segment_sam3_text_prompt(rgb_image, "green cube")
+
+if not red_cube_masks or not green_cube_masks:
+    raise Exception("Failed to segment cubes")
+
+# Take the first mask for each cube
+red_mask = red_cube_masks[0]["mask"]
+green_mask = green_cube_masks[0]["mask"]
+
+# Step 3: Get 3D points for both cubes
+def get_3d_points_from_mask(mask, depth, intrinsics):
+    """Get 3D points in camera frame from a binary mask and depth image."""
+    ys, xs = np.where(mask)
+    if len(xs) == 0:
+        return None
+    
+    # Filter out invalid depth values
+    valid = depth[ys, xs] > 0
+    xs_valid = xs[valid]
+    ys_valid = ys[valid]
+    depths_valid = depth[ys_valid, xs_valid]
+    
+    if len(xs_valid) == 0:
+        return None
+    
+    # Back-project to 3D in camera frame
+    fx = intrinsics[0, 0]
+    fy = intrinsics[1, 1]
+    cx = intrinsics[0, 2]
+    cy = intrinsics[1, 2]
+    
+    z = depths_valid
+    x = (xs_valid - cx) * z / fx
+    y = (ys_valid - cy) * z / fy
+    
+    points_cam = np.column_stack([x, y, z])
+    return points_cam
+
+red_points_cam = get_3d_points_from_mask(red_mask, depth_image, intrinsics)
+green_points_cam = get_3d_points_from_mask(green_mask, depth_image, intrinsics)
+
+if red_points_cam is None or green_points_cam is None:
+    raise Exception("Failed to get 3D points for cubes")
+
+# Step 4: Get oriented bounding boxes
+red_obb = get_oriented_bounding_box_from_3d_points(red_points_cam)
+green_obb = get_oriented_bounding_box_from_3d_points(green_points_cam)
+
+red_center_cam = red_obb["center"]
+red_extent_cam = red_obb["extent"]
+red_R_cam = red_obb["R"]
+
+green_center_cam = green_obb["center"]
+green_extent_cam = green_obb["extent"]
+green_R_cam = green_obb["R"]
+
+# Step 5: Transform to world frame
+# The extrinsics matrix transforms from camera frame to world frame
+# pose_mat is typically [R|t; 0|1] where R is 3x3 rotation and t is 3x1 translation
+
+def transform_point_cam_to_world(point_cam, extrinsics):
+    """Transform a point from camera frame to world frame."""
+    point_hom = np.append(point_cam, 1.0)
+    point_world = extrinsics @ point_hom
+    return point_world[:3]
+
+def transform_orientation_cam_to_world(R_cam, extrinsics):
+    """Transform orientation from camera frame to world frame."""
+    R_world_cam = extrinsics[:3, :3]
+    R_world = R_world_cam @ R_cam
+    return R_world
+
+red_center_world = transform_point_cam_to_world(red_center_cam, extrinsics)
+green_center_world = transform_point_cam_to_world(green_center_cam, extrinsics)
+
+red_R_world = transform_orientation_cam_to_world(red_R_cam, extrinsics)
+green_R_world = transform_orientation_cam_to_world(green_R_cam, extrinsics)
+
+# Step 6: Calculate placement position
+# The red cube should be placed on top of the green cube
+# We need to find the top face of the green cube in world frame
+
+# Get the local axes of the green cube in world frame
+# The extent gives us the dimensions along the local axes
+green_local_axes_world = green_R_world.T  # Columns are local axes in world frame
+
+# Find which local axis corresponds to "up" (z-axis in world frame)
+# We want the axis that has the largest positive dot product with world z-axis
+world_z = np.array([0, 0, 1])
+dot_products = np.abs(green_local_axes_world.T @ world_z)
+up_axis_idx = np.argmax(dot_products)
+
+# The up direction in green cube's local frame
+up_direction_local = np.zeros(3)
+up_direction_local[up_axis_idx] = 1.0
+
+# Transform up direction to world frame
+up_direction_world = green_R_world @ up_direction_local
+
+# Ensure it points upward
+if up_direction_world[2] < 0:
+    up_direction_world = -up_direction_world
+
+# The top face of the green cube is at green_center + (green_extent/2) * up_direction
+half_extents_green = green_extent_cam / 2.0
+top_offset_world = half_extents_green[up_axis_idx] * up_direction_world
+green_top_world = green_center_world + top_offset_world
+
+# For the red cube, we need to place it so its bottom face is at green_top_world
+# The bottom face is in the opposite direction of the red cube's up axis
+red_local_axes_world = red_R_world.T
+red_dot_products = np.abs(red_local_axes_world.T @ world_z)
+red_up_axis_idx = np.argmax(red_dot_products)
+
+red_up_direction_local = np.zeros(3)
+red_up_direction_local[red_up_axis_idx] = 1.0
+red_up_direction_world = red_R_world @ red_up_direction_local
+
+if red_up_direction_world[2] < 0:
+    red_up_direction_world = -red_up_direction_world
+
+# The bottom face offset in red cube's local frame
+bottom_offset_local = np.zeros(3)
+bottom_offset_local[red_up_axis_idx] = -1.0  # Bottom is negative up direction
+bottom_offset_world = (red_extent_cam / 2.0)[red_up_axis_idx] * (-red_up_direction_world)
+
+# Placement position: red cube center should be at green_top_world - bottom_offset_world
+# Actually, let me think again: 
+# If red cube center is at P, then bottom 
+--- LOG ---
+

@@ -1,0 +1,162 @@
+rc=0
+##### rollouts/1.jsonl keys: ['log_tail', 'program', 'sandbox_rc', 'secs', 'seed', 'stdout_tail', 'task', 'task_completed', 'wall_s']
+=== PROGRAM (first 2600 chars) ===
+# Code block 0
+import numpy as np
+
+# Step 1: Navigate to the sink to find the pot with water
+navigate_to("sink")
+
+# Get observation
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Segment the pot
+masks = segment_sam3_text_prompt(rgb, "pot")
+if not masks:
+    masks = segment_sam3_text_prompt(rgb, "metal pot")
+if not masks:
+    masks = segment_sam3_text_prompt(rgb, "pot with water")
+
+# Get the best mask
+best_mask = None
+best_score = 0
+for m in masks:
+    if m.get("score", 0) > best_score:
+        best_score = m["score"]
+        best_mask = m["mask"]
+
+if best_mask is None:
+    # Try point prompt as fallback
+    point_result = point_prompt_molmo(rgb, "pot")
+    pot_point = point_result.get("pot", (None, None))
+    if pot_point[0] is not None and pot_point[1] is not None:
+        masks = segment_sam3_point_prompt(rgb, (pot_point[0], pot_point[1]))
+        if masks:
+            best_mask = masks[0]["mask"]
+
+if best_mask is None:
+    # Can't find pot, try to just navigate to stove and place pot there
+    navigate_to("stove")
+    # We'll need to find the pot at the stove or assume it's already there
+    # For now, let's just try to turn on the stove
+    # But first we need to get the pot. Let's try again at sink with different prompt
+    navigate_to("sink")
+    obs = get_observation()
+    rgb = obs["robot0_robotview"]["images"]["rgb"]
+    depth = obs["robot0_robotview"]["images"]["depth"]
+    intrinsics = obs["robot0_robotview"]["intrinsics"]
+    pose_mat = obs["robot0_robotview"]["pose_mat"]
+    
+    masks = segment_sam3_text_prompt(rgb, "cooking pot")
+    if not masks:
+        masks = segment_sam3_text_prompt(rgb, "kettle")
+    if not masks:
+        masks = segment_sam3_text_prompt(rgb, "vessel")
+    
+    if masks:
+        best_mask = max(masks, key=lambda x: x.get("score", 0))["mask"]
+
+if best_mask is None:
+    # Fallback: try to just navigate to stove and assume pot is there
+    navigate_to("stove")
+    # Try to turn on stove
+    # We need to find the burner knob
+    obs = get_observation()
+    rgb = obs["robot0_robotview"]["images"]["rgb"]
+    depth = obs["robot0_robotview"]["images"]["depth"]
+    intrinsics = obs["robot0_robotview"]["intrinsics"]
+    pose_mat = obs["robot0_robotview"]["pose_mat"]
+    
+    # Try to find and interact with stove knob
+    point_result = point_prompt_molmo(rgb, "stove knob")
+    knob_point = point_result.get("stove knob", (None, None))
+    if knob_point[0]
+=== STDOUT TAIL (last 1200) ===
+Generated text for 'stove knob': <points coords="1 1 358 698 2 468 698 3 536 698 4 612 698">stove knob</points>
+
+##### rollouts/2.jsonl keys: ['log_tail', 'program', 'sandbox_rc', 'secs', 'seed', 'stdout_tail', 'task', 'task_completed', 'wall_s']
+=== PROGRAM (first 2600 chars) ===
+# Code block 0
+import numpy as np
+
+# Step 1: Navigate to the counter to pick up the hotdog bun
+navigate_to("counter")
+
+# Step 2: Get observation
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 3: Segment the hotdog bun
+masks = segment_sam3_text_prompt(rgb, "hotdog bun")
+if not masks:
+    # Try alternative prompt
+    masks = segment_sam3_text_prompt(rgb, "bun")
+
+if masks:
+    # Use the first mask
+    mask = masks[0]["mask"]
+    # Create a segmentation map with instance ID 1
+    segmentation = np.zeros(mask.shape, dtype=np.int32)
+    segmentation[mask] = 1
+    
+    # Plan grasp
+    grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, segmentation)
+    
+    if len(grasp_poses) > 0:
+        # Select the best grasp
+        best_idx = np.argmax(grasp_scores)
+        grasp_pose_cam = grasp_poses[best_idx]
+        
+        # Transform from camera frame to robot base frame
+        grasp_pose_world = pose_mat @ grasp_pose_cam
+        
+        # Extract position and orientation
+        pos = grasp_pose_world[:3, 3]
+        R = grasp_pose_world[:3, :3]
+        
+        # Convert rotation matrix to quaternion (WXYZ)
+        # Using the standard algorithm
+        trace = R[0,0] + R[1,1] + R[2,2]
+        if trace > 0:
+            S = 0.5 / np.sqrt(trace + 1.0)
+            w = 0.25 / S
+            x = (R[2,1] - R[1,2]) * S
+            y = (R[0,2] - R[2,0]) * S
+            z = (R[1,0] - R[0,1]) * S
+        elif R[0,0] > R[1,1] and R[0,0] > R[2,2]:
+            S = 2.0 * np.sqrt(1.0 + R[0,0] - R[1,1] - R[2,2])
+            w = (R[2,1] - R[1,2]) / S
+            x = 0.25 * S
+            y = (R[0,1] + R[1,0]) / S
+            z = (R[0,2] + R[2,0]) / S
+        elif R[1,1] > R[2,2]:
+            S = 2.0 * np.sqrt(1.0 + R[1,1] - R[0,0] - R[2,2])
+            w = (R[0,2] - R[2,0]) / S
+            x = (R[0,1] + R[1,0]) / S
+            y = 0.25 * S
+            z = (R[1,2] + R[2,1]) / S
+        else:
+            S = 2.0 * np.sqrt(1.0 + R[2,2] - R[0,0] - R[1,1])
+            w = (R[1,0] - R[0,1]) / S
+            x = (R[0,2] + R[2,0]) / S
+            y = (R[1,2] + R[2,1]) / S
+            z = 0.25 * S
+        
+        quaternion_wxyz = np.array([w, x, y, z])
+        
+        # Move to grasp position (slightly above first)
+        pos_above = pos.copy()
+        pos_above[2] += 0.1  # 10 cm above
+        
+        joints_above = solve_ik(pos_above, quaternion_wxyz)
+        move_to_joints(joints_above)
+        op
+=== STDOUT TAIL (last 1200) ===
+

@@ -1,0 +1,1 @@
+{"task": "TongBuffetSetup", "steps": 1, "batch": 8, "reward": "rewards/o_drawer.py", "init_mode": "fresh", "name": "o_drawer", "seed_start": 901901}

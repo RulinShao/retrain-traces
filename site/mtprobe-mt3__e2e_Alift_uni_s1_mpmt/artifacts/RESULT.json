@@ -1,0 +1,142 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "eval_failed: InfraError('eval job 43013319: n_scored 97/100 void 0 http_error 0 void_harness 3; unscored seeds 6,43,50 (void_harness: Failed to communicate with GraspNet service at {SERVICE_URL}: {e}\") RuntimeError)')",
+ "gpu_hours": 1.3572,
+ "final_score": null,
+ "agent": "scripted:e2e-rl-uniform",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": 262144
+ },
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "trainer": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B",
+ "tinker": {
+  "calls": 1,
+  "usd": 25.7288,
+  "tinker_s": 7677.57,
+  "usd_all_resumes": 25.7288,
+  "jobs_all_resumes": 1
+ },
+ "capx_version": "9117dfe9c8cb",
+ "gpu_hours_actual": 5.2102,
+ "gpu_hours_charging": "canonical",
+ "cost_model": "v2",
+ "gpu_hours_lost": 3.6986,
+ "measured_vs_canonical": 3.839,
+ "agent_gpu_h": 0.0,
+ "measured_cost": {
+  "train_gpu_h": 0.0,
+  "reason_gpu_h": 0.0,
+  "sandbox_gpu_h": 0.9122,
+  "usd_tinker": 25.7288,
+  "charged_gpu_h": 1.3572,
+  "tokens": {
+   "prompt": 0,
+   "completion": 0
+  },
+  "unmeasured_calls": 0
+ },
+ "submission": {
+  "token": "df81fb",
+  "how": "default-loaded-stack",
+  "turn": 3,
+  "confirmed": true,
+  "confirmed_turn": 4,
+  "ended_by": "DONE",
+  "note": "e2e-RL (uniform): adapter e2e_c1 for every task (fixed recipe)",
+  "policy": "base + e2e_c1 (sha c6175600c47c)"
+ },
+ "budget_forcing": "budget-forcing v1",
+ "skills_version": null,
+ "initial_skills_digest": "2f2404c16abd976422835e9d1d5d2ba29d31a769191e37aad6a9360ab2a1cf08",
+ "suite": {
+  "name": "A-lift",
+  "version": 2,
+  "hash": "sha256:d41ac64f6690d314",
+  "train": [
+   "lift"
+  ],
+  "eval": [
+   {
+    "cell": "lift",
+    "split": "id"
+   },
+   {
+    "cell": "t1_lift_wide",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_big",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_far",
+    "split": "near"
+   },
+   {
+    "cell": "t1_lift_small",
+    "split": "near"
+   },
+   {
+    "cell": "stack",
+    "split": "retain"
+   },
+   {
+    "cell": "nut",
+    "split": "retain"
+   },
+   {
+    "cell": "wipe",
+    "split": "retain"
+   },
+   {
+    "cell": "restack",
+    "split": "retain"
+   },
+   {
+    "cell": "twolift",
+    "split": "retain"
+   },
+   {
+    "cell": "handover",
+    "split": "retain"
+   },
+   {
+    "cell": "revstack",
+    "split": "retain"
+   },
+   {
+    "cell": "stackv2",
+    "split": "retain"
+   }
+  ],
+  "splits": {
+   "lift": "id",
+   "t1_lift_wide": "near",
+   "t1_lift_big": "near",
+   "t1_lift_far": "near",
+   "t1_lift_small": "near",
+   "stack": "retain",
+   "nut": "retain",
+   "wipe": "retain",
+   "restack": "retain",
+   "twolift": "retain",
+   "handover": "retain",
+   "revstack": "retain",
+   "stackv2": "retain"
+  }
+ },
+ "turns_before_first_action": 0,
+ "tokens_before_first_action": 0,
+ "first_action": "train",
+ "artifacts": {
+  "registry": "…/mtprobe-mt3/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

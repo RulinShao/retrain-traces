@@ -1,0 +1,120 @@
+rc=0
+====================================================================== restack 768
+ task_completed: 0  crashed: 113
+ stage reach: {'unstack the green off the red': 492, 'align the red over the green': 36, 'grasp the red': 1}
+ furthest hist: {0: 276, 1: 491, 2: 1}
+====================================================================== nut 768
+ task_completed: 0  crashed: 176
+ stage reach: {'reach the handle': 89, 'grasp the nut': 63, 'align the nut over the peg': 4}
+ furthest hist: {0: 679, 1: 29, 2: 56, 3: 4}
+====================================================================== best restack program (sim 0.083, seed 811345, stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False})
+Let me analyze the task:
+
+1. I need to gently place a red cube on top of a green cube
+2. I need to open the gripper after placement
+3. I should use the cube extents to calculate the exact placement height
+4. Nothing should be dropped from a height
+
+Here's my plan:
+1. Get the current observation
+2. Segment the red and green cubes
+3. Get their 3D positions and orientations
+4. Plan a grasp for the red cube
+5. Pick up the red cube
+6. Move it to a position above the green cube
+7. Lower it gently to place it on top of the green cube
+8. Open the gripper
+
+Let me implement this step by step:
+
+```python
+import numpy as np
+
+# Get current observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Segment the red cube
+red_cube_masks = segment_sam3_text_prompt(rgb_image, "red cube")
+if not red_cube_masks:
+    raise Exception("Could not find red cube")
+
+# Segment the green cube
+green_cube_masks = segment_sam3_text_prompt(rgb_image, "green cube")
+if not green_cube_masks:
+    raise Exception("Could not find green cube")
+
+# Get the masks and boxes
+red_mask = red_cube_masks[0]["mask"]
+green_mask = green_cube_masks[0]["mask"]
+
+# Create segmentation maps for plan_grasp
+red_segmentation = np.zeros(depth_image.shape, dtype=np.int32)
+red_segmentation[red_mask] = 1
+
+# Get 3D points for red cube
+ys, xs = np.where(red_mask)
+if len(xs) == 0:
+    raise Exception("Red cube mask is empty")
+
+# Convert pixel coordinates to 3D points in camera frame
+# For each pixel, get the depth and convert to 3D
+depth_values = depth_image[ys, xs]
+valid_mask = depth_values > 0
+xs_valid = xs[valid_mask]
+ys_valid = ys[valid_mask]
+depth_valid = depth_values[valid_mask]
+
+if len(xs_valid) == 0:
+    raise Exception("No valid depth pixels for red cube")
+
+# Convert to 3D points
+fx = intrinsics[0, 0]
+fy = intrinsics[1, 1]
+cx = intrinsics[0, 2]
+cy = intrinsics[1, 2]
+
+xs_3d = (xs_valid - cx) * depth_valid / fx
+ys_3d = (ys_valid - cy) * depth_valid / fy
+zs_3d = depth_valid
+
+# Stack into N x 3 array
+red_points_cam = np.column_stack((xs_3d, ys_3d, zs_3d))
+
+# Get oriented bounding box for red cube in camera frame
+red_obb_cam = get_oriented_bounding_box_from_3d_points(red_points_cam)
+
+# Get 3D points for green cube
+ys_green, xs_green = np.where(green_mask)
+if len(xs_green) == 0:
+    raise Exception("Green cube mask is empty")
+
+depth_values_green = depth_image[ys_green, xs_green]
+valid_mask_green = depth_values_green > 0
+xs_green_valid = xs_green[valid_mask_green]
+ys_green_valid = ys_green[valid_mask_green]
+depth_green_valid = depth_values_green[valid_mask_green]
+
+if len(xs_green_valid) == 0:
+    raise Exception("No valid depth pixels for green cube")
+
+# Convert to 3D points
+xs_3d_green = (xs_green_valid - cx) * depth_green_valid / fx
+ys_3d_green = (ys_green_valid - cy) * depth_green_valid / fy
+zs_3d_green = depth_green_valid
+
+# Stack into N x 3 array
+green_points_cam = np.column_stack((xs_3d_green, ys_3d_green, zs_3d_green))
+
+# Get oriented bounding box for green cube in camera frame
+green_obb_cam = get_oriented_bounding_box_from_3d_points(green_points_cam)
+
+# Transform points from camera frame to world frame
+# Camera extrinsic matrix transforms camera frame to world frame
+def transform_points_to_world(points_cam, pose_mat):
+    # pose_mat is 4x4 transformation matrix from camera to world
+    # points_cam is N x 3
+ 

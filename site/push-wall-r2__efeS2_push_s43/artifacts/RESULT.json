@@ -1,0 +1,49 @@
+{
+ "status": "CAPPED",
+ "turns": 24,
+ "gpu_hours": 1.978,
+ "final_score": {
+  "loaded": "pw-shap1",
+  "per_task": {
+   "metaworldplus-push-wall": 3
+  },
+  "total": 3,
+  "n_per_task": 100,
+  "submission": "44c02a",
+  "confirmed": false
+ },
+ "agent": "local",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": null
+ },
+ "mode": "dev",
+ "policy_model": "tinker:Qwen/Qwen3.8-27B",
+ "gpu_hours_actual": 2.0068,
+ "gpu_hours_charging": "canonical",
+ "submission": {
+  "token": "44c02a",
+  "how": "default-on-exhaustion",
+  "turn": 22,
+  "confirmed": false,
+  "confirmed_turn": null,
+  "ended_by": "CAPPED",
+  "note": null,
+  "policy": "base + pw-shap1 (sha 03b6b6b89555)"
+ },
+ "skills_version": null,
+ "initial_skills_digest": "cd1396689a699cf17538ac1b3b1d8d18445db6e60460f68ecb17cfd722eefd54",
+ "env_text": "v2",
+ "turns_before_first_action": 5,
+ "tokens_before_first_action": 7294,
+ "first_action": "eval",
+ "artifacts": {
+  "registry": "…/push-wall-r2/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

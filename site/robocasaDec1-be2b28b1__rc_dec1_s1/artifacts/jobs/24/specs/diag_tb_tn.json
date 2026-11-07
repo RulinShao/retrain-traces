@@ -1,0 +1,1 @@
+{"task": "TongBuffetSetup", "name": "diag_tb_tn", "steps": 1, "batch": 8, "reward": "rewards/tb_tongsnear.py", "init_mode": "fresh", "time": "02:00:00"}

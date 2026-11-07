@@ -1,0 +1,1 @@
+{"objective":"sft","name":"sftrev1","data":"sft/revstack.jsonl","batch":1,"epochs":1,"lr":1e-4}
