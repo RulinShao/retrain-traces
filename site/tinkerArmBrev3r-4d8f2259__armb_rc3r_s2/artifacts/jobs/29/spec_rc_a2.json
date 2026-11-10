@@ -1,0 +1,11 @@
+{
+  "task": "rc_a2",
+  "name": "rc_a_t2",
+  "init": "rc_a_t1",
+  "init_mode": "branch",
+  "steps": 10,
+  "batch": 8,
+  "rollouts": 8,
+  "lr": 2e-5,
+  "allow_noop_reward": true
+}

@@ -1,0 +1,1118 @@
+{
+ "updated": "2026-11-10T03:30:19.160Z",
+ "recent_hours": 72,
+ "sections": {
+  "live": [],
+  "recent": [
+   {
+    "status": "FAILED-INFRA",
+    "turns": 42,
+    "last_t": "2026-11-10T03:28:32.583Z",
+    "gpu_hours": {
+     "canonical": 31.187,
+     "actual": 8.5253
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": true,
+     "version": null,
+     "skills_version": "nogit-2bb30ac2",
+     "source": "session.start"
+    },
+    "seed": 2,
+    "policy": "tinker:Qwen/Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_efeT_s2",
+    "loaded": [],
+    "cells": {
+     "metaworldplus-push-wall": {
+      "label": "pw10",
+      "score": 7,
+      "n": 20,
+      "base": 3,
+      "base_n": 20,
+      "lift_pp": 20.0,
+      "seeds": "dev"
+     },
+     "metaworldplus-pick-place": {
+      "label": "mt15",
+      "score": 13,
+      "n": 20,
+      "base": 7,
+      "base_n": 20,
+      "lift_pp": 30.0,
+      "seeds": "dev"
+     },
+     "metaworldplus-door-lock": {
+      "label": "pw10",
+      "score": 16,
+      "n": 20,
+      "base": 10,
+      "base_n": 20,
+      "lift_pp": 30.0,
+      "seeds": "dev"
+     }
+    },
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 30.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 30.0,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-10T03:28:32.583Z",
+    "cause": "train_failed: EfeInfraError('EFE practice job 43089971 ended rc=1 without an adapter:  (\u2026/efe_calls/20261109T185057_practice_mt25_55784d3\u2026",
+    "id": "efeT2-25a9926f__efeT_s2",
+    "batch": "efeT2-25a9926f",
+    "session": "efeT_s2",
+    "path": "site/efeT2-25a9926f__efeT_s2",
+    "batch_job": "43079630",
+    "batch_job_state": "ENDED",
+    "idle_s": 102,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 24,
+    "last_t": "2026-11-09T11:23:28.972Z",
+    "gpu_hours": {
+     "canonical": 19.75,
+     "actual": 5.8274
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": true,
+     "version": null,
+     "skills_version": "nogit-2bb30ac2",
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "tinker:Qwen/Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_efeT_s1",
+    "loaded": [],
+    "cells": {
+     "metaworldplus-push-wall": {
+      "label": "probe_shaped",
+      "score": 9,
+      "n": 20,
+      "base": 6,
+      "base_n": 20,
+      "lift_pp": 15.0,
+      "seeds": "dev"
+     },
+     "metaworldplus-pick-place": {
+      "label": "probe_shaped",
+      "score": 8,
+      "n": 20,
+      "base": 5,
+      "base_n": 20,
+      "lift_pp": 15.0,
+      "seeds": "dev"
+     },
+     "metaworldplus-door-lock": {
+      "label": "probe_shaped",
+      "score": 14,
+      "n": 20,
+      "base": 7,
+      "base_n": 20,
+      "lift_pp": 35.0,
+      "seeds": "dev"
+     }
+    },
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 35.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 35.0,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-09T11:23:28.972Z",
+    "cause": "train_failed: EfeInfraError('EFE practice job 43072580 ended rc=3 without an adapter:  (\u2026/efe_calls/20261109T012654_practice_success_v1_3\u2026",
+    "id": "efeT-25a9926f__efeT_s1",
+    "batch": "efeT-25a9926f",
+    "session": "efeT_s1",
+    "path": "site/efeT-25a9926f__efeT_s1",
+    "batch_job": "43070859",
+    "batch_job_state": "ENDED",
+    "idle_s": 58006,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 20,
+    "last_t": "2026-11-09T05:10:13.374Z",
+    "gpu_hours": {
+     "canonical": 0.54,
+     "actual": 0.5384
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": true,
+     "version": null,
+     "skills_version": "nogit-02604056",
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_armE_nohint_s1",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-09T05:10:13.374Z",
+    "cause": "model_endpoint: EndpointOutage: endpoint http://127.0.0.1:37278/v1/chat/completions down for 1200 s (23 re-sends, 0 s of it with its server pending); first err\u2026",
+    "id": "localDecompArmE-nohint-697e4c41__dcmp_armE_nohint_s1",
+    "batch": "localDecompArmE-nohint-697e4c41",
+    "session": "dcmp_armE_nohint_s1",
+    "path": "site/localDecompArmE-nohint-697e4c41__dcmp_armE_nohint_s1",
+    "batch_job": "43067278",
+    "batch_job_state": "ENDED",
+    "idle_s": 80401,
+    "in_command": false
+   },
+   {
+    "status": "CAPPED",
+    "turns": 300,
+    "last_t": "2026-11-08T20:06:07.268Z",
+    "gpu_hours": {
+     "canonical": 35.3257,
+     "actual": 20.8421
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": true,
+     "version": null,
+     "skills_version": "nogit-f1700b86",
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_armEf_s1",
+    "loaded": [
+     "sft6b"
+    ],
+    "cells": {
+     "restack": {
+      "label": "sft6b",
+      "score": 36,
+      "n": 50,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 72.0,
+      "seeds": "dev"
+     },
+     "nut": {
+      "label": "nut1",
+      "score": 0,
+      "n": 60,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "revstack": {
+      "label": "sft2",
+      "score": 51,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 50.0,
+      "seeds": "dev"
+     }
+    },
+    "final": 48,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 72.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 72.0,
+    "submitted": {
+     "what": "sft6b (5e3d1fde02ad)",
+     "source": "SUBMISSION.json",
+     "how": "default-on-exhaustion"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-08T20:06:07.268Z",
+    "cause": null,
+    "id": "tinkerDecompArmE-17197587__dcmp_armEf_s1",
+    "batch": "tinkerDecompArmE-17197587",
+    "session": "dcmp_armEf_s1",
+    "path": "site/tinkerDecompArmE-17197587__dcmp_armEf_s1",
+    "batch_job": "43032988",
+    "batch_job_state": "ENDED",
+    "idle_s": 113047,
+    "in_command": false
+   },
+   {
+    "status": "FAILED-INFRA",
+    "turns": 41,
+    "last_t": "2026-11-08T04:29:19.117Z",
+    "gpu_hours": {
+     "canonical": 46.9145,
+     "actual": 22.5972
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": true,
+     "version": null,
+     "skills_version": "nogit-f1700b86",
+     "source": "session.start"
+    },
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_armEf_s2",
+    "loaded": [
+     "cn5"
+    ],
+    "cells": {
+     "restack": {
+      "label": "rs1",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "revstack": {
+      "label": "cn2",
+      "score": 4,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 3.0,
+      "seeds": "dev"
+     },
+     "nut": {
+      "label": "cn2",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     }
+    },
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 3.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 3.0,
+    "submitted": {
+     "what": "cn5 (6d2f1a67f355)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-08T04:29:19.117Z",
+    "cause": "eval_failed: JobFailed('eval: sbatch rejected the job twice: sbatch: error: Batch job submission failed: Requested node configuration is not available -- const\u2026",
+    "id": "tinkerDecompArmE-17197587__dcmp_armEf_s2",
+    "batch": "tinkerDecompArmE-17197587",
+    "session": "dcmp_armEf_s2",
+    "path": "site/tinkerDecompArmE-17197587__dcmp_armEf_s2",
+    "batch_job": "43032988",
+    "batch_job_state": "ENDED",
+    "idle_s": 169255,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 59,
+    "last_t": "2026-11-08T00:27:12.164Z",
+    "gpu_hours": {
+     "canonical": 45.6286,
+     "actual": 33.9272
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": true,
+     "version": null,
+     "skills_version": "nogit-db86b5a3",
+     "source": "session.start"
+    },
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_lb_s2c",
+    "loaded": [
+     "g8"
+    ],
+    "cells": {
+     "nut": {
+      "label": "g2b",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "restack": {
+      "label": "g2b",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "revstack": {
+      "label": "g8",
+      "score": 23,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 22.0,
+      "seeds": "dev"
+     }
+    },
+    "final": 24,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 22.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 22.0,
+    "submitted": {
+     "what": "g8 (6e6a72c3fb9e)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-08T00:27:12.164Z",
+    "cause": null,
+    "id": "tinkerDecompLongPair-b00b8686__dcmp_lb_s2c",
+    "batch": "tinkerDecompLongPair-b00b8686",
+    "session": "dcmp_lb_s2c",
+    "path": "site/tinkerDecompLongPair-b00b8686__dcmp_lb_s2c",
+    "batch_job": "43020585",
+    "batch_job_state": "ENDED",
+    "idle_s": 183782,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 141,
+    "last_t": "2026-11-07T18:35:32.027Z",
+    "gpu_hours": {
+     "canonical": 38.8553,
+     "actual": 27.1698
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_dcmp_lb_s1",
+    "loaded": [
+     "rev3"
+    ],
+    "cells": {
+     "revstack": {
+      "label": "rev3",
+      "score": 3,
+      "n": 50,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 5.0,
+      "seeds": "dev"
+     },
+     "restack": {
+      "label": "nu1",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "nut": {
+      "label": "nu1",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     }
+    },
+    "final": 16,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 5.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 5.0,
+    "submitted": {
+     "what": "rev3 (6b9b6a0a6c8f)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-07T18:35:32.027Z",
+    "cause": null,
+    "id": "tinkerDecompLongPair-b00b8686__dcmp_lb_s1",
+    "batch": "tinkerDecompLongPair-b00b8686",
+    "session": "dcmp_lb_s1",
+    "path": "site/tinkerDecompLongPair-b00b8686__dcmp_lb_s1",
+    "batch_job": "43020585",
+    "batch_job_state": "ENDED",
+    "idle_s": 204882,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 57,
+    "last_t": "2026-11-07T14:45:19.740Z",
+    "gpu_hours": {
+     "canonical": 14.2674,
+     "actual": 12.76
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": true,
+     "version": null,
+     "skills_version": "3246dddf-df764206",
+     "source": "session.start"
+    },
+    "seed": 2,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_armb_rc3r_s2",
+    "loaded": [
+     "rc_rev_t1"
+    ],
+    "cells": {
+     "restack": {
+      "label": "rc_a_t1",
+      "score": 0,
+      "n": 20,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "revstack": {
+      "label": "rc_rev_t1",
+      "score": 2,
+      "n": 30,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 5.7,
+      "seeds": "dev"
+     }
+    },
+    "final": 8,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 5.7,
+    "rank_basis": "dev",
+    "rank_lift_pp": 5.7,
+    "submitted": {
+     "what": "rc_rev_t1 (284e5317bf7b)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-07T14:45:19.740Z",
+    "cause": null,
+    "id": "tinkerArmBrev3r-4d8f2259__armb_rc3r_s2",
+    "batch": "tinkerArmBrev3r-4d8f2259",
+    "session": "armb_rc3r_s2",
+    "path": "site/tinkerArmBrev3r-4d8f2259__armb_rc3r_s2",
+    "batch_job": "43013174",
+    "batch_job_state": "ENDED",
+    "idle_s": 218695,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 28,
+    "last_t": "2026-11-07T13:47:09.431Z",
+    "gpu_hours": {
+     "canonical": 15.1897,
+     "actual": 13.478
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": true,
+     "version": null,
+     "skills_version": "3246dddf-df764206",
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_armb_rc3r_s1",
+    "loaded": [
+     "p3_rvs",
+     "p3_nr"
+    ],
+    "cells": {
+     "restack": {
+      "label": "p1_nr",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "nut": {
+      "label": "p1_nr",
+      "score": 0,
+      "n": 100,
+      "base": 0,
+      "base_n": 100,
+      "lift_pp": 0.0,
+      "seeds": "dev"
+     },
+     "revstack": {
+      "label": "p3_rvs+p3_nr",
+      "score": 4,
+      "n": 100,
+      "base": 1,
+      "base_n": 100,
+      "lift_pp": 3.0,
+      "seeds": "dev"
+     }
+    },
+    "final": 1,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 3.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 3.0,
+    "submitted": {
+     "what": "p3_rvs (0178f9ccf799) + p3_nr (fad992952ae3)",
+     "source": "SUBMISSION.json",
+     "how": "explicit"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-07T13:47:09.431Z",
+    "cause": null,
+    "id": "tinkerArmBrev3r-4d8f2259__armb_rc3r_s1",
+    "batch": "tinkerArmBrev3r-4d8f2259",
+    "session": "armb_rc3r_s1",
+    "path": "site/tinkerArmBrev3r-4d8f2259__armb_rc3r_s1",
+    "batch_job": "43013174",
+    "batch_job_state": "ENDED",
+    "idle_s": 222185,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 29,
+    "last_t": "2026-11-07T11:52:18.226Z",
+    "gpu_hours": {
+     "canonical": 15.8,
+     "actual": 8.0367
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "tinker:Qwen/Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_efemt_s1",
+    "loaded": [
+     "B"
+    ],
+    "cells": {
+     "metaworldplus-push-wall": {
+      "label": "B",
+      "score": 7,
+      "n": 10,
+      "base": 1,
+      "base_n": 5,
+      "lift_pp": 50.0,
+      "seeds": "dev"
+     },
+     "metaworldplus-pick-place": {
+      "label": "A",
+      "score": 4,
+      "n": 5,
+      "base": 1,
+      "base_n": 5,
+      "lift_pp": 60.0,
+      "seeds": "dev"
+     },
+     "metaworldplus-door-lock": {
+      "label": "A",
+      "score": 4,
+      "n": 5,
+      "base": 2,
+      "base_n": 5,
+      "lift_pp": 40.0,
+      "seeds": "dev"
+     }
+    },
+    "final": 83,
+    "final_vs_base": null,
+    "best_dev_lift_pp": 60.0,
+    "rank_basis": "dev",
+    "rank_lift_pp": 60.0,
+    "submitted": {
+     "what": "B (ef9001a51bc2)",
+     "source": "SUBMISSION.json",
+     "how": "explicit"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-07T11:52:18.226Z",
+    "cause": null,
+    "id": "tinkerEfeMt-3aa3e39d__efemt_s1",
+    "batch": "tinkerEfeMt-3aa3e39d",
+    "session": "efemt_s1",
+    "path": "site/tinkerEfeMt-3aa3e39d__efemt_s1",
+    "batch_job": "43020491",
+    "batch_job_state": "ENDED",
+    "idle_s": 229076,
+    "in_command": false
+   }
+  ],
+  "best": [
+   {
+    "status": "DONE",
+    "turns": 5,
+    "last_t": "2026-11-06T16:49:49.028Z",
+    "gpu_hours": {
+     "canonical": 3.6964,
+     "actual": 3.9631
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl-uniform",
+    "loaded": [
+     "e2e_c1"
+    ],
+    "cells": {},
+    "final": 91,
+    "final_vs_base": {
+     "score": 91,
+     "n": 100,
+     "base": 14,
+     "base_n": 100,
+     "seeds": "hidden 1-100",
+     "lift_pp": 77.0,
+     "source": "rmin_out/base_hidden_27b/base_hidden_27b.json on hyak (base on the hidden seeds, jobs 42178467,42178468,42178469,42178470,42178471,42178472,42178473,42178475,42178476)"
+    },
+    "best_dev_lift_pp": null,
+    "rank_basis": "hidden",
+    "rank_lift_pp": 77.0,
+    "submitted": {
+     "what": "e2e_c1 (a896802d57cb)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T16:49:49.028Z",
+    "cause": null,
+    "id": "mtprobe-st__e2e_Awipe_uni_s1_mpst",
+    "batch": "mtprobe-st",
+    "session": "e2e_Awipe_uni_s1_mpst",
+    "path": "site/mtprobe-st__e2e_Awipe_uni_s1_mpst",
+    "batch_job": "42990513",
+    "batch_job_state": "ENDED",
+    "idle_s": 297625,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 5,
+    "last_t": "2026-11-06T17:25:45.125Z",
+    "gpu_hours": {
+     "canonical": 1.9442,
+     "actual": 2.2986
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl-uniform",
+    "loaded": [
+     "e2e_c1"
+    ],
+    "cells": {},
+    "final": 95,
+    "final_vs_base": {
+     "score": 95,
+     "n": 100,
+     "base": 57,
+     "base_n": 100,
+     "seeds": "hidden 1-100",
+     "lift_pp": 38.0,
+     "source": "rmin_out/base_hidden_27b/base_hidden_27b.json on hyak (base on the hidden seeds, jobs 42178467,42178468,42178469,42178470,42178471,42178472,42178473,42178475,42178476)"
+    },
+    "best_dev_lift_pp": null,
+    "rank_basis": "hidden",
+    "rank_lift_pp": 38.0,
+    "submitted": {
+     "what": "e2e_c1 (7c1c49ed597f)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T17:25:45.125Z",
+    "cause": null,
+    "id": "mtprobe-st__e2e_Alift_uni_s1_mpst",
+    "batch": "mtprobe-st",
+    "session": "e2e_Alift_uni_s1_mpst",
+    "path": "site/mtprobe-st__e2e_Alift_uni_s1_mpst",
+    "batch_job": "42990513",
+    "batch_job_state": "ENDED",
+    "idle_s": 295469,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 5,
+    "last_t": "2026-11-06T19:50:47.465Z",
+    "gpu_hours": {
+     "canonical": 1.0058,
+     "actual": 1.7725
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl-uniform",
+    "loaded": [
+     "e2e_c1"
+    ],
+    "cells": {},
+    "final": 80,
+    "final_vs_base": {
+     "score": 80,
+     "n": 100,
+     "base": 44,
+     "base_n": 100,
+     "seeds": "hidden 1-100",
+     "lift_pp": 36.0,
+     "source": "rmin_out/base_hidden_27b/base_hidden_27b.json on hyak (base on the hidden seeds, jobs 42178467,42178468,42178469,42178470,42178471,42178472,42178473,42178475,42178476)"
+    },
+    "best_dev_lift_pp": null,
+    "rank_basis": "hidden",
+    "rank_lift_pp": 36.0,
+    "submitted": {
+     "what": "e2e_c1 (768760352789)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T19:50:47.465Z",
+    "cause": null,
+    "id": "mtprobe-mt3__e2e_Astack_uni_s1_mpmt",
+    "batch": "mtprobe-mt3",
+    "session": "e2e_Astack_uni_s1_mpmt",
+    "path": "site/mtprobe-mt3__e2e_Astack_uni_s1_mpmt",
+    "batch_job": "42997205",
+    "batch_job_state": "ENDED",
+    "idle_s": 286767,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 5,
+    "last_t": "2026-11-06T19:44:38.790Z",
+    "gpu_hours": {
+     "canonical": 0.8125,
+     "actual": 1.5475
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl-uniform",
+    "loaded": [
+     "e2e_c1"
+    ],
+    "cells": {},
+    "final": 47,
+    "final_vs_base": {
+     "score": 47,
+     "n": 100,
+     "base": 14,
+     "base_n": 100,
+     "seeds": "hidden 1-100",
+     "lift_pp": 33.0,
+     "source": "rmin_out/base_hidden_27b/base_hidden_27b.json on hyak (base on the hidden seeds, jobs 42178467,42178468,42178469,42178470,42178471,42178472,42178473,42178475,42178476)"
+    },
+    "best_dev_lift_pp": null,
+    "rank_basis": "hidden",
+    "rank_lift_pp": 33.0,
+    "submitted": {
+     "what": "e2e_c1 (e7756ca2f90b)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T19:44:38.790Z",
+    "cause": null,
+    "id": "mtprobe-mt3__e2e_Awipe_uni_s1_mpmt",
+    "batch": "mtprobe-mt3",
+    "session": "e2e_Awipe_uni_s1_mpmt",
+    "path": "site/mtprobe-mt3__e2e_Awipe_uni_s1_mpmt",
+    "batch_job": "42997205",
+    "batch_job_state": "ENDED",
+    "idle_s": 287136,
+    "in_command": false
+   },
+   {
+    "status": "DONE",
+    "turns": 5,
+    "last_t": "2026-11-06T15:26:43.945Z",
+    "gpu_hours": {
+     "canonical": 2.2025,
+     "actual": 2.5622
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": false,
+     "version": null,
+     "skills_version": null,
+     "source": "session.start"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "scripted:e2e-rl-uniform",
+    "loaded": [
+     "e2e_c1"
+    ],
+    "cells": {},
+    "final": 65,
+    "final_vs_base": {
+     "score": 65,
+     "n": 100,
+     "base": 44,
+     "base_n": 100,
+     "seeds": "hidden 1-100",
+     "lift_pp": 21.0,
+     "source": "rmin_out/base_hidden_27b/base_hidden_27b.json on hyak (base on the hidden seeds, jobs 42178467,42178468,42178469,42178470,42178471,42178472,42178473,42178475,42178476)"
+    },
+    "best_dev_lift_pp": null,
+    "rank_basis": "hidden",
+    "rank_lift_pp": 21.0,
+    "submitted": {
+     "what": "e2e_c1 (85d955294cd8)",
+     "source": "SUBMISSION.json",
+     "how": "default-loaded-stack"
+    },
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": "2026-11-06T15:26:43.945Z",
+    "cause": null,
+    "id": "mtprobe-st__e2e_Astack_uni_s1_mpst",
+    "batch": "mtprobe-st",
+    "session": "e2e_Astack_uni_s1_mpst",
+    "path": "site/mtprobe-st__e2e_Astack_uni_s1_mpst",
+    "batch_job": "42990513",
+    "batch_job_state": "ENDED",
+    "idle_s": 302611,
+    "in_command": false
+   }
+  ],
+  "pinned": [
+   {
+    "status": "DONE",
+    "turns": 11,
+    "last_t": "2026-10-23T02:57:53.055Z",
+    "gpu_hours": {
+     "canonical": 15.596,
+     "actual": 20.2442
+    },
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": null,
+     "version": null,
+     "skills_version": null,
+     "source": null
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_b3a_min_M_s1",
+    "loaded": [],
+    "cells": {
+     "lift": {
+      "label": "lift30",
+      "score": 87,
+      "n": 100,
+      "base": 67,
+      "base_n": 100,
+      "lift_pp": 20.0,
+      "seeds": "dev"
+     },
+     "stack": {
+      "label": "stack30",
+      "score": 53,
+      "n": 100,
+      "base": 51,
+      "base_n": 100,
+      "lift_pp": 2.0,
+      "seeds": "dev"
+     }
+    },
+    "final": 118,
+    "final_vs_base": {
+     "score": 118,
+     "n": 900,
+     "base": 118,
+     "base_n": 900,
+     "seeds": "hidden 1-100",
+     "lift_pp": 0.0,
+     "source": "rmin_out/base_hidden_27b/base_hidden_27b.json on hyak (base on the hidden seeds, jobs 42178467,42178468,42178469,42178470,42178471,42178472,42178473,42178475,42178476)"
+    },
+    "best_dev_lift_pp": 20.0,
+    "rank_basis": "hidden",
+    "rank_lift_pp": 0.0,
+    "submitted": {
+     "what": "base",
+     "source": "loaded at the end (no SUBMISSION.json)"
+    },
+    "outcome": "submission-error",
+    "outcome_note": "lift30+stack30 verified at +19 dev, then `load.py unload` and `touch DONE` in one command, so the base was scored (behaviour pass 7)",
+    "ended_t": "2026-10-23T02:57:53.055Z",
+    "cause": null,
+    "id": "batch3a-46b913b__b3a_min_M_s1",
+    "batch": "batch3a-46b913b",
+    "session": "b3a_min_M_s1",
+    "path": "site/batch3a-46b913b__b3a_min_M_s1",
+    "batch_job": "42154019",
+    "batch_job_state": "ENDED",
+    "idle_s": 1557139,
+    "in_command": false
+   },
+   {
+    "status": "running",
+    "turns": 51,
+    "last_t": "2026-10-24T01:24:09.096Z",
+    "gpu_hours": 0,
+    "harness": "min",
+    "arm": "library",
+    "playbook": {
+     "on": true,
+     "version": "8",
+     "skills_version": "ea39163-15ab3e1e",
+     "source": "fallback"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_st_lift_min_s1",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": null,
+    "cause": null,
+    "id": "single1023-c2190dc__st_lift_min_s1",
+    "batch": "single1023-c2190dc",
+    "session": "st_lift_min_s1",
+    "path": "site/single1023-c2190dc__st_lift_min_s1",
+    "batch_job": "42210175",
+    "batch_job_state": "ENDED",
+    "idle_s": 1476363,
+    "in_command": true
+   },
+   {
+    "status": "running",
+    "turns": 15,
+    "last_t": "2026-10-23T21:34:36.799Z",
+    "gpu_hours": 0,
+    "harness": "fixed",
+    "arm": "library",
+    "playbook": {
+     "on": true,
+     "version": "8",
+     "skills_version": "ea39163-15ab3e1e",
+     "source": "fallback"
+    },
+    "seed": 1,
+    "policy": "Qwen3.8-27B",
+    "agent": "qwen38-27b:loaded_st_stack_fix_s1",
+    "loaded": [],
+    "cells": {},
+    "final": null,
+    "final_vs_base": null,
+    "best_dev_lift_pp": null,
+    "rank_basis": null,
+    "rank_lift_pp": null,
+    "submitted": null,
+    "outcome": null,
+    "outcome_note": null,
+    "ended_t": null,
+    "cause": null,
+    "id": "single1023-c2190dc__st_stack_fix_s1",
+    "batch": "single1023-c2190dc",
+    "session": "st_stack_fix_s1",
+    "path": "site/single1023-c2190dc__st_stack_fix_s1",
+    "batch_job": "42210175",
+    "batch_job_state": "ENDED",
+    "idle_s": 1490136,
+    "in_command": true
+   }
+  ]
+ },
+ "reports": [
+  "reports/sessions-by-score-2026-10-25.html",
+  "reports/bubble-2026-10-25.html",
+  "reports/bubble-2026-10-24.html"
+ ]
+}

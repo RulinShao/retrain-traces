@@ -1,0 +1,89 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "model_endpoint: EndpointOutage: endpoint http://127.0.0.1:37278/v1/chat/completions down for 1200 s (23 re-sends, 0 s of it with its server pending); first error: RemoteDisconnected: Remote end closed connection without response; last: RemoteDisconnected: Remote end closed connection without response",
+ "gpu_hours": 0.54,
+ "final_score": null,
+ "agent": "local",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": 262144
+ },
+ "mode": "dev",
+ "final_episodes": 50,
+ "policy_model": "Qwen3.8-27B",
+ "capx_version": "7dcdbf2a87a1",
+ "gpu_hours_actual": 0.5384,
+ "gpu_hours_charging": "canonical",
+ "cost_model": "v2",
+ "gpu_hours_lost": 0.0,
+ "measured_vs_canonical": 0.997,
+ "agent_gpu_h": 0.3372,
+ "measured_cost": {
+  "train_gpu_h": 0.0,
+  "reason_gpu_h": 0.3372,
+  "sandbox_gpu_h": 0.0,
+  "usd_tinker": null,
+  "charged_gpu_h": 0.54,
+  "tokens": {
+   "prompt": 428875,
+   "completion": 12679
+  },
+  "unmeasured_calls": 0
+ },
+ "budget_forcing": "budget-forcing v1",
+ "skills_version": "nogit-02604056",
+ "initial_skills_digest": "1a9956cebbbb7819370e387657689628e3e30191c12224fe87e0d690ed2f8504",
+ "suite": {
+  "name": "hard3",
+  "version": 3,
+  "hash": "sha256:3bf2187b9c7ca277",
+  "train": [
+   "nut",
+   "restack",
+   "revstack"
+  ],
+  "eval": [
+   {
+    "cell": "nut",
+    "split": "id"
+   },
+   {
+    "cell": "restack",
+    "split": "id"
+   },
+   {
+    "cell": "revstack",
+    "split": "id"
+   },
+   {
+    "cell": "t2_ss",
+    "split": "far"
+   },
+   {
+    "cell": "t2_spl",
+    "split": "far"
+   }
+  ],
+  "splits": {
+   "nut": "id",
+   "restack": "id",
+   "revstack": "id",
+   "t2_ss": "far",
+   "t2_spl": "far"
+  }
+ },
+ "env_text": "v2",
+ "env_text_revision": "v2.1",
+ "turns_before_first_action": 17,
+ "tokens_before_first_action": 29013,
+ "first_action": "train",
+ "artifacts": {
+  "registry": "…/localDecompArmE-nohint-697e4c41/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

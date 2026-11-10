@@ -1,0 +1,76 @@
+rc=0
+============================== rollouts/1.jsonl
+seed 800001 rc 0 completed False stages {'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+LOG TAIL: ed_center - tcp_to_red_offset |  | # Keep the same orientation as during grasp | desired_tcp_quat = grasp_quat_wxyz |  | # Solve IK for placement | place_joints = solve_ik(desired_tcp_pos, desired_tcp_quat) | move_to_joints(place_joints) |  | # Open gripper to release the red cube | open_gripper() |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+
+seed 800002 rc 1 completed False stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+LOG TAIL: _gripper() |  |  | Environment response: |   Sandbox failed: 1 |   Stdout:  |   Stderr: Traceback (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 117, in <module> | IndexError: arrays used as indices must be of integer (or boolean) type | 
+
+seed 800003 rc 0 completed False stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+LOG TAIL: , 0]) / S |             y = (placement_R[1, 2] + placement_R[2, 1]) / S |             z = 0.25 * S |  | placement_quat_wxyz = np.array([w, x, y, z]) |  | # Solve IK for placement position | joints_place = solve_ik(placement_pos, placement_quat_wxyz) | move_to_joints(joints_place) | open_gripper() |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+
+seed 800004 rc 0 completed False stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+LOG TAIL: [0.0, 0.0, 0.05]) | joints_pre_place = solve_ik(pre_place_pos, place_quat_wxyz) | move_to_joints(joints_pre_place) |  | # Step 12: Lower gently to placement position | joints_place = solve_ik(place_pos, place_quat_wxyz) | move_to_joints(joints_place) |  | # Step 13: Open gripper | open_gripper() |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+
+seed 800005 rc 0 completed False stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+LOG TAIL: ce_position[2] += 0.05  # 5cm above | pre_place_joints = solve_ik(pre_place_position, target_quat_wxyz) | move_to_joints(pre_place_joints) |  | # Move to place position | place_joints = solve_ik(target_position, target_quat_wxyz) | move_to_joints(place_joints) |  | # Open gripper | open_gripper() |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+
+seed 800006 rc 0 completed False stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+LOG TAIL: as green cube for stability | placement_R = green_R | placement_quat_wxyz = rotmat_to_quat(placement_R) |  | # Step 10: Move to placement position | joints_place = solve_ik(placement_pos, placement_quat_wxyz) | move_to_joints(joints_place) |  | # Step 11: Open gripper to release | open_gripper() |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+
+seed 800007 rc 1 completed False stages {'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+LOG TAIL: ment response: |   Sandbox failed: 1 |   Stdout:  |   Stderr: Traceback (most recent call last): |   File "…/sim/obs_guard.py", line 252, in _run |     exec(code, g, g) |   File "<string>", line 10 |     - Calculate their 3D positions and sizes |                       ^ | SyntaxError: invalid decimal literal | 
+
+seed 800008 rc 0 completed False stages {'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+LOG TAIL: rint("Task completed: Red cube placed on top of green cube") |  |  | Environment response: |   Sandbox failed: 0 |   Stdout: Red cube center: [ 0.56733488  0.0073017  -0.08782155], size: 0.04901399516888921 | Green cube center: [ 0.55433786  0.00629076 -0.03430734], size: 0.05697599887704844 | Task completed: Red cube placed on top of green cube |  |   Stderr: 
+
+============================== rollouts/2.jsonl
+seed 800009 rc 0 completed False stages {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+LOG TAIL: ve_to_joints(joints_place) |  | # Step 12: Open gripper to release the green cube | open_gripper() |  | # Step 13: Retract slightly to avoid collision | retract_pos = place_pos.copy() | retract_pos[2] += 0.1 | joints_retract = solve_ik(retract_pos, place_quat_w) | move_to_joints(joints_retract) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+
+seed 800010 rc 0 completed False stages {'reach the green_cube': True, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+LOG TAIL: identity_quat) | move_to_joints(joints_place) |  | # Open gripper to release the green cube | open_gripper() |  | # Retract slightly to avoid collision | retract_pos = place_pos.copy() | retract_pos[2] += 0.1 | joints_retract = solve_ik(retract_pos, identity_quat) | move_to_joints(joints_retract) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+
+seed 800011 rc 0 completed False stages {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+LOG TAIL:  |  | # Step 11: Release the green cube by opening the gripper | open_gripper() |  | # Step 12: Retract slightly after release | retract_position = place_position.copy() | retract_position[2] += 0.1 | joints_retract = solve_ik(retract_position, place_quat_world) | move_to_joints(joints_retract) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+
+seed 800012 rc 0 completed False stages {'reach the green_cube': True, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+LOG TAIL: o_joints(joints_place) |  | # Step 15: Open gripper to release the green cube | open_gripper() |  | # Step 16: Retract slightly | retract_position = place_position.copy() | retract_position[2] += 0.05 | joints_retract = solve_ik(retract_position, identity_quat) | move_to_joints(joints_retract) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+
+seed 800013 rc 0 completed False stages {'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+LOG TAIL: e_to_joints(joints_place) |  | # Step 12: Release the green cube | open_gripper() |  | # Step 13: Retract slightly after releasing | retract_position = place_position.copy() | retract_position[2] += 0.1 |  | joints_retract = solve_ik(retract_position, place_quat) | move_to_joints(joints_retract) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+
+seed 800014 rc 0 completed False stages {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+LOG TAIL: e = solve_ik(place_pos, place_quat_wxyz) | move_to_joints(joints_place) |  | # Open gripper to release | open_gripper() |  | # Retract slightly | retract_pos = place_pos.copy() | retract_pos[2] += z_approach | joints_retract = solve_ik(retract_pos, place_quat_wxyz) | move_to_joints(joints_retract) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+
+seed 800015 rc 0 completed False stages {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': True, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+LOG TAIL: _ik(place_pos, grasp_quat_wxyz) | move_to_joints(joints_place) |  | # Step 8: Open gripper to release | open_gripper() |  | # Step 9: Retract slightly | retract_pos = place_pos.copy() | retract_pos[2] += 0.1 | joints_retract = solve_ik(retract_pos, grasp_quat_wxyz) | move_to_joints(joints_retract) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+
+seed 800016 rc 0 completed False stages {'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+LOG TAIL:  to placement position | joints_place = solve_ik(place_pos, grasp_quat_wxyz) | move_to_joints(joints_place) |  | # Release the green cube | open_gripper() |  | # Lift back up to safe height | joints_release_lift = solve_ik(lateral_move_pos, grasp_quat_wxyz) | move_to_joints(joints_release_lift) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+
+============================== rollouts/3.jsonl
+seed 800017 rc 1 completed False stages {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+LOG TAIL: x/capx/envs/tasks/base.py", line 174, in _exec_user_code |     exec(code, self._exec_globals, self._exec_globals) |   File "<string>", line 4 |     2. Segment the handle of the brown square nut to find its 3D position and orientation for grasping |                                                               ^ | SyntaxError: invalid decimal literal | 
+
+seed 800018 rc 1 completed False stages {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+LOG TAIL: user_code |     exec(code, self._exec_globals, self._exec_globals) |   File "<string>", line 86, in <module> |   File "_rotation.pyx", line 1136, in scipy.spatial.transform._rotation.Rotation.from_matrix | ValueError: Non-positive determinant (left-handed or null coordinate frame) in rotation matrix 0: [[ 1.  0.  0.] |  [ 0.  1.  0.] |  [ 0.  0. -1.]]. | 
+
+seed 800019 rc 1 completed False stages {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+LOG TAIL: ecent call last): |   File "…/tasks/base.py", line 174, in _exec_user_code |     exec(code, self._exec_globals, self._exec_globals) |   File "<string>", line 5 |     3. Convert 2D mask to 3D points using depth and camera intrinsics |                ^ | SyntaxError: invalid decimal literal | 
+
+seed 800020 rc 1 completed False stages {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+LOG TAIL: ent call last): |   File "…/tasks/base.py", line 174, in _exec_user_code |     exec(code, self._exec_globals, self._exec_globals) |   File "<string>", line 5 |     3. Get 3D points from the handle mask using depth and camera intrinsics |            ^ | SyntaxError: invalid decimal literal | 
+
+seed 800021 rc 0 completed False stages {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+LOG TAIL: 0, 0.0, 0.0])) | move_to_joints(joints_insert) |  | # Open gripper to release the nut | open_gripper() |  | # Retract | retract_position = target_handle_position + np.array([0, 0, 0.2]) | joints_retract = solve_ik(retract_position, np.array([1.0, 0.0, 0.0, 0.0])) | move_to_joints(joints_retract) |  |  | Environment response: |   Sandbox failed: 0 |   Stdout:  |   Stderr: 
+
+seed 800022 rc 1 completed False stages {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+LOG TAIL: ceback (most recent call last): |   File "…/tasks/base.py", line 174, in _exec_user_code |     exec(code, self._exec_globals, self._exec_globals) |   File "<string>", line 5 |     3. Get 3D points from the mask using depth and intrinsics |            ^ | SyntaxError: invalid decimal literal | 
+
+seed 800023 rc 1 completed False stages {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+LOG TAIL: cent call last): |   File "…/tasks/base.py", line 174, in _exec_user_code |     exec(code, self._exec_globals, self._exec_globals) |   File "<string>", line 9 |     3. Get 3D points from the handle mask using depth and camera intrinsics |            ^ | SyntaxError: invalid decimal literal | 
+
+seed 800024 rc 1 completed False stages {'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+LOG TAIL:  last): |   File "…/tasks/base.py", line 174, in _exec_user_code |     exec(code, self._exec_globals, self._exec_globals) |   File "<string>", line 5 |     3. Compute 3D points from the handle mask using depth and camera intrinsics |                ^ | SyntaxError: invalid decimal literal | 
+

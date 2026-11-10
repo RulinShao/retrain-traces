@@ -1,0 +1,1 @@
+{"objective":"sft","name":"revstack7","data":"sft_revstack_diverse.jsonl","init":"rev3","epochs":1,"batch":32,"lr":8e-5,"min_reward":1.0}

@@ -1,0 +1,10 @@
+{
+ "objective": "sft",
+ "name": "sft6",
+ "data": "sft3.jsonl",
+ "epochs": 8,
+ "batch": 16,
+ "lr": 0.0001,
+ "min_reward": 1.0,
+ "time": "04:00:00"
+}

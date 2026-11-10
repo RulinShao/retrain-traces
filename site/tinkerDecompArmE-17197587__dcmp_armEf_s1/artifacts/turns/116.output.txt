@@ -1,0 +1,82 @@
+rc=0
+===== trainer SKILL (grep SFT + data) =====
+8:Relative paths in SPEC (a reward file, an init adapter path, data files) resolve against the workspace, where `train.py` runs, wherever SPEC itself is.
+9:The programs can call exactly the functions listed under `APIs:` in the task's eval_prompt.txt. The Key rules of the stack,
+10:revstack, stackv2 and handover prompts also name `get_object_pose`, `sample_grasp_pose`, `goto_pose_arm*` and a `z_approach`
+11:parameter: none of these exists in these cells (the rules text is shared with the tasks' privileged-API variant). The prompts
+12-are the benchmark's cells of record and are scored as they are.
+13-A stack (`eval.py --adapter A,B`, `load.py stack`) holds at most 2 adapters: each is rank 32 and the serving's maximum
+14-LoRA rank is 64; a larger stack ends `failed` with `stack rank 96 > 64 (the serving's --max-lora-rank): at most 2 adapters of rank 32`.
+15-Your shell on this site writes only in the workspace and has no network (pip, curl and similar fail) and no Slurm client;
+16-all compute goes through train.py and eval.py.
+17-
+--
+21:Each step: `batch` prompts x `rollouts` rollouts (8, or 16 if the spec sets it). GRPO's update comes from reward differences among a prompt's rollouts: a prompt whose rollouts all get the same reward adds nothing to it. A rollout is one program written by the model for the task, run once in the task's simulator
+22:on one seed; its score is the reward below. The training prompt is the task's evaluation prompt, byte for byte (checked before training), unless the spec sets `note` or `goal` or a `data` row sets `prompt`:
+23:those are part of the training prompt only. Every eval, including the final hidden-seed score, uses the task's
+24:`tasks/<task>/eval_prompt.txt` in the workspace verbatim, without any note or goal.
+25-Sampling during practice: temperature 1.0, top_p 0.95, top_k 20; at most 8192 generated tokens per program.
+26-Sampling during evaluation (eval.py and the final score): temperature 0.7, top_p 0.8, top_k 20, presence_penalty 1.5, thinking
+27-off; at most 8192 generated tokens per program (envs/capx/config_of_record_v4.yaml). For lift, stack, wipe and nut the practice
+28-unit and the eval cell run the same task config (`*_reduced_api_exampleless.yaml` is the s4:paper cell's config).
+29-
+30-A policy whose name carries `+init:<sha>` (SCOREBOARD.md's `policy:` line) is the model plus that init adapter: its base is
+--
+40:| `batch` | integer | 8 (a task list: the smallest batch >= 8 that splits as asked) | prompts per step (each x `rollouts` rollouts) |
+41:| `weights` | list of numbers | none: an equal split | with a `task` list: one weight per task, same order, each > 0; task i gets batch x w_i / sum(weights) prompts in every batch, which must be whole numbers (equal weights = the equal split); not with `data` |
+42:| `rollouts` | integer | 8 | 8 or 16: rollouts per prompt (each prompt's GRPO group; `zero_variance_frac` under Output is the share of groups that added nothing). 16 doubles each step's rollouts and the per-step part of its cost |
+43-| `lr` | float | 2e-5 | learning rate |
+44-| `init` | string | none: the adapter this session trained last is continued natively (none yet: a fresh LoRA); see Continuation | an adapter name produced by an earlier train of this session (`base` is not one). Alone it means the site's native continuation: verl starts from its weights with a fresh optimizer; trainer=tinker restores its full state. Single-adapter mode: omit it (or `current`) |
+45:| `init_mode` | string | none (see `init`) | what the call starts from, exactly: `resume` (same lineage; the parent's full state, weights + optimizer + dataloader, so `steps` is the target total and must exceed the parent's step), `branch` (a new lineage from the parent's weights, fresh optimizer; parent recorded), `fresh` (a new LoRA; no `init`). `resume` / `branch` need `init` |
+46-| `start_preset` | string | none | a named start-state preset (registry presets exist only where the operator built them (DEV label); presets you build with preset.py are yours, on the task they were built on) to begin practice from an intermediate scene (e.g. object already grasped) so the agent trains the hard tail; the staged reward then scores only the stages after that sub-goal; fails loudly if the preset has not been built. With hidden tasks (B2): also the name of a preset you built with `preset.py` (`presets/<name>.json`), on the task it was built on; on a hidden task only such a preset |
+47-| `start_mix` | string | none | a mixed start-state pool (core/mix_presets.py, built with `build_mix`): seeds split across presets of one task at a ratio, some from scratch; the staged reward scores the full chain; not with `start_preset`; fails loudly if not built; refused on a hidden task (B2) |
+48:| `reward` | string | `task_completed` | `task_completed` (1.0 if the task's own success check passes, else 0.0); `shaped` (the simulator's staged reward); Python source containing `def reward(r)`; or the path of a `.py` file (relative paths: the workspace) defining `reward(r)`. `r` is the simulator's reply (keys or attributes): `task_completed`, `reward`, `sandbox_rc`, `seed`, `log_tail` (= `stdout_tail`), `stages` (the simulator's ordered checklist for the task, {name: reached}, on tasks it tracks), `final_state` (object poses, gripper and contacts at the episode's end) and `trace` (the same, every few simulation steps of the episode); return a float |
+49-| `seed_start` | integer | the lineage's next unused block (`seed_cursor`): the first call of a lineage (no `init`) starts at 810001; a continuation (`init`) starts right after the seeds its lineage has used (`seeds_consumed` in each `adapters/<name>/call.json`); set it to replay seeds | rollout k of the call runs on seed `seed_start + k`; must not reach seeds 1-100 |
+50:| `seeds` | list of integers, or string | none (`seed_start` applies) | the call's rollout seeds, taken in order across prompts and rollouts, e.g. `"810001-810064,820001-820032"` (a range includes both ends); overrides `seed_start`; at least steps x batch x rollouts seeds, none in 1-100; not with `data`, `start_preset` or `start_mix` |
+51:| `note` | string | none | one sentence inserted after the training prompt's Goal line (not a comment: the rollouts see it; evaluation prompts never have it) |
+52:| `goal` | string | none | replaces the training prompt's Goal line (evaluation prompts keep theirs) |
+53-| `time` | string | set by the site: 1 GPU 25 min + 13 min x steps, 2 GPUs 85 min + 17 min x steps, 3 GPUs 30 min + 14 min x steps, at least 2 h (whole minutes, rounded up; the job record's `config` shows the value used) | wall limit of each Slurm job of the call, `HH:MM:SS`; a call whose job reaches it continues from its last saved step (below); once it has continued 3 times it keeps the adapter of its last saved step, as a cancel (result `time_limit`; a preempted or node-failed call likewise, result `preempted` / `node_fail`), or ends `failed` with the fact if none was saved |
+54:| `data` | string | none | a JSONL file of training prompts in your workspace: see Training data below. With `data`, the tasks, seeds, order and steps come from its rows |
+55:| `objective` | string | `grpo` | `grpo` (the practice call above) or `sft` (supervised fine-tuning on your own demonstrations: see SFT below; its spec has `data` and the fields of that section only) |
+56:| `epochs` | integer | 1 | `objective: sft` only: passes over the kept rows |
+57:| `min_reward` | number | 1.0 | `objective: sft` only: rows with `reward` >= this are trained on, the others dropped (a filter, never a weight) |
+58-| `stop_when` | object | none (all `steps` run) | optional early stop: see Early stop below |
+59-
+60-A continuation (`init` = an earlier adapter) practises on fresh seeds by default: its lineage's next unused block, recorded in `call.json` as `lineage`, `seed_cursor` (the block allocated) and `seeds_consumed` (the seeds the rollouts actually used). Fresh means the next draw from the same seed space, not a chosen difficulty; set `seed_start` or `seeds` to replay.
+61-
+62-Scenes of a call: one train already covers steps×batch×rollouts distinct scenes; set `seeds` to spread scenes or `seed_start` past the parent's range when continuing; sequential continuation remains allowed. `call.json` of a call with `seeds` records them as `seeds` in range form.
+63-
+64:## Training data (`data`)
+65:`data` names a JSONL file in your workspace (a path relative to the workspace, or absolute inside it): one line per training
+66:prompt, `{"task": ..., "seed": ..., "variant": ..., "prompt": ...}` (`variant` and `prompt` optional, no other keys):
+67-- `task`: a trainable task. `variant`: another trainable task of the same simulator task (e.g. `stack` with variant `revstack`; revstack runs under a scene shift and practises alone, so a dataset with revstack rows has no rows of any other task); the row then
+68-  trains on `variant`. Any mixture of tasks and variants is allowed.
+69-- `seed`: an integer >= 810001 (seeds 1-100 are the final score's, 800001-809999 are eval.py's dev seeds); all `rollouts`
+70-  rollouts of the row run on that seed.
+71:- `prompt`: replaces the task's user message for that row only (the system message stays). A row without `prompt` trains on
+72:  the task's eval prompt, checked byte for byte before training; a row with `prompt` is not checked and counts as a prompt
+73:  override, a method choice recorded with the adapter (`data.prompt_overrides` and `data.label` in training.json).
+74-- Rows train in file order, `batch` rows per step: the row count must be a multiple of `batch`, and the call runs
+75-  rows / batch steps (omit `steps`, or give that number). The call's tasks come from the rows (omit `task`); `note` and
+76:  `goal` are not accepted with `data`. At most 4096 rows, 16 MB, 65536 characters per `prompt`.
+77:- The file is copied when the call starts; training.json's `resolved_spec.data` and the train's result (`config.data`) record
+78:  its `sha256`, `rows`, rows per task (`tasks`) and `prompt_overrides`.
+79-
+80:## SFT (`objective: sft`)
+81:A spec `{"objective": "sft", "data": "<file>.jsonl"}` (optional: `name`, `init`, `epochs` (1), `batch` (16 rows per step), `lr`
+82:(1e-4), `min_reward` (1.0), `time`; no other field) trains the policy's LoRA by supervised fine-tuning (cross-entropy on the program's
+83-tokens only; LoRA rank 32 / alpha 64 on the policy's modules, or `init` continued; without `init` it continues the policy's own init,
+84-as a practice call does). It runs on the small policy profiles (SCOREBOARD.md's `policy:` line names one, e.g. Qwen3-8B).
+85-Availability is per policy profile: the session's turn-0 facts state it (`train objectives for this session's policy (...)`).
+86:- Each line of `data` is `{"task": ..., "seed": ..., "prompt": [{"role": "system" | "user", "content": ...}, ...], "program": ..., "reward": ...}`
+87:  (exactly these keys): `task` a trainable task (a hidden task by the name you see), `prompt` the chat the program answers (the user
+88:  message last; `tasks/<task>/eval_prompt.txt` as messages is the eval prompt of record), `program` the response trained on, `reward`
+89-  a number used only as the `min_reward` filter.
+90-- `seed` is the scene the program ran on: seeds 1-100 (the final score's) and 800001-809999 (eval.py's dev seeds) are refused, so
+91-  no reading you or the final score take is on a scene the policy was fitted on.
+92:- A kept row whose prompt is not the task's eval prompt of record is a prompt override (a method choice): counted in
+93:  `data.prompt_overrides` and labelled, as `note`/`goal` are.
+94-- Steps = ceil(kept rows x epochs / batch); rows train in a fixed shuffled order; a row longer than 4096 tokens is dropped (`call.json`
+95:  `sft_facts.dropped_too_long`). At most 20000 rows, 256 MB, 65536 characters per message or program.
+96:- Building the file: `python3 skills/trainer/sft_rows.py practice adapters/<name> [--min-reward 1] [--steps 3-5] > sft.jsonl` takes a
+97:  finished practice call's rollouts (Output below); `python3 skills/trainer/sft_rows.py rollouts rollouts/<id>.jsonl [--min-reward 1] > sft.jsonl`

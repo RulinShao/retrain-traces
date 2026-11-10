@@ -1,0 +1,100 @@
+rc=0
+=== g4r restack SUCCESS, middle ===
+r_world = pose_mat @ green_center_h
+red_center_world = red_center_world[:3]
+green_center_world = green_center_world[:3]
+
+# Step 5: Determine the target pose for the red cube when placed on top of the green cube.
+# We assume both cubes are axis-aligned in world frame? The problem says "use the extent of the cubes to calculate the exact height for placement."
+# We'll assume the cubes are axis-aligned (or we can use the oriented bounding box's rotation, but the rotation might not be necessary if we just need position).
+# However, for grasping we need to bring the red cube to a position where its bottom face is on top of the green cube's top face.
+# In the camera frame, the red cube's center is at red_center_cam. When placed on top of green cube, the red cube's center should be at:
+# green_center_world + (0, 0, (green_extent[2]/2 + red_extent[2]/2)) in world frame, assuming z is up and cubes are axis-aligned in world.
+# But we need to be careful about the coordinate frame: camera frame typically has x right, y down, z forward. World frame is usually z up.
+# We need to check the coordinate convention. The depth image gives positive z forward. The extrinsic matrix transforms from camera to world.
+# We need to know which axis is up in world frame. Usually, world frame is x forward, y left, z up or x right, y forward, z up? 
+# Franka's world frame typically has z up.
+# Let's assume world frame is z up.
+# The camera frame: z forward, x right, y down.
+# The extrinsic matrix pose_mat should map camera coordinates to world coordinates.
+# We already transformed centers to world.
+# Now, to compute the desired red center in world when placed on top of green:
+# The green cube's center is at green_center_world. The height of green cube's top surface from its center is green_extent[2] / 2 (assuming the bounding box's z-axis in its local frame aligns with world z? Not necessarily.)
+# However, the oriented bounding box from PCA gives center and extent, but the rotation R rotates the local axes. The extent is along the local axes.
+# To find the vertical extent in world, we need to project the local axes onto world z.
+# Alternatively, we can compute the minimum and maximum z of the green cube's 3D points in world frame directly.
+# That might be more robust.
+
+# Let's compute min/max z of green points in world frame.
+# We already have points_g in camera frame. Transform them to world.
+green_points_h = np.hstack([points_g, np.ones((points_g.shape[0], 1))])
+green_points_world = (pose_mat @ green_points_h.T).T[:, :3]
+green_z_min = np.min(green_points_world[:, 2])
+green_z_max = np.max(green_points_world[:, 2])
+
+# Similarly for red cube points, we know their size. When placed, the red cube's bottom should be at green_z_max.
+# The red cube's center in world should be at:
+# x and y: aligned with green cube's center in x and y? The problem says "on top of the green cube". It doesn't specify exact x,y alignment, but presumably directly on top, so x and y should be the same as green cube's center x and y.
+# However, the red cube is currently in some position. We want to move it to be on top of green, so its center should be at (green_center_world[0], green_center_world[1], green_z_max + red_height/2)
+# where red_height is the vertical size of the red cube. We can compute red height from the oriented bounding box: the extent in z direction in world frame.
+# To get the vertical height of red cube in world, we can compute the z-extent of its points in world.
+red_points_h = np.hstack([points_r, np.ones((points_r.shape[0], 1))])
+red_points_world = (pose_mat @ red_points_h.T).T[:, :3]
+red_z_min = np.min(red_points_world[:, 2])
+red_z_max = np.max(red_points_world[:, 2])
+red_height_world = red_z_max - red_z_min
+
+# Actually, the height of the red cube is constant; we can just use the difference between its min and max z from its current points.
+# So the desired z for the red center is:
+desired_red_center_z = green_z_max + red_height_world / 2.0
+
+# And desired x, y:
+desired_red_center = np.array([green_center_world[0], green_center_world[1], desired_red_center_z])
+
+# Step 6: Determine the desired orientation for the red cube.
+# We can assume the red cube should have the same orientation as its current orientation? Or axis-aligned?
+# The problem doesn't specify orientation, just position. However, for grasping, the robot needs to know the orientation to grasp.
+# Typically, we want to grasp the red cube in its current orientation, then move it to the desired position while keeping the same orientation.
+# So we should use the current orientation of the red cube as the desired orientation.
+# How to get orientation? We have the rotation matrix R from the oriented bounding box, but that is in the camera frame (since points were in camera frame).
+# We need the rotation from the object's local frame to world frame.
+# The oriented bounding box gives R such that points = R @ local_coords + center, where local_coords are in local axes with half-extent = extent/2.
+# So R columns are the local axes expressed in the camera frame.
+# To get the world orientation, we need to rotate the camera frame to world frame.
+# pose_mat has linear part R_cam_to_world. So the object's local axes in world are R_cam_to_world @ R.
+# The rotation matrix of the object in world frame (from local to world) is R_world = R_cam_to_world @ R_cam_obtained.
+# Then we can convert that to a quaternion.
+
+R_cam_to_world = pose_mat[:3, :3]
+R_cam = obb_r["R"]  # This is the rotation matrix from local to camera frame.
+R_world_obj = R_cam_to_world @ R_cam  # This is rotation from local to world frame.
+
+# Convert rotation matrix to quaternion (wxyz)
+import scipy.spatial.transform
+quaternion = scipy.spatial.transform.Rotation.from_matrix(R_world_obj).as_quat()  # This gives [x, y, z, w]
+quaternion_wxyz = np.array([quaternion[3], quaternion[0], quaternion[1], quaternion[2]])
+
+# Step 7: Solve IK for panda_hand
+# The solve_ik function takes position and quaternion for panda_hand link.
+# However, the desired_red_center is the center of the cube. We need to know where the panda_hand is relative to the cube when grasped.
+# We need to grasp the cube, so the gripper should be positioned so that it closes around the cube.
+# Typically, the gripper's center (midpoint between fingers) should be at the cube's center, and the gripper orientation should match the cube's orientation.
+# The panda_hand link is likely at the gripper center? We need to assume that the position argument is the target position for the panda_hand link, which should coincide with the cube's center when grasping.
+# Also, the orientation of the gripper should match the cube's orientation so that the fingers align with the cube's sides.
+# However, the gripper might have a fixed offset from the panda_hand. Without additional information, we'll assume that the target position and orientation for panda_hand should be exactly the cube's center and the cube's orientation (with possibly some rotation to align the gripper's closing direction with the cube's face).
+# Let's proceed with position = desired_red_center, quaternion = quaternion_wxyz.
+joints = solve_ik(desired_red_center, quaternion_wxyz)
+
+# Step 8: Move to a pre-grasp position? The problem says "Nothing should be dropped from a height."
+# We need to first move the gripper to a position where it can close around the cube without hitting the table.
+# The current red cube is at some height. The gripper needs to approach the cube.
+# The plan_grasp function can help us find a good grasp pose. Let's use it.
+# We have the segmentation for the red cube, and depth and intrinsics.
+# The function returns grasp poses in the camera frame.
+# We then need to transform those poses to world frame and apply any TCP offsets.
+# The doc says: "It does not apply any camera/world transforms or TCP offsets: the caller is responsible for transforming the resulting grasp poses into the desired frame and applying TCP offsets if necessary."
+# So we need to:
+# 1. Call plan_grasp to get grasp poses in camera frame.
+# 2. Select the best grasp pose (highest score).
+# 3. Transform the grasp pose from camera to world: T_world_grasp = T_cam_to_world @ T_cam_grasp
+# 4. Possibly apply TCP offset: The panda_hand link is likely at the wrist, not at the gripper center. The grasp pose's origin is probably at the gripper's center or at the fingertip? The doc says it's from Contact-GraspNet, typically the origin is at the gripper's center, and the orientation such 

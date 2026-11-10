@@ -1,0 +1,107 @@
+rc=0
+         stages = list((r.get("stages") or {}).values())
+         k = 0
+         while k < len(stages) and stages[k]:
+             k += 1
+         near = 0.0   # e.g. 1 - distance to the next stage's target / its start distance, from final_state; 0 if none
+         return (k + 0.5 * near) / max(1, len(stages))
+     ```
+   train.py also scores every reward file on your recorded rows of the task before it spends anything (see the trainer's
+   Failures).
+
+4. Practise the sub-goal: a train spec with `"reward": "rewards/grasped.py"` (and a `note` naming the sub-goal if you want the
+   prompt to say it). `practice_rows.jsonl` then shows how often the sub-goal was reached per step.
+
+5. Build start states for the next sub-goal. A prefix program (`prefixes/grasp.py`, the task's own API only) that performs the
+   steps you can already do, then `python3 preset.py --task T --program prefixes/grasp.py --name T_grasped --seeds 16`.
+   `presets/T_grasped.json` lists, per seed, whether the state restores and what the prefix printed, and (on a task whose
+   verifier you see) `task_completed`, `stages` and `final_state` of the reached state, so you can check the prefix reached what
+   you meant before practising from it: a train spec with `"start_preset": "T_grasped"` and a reward for the remaining part.
+
+6. Check the whole task again: `python3 eval.py --adapter A[,B] --task T --seeds 20` gives the success count. Its rows (with
+   `--reward`) have no `stages` / `final_state`, so a reward that reads them scores nothing there; one that reads what the
+   program printed (`stdout_tail`) or `task_completed` works on eval rows too. How far the episodes get on the way is in
+   `python3 rollout.py --adapter A[,B] --task T --seeds 8 --reward rewards/grasped.py` (rollout rows carry `stages` and
+   `final_state`) and in the next train's `practice_rows.jsonl` and its stage histogram.
+
+### Subtask units (`unit.py`)
+
+A sub-goal you practise often can be given a name and used like a task. Example on a task `T`, with the files of the examples
+above:
+
+```bash
+python3 unit.py register T_place --task T --reward rewards/placed.py --start-preset T_grasped --done rewards/placed_done.py
+```
+
+Afterwards `"task": "T_place"` in a train spec trains on T from `T_grasped`'s states with `rewards/placed.py` (the spec does not
+set `reward` or `start_preset` then); `python3 rollout.py --adapter A --task T_place --seeds 8` runs T_place's episodes on T's
+practice simulator from those states (rows scored by its reward, plus `unit_done` with a done file); `python3 eval.py --adapter A
+--task T_place --seeds 8` counts the episodes where `done(r)` holds (or the reward reaches 1.0 without a done file) and shows
+them as the scoreboard row `T_place (unit of T)`. From a start preset, a unit's rollouts and evals run on that preset's own seeds
+(at most as many as it has states). A unit never changes T's own score. `python3 unit.py list` shows your units; registering
+charges nothing.
+
+## Magic practice (this session)
+
+DEV practice from an edited start state, on a task whose verifier is shown (never on eval.py, a unit or a hidden task).
+
+| Command | Effect |
+| --- | --- |
+| `python3 rollout.py ... --magic "prefix:<stage>=set FILE.json\|attach OBJECT" [--magic-presets NAME]` | DEV practice: each seed's scene is edited at reset so the checklist's stages up to `<stage>` are done (set: object poses / arm joints / gripper from FILE, plus optionally `"attach": OBJECT` after the poses; attach: OBJECT in the closed gripper), checked (settle, 5 mm / 10 deg, penetration, the stages hold, the task not already done), then the program runs from there. Rows add `magic` (`valid`, `reason`, `signature`) and `label: "privileged practice (magic)"`; they are never success data for a train, and eval.py has no magic. `--magic-presets NAME` saves the states before / after each valid edit as presets `NAME_pre` / `NAME_post`. Example: `python3 rollout.py --adapter loaded --task T --seeds 8 --magic "prefix:grasp the cube=attach cube"` |
+| `python3 rollout.py --adapter A --task T --seeds N --magic-prefix stage=<k\|name> [--suffix policy\|oracle]` | The magic ladder (DEV practice): each seed starts at the boundary of the task's ladder cut k (the environment builds the state; a refusal lists the cuts), then the suffix runs. `policy` (default): the stack's programs, rows as with `--magic`. `oracle`: the task's human-expert oracle tail on the privileged API, a doability probe that returns counts only (`n/N`, label `upper bound / doability`; no rows, never training data). Every ladder call of a task runs on its first ladder call's seeds; the result's `ladder` / `ladder_aggregate` and SCOREBOARD.md give success per cut and the cut where the rate jumps. With the policy suffix, `--magic-presets NAME` saves each seed's cut state as preset `NAME_post` (its start as `NAME_pre`), labelled magic-built. Charged as an eval of N seeds. |
+| `python3 reward_check.py --reward FILE --against NAME` | Your reward on the states of magic presets `NAME_pre` / `NAME_post` and on your crashed rollout rows (`sandbox_rc` not 0): the means and whether it rises from pre to post and scores crashes lowest. Facts only, nothing charged. |
+
+Fact: on a task where the policy succeeds on no seed, a full-task reward pays only partial stages, so its gradient comes from them alone. Before training such a task or a sub-goal of it, bisect the task with the magic ladder: the first atomic action whose suffix the policy fails but the oracle probe passes is the one to train, alone, from that cut saved with `--magic-presets NAME` (a unit start, below); if the probe fails too, report the cut and the facts to the operator instead of training.
+
+Fact: a preset saved by `--magic-presets NAME` is a valid unit start: `unit.py register U --task T --reward FILE --start-preset NAME_post` and a train spec `"task": "U"` train only the actions after the edit, from each seed's frozen post state, scored by FILE; the edit never completes the task, so FILE may check the next atomic action or the whole task. Every row of such a unit (its rollouts, its evals, its train's practice rows) carries the magic label: never success data for a train, never a task score (eval.py on U fills only U's own scoreboard row). A ladder cut saved with `--magic-prefix stage=<k> --magic-presets NAME` is such a preset too. A `verifier.py design` verifier must also pay the task's goal and never fall along the stage checklist, so a sub-goal verifier is accepted only when it also pays every later stage.
+
+Fact: `--magic-prefix stage=` takes the ladder's cut names or indices (listed per task at the end of this section, e.g. `2=align`); `--magic "prefix:<stage>=..."` takes the checklist's stage names as rows show them in `stages` (e.g. `align the red over the green`). A unit's rows start their stage checklist afresh from the preset state, so their `stages` counts are not those of the full task.
+
+### Worked loop (a task T whose policy suffix fails at some cut)
+
+```
+python3 rollout.py --adapter loaded --task T --seeds 8 --magic-prefix stage=<k>                # policy suffix at cut k (cuts: below)
+python3 rollout.py --adapter loaded --task T --seeds 8 --magic-prefix stage=<k> --suffix oracle  # doability, counts only
+# c = the first cut whose policy suffix fails while the oracle passes; if the oracle fails too, report c, do not train
+python3 rollout.py --adapter loaded --task T --seeds 8 --magic-prefix stage=<c> --magic-presets T_c   # saves T_c_pre / T_c_post
+python3 verifier.py design --task T --goal "<T's goal in your words>" --purpose "reward after cut c" --name T_goal
+python3 reward_check.py --reward verifiers/T_goal.py --against T_c                            # rises pre -> post? crashes lowest?
+python3 unit.py register T_after_c --task T --reward verifiers/T_goal.py --start-preset T_c_post
+python3 rollout.py --adapter loaded --task T_after_c --seeds 8                                 # signal = some rows pay, not all
+echo '{"name": "A_c", "task": "T_after_c"}' > spec_c.json && python3 train.py spec_c.json       # reward check runs before any spend
+python3 eval.py --adapter A_c --task T_after_c --seeds 8                                       # the unit's own scoreboard row
+python3 rollout.py --adapter A_c --task T --seeds 8 --magic-prefix stage=<c-1>                 # chain back: the cut before c
+# once A_c passes from cut c-1, repeat from the --magic-presets step at c-1 with "init": "A_c" in the spec
+python3 eval.py --adapter A_c --task T --seeds 20                                              # the task's own count
+```
+A verifier reads `final_state`: use it with rollout.py, unit.py and train specs; eval.py rows carry no `final_state`.
+
+Magic ladder cuts of your tasks (`--magic-prefix stage=<k>` or `stage=<name>`):
+- nut: 0=grasp, 1=lift, 2=align, 3=lower
+- restack: 0=grasp, 1=lift, 2=align, 3=lower
+- revstack: 0=grasp, 1=lift, 2=align, 3=lower
+
+## Verifiers (this session)
+
+| Command | Effect |
+| --- | --- |
+| `python3 verifier.py design --task T --goal TEXT [--unit U] [--purpose TEXT] [--name N]` | A verifier for your goal (or sub-goal) on T, written and reviewed by fresh-context subagents and executed by a lint on states: T's start state scores 0, crashed and no-op rows score 0, goal states score 1, near misses (states that look like the goal but are not: the task's fixed set and the judge's) score 0, and the mean score never falls along T's stage checklist. Writes `verifiers/N.py` (a reward for rollout.py --reward, unit.py and a train spec; eval.py rows carry no `final_state`, so it scores 0 there) and `verifiers/N.audit.json`, or refuses naming the failing check. Uses only your own recorded rows of T: run rollout.py on T first. The subagents' time is charged to your GPU-hour budget (`gpu_hours` in the result). Example: `python3 verifier.py design --task T --goal "sub-goal 1 reached and released" --purpose "reward of sub-goal 1"` |
+
+- A reward you write over stages/task_completed needs no verifier; verifier.py design is for a goal the stage checklist does
+  not name, and is the only path that runs a check against near misses before you train on it.
+- The default reward is a binary current-sub-goal verifier: 1.0 when the sub-goal's predicates hold on `final_state`, else 0.0,
+  with no distance term.
+- Relax only within bounds: a larger tolerance on the same predicate, or an earlier sub-goal. Never drop a necessary predicate;
+  never relax the task's final success.
+- Tighten or move on once a sub-goal passes above ~60%.
+- Before submitting a verifier or reward, write down one end state that passes your predicates without achieving the goal; if
+  you can write one, the predicate set is incomplete.
+- A verifier is a reward, never a score: the eval of record stays the task's own check.
+
+## Budget facts (this session)
+
+Once less than half of the GPU-hour budget remains, every observation ends with one `[environment] budget facts:` line: the
+remaining GPU-hours and their share of the budget, the tasks whose practice success rose in the last train, the tasks with zero
+practice rollouts in the current adapter (the one trained last), and the tasks whose dev count's 95% interval still overlaps
+base's. `finish.py` (step one) with more than 10% of the budget remaining returns the same facts and one sentence that budget
+remains; as always, step one does not end the session, and `finish.py --confirm TOKEN` in a later turn does.

@@ -1,0 +1,231 @@
+rc=0
+g3a successes: 449
+seed 810015 sim_reward 1.0 len 12765
+```python
+import numpy as np
+
+# Step 1: Get observation
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Segment the green cube and red cube
+green_masks = segment_sam3_text_prompt(rgb, "green cube")
+red_masks = segment_sam3_text_prompt(rgb, "red cube")
+
+if not green_masks or not red_masks:
+    raise RuntimeError("Failed to segment green or red cube")
+
+green_mask = green_masks[0]["mask"]
+red_mask = red_masks[0]["mask"]
+
+# Step 3: Get 3D points for green cube and red cube
+# For each cube, get the pixels where mask is True, then unproject depth to 3D
+def unproject_points(mask, depth, intrinsics):
+    ys, xs = np.where(mask)
+    if len(xs) == 0:
+        return None
+    zs = depth[ys, xs]
+    # Filter out invalid depths (0 or nan)
+    valid = zs > 0
+    xs = xs[valid]
+    ys = ys[valid]
+    zs = zs[valid]
+    if len(xs) == 0:
+        return None
+    fx = intrinsics[0, 0]
+    fy = intrinsics[1, 1]
+    cx = intrinsics[0, 2]
+    cy = intrinsics[1, 2]
+    xs_3d = (xs - cx) * zs / fx
+    ys_3d = (ys - cy) * zs / fy
+    zs_3d = zs
+    points = np.column_stack([xs_3d, ys_3d, zs_3d])
+    return points
+
+green_points_cam = unproject_points(green_mask, depth, intrinsics)
+red_points_cam = unproject_points(red_mask, depth, intrinsics)
+
+if green_points_cam is None or red_points_cam is None:
+    raise RuntimeError("Failed to unproject points for green or red cube")
+
+# Step 4: Transform points from camera frame to world frame
+# pose_mat is camera extrinsic matrix (4,4) - this is the transform from camera frame to world frame? 
+# Typically, pose_mat is the extrinsic matrix [R|t] such that P_world = R * P_cam + t
+# So the homogeneous transform from camera to world is:
+# T_cam_to_world = pose_mat (if pose_mat is 4x4)
+# Let's assume pose_mat is the 4x4 transform from camera frame to world frame.
+
+T_cam_to_world = pose_mat.copy()
+R_cw = T_cam_to_world[:3, :3]
+t_cw = T_cam_to_world[:3, 3]
+
+def transform_points_to_world(points_cam, R_cw, t_cw):
+    # points_cam: (N, 3)
+    points_world = points_cam @ R_cw.T + t_cw
+    return points_world
+
+green_points_world = transform_points_to_world(green_points_cam, R_cw, t_cw)
+red_points_world = transform_points_to_world(red_points_cam, R_cw, t_cw)
+
+# Step 5: Get oriented bounding boxes for both cubes
+green_bbox = get_oriented_bounding_box_from_3d_points(green_points_world)
+red_bbox = get_oriented_bounding_box_from_3d_points(red_points_world)
+
+green_center = green_bbox["center"]
+green_extent = green_bbox["extent"]
+green_R = green_bbox["R"]
+
+red_center = red_bbox["center"]
+red_extent = red_bbox["extent"]
+red_R = red_bbox["R"]
+
+# Step 6: Plan grasp for the green cube
+# We need to plan grasp in camera frame, so use green_mask as segmentation
+# plan_grasp expects segmentation where each integer > 0 corresponds to a unique object instance ID
+# So we create a segmentation map with 1 where green_mask is True
+seg_green = green_mask.astype(np.int32)
+
+grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, seg_green)
+
+if len(grasp_poses) == 0:
+    raise RuntimeError("No grasp candidates found for green cube")
+
+# Pick the best grasp
+best_idx = np.argmax(grasp_scores)
+grasp_pose_cam = grasp_poses[best_idx]  # 4x4 homogeneous transform in camera frame
+
+# The grasp_pose_cam is the transform from the gripper frame to the camera frame? Or from camera frame to gripper frame?
+# According to the doc: "Homogeneous transforms for each candidate grasp IN THE CAMERA FRAME."
+# Typically, a grasp pose is the pose of the gripper in some frame. Let's assume grasp_pose_cam is the transform T_cam_gripper, i.e., the pose of the gripper in the camera frame.
+# So to get the pose of the gripper in the world frame: T_world_gripper = T_world_cam @ T_cam_gripper
+# But we have T_cam_to_world which is T_world_cam? Let's check: if P_world = R_cw * P_cam + t_cw, then T_world_cam is the matrix such that [P_world; 1] = T_world_cam * [P_cam; 1]. So T_world_cam = [[R_cw, t_cw], [0,0,0,1]] which is exactly T_cam_to_world as defined.
+
+T_world_cam = T_cam_to_world
+# grasp_pose_cam is T_cam_gripper (pose of gripper in camera frame)
+T_world_gripper = T_world_cam @ grasp_pose_cam
+
+# Now T_world_gripper is the pose of the gripper (panda_hand?) in world frame. But we need to consider TCP offset? The doc for plan_grasp says "the caller is responsible for transforming the resulting grasp poses into the desired frame and applying TCP offsets if necessary."
+# For now, let's assume the grasp pose is the pose of the gripper's approach frame, and we need to find the position and orientation for the panda_hand link.
+# The solve_ik function takes position and quaternion for panda_hand link.
+# We need to extract position and orientation from T_world_gripper.
+
+# However, the grasp pose from Contact-GraspNet typically gives the pose of the gripper's coordinate frame. The panda_hand link is the link at the end of the arm. We need to make sure the position we pass to solve_ik is the desired position of panda_hand.
+# Typically, the grasp pose's position is where the gripper's center (or the point between the two fingers) should be. The panda_hand link's origin might be at the wrist or at the gripper base. Without more info, let's assume the grasp pose's position is the desired position for panda_hand, and the orientation is the desired orientation for panda_hand.
+
+# Extract position from T_world_gripper
+gripper_pos_world = T_world_gripper[:3, 3]
+R_gripper_world = T_world_gripper[:3, :3]
+
+# Convert rotation matrix to quaternion (wxyz)
+def rotmat_to_quat_wxyz(R):
+    tr = R[0,0] + R[1,1] + R[2,2]
+    if tr > 0:
+        S = np.sqrt(tr + 1.0) * 2  # S = 4*w
+        w = 0.25 * S
+        x = (R[2,1] - R[1,2]) / S
+        y = (R[0,2] - R[2,0]) / S
+        z = (R[1,0] - R[0,1]) / S
+    elif R[0,0] > R[1,1] and R[0,0] > R[2,2]:
+        S = np.sqrt(1.0 + R[0,0] - R[1,1] - R[2,2]) * 2
+        w = (R[2,1] - R[1,2]) / S
+        x = 0.25 * S
+        y = (R[0,1] + R[1,0]) / S
+        z = (R[0,2] + R[2,0]) / S
+    elif R[1,1] > R[0,0] and R[1,1] > R[2,2]:
+        S = np.sqrt(1.0 + R[1,1] - R[0,0] - R[2,2]) * 2
+        w = (R[0,2] - R[2,0]) / S
+        x = (R[0,1] + R[1,0]) / S
+        y = 0.25 * S
+        z = (R[1,2] + R[2,1]) / S
+    else:
+        S = np.sqrt(1.0 + R[2,2] - R[0,0] - R[1,1]) * 2
+        w = (R[1,0] - R[0,1]) / S
+        x = (R[0,2] + R[2,0]) / S
+        y = (R[1,2] + R[2,1]) / S
+        z = 0.25 * S
+    quat = np.array([w, x, y, z])
+    norm = np.linalg.norm(quat)
+    if norm == 0:
+        return np.array([1.0, 0.0, 0.0, 0.0])
+    return quat / norm
+
+quaternion_wxyz = rotmat_to_quat_wxyz(R_gripper_world)
+
+# Now, before grasping, we need to approach the green cube. The grasp pose is where the gripper should be to grasp. But we should first move to an approach position above the grasp position.
+# The grasp pose position is gripper_pos_world. We need to move to a position above it by z_approach = 0.1 in the gripper's up direction? Or in world Z?
+# Typically, approach is along the gripper's approach direction. For a top-down grasp, the approach direction is -Z in the gripper frame, which might be different from world Z.
+# But the rule says "Always use z_approach=0.1 when approaching an object for grasping or placing." This likely means offset along the world Z axis or the gripper's approach axis. Let's assume it's along the gripper's approach direction (the direction the gripper moves to grasp, which is typically the negative Z of the gripper frame, or the direction from the approach point to the grasp point).
+# Actually, the grasp pose is the final pose. The approach pose is usually offset along the gripper's Z axis (the axis of the gripper, pointing from the wrist to the fingers) by z_approach. So approach_pos = grasp_pos + z_approach * gripper_z_axis_in_world.
+# The gripper's Z axis in world frame is the third column of R_gripper_world? Or the direction the gripper is pointing? Typically, for a parallel-jaw gripper, the Z axis of the gripper frame points from the wrist to the fingertip (the closing direction is along X or Y, and Z is the approach direction). Let's assume the gripper frame's Z axis is the approach direction (i.e., the gripper approaches along its negative Z). So the approach position is grasp_pos + z_approach * (gripper Z axis in world). But wait, if the gripper approaches along negative Z, then to be above the grasp position, we need to be at grasp_pos + z_approach * (gripper Z axis) if the gripper Z points away from the object. Let's think: if the gripper is grasping from above, the gripper's Z axis points down (towards the object) or up? Typically, the gripper's Z axis points from the base of the gripper to the fingertips. So when grasping from above, the Z axis points down. So to be above, we need to go in the opposite direction: grasp_pos - z_approach * gripper_Z. Hmm, this is ambiguous.
+
+# Let's use a simpler interpretation: z_approach is the offset in world Z. So approach_pos = grasp_pos + [0, 0, z_approach]. But this may not be correct if the gripper is not aligned with world Z.
+
+# Given the complexity, and since the problem says "gently stack", let's assume the cubes are on a horizontal table and we grasp from above. So the gripper's approach direction is along world -Z (down). So the grasp pose's gripper Z axis should be pointing down (0,0,-1) in world. Then approach_pos = grasp_pos + [0, 0, z_approach] (since we want to be z_approach above the grasp position in world Z).
+
+# Let's check the orientation. If the gripper is grasping from above, R_gripper_world should have the Z axis pointing down. Let's proceed with world Z offset for simplicity, as the problem likely assumes top-down grasping.
+
+z_approach = 0.1
+approach_pos = gripper_pos_world.copy()
+approach_pos[2] += z_approach
+
+# Solve IK for approach position with same orientation
+joints_approach = solve_ik(approach_pos, quaternion_wxyz)
+move_to_joints(joints_approach)
+
+# Now move down to grasp position
+joints_grasp = solve_ik(gripper_pos_world, quaternion_wxyz)
+move_to_joints(joints_grasp)
+
+# Close gripper to grasp the green cube
+close_gripper()
+
+# Lift the cube to a safe height: at least +0.2m in Z from grasp position
+safe_lift_pos = gripper_pos_world.copy()
+safe_lift_pos[2] += 0.2  # at least +0.2m
+
+joints_lift = solve_ik(safe_lift_pos, quaternion_wxyz)
+move_to_joints(joints_lift)
+
+# Step 7: Compute the placement position for stacking
+# place_z = red_center_z + red_extent[2]/2 + green_extent[2]/2
+# red_center and green_extent are in world frame
+place_z = red_center[2] + red_extent[2] / 2.0 + green_extent[2] / 2.0
+
+# The placement position should be directly above the red cube's center in X and Y, at the computed Z
+# We want to place the green cube on top of the red cube. The green cube's center should be at:
+# place_x = red_center[0]
+# place_y = red_center[1]
+# place_z = as computed above
+# But the gripper's position when placing should be such that the green cube is at the desired position. The gripper's position is where the gripper's origin is. When the gripper is holding the green cube, the green cube's center is at some offset from the gripper's origin. 
+# From the grasp, we know that when the gripper is at gripper_pos_world, the green cube's center is at green_center (in world frame). So the offset from gripper to green cube center is:
+offset_gripper_to_green = green_center - gripper_pos_world
+
+# So when we want the green cube's center to be at desired_green_center, the gripper should be at:
+desired_green_center = np.array([red_center[0], red_center[1], place_z])
+desired_gripper_pos = desired_green_center - offset_gripper_to_green
+
+# But we also need to consider orientation. The green cube should be placed with the same orientation as when grasped (or perhaps aligned with the red cube). For simplicity, let's keep the same orientation as during grasping.
+# So the gripper orientation should be the same as quaternion_wxyz.
+
+# Now, we need to approach the placement position. We should approach from above with z_approach.
+place_approach_pos = desired_gripper_pos.copy()
+place_approach_pos[2] += z_approach
+
+joints_place_approach = solve_ik(place_approach_pos, quaternion_wxyz)
+move_to_joints(joints_place_approach)
+
+# Now move down to the placement position
+joints_place = solve_ik(desired_gripper_pos, quaternion_wxyz)
+move_to_joints(joints_place)
+
+# Open gripper to release the green cube
+open_gripper()
+
+# Optionally, lift up a bit after releasing
+post_release_pos = desired_gripper_pos.copy()
+post_release_pos[2] += 0.1
+joints_post_release = solve_ik(post_release_pos, quaternion_wxyz)
+move_to_joints(joints_post_release)

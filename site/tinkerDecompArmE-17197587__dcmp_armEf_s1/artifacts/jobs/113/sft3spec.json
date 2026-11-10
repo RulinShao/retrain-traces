@@ -1,0 +1,1 @@
+{"objective":"sft","name":"sft3","data":"sft3.jsonl","epochs":4,"batch":16,"lr":0.0001}

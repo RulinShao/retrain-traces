@@ -1,0 +1,10 @@
+{
+  "task": "revstack",
+  "name": "rc_rev_t1",
+  "reward": "rewards/revstack_reward.py",
+  "steps": 12,
+  "batch": 8,
+  "rollouts": 8,
+  "lr": 2e-5,
+  "allow_noop_reward": true
+}

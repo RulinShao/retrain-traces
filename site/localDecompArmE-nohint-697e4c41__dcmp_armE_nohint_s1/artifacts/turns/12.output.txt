@@ -1,0 +1,65 @@
+rc=0
+"""python3 rollout.py --adapter A[,B...]|base|loaded --task T --seeds N [--reward FILE]  -- run the policy (that adapter stack) on N
+fresh dev seeds of task T and return, per seed, its program, the tail of what the program printed and the run facts (seed,
+sandbox_rc, secs, wall_s, task), plus task_completed and stdout_tail on a task whose verifier you can see, and there, where the
+site runs the programs on the task's practice simulator, sim_reward, stages and final_state. --reward FILE (a .py in
+your workspace defining reward(result) -> float) also scores each seed with your reward over those keys (not the program).
+Charged as an eval of N seeds. The rows are written to rollouts/<job id>.jsonl; the job result and SCOREBOARD.md give the mean of
+your reward.
+--magic "prefix:<stage>=set FILE.json | attach OBJECT" (DEV practice): at each seed's reset the simulator edits the scene so that
+the checklist's stages up to <stage> are done (set: FILE = {"objects": {name: [x,y,z] or [x,y,z,qw,qx,qy,qz]}, "robot": {"joints":
+[...], "gripper": "open"|"closed"|fraction}, "attach": OBJECT (optional: after the poses, OBJECT into the gripper),
+"grasp_point": POINT (optional, with attach: that point of OBJECT at the gripper instead of its centre, e.g. a handle)};
+attach: OBJECT in the closed gripper), checks it (25 settle steps, 5 mm / 10 deg,
+penetration < 2 mm, the stages hold, the task not already done) and runs the program from there; a refused edit is the row's
+`magic.reason` and the program does not run. Rows carry `magic` and `label: "privileged practice (magic)"`, are never success data
+for a train, and eval.py never takes --magic. --magic-presets NAME also saves the states before / after each valid edit as presets
+NAME_pre / NAME_post (a unit from NAME_pre gets as default done the post state's `signature`).
+--magic-prefix stage=<k|name> [--suffix policy|oracle] (the magic ladder, DEV practice): each seed starts at the boundary of the
+task's ladder cut k (the state is the environment's, not a file of yours; the cuts are listed in a refusal), then the suffix
+runs: policy (default) = the stack's programs, rows as with --magic; oracle = the task's human-expert oracle tail on the privileged
+API (doability probe: COUNTS ONLY, n/N, labelled "upper bound / doability", never rows, never training data). All ladder calls of
+a task run on its first ladder call's seeds; the job result and SCOREBOARD.md give the success per cut over them."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("--adapter", required=True)
+p.add_argument("--task", required=True)
+p.add_argument("--seeds", type=int, required=True)
+p.add_argument("--reward", help="a .py file in your workspace defining reward(result) -> float")
+p.add_argument("--magic", help="prefix:<stage>=set FILE.json | prefix:<stage>=attach OBJECT (DEV practice)")
+p.add_argument("--magic-presets", help="with --magic or --magic-prefix (policy suffix): save the states before / after each "
+                                        "edit as presets NAME_pre / NAME_post")
+p.add_argument("--magic-prefix", help="stage=<k|name>: start at the boundary of the task's ladder cut k (DEV practice)")
+p.add_argument("--suffix", choices=("policy", "oracle"), help="with --magic-prefix: the stack's programs (default) or the oracle probe")
+a = p.parse_args()
+submit("rollout", {"adapter": a.adapter, "task": a.task, "seeds": a.seeds, **({"reward": a.reward} if a.reward else {}),
+                   **({"magic": a.magic} if a.magic else {}), **({"magic_presets": a.magic_presets} if a.magic_presets else {}),
+                   **({"magic_prefix": a.magic_prefix} if a.magic_prefix else {}), **({"suffix": a.suffix} if a.suffix else {})})
+===
+"""python3 wait.py all | ID [ID...] [--max DURATION]  -- after this command, block until those jobs finish before your next
+turn, at most DURATION (hours or minutes: 4h, 90m; default 2h). If none of them finished by then, the result states each one's
+queue state, reason, position and time pending, and "no job finished"."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("ids", nargs="+")
+p.add_argument("--max")
+a = p.parse_args()
+submit("wait", {"ids": a.ids, **({"max": a.max} if a.max is not None else {})})
+===
+"""python3 eval.py --adapter A[,B...]|base|loaded --task T --seeds N [--reward FILE]  -- success count of that adapter stack on N
+fresh dev seeds. --reward FILE (a .py in your workspace defining reward(result) -> float) also writes the per-seed rows to
+rollouts/<job id>.jsonl (as rollout.py does), each scored with your reward."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("--adapter", required=True)
+p.add_argument("--task", required=True)
+p.add_argument("--seeds", type=int, required=True)
+p.add_argument("--reward", help="a .py file in your workspace defining reward(result) -> float")
+a = p.parse_args()
+submit("eval", {"adapter": a.adapter, "task": a.task, "seeds": a.seeds, **({"reward": a.reward} if a.reward else {})})

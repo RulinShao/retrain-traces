@@ -1,0 +1,1 @@
+{"task":"restack","name":"restack4","steps":30,"batch":8,"rollouts":8,"lr":2e-5,"reward":"reward_stack.py","seed_start":814501}

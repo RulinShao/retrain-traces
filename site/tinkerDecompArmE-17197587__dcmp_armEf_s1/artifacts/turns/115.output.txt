@@ -1,0 +1,126 @@
+rc=0
+using seed 800009
+Step 4: Get 3D points for red cube
+ys_red, xs_red = np.where(red_mask)
+if len(xs_red) == 0:
+    raise ValueError("No pixels found in red mask")
+
+xs_red_arr = xs_red.astype(np.float64)
+ys_red_arr = ys_red.astype(np.float64)
+zs_red_arr = depth_image[ys_red, xs_red].astype(np.float64)
+
+valid_red = zs_red_arr > 0
+xs_red_valid = xs_red_arr[valid_red]
+ys_red_valid = ys_red_arr[valid_red]
+zs_red_valid = zs_red_arr[valid_red]
+
+if len(xs_red_valid) < 10:
+    raise ValueError("Not enough valid depth points for red cube")
+
+xs_red_cam = (xs_red_valid - cx) * zs_red_valid / fx
+ys_red_cam = (ys_red_valid - cy) * zs_red_valid / fy
+zs_red_cam = zs_red_valid
+
+points_red_cam = np.stack([xs_red_cam, ys_red_cam, zs_red_cam], axis=1)
+points_red_world = (R_c2w @ points_red_cam.T).T + t_c2w
+
+red_obb = get_oriented_bounding_box_from_3d_points(points_red_world)
+red_center = red_obb["center"]
+red_extent = red_obb["extent"]
+red_R = red_obb["R"]
+
+# Step 5: Plan grasp for green cube
+# Create a segmentation map with only the green cube labeled as 1
+seg_map = np.zeros_like(green_mask, dtype=np.int32)
+seg_map[green_mask] = 1
+
+grasp_poses, grasp_scores = plan_grasp(depth_image, intrinsics, seg_map)
+
+if len(grasp_poses) == 0:
+    raise ValueError("No grasp candidates found")
+
+# Select the best grasp
+best_idx = np.argmax(grasp_scores)
+grasp_pose_cam = grasp_poses[best_idx]
+
+# Transform grasp pose from camera frame to world frame
+# The grasp pose is a 4x4 homogeneous transform in camera frame
+R_g_c2w = grasp_pose_cam[:3, :3]
+t_g_c2w = grasp_pose_cam[:3, 3]
+
+# Transform to world frame
+R_g_w = R_c2w @ R_g_c2w
+t_g_w = R_c2w @ t_g_c2w + t_c2w
+
+# Extract position and orientation
+grasp_pos_w = t_g_w
+# Convert rotation matrix to quaternion
+def rotmat_to_quat(R):
+    tr = np.trace(R)
+    if tr > 0:
+        S = np.sqrt(tr + 1.0) * 2
+        w = 0.25 * S
+        x = (R[2, 1] - R[1, 2]) / S
+        y = (R[0, 2] - R[2, 0]) / S
+        z = (R[1, 0] - R[0, 1]) / S
+    elif (R[0, 0] > R[1, 1]) and (R[0, 0] > R[2, 2]):
+        S = np.sqrt(1.0 + R[0, 0] - R[1, 1] - R[2, 2]) * 2
+        w = (R[2, 1] - R[1, 2]) / S
+        x = 0.25 * S
+        y = (R[0, 1] + R[1, 0]) / S
+        z = (R[0, 2] + R[2, 0]) / S
+    elif R[1, 1] > R[2, 2]:
+        S = np.sqrt(1.0 + R[1, 1] - R[0, 0] - R[2, 2]) * 2
+        w = (R[0, 2] - R[2, 0]) / S
+        x = (R[0, 1] + R[1, 0]) / S
+        y = 0.25 * S
+        z = (R[1, 2] + R[2, 1]) / S
+    else:
+        S = np.sqrt(1.0 + R[2, 2] - R[0, 0] - R[1, 1]) * 2
+        w = (R[1, 0] - R[0, 1]) / S
+        x = (R[0, 2] + R[2, 0]) / S
+        y = (R[1, 2] + R[2, 1]) / S
+        z = 0.25 * S
+    quat = np.array([w, x, y, z])
+    return quat / np.linalg.norm(quat)
+
+grasp_quat_w = rotmat_to_quat(R_g_w)
+
+# Step 6: Move to approach point (z_approach = 0.1m above grasp position)
+approach_pos = grasp_pos_w.copy()
+approach_pos[2] += 0.1
+
+joints_approach = solve_ik(approach_pos, grasp_quat_w)
+move_to_joints(joints_approach)
+
+# Step 7: Descend to grasp position
+joints_grasp = solve_ik(grasp_pos_w, grasp_quat_w)
+move_to_joints(joints_grasp)
+
+# Step 8: Close gripper to grasp the green cube
+close_gripper()
+
+# Step 9: Lift the green cube to safe height (+0.2m in Z)
+lift_pos = grasp_pos_w.copy()
+lift_pos[2] += 0.2
+
+joints_lift = solve_ik(lift_pos, grasp_quat_w)
+move_to_joints(joints_lift)
+
+# Step 10: Calculate placement position on top of red cube
+place_z = red_center[2] + red_extent[2] / 2 + green_extent[2] / 2
+place_x = red_center[0]
+place_y = red_center[1]
+
+# Orientation should be upright (identity rotation)
+place_quat_w = np.array([1.0, 0.0, 0.0, 0.0])  # identity quaternion [w, x, y, z]
+
+# Approach point for placement (z_approach = 0.1m above)
+place_approach_pos = np.array([place_x, place_y, place_z + 0.1])
+joints_place_approach = solve_ik(place_approach_pos, place_quat_w)
+move_to_joints(joints_place_approach)
+
+# Step 11: Descend to placement position
+place_pos = np.array([place_x, place_y, place_z])
+joints_place = solve_ik(place_pos, place_quat_w)
+move_to_joints(joint

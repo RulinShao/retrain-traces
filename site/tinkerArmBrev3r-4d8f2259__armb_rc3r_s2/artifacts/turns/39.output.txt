@@ -1,0 +1,74 @@
+rc=0
+===== verifier.py =====
+"""python3 verifier.py design --task T --goal TEXT [--unit U] [--purpose TEXT] [--name N]  -- a verifier for your goal on task T:
+a fresh-context writer drafts it from the task's state schema, predicate library and your own recorded rows of T, a fresh-context
+judge proposes states that would pass without reaching the goal, and the lint executes five checks on states (start state 0,
+crashed / no-op rows 0, goal states 1, near misses 0, monotone over stages). Result: verifiers/N.py (a reward file: use it as
+--reward / a train spec's reward) and verifiers/N.audit.json (the checks, the judge's tests, the self-check), or a refusal that
+names the failing check. Record a few rollouts of T first (rollout.py). The subagents' time is charged to your GPU-hour budget
+(shown in the result); the call takes a few minutes."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+sub = p.add_subparsers(dest="action", required=True)
+d = sub.add_parser("design")
+d.add_argument("--task", required=True)
+d.add_argument("--goal", required=True, help="the goal or sub-goal in your words, e.g. 'red on green, released and at rest'")
+d.add_argument("--unit", help="the practice unit (unit.py) the verifier is for")
+d.add_argument("--purpose", help="what you will use it for, e.g. 'reward of the first sub-goal'")
+d.add_argument("--name", help="the verifier's file name (default: <task>_v<k>)")
+a = p.parse_args()
+submit("verifier", {"action": a.action, "task": a.task, "goal": a.goal,
+                    **{k: v for k, v in (("unit", a.unit), ("purpose", a.purpose), ("name", a.name)) if v}})
+===== preset.py =====
+"""python3 preset.py --task T --name NAME ( --program FILE --seeds N | --from rollouts/<job>.jsonl --where "<predicate over r>" )
+
+Build start states for practice on task T, saved per source seed and kept only if every state restores. Then a train spec with
+"start_preset": "NAME" on task T starts each practice rollout from those states. Two ways to pick the states:
+  * prefix program (--program FILE --seeds N): your prefix program (a .py in your workspace, written with the task's own API, the
+    functions in its eval prompt) runs once on each of N fresh dev seeds (1-32) on T's simulator, and the state it reaches is saved.
+  * from rollouts (--from rollouts/<job>.jsonl --where "<predicate>"): the end state of each episode of a prior rollout job of
+    yours on T that the predicate matches (at most 32) is saved, at that episode's own dev seed. The rollout itself kept no
+    restorable state, so each matched episode's program is run again at its seed on T's practice simulator and the state it
+    reaches is the one saved (compare the record's log_tail with the rollout's stdout_tail to see whether the re-run went the
+    same way). --where is a python expression over each rollout row r, e.g. "not r['task_completed']"; it is evaluated in the
+    reward box (never imported).
+The record (per seed: seed, sandbox_rc, secs, wall_s, log_tail, restorable, drift_mm, error; and your program, or the --from /
+--where source) is written to presets/NAME.json. Charged as an eval of the seeds built. Refused before anything runs: a program
+that names a privileged API or the simulator's objects; a --from whose matched rows include a hidden seed."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("--task", required=True)
+p.add_argument("--name", required=True, help="the preset's name (letters, digits, _ . -)")
+p.add_argument("--program", help="prefix-program mode: a .py file in your workspace (the prefix program)")
+p.add_argument("--seeds", type=int, help="prefix-program mode: number of fresh dev seeds (1-32)")
+p.add_argument("--from", dest="from_rollouts", metavar="rollouts/<job>.jsonl",
+               help="from-rollouts mode: a prior rollout job's rows (use with --where)")
+p.add_argument("--where", help="from-rollouts mode: a python predicate over each rollout row r, e.g. \"not r['task_completed']\"")
+a = p.parse_args()
+if a.from_rollouts:
+    if a.program or a.seeds is not None:
+        p.error("--from (from-rollouts mode) and --program/--seeds (prefix-program mode) are mutually exclusive")
+    if not a.where:
+        p.error("--from needs --where \"<predicate over each rollout row r>\"")
+    submit("preset", {"task": a.task, "name": a.name, "from": a.from_rollouts, "where": a.where})
+else:
+    if not a.program or a.seeds is None:
+        p.error("prefix-program mode needs --program and --seeds (or use --from with --where)")
+    submit("preset", {"task": a.task, "program": a.program, "name": a.name, "seeds": a.seeds})
+===== reward_check.py =====
+"""python3 reward_check.py --reward FILE --against NAME  -- score your reward FILE (a .py defining reward(r) -> float) on the states
+of magic preset pair NAME (NAME_pre and NAME_post, from rollout.py --magic --magic-presets NAME) and on your rollout rows whose
+program crashed (sandbox_rc not 0), and state the means and whether the reward rises from pre to post and scores crashes lowest.
+Facts only; nothing is charged or refused."""
+import argparse
+from _submit import submit
+
+p = argparse.ArgumentParser(usage=__doc__)
+p.add_argument("--reward", required=True)
+p.add_argument("--against", required=True, help="a magic preset pair's name (NAME, NAME_pre or NAME_post)")
+a = p.parse_args()
+submit("reward_check", {"reward": a.reward, "against": a.against})

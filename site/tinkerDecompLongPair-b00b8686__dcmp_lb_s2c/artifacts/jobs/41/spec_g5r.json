@@ -1,0 +1,1 @@
+{"task": ["restack"], "name": "g5r", "init": "g3a", "init_mode": "resume", "steps": 40, "seed_start": 817001, "reward": "shaped"}

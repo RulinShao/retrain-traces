@@ -1,0 +1,61 @@
+rc=0
+=== system ===
+You are a helpful assistant that generates Python code to directly solve the task.
+
+=== user ===
+
+You are controlling a Franka Emika robot with API described below.
+Goal: grasp and insert the `brown square nut` onto the `brown square block`.
+Note that you would grasp the nut by its handle. You can segment it with the text prompt `extruded handle of the brown square nut` (segment_sam3_text_prompt) and compute a grasp at the handle from its 3D points (depth and camera intrinsics, then get_oriented_bounding_box_from_3d_points).
+The brown square nut and the extruded handle of the brown square nut are part of the same rigid body.
+The nut's center can be segmented with the text prompt `white hollow center of the brown square nut`. The nut center and the handle have a fixed rigid transform, which must be applied correctly when inserting the nut onto the peg.
+You may write python code comments for reasoning but ONLY write the executable Python code and do not write it in code fences.
+The functions (APIs) below are already imported to the environment.
+7:Goal: grasp and insert the `brown square nut` onto the `brown square block`.
+8:Note that you would grasp the nut by its handle. You can segment it with the text prompt `extruded handle of the brown square nut` (segment_sam3_text_prompt) and compute a grasp at the handle from its 3D points (depth and camera intrinsics, then get_oriented_bounding_box_from_3d_points).
+10:The nut's center can be segmented with the text prompt `white hollow center of the brown square nut`. The nut center and the handle have a fixed rigid transform, which must be applied correctly when inserting the nut onto the peg.
+23:            The dictionary contains the following keys:
+41:segment_sam3_text_prompt(rgb: numpy.ndarray, text_prompt: str) -> list[dict[str, typing.Any]]
+43:    Run SAM3 segmentation on an RGB image conditioned on a text prompt.
+49:            Text prompt for SAM3 segmentation.
+60:segment_sam3_point_prompt(rgb: numpy.ndarray, point_coords: tuple[float, float]) -> list[dict[str, typing.Any]]
+62:    Run SAM3 segmentation on an RGB image, optionally conditioned on an image coordinate point prompt.
+87:        dict[str, Any]: The oriented bounding box. The dictionary contains the following keys:
+=== RESTACK full head ===
+=== system ===
+You are a helpful assistant that generates Python code to directly solve the task.
+
+=== user ===
+
+You are controlling a Franka Emika robot with API described below.
+Goal: Gently place the red cube on top of the green cube and then open the gripper. Nothing should be dropped from a height.
+Use the extent of the cubes to calculate the exact height for placement.
+You may write python code comments for reasoning but ONLY write the executable Python code and do not write it in code fences.
+The functions (APIs) below are already imported to the environment. If you want to use numpy, scipy, torch, etc. you need to import them explicitly.
+
+APIs:
+
+get_observation() -> dict[str, typing.Any]
+=== RESTACK key rules ===
+20:            The dictionary contains the following keys:
+113:        dict[str, Any]: The oriented bounding box. The dictionary contains the following keys:
+=== REVSTACK ===
+=== system ===
+You are a helpful assistant that generates Python code to directly solve the task.
+
+=== user ===
+
+You are controlling a Franka Emika robot with the API described below.
+Goal: Pick up the green cube and gently stack it on top of the red cube, then release it.
+
+Key rules:
+- Always use z_approach=0.1 when approaching an object for grasping or placing.
+- After grasping, lift the cube to a safe height (at least +0.2m in Z) before moving laterally to the placement location.
+- The stacking height formula is: place_z = red_center_z + red_extent[2]/2 + green_extent[2]/2
+- Nothing should be dropped from a height. Always approach with z_approach for controlled descent.
+
+9:Key rules:
+10:- Always use z_approach=0.1 when approaching an object for grasping or placing.
+13:- Nothing should be dropped from a height. Always approach with z_approach for controlled descent.
+25:            The dictionary contains the following keys:
+118:        dict[str, Any]: The oriented bounding box. The dictionary contains the following keys:

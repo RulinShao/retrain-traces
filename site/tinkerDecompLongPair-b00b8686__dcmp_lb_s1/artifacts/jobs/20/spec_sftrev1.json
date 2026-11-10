@@ -1,0 +1,6 @@
+{
+ "objective": "sft",
+ "name": "sftrev1",
+ "data": "sft_rev.jsonl",
+ "epochs": 3
+}

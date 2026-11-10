@@ -1,0 +1,125 @@
+{
+ "status": "CAPPED",
+ "turns": 300,
+ "gpu_hours": 35.3257,
+ "final_score": {
+  "loaded": "sft6b",
+  "per_task": {
+   "nut": 0,
+   "restack": 29,
+   "revstack": 19,
+   "t2_ss": 0,
+   "t2_spl": 0
+  },
+  "total": 48,
+  "n_per_task": 50,
+  "submission": "03d763",
+  "confirmed": false,
+  "per_split": {
+   "id": 48,
+   "far": 0
+  }
+ },
+ "agent": "local",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": 262144
+ },
+ "mode": "dev",
+ "final_episodes": 50,
+ "policy_model": "Qwen3.8-27B",
+ "eval_backend": "tinker, decode=tinker(no_presence_penalty) (DEV backend only: dev/checkpoint evals of Tinker-trained adapters sample on Tinker; hidden evals and other adapters run locally)",
+ "trainer": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B charge=canonical sim=l40s",
+ "tinker": {
+  "calls": 25,
+  "usd": 171.7676,
+  "tinker_s": 22709.32,
+  "usd_all_resumes": 171.7613,
+  "jobs_all_resumes": 30
+ },
+ "capx_version": "9117dfe9c8cb",
+ "gpu_hours_actual": 20.8421,
+ "gpu_hours_charging": "canonical",
+ "cost_model": "v2",
+ "gpu_hours_lost": 1.6526,
+ "measured_vs_canonical": 0.567,
+ "agent_gpu_h": 5.3433,
+ "measured_cost": {
+  "train_gpu_h": 0.0,
+  "reason_gpu_h": 5.3433,
+  "sandbox_gpu_h": 14.3738,
+  "usd_tinker": 171.7676,
+  "charged_gpu_h": 35.3257,
+  "tokens": {
+   "prompt": 10086008,
+   "completion": 464422
+  },
+  "unmeasured_calls": 0
+ },
+ "submission": {
+  "token": "03d763",
+  "how": "default-on-exhaustion",
+  "turn": 299,
+  "confirmed": false,
+  "confirmed_turn": null,
+  "ended_by": "CAPPED",
+  "note": null,
+  "policy": "base + sft6b (sha 5e3d1fde02ad)"
+ },
+ "budget_forcing": "budget-forcing v1",
+ "skills_version": "nogit-f1700b86",
+ "initial_skills_digest": "c03a125cc309c412bd84f262e2217b672d7caffa2a126cf498ce464a265e0625",
+ "suite": {
+  "name": "hard3",
+  "version": 2,
+  "hash": "sha256:2c998917f89d741e",
+  "train": [
+   "nut",
+   "restack",
+   "revstack"
+  ],
+  "eval": [
+   {
+    "cell": "nut",
+    "split": "id"
+   },
+   {
+    "cell": "restack",
+    "split": "id"
+   },
+   {
+    "cell": "revstack",
+    "split": "id"
+   },
+   {
+    "cell": "t2_ss",
+    "split": "far"
+   },
+   {
+    "cell": "t2_spl",
+    "split": "far"
+   }
+  ],
+  "splits": {
+   "nut": "id",
+   "restack": "id",
+   "revstack": "id",
+   "t2_ss": "far",
+   "t2_spl": "far"
+  }
+ },
+ "env_text": "v2",
+ "env_text_revision": "v2.1",
+ "turns_before_first_action": 31,
+ "tokens_before_first_action": 41055,
+ "first_action": "train",
+ "artifacts": {
+  "registry": "…/tinkerDecompArmE-17197587/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

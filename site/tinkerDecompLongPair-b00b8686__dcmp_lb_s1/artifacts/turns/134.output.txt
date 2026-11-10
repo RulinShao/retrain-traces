@@ -1,0 +1,249 @@
+rc=0
+n rows: 5
+======================================================================
+seed 801213 rc 1 task_completed False sim_reward 0.0015128223642661698
+stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+   red_cube pos [0.09678, 0.01927, 0.81989] init [0.05742, 0.00277, 0.81842]
+   green_cube pos [0.14336, 0.04299, 0.81989] init [0.04726, 0.00282, 0.85467]
+prog len 4673
+---- program ----
+```python
+import numpy as np
+
+# Step 1: Get the current observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Step 2: Segment the red cube and green cube using SAM3 with text prompts
+red_cube_masks = segment_sam3_text_prompt(rgb_image, "red cube")
+green_cube_masks = segment_sam3_text_prompt(rgb_image, "green cube")
+
+if not red_cube_masks or not green_cube_masks:
+    print("Failed to segment cubes.")
+else:
+    # Get the masks for the red and green cubes
+    red_mask = red_cube_masks[0]["mask"]
+    green_mask = green_cube_masks[0]["mask"]
+
+    # Step 3: Plan grasp for the red cube
+    segmentation_map = np.zeros_like(depth_image, dtype=np.int32)
+    segmentation_map[red_mask] = 1
+    grasp_poses, grasp_scores = plan_grasp(depth_image, intrinsics, segmentation_map)
+
+    if len(grasp_poses) == 0:
+        print("No grasp poses found for the red cube.")
+    else:
+        # Select the best grasp pose (highest score)
+        best_grasp_index = np.argmax(grasp_scores)
+        best_grasp_pose = grasp_poses[best_grasp_index]
+
+        # Transform the grasp pose from camera frame to world frame
+        # The grasp pose is in the camera frame, so we need to transform it using the camera extrinsic matrix
+        world_grasp_pose = pose_mat @ best_grasp_pose
+
+        # Extract position and orientation 
+======================================================================
+seed 801214 rc 0 task_completed False sim_reward 0.00046948102892209465
+stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+   red_cube pos [0.19843, -0.10527, 0.81989] init [0.07991, -0.0621, 0.81842]
+   green_cube pos [0.23474, -0.13116, 0.81989] init [0.06971, -0.06212, 0.85465]
+prog len 5900
+---- program ----
+```python
+import numpy as np
+
+# Get the observation
+obs = get_observation()
+rgb_image = obs["robot0_robotview"]["images"]["rgb"]
+depth_image = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Segment the red cube and green cube
+red_cube_masks = segment_sam3_text_prompt(rgb_image, "red cube")
+green_cube_masks = segment_sam3_text_prompt(rgb_image, "green cube")
+
+if not red_cube_masks or not green_cube_masks:
+    print("Failed to segment cubes.")
+else:
+    # Get the mask for the red cube (first instance)
+    red_mask = red_cube_masks[0]["mask"]
+    green_mask = green_cube_masks[0]["mask"]
+    
+    # Get 3D points for the red cube
+    red_points_2d = np.argwhere(red_mask)  # (N, 2) [row, col]
+    red_depths = depth_image[red_mask]
+    valid_red = red_depths > 0
+    red_points_2d = red_points_2d[valid_red]
+    red_depths = red_depths[valid_red]
+    
+    if len(red_points_2d) == 0:
+        print("No valid depth points for red cube.")
+    else:
+        # Convert 2D points to 3D in camera frame
+        fx, fy = intrinsics[0, 0], intrinsics[1, 1]
+        cx, cy = intrinsics[0, 2], intrinsics[1, 2]
+        
+        red_u = red_points_2d[:, 1].astype(np.float64)
+        red_v = red_points_2d[:, 0].astype(np.float64)
+        red_z = red_depths.astype(np.float64)
+        red_x = (red_u - cx) * red_z / fx
+        red_y = (red_v - cy) * red_z / fy
+        red_points_3d_cam = np.column_stack([red_x
+======================================================================
+seed 801215 rc 0 task_completed False sim_reward 0.017780910980289416
+stages {'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+   red_cube pos [0.16376, -0.07331, 0.81979] init [0.15473, -0.07382, 0.81842]
+   green_cube pos [0.15448, -0.07305, 0.85961] init [0.14455, -0.07377, 0.85466]
+prog len 7082
+---- program ----
+import numpy as np
+from scipy.spatial.transform import Rotation, Slerp
+from scipy.optimize import minimize
+
+# 1. Get observation
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# 2. Segment the green cube and red cube using SAM3
+green_masks = segment_sam3_text_prompt(rgb, "green cube")
+red_masks = segment_sam3_text_prompt(rgb, "red cube")
+
+if not green_masks or not red_masks:
+    print("Failed to segment cubes.")
+    exit(1)
+
+# Use the first mask for each
+green_mask = green_masks[0]["mask"]
+red_mask = red_masks[0]["mask"]
+
+# 3. Create a combined segmentation map for plan_grasp (assign IDs)
+# ID 1 for green, ID 2 for red
+seg_map = np.zeros(depth.shape[:2], dtype=np.int32)
+seg_map[green_mask] = 1
+seg_map[red_mask] = 2
+
+# 4. Plan grasp for the red cube (ID 2)
+grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, seg_map)
+
+if len(grasp_poses) == 0:
+    print("No grasp candidates found.")
+    exit(1)
+
+# Select the best grasp candidate
+best_idx = np.argmax(grasp_scores)
+grasp_pose_cam = grasp_poses[best_idx]
+
+# 5. Transform grasp pose from camera frame to world frame
+# pose_mat is the extrinsic matrix mapping camera coords to world coords
+# T_world_cam = pose_mat
+T_world_cam = pose_mat
+T_world_red = T_world_cam @ grasp_pose_cam
+
+# Extract position and orientation of the red cube's grasp in world frame
+pos_re
+======================================================================
+seed 801216 rc 0 task_completed False sim_reward 0.007728623456733183
+stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+   red_cube pos [0.11831, -0.15826, 0.81989] init [-0.01758, -0.05287, 0.81842]
+   green_cube pos [0.14726, -0.18839, 0.81989] init [-0.02773, -0.05287, 0.8547]
+prog len 5869
+---- program ----
+```python
+import numpy as np
+from scipy.spatial.transform import Rotation, Slerp
+
+# Get observation
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]  # Camera extrinsic (camera to world)
+
+# Segment the red cube and green cube
+red_masks = segment_sam3_text_prompt(rgb, "red cube")
+green_masks = segment_sam3_text_prompt(rgb, "green cube")
+
+if not red_masks or not green_masks:
+    raise ValueError("Failed to segment cubes")
+
+red_mask = red_masks[0]["mask"]
+green_mask = green_masks[0]["mask"]
+
+# Create a segmentation map for the red cube only (for grasp planning)
+seg_map = np.zeros(depth.shape[:2], dtype=np.int32)
+seg_map[red_mask] = 1
+
+# Plan grasp for the red cube
+grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, seg_map)
+
+if len(grasp_poses) == 0:
+    raise ValueError("No grasp candidates found")
+
+# Select the best grasp
+best_idx = np.argmax(grasp_scores)
+grasp_pose_cam = grasp_poses[best_idx]  # In camera frame
+
+# Transform grasp pose from camera frame to world frame
+# pose_mat is camera extrinsic: transforms points from camera frame to world frame
+grasp_pose_world = pose_mat @ grasp_pose_cam
+
+# Extract position and orientation of the grasp in world frame
+grasp_pos_world = grasp_pose_world[:3, 3]
+grasp_quat_wxyz = Rotation.from_matrix(grasp_pose_world[:3, :3]).as_quat(scalar_first=True)
+
+# Move to a p
+======================================================================
+seed 801217 rc 0 task_completed False sim_reward 0.018718855087536235
+stages {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+   red_cube pos [-0.0447, 0.02309, 0.81989] init [-0.09079, 0.02057, 0.81842]
+   green_cube pos [0.00037, 0.00427, 0.81989] init [-0.1009, 0.02057, 0.85473]
+prog len 5337
+---- program ----
+```python
+import numpy as np
+from scipy.spatial.transform import Rotation
+
+# Get the current observation
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+intrinsics = obs["robot0_robotview"]["intrinsics"]
+pose_mat = obs["robot0_robotview"]["pose_mat"]
+
+# Segment the red cube and green cube using SAM3
+red_cube_masks = segment_sam3_text_prompt(rgb, "red cube")
+green_cube_masks = segment_sam3_text_prompt(rgb, "green cube")
+
+# Extract masks for red and green cubes
+if not red_cube_masks or not green_cube_masks:
+    raise ValueError("Failed to segment the red or green cube.")
+
+red_mask = red_cube_masks[0]["mask"]
+green_mask = green_cube_masks[0]["mask"]
+
+# Create a segmentation map with unique IDs for each object
+segmentation_map = np.zeros(depth.shape[:2], dtype=np.int32)
+segmentation_map[red_mask] = 1
+segmentation_map[green_mask] = 2
+
+# Plan grasp for the red cube
+grasp_poses_red, grasp_scores_red = plan_grasp(depth, intrinsics, segmentation_map)
+
+# Select the best grasp pose for the red cube
+best_grasp_idx = np.argmax(grasp_scores_red)
+best_grasp_pose_cam = grasp_poses_red[best_grasp_idx]
+
+# Transform the grasp pose from camera frame to world frame
+# The camera extrinsic matrix (pose_mat) transforms points from camera frame to world frame
+# We need to transform the grasp pose accordingly
+world_T_cam = pose_mat  # This is the transformation from camera to world
+cam_T_world = np.linalg.inv(world_T_cam)
+
+# The

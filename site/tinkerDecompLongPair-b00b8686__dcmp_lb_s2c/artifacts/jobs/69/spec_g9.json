@@ -1,0 +1,1 @@
+{"task": "revstack", "name": "g9", "init": "g8", "init_mode": "resume", "steps": 25, "reward": "rewards/g9.py", "seed_start": 834001}

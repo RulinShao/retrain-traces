@@ -1,0 +1,12 @@
+name: success_v1
+init: probe_shaped
+task:
+  - metaworldplus-push-wall
+  - metaworldplus-pick-place
+  - metaworldplus-door-lock
+steps: 10
+batch: 4
+rollouts: 4
+seed_start: 820001
+lr: 2e-05
+reward: success

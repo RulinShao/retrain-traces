@@ -1,0 +1,10 @@
+{
+  "name": "mt15",
+  "task": ["metaworldplus-push-wall", "metaworldplus-pick-place", "metaworldplus-door-lock"],
+  "steps": 15,
+  "batch": 3,
+  "rollouts": 4,
+  "seed_start": 820001,
+  "lr": 2e-5,
+  "reward": "success"
+}

@@ -1,0 +1,106 @@
+rc=0
+==== seed 800253 rc 0 task_completed False ====
+len 2364
+import numpy as np
+
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+K = obs["robot0_robotview"]["intrinsics"]
+T = obs["robot0_robotview"]["pose_mat"]  # camera -> world (apply directly to camera-frame points)
+
+def seg(p):
+    for m in segment_sam3_text_prompt(rgb, p):
+        ms = m.get("mask")
+        if ms is not None and ms.sum() > 150:
+            return ms
+    return None
+
+def unproj(mask):
+    ys, xs = np.where(mask)
+    d = depth[ys, xs]
+    ok = (d > 0.2) & (d < 4.0)
+    xs, ys, d = xs[ok].astype(float), ys[ok].astype(float), d[ok]
+    P = np.column_stack([(xs - K[0, 2]) * d / K[0, 0], (ys - K[1, 2]) * d / K[1, 1], d])
+    return (T[:3, :3] @ P.T).T + T[:3, 3]
+
+gm = seg("green cube"); rm = seg("red cube")
+if gm is None or rm is None:
+    raise RuntimeError("segmentation failed")
+gbox = get_oriented_bounding_box_from_3d_points(unproj(gm))
+rbox = get_oriented_bounding_box_from_3d_points(unproj(rm))
+gc, ge = gbox["center"], gbox["extent"]
+rc, re_ = rbox["center"], rbox["extent"]
+
+segmap = np.zeros(depth.shape[:2], np.int32)
+segmap[rm] = 1; segmap[gm] = 2
+poses, scores = plan_grasp(depth, K, segmap)
+if len(poses) == 0:
+    raise RuntimeError("no grasp candidates")
+tw = T @ poses[int(np.argmax(scores))]   # grasp pose in world frame
+
+za = 0.12
+open_gripper()
+move_to_joints(solve_ik(tw[:3, 3] + tw[:3, 2] * za, np.array([tw[0, 3], tw[1, 3], tw[2, 3], tw[3, 3]])))
+move_to_joints(solve_ik(tw[:3, 3], np.a
+... TAIL ...
+
+lift = max(gc[2] + 0.2, gc[2] + ge[2] / 2 + 0.12)
+move_to_joints(solve_ik(tw[:3, 3] + np.array([0.0, 0.0, lift - gc[2]]), np.array([tw[0, 3], tw[1, 3], tw[2, 3], tw[3, 3]])))
+
+place_c = np.array([rc[0], rc[1], rc[2] + re_[2] / 2 + ge[2] / 2])
+off = place_c - gc
+prez = max(place_c[2] + za, lift)
+move_to_joints(solve_ik(tw[:3, 3] + off + np.array([0.0, 0.0, prez - lift]), np.array([tw[0, 3], tw[1, 3], tw[2, 3], tw[3, 3]])))
+move_to_joints(solve_ik(tw[:3, 3] + off + np.array([0.0, 0.0, place_c[2] + za - lift]), np.array([tw[0, 3], tw[1, 3], tw[2, 3], tw[3, 3]])))
+move_to_joints(solve_ik(tw[:3, 3] + off, np.array([tw[0, 3], tw[1, 3], tw[2, 3], tw[3, 3]])))
+open_gripper()
+move_to_joints(solve_ik(tw[:3, 3] + off + np.array([0.0, 0.0, 0.12]), np.array([tw[0, 3], tw[1, 3], tw[2, 3], tw[3, 3]])))
+
+
+==== seed 800254 rc 1 task_completed False ====
+len 2020
+import numpy as np
+obs = get_observation()
+rgb = obs["robot0_robotview"]["images"]["rgb"]
+depth = obs["robot0_robotview"]["images"]["depth"]
+K = obs["robot0_robotview"]["intrinsics"]
+T = obs["robot0_robotview"]["pose_mat"]
+R = T[:3, :3]; t = T[:3, 3]
+def to_world(p): return R @ p + t
+def rot2quat(Rm):
+    t_ = Rm[0,0]+Rm[1,1]+Rm[2,2]
+    if t_>0: S=np.sqrt(t_+1.)*2; w=.25*S; x=(Rm[2,1]-Rm[1,2])/S; y=(Rm[0,2]-Rm[2,0])/S; z=(Rm[1,0]-Rm[0,1])/S
+    elif Rm[0,0]>Rm[1,1] and Rm[0,0]>Rm[2,2]: S=np.sqrt(1.0+Rm[0,0]-Rm[1,1]-Rm[2,2])*2; w=(Rm[2,1]-Rm[1,2])/S; x=.25*S; y=(Rm[0,1]+Rm[1,0])/S; z=(Rm[0,2]+Rm[2,0])/S
+    elif Rm[1,1]>Rm[2,2]: S=np.sqrt(1.0+Rm[1,1]-Rm[0,0]-Rm[2,2])*2; w=(Rm[0,2]-Rm[2,0])/S; x=(Rm[0,1]+Rm[1,0])/S; y=.25*S; z=(Rm[1,2]+Rm[2,1])/S
+    else: S=np.sqrt(1.0+Rm[2,2]-Rm[0,0]-Rm[1,1])*2; w=(Rm[1,0]-Rm[0,1])/S; x=(Rm[0,2]+Rm[2,0])/S; y=(Rm[1,2]+Rm[2,1])/S; z=.25*S
+    q=np.array([w,x,y,z]); return q/np.linalg.norm(q)
+def seg(prompt):
+    for m in segment_sam3_text_prompt(rgb, prompt):
+        if "mask" in m and m["mask"].sum()>500: return m["mask"]
+    return None
+def world(mask):
+    ys,xs=np.where(mask); d=depth[ys,xs]; ok=d>0.1
+    P=to_world(np.column_stack([(xs[ok]-K[0,2])*d[ok]/K[0,0],(ys[ok]-K[1,2])*d[ok]/K[1,1],d[ok]]))
+    c,e,Rb=get_oriented_bounding_box_from_3d_points(P)["center"],get_oriented_bounding_box_from_3d_points(P)["extent"],get_oriented_bounding_box_from_3d_points(P)["R"]
+    return c,e
+gm=seg("green cube"); rm=seg("red cube")
+gc,ge=world(gm); rc,
+... TAIL ...
+s[ok]-K[1,2])*d[ok]/K[1,1],d[ok]]))
+    c,e,Rb=get_oriented_bounding_box_from_3d_points(P)["center"],get_oriented_bounding_box_from_3d_points(P)["extent"],get_oriented_bounding_box_from_3d_points(P)["R"]
+    return c,e
+gm=seg("green cube"); rm=seg("red cube")
+gc,ge=world(gm); rc,re_=world(rm)
+sm=np.zeros(depth.shape[:2],np.int32); sm[gm]=1
+poses,scores=plan_grasp(depth,K,sm)
+gp=to_world(poses[0][:3,:3]); gq=rot2quat(poses[0][:3,:3])
+za=0.12
+open_gripper(); move_to_joints(solve_ik(gp+[0,0,za],gq)); move_to_joints(solve_ik(gp,gq)); close_gripper()
+move_to_joints(solve_ik(gp+[0,0,0.22],gq))
+pz=rc[2]+re_[2]/2+ge[2]/2
+tp=np.array([rc[0],rc[1],pz])
+open_gripper(); move_to_joints(solve_ik(tp+[0,0,za],gq)); move_to_joints(solve_ik(tp,gq)); open_gripper()
+move_to_joints(solve_ik(tp+[0,0,0.18],gq))
+
+

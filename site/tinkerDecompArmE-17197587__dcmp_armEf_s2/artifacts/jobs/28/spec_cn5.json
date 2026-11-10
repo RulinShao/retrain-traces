@@ -1,0 +1,1 @@
+{"name":"cn5","task":"revstack","init":"cn2","reward":"rewards/revstack_reach.py","steps":20,"batch":8,"rollouts":16}

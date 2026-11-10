@@ -1,0 +1,90 @@
+rc=0
+===PLAYBOOK===
+# Arm B method (this session): reverse start-state curriculum FROM THE MAGIC CUTS
+
+Your task this session is **restack** only. Do NOT co-train nut (prompt↔API defective — reaches no stage, pays nothing) or revstack (deferred).
+
+**Do NOT train the full task shaped from the normal start** — wrong method for this arm. Train a REVERSE curriculum from the magic ladder cuts: the deepest VIABLE cut first, then move the start backward toward the full start.
+
+restack ladder cuts, closest-to-goal first: lower → align → lift → grasp → full. **CRASH WARNING:** the `grasp` and `lower` cuts leave the cube inside the gripper, so a program that calls plan_grasp gets 0 grasp candidates and ASSERTS (crashes before your suffix runs) — ~76-95% of rollouts. Do NOT train from `lower` or `grasp`: probe them with the oracle for the doability upper bound, but TRAIN from the deepest VIABLE cut = **align** (then lift, then full). If a program from a deep cut would re-grasp an already-held cube, skip the grasp step (use only the release tail) or the OBB-grasp path.
+
+## Procedure (deep → shallow, viable cuts)
+1. Probe doability: `python3 rollout.py --adapter base --task restack --seeds 8 --magic-prefix stage=<cut> --suffix oracle` (upper bound), then `--suffix policy` to see your own crash/stage rate per cut.
+2. Save the deepest VIABLE cut: `python3 rollout.py --adapter loaded --task restack --seeds N --magic-prefix stage=align --magic-presets rc_align` → writes `rc_align_post` (labelled magic-built; never success data).
+3. Register a unit and train the actions after the cut: `python3 unit.py register rc_align_u --task restack --reward shaped --start-preset rc_align_post`, then `python3 train.py` `{"task": "rc_align_u", "reward": "shaped", "steps": ...}`.
+4. Eval from scratch: `python3 eval.py --adapter <name> --task restack --seeds 800001-800100`.
+5. Move the start one cut shallower (align → lift → full) ONLY once the current cut's adapter clears ~60% from scratch. KEEP training from the deepest viable cut as you add shallower starts (dropping it collapses the final-stage gradient). END at the full/normal start.
+
+Success = the strict from-scratch restack eval (seeds 800001-800100) above the batch base, reproduced on the 2nd seed. A single deep-start adapter scores 0 from scratch until the earlier stages are covered, so the ladder must reach the full start. The magic edit never completes the task and its rows are never success data.
+===EARLY STOP===
+## Early stop (`stop_when`)
+Optional. `{"plateau_steps": K, "min_gain": g}` stops the call once K steps in a row pass without the smoothed reward rising more
+than g above its best so far; `{"reward_at_least": r}` stops it once the smoothed reward reaches r; with both, the first that
+holds stops it. The smoothed reward is the mean `score_mean` of the last 3 steps, so neither can stop a call before step 3
+(a call of fewer than 3 steps, or with 3 + K > `steps`, is refused). It is checked after every step. The adapter is the step it
+held at (`stop_step`); the call is charged the steps it completed (`steps_run`, which can include a step that finished before the
+stop took effect), and `training.json` / `call.json` record `stopped_early: true`, `stop_step`, `stop_reason` (`plateau` or
+`target_reward`) and `steps_run`; the call's `state` is `STOPPED` (a finished call, not a failure). Without it, all `steps` run.
+
+## Defaults (identity-v2)
+A spec with no fields (`{}`) continues your lineage on the whole task set with fresh seeds for the rest of your budget. A field you omit takes its default: `task` = this session's tasks (tasks.json) in one call, an equal split per batch; tasks with no practice unit here, and, in a set of several, tasks that practise alone (revstack; hidden tasks), are left out and listed with the reason; `batch` of a task list = the smallest number >= 8 that splits as asked; `steps` = as many steps as your remaining GPU-hour budget affords at this call's cost (budget minus GPU-hours charged minus the estimates of your running calls), at most what the Tinker spend cap affords when trainer=tinker; with no session budget, 1; not one step affordable: the call is refused, naming `steps` and the GPU-hours remaining (`data` and `init_mode: resume` set the steps themselves); `init` = the adapter this session trained last (none yet: a fresh LoRA); seeds = the lineage's next unused block. Every field can be set to override its default. Each `call.json`, `training.json` and job result carries `train_defaults`: `defaults` (`identity-v2`), `defaulted` (the fields that took their default), when `task` did, `task_set` (`source`, `tasks`, `left_out`), and when `steps` did, `steps_default` (`available`, `per_step`, `fixed`, `cap`, `steps`).
+- resume: `init_mode: resume` + `init` (same lineage, the parent's full state)
+- branch: `init_mode: branch` + `init` (a new lineage from the parent's weights)
+- fresh: `init_mode: fresh` (a new LoRA, a new lineage)
+
+## Continuation
+What a train starts from is one rule across sites (`init`, `init_mode`): without either, the adapter this session trained last is
+continued (its lineage goes on); nothing trained yet means a fresh LoRA. `init` alone is the site's native continuation (stated in
+its row). `init_mode` makes it exact: `resume`, `branch`, `fresh`. Every `call.json` / `training.json` records `continuation`
+(`kind`, `parent`, `state_restored`, `parent_checkpoint_id`, `resume_from_step`), `lineage_id` (minted when a lineage starts, kept by
+resume / continue, new on branch / fresh) and `checkpoint_id` (the weights' digest); the job result's `receipt.lineage` repeats
+them. A `resume` whose parent's full state is gone is refused with that fact (start from its weights with `branch` instead). No
+default picks an adapter by score: "last trained" is the one you trained most recently.
+
+## Failures
+===SCOREBOARD===
+# SCOREBOARD
+
+playbook: 3246dddf-df764206
+agent: local
+mode: dev
+dev seeds: from 800001
+policy: Qwen3.8-27B
+eval_backend: tinker, decode=tinker(no_presence_penalty) (DEV backend only: dev/checkpoint evals of Tinker-trained adapters sample on Tinker; hidden evals and other adapters run locally)
+
+Dev-seed success count per task x adapter stack (k/n = rate): the eval with the most seeds (equal n: the newest); smaller evals are in History and the job records. Adapter cells also give the base column's rate at the same n; `untested` = no eval of that stack on that task yet.
+
+| task | base |
+|---|---|
+| nut | 0/100 = 0% |
+| restack | 0/100 = 0% |
+| revstack | 1/100 = 1% |
+
+GPU-hours: 0.000 spent, 16.000 remaining of 16.0 (0 job(s) running)
+Expected cost per call (the estimate checked against what remains): train.py (1 step 0.39, 10 steps 1.98, 50 steps 9.03) GPU-h; eval.py per task (5 seeds 0.15, 20 seeds 0.19, 100 seeds 0.45) GPU-h
+Loaded on your serving endpoint: base
+Submitted: none (python3 finish.py submits a policy)
+
+## Adapters
+
+| name | init | steps | spec | state |
+|---|---|---|---|---|
+
+## Self-reward (rollout.py --reward: your reward over the rollout facts; not a success count)
+
+- none yet
+
+## History (latest 30)
+
+===STATUS===
+{
+ "gpu_hours_spent": 0.0,
+ "gpu_hours_reserved": 0,
+ "gpu_hours_remaining": 16.0,
+ "loaded": [],
+ "adapters": [],
+ "running_jobs": [],
+ "job_progress": {},
+ "finish_now": "If you finish now, the scored policy is: base (`python3 finish.py` submits the loaded stack)",
+ "pending_submission": null
+}

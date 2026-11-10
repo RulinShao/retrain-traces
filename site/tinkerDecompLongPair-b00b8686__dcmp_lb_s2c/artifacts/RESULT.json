@@ -1,0 +1,128 @@
+{
+ "status": "DONE",
+ "turns": 59,
+ "gpu_hours": 45.6286,
+ "final_score": {
+  "loaded": "g8",
+  "per_task": {
+   "nut": 0,
+   "restack": 0,
+   "revstack": 17,
+   "t2_ss": 4,
+   "t2_spl": 3
+  },
+  "total": 24,
+  "n_per_task": 50,
+  "submission": "91c474",
+  "confirmed": true,
+  "per_split": {
+   "id": 17,
+   "far": 7
+  }
+ },
+ "agent": "local",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": 262144
+ },
+ "mode": "dev",
+ "final_episodes": 50,
+ "policy_model": "Qwen3.8-27B",
+ "eval_backend": "tinker, decode=tinker(no_presence_penalty) (DEV backend only: dev/checkpoint evals of Tinker-trained adapters sample on Tinker; hidden evals and other adapters run locally)",
+ "trainer": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B charge=canonical sim=l40s",
+ "tinker": {
+  "calls": 27,
+  "usd": 663.3608,
+  "tinker_s": 125974.9,
+  "usd_all_resumes": 663.3626,
+  "jobs_all_resumes": 27
+ },
+ "capx_version": "9117dfe9c8cb",
+ "gpu_hours_actual": 33.9272,
+ "gpu_hours_charging": "canonical",
+ "cost_model": "v2",
+ "gpu_hours_lost": 0.0,
+ "measured_vs_canonical": 0.721,
+ "agent_gpu_h": 2.4742,
+ "measured_cost": {
+  "train_gpu_h": 0.0,
+  "reason_gpu_h": 2.4742,
+  "sandbox_gpu_h": 28.0453,
+  "usd_tinker": 663.3608,
+  "charged_gpu_h": 45.6286,
+  "tokens": {
+   "prompt": 3118674,
+   "completion": 208443
+  },
+  "unmeasured_calls": 0
+ },
+ "submission": {
+  "token": "91c474",
+  "how": "default-loaded-stack",
+  "turn": 57,
+  "confirmed": true,
+  "confirmed_turn": 58,
+  "ended_by": "DONE",
+  "note": "g8: GRPO from g3a (revstack 12% practice base) with dense anchored geometry reward (0 start/crash, 1.0 success, continuous over lift->align-over-red->release, holding bonus). Held-out dev: revstack 23/100 (g3a 12, g2b 8, base 1), restack 0, nut 0. SFT attempts (g6s, g7s) degraded revstack (paraphrase of gold at temp 0.7); g9 sharper reward: 22/100.",
+  "policy": "base + g8 (sha 6e6a72c3fb9e)"
+ },
+ "budget_forcing": "budget-forcing v1",
+ "skills_version": "nogit-db86b5a3",
+ "initial_skills_digest": "f0e671502a1a4ec85c6296dd67946a4a973f7fd166a612f9970dd810705a537c",
+ "preset_adapters": {
+  "g2b": "e8b6f70171813a115b4318224a1bc212f779401b5ae5a2b3560062098533e5f0"
+ },
+ "suite": {
+  "name": "hard3",
+  "version": 2,
+  "hash": "sha256:2c998917f89d741e",
+  "train": [
+   "nut",
+   "restack",
+   "revstack"
+  ],
+  "eval": [
+   {
+    "cell": "nut",
+    "split": "id"
+   },
+   {
+    "cell": "restack",
+    "split": "id"
+   },
+   {
+    "cell": "revstack",
+    "split": "id"
+   },
+   {
+    "cell": "t2_ss",
+    "split": "far"
+   },
+   {
+    "cell": "t2_spl",
+    "split": "far"
+   }
+  ],
+  "splits": {
+   "nut": "id",
+   "restack": "id",
+   "revstack": "id",
+   "t2_ss": "far",
+   "t2_spl": "far"
+  }
+ },
+ "env_text": "v2",
+ "env_text_revision": "v2.1",
+ "turns_before_first_action": 11,
+ "tokens_before_first_action": 26231,
+ "first_action": "eval",
+ "artifacts": {
+  "registry": "…/tinkerDecompLongPair-b00b8686/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

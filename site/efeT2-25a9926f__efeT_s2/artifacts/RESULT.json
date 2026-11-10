@@ -1,0 +1,33 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "train_failed: EfeInfraError('EFE practice job 43089971 ended rc=1 without an adapter:  (…/efe_calls/20261109T185057_practice_mt25_55784d32)')",
+ "gpu_hours": 31.187,
+ "final_score": null,
+ "agent": "local",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": null
+ },
+ "mode": "dev",
+ "final_episodes": 50,
+ "policy_model": "tinker:Qwen/Qwen3.8-27B",
+ "gpu_hours_actual": 8.5253,
+ "gpu_hours_charging": "canonical",
+ "budget_forcing": "budget-forcing v1",
+ "skills_version": "nogit-2bb30ac2",
+ "initial_skills_digest": "1745a421197a194adef75879f3c1a9514268cb6460119f8ccf96f5da605107c2",
+ "env_text": "v2",
+ "env_text_revision": "v2.2",
+ "turns_before_first_action": 7,
+ "tokens_before_first_action": 10445,
+ "first_action": "eval",
+ "artifacts": {
+  "registry": "…/efeT2-25a9926f/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

@@ -1,0 +1,87 @@
+rc=0
+---
+name: trainer
+description: The EFE multi-turn trainer contract: every field train.py reads, what each failure returns, costs, and what a train produces.
+---
+# Trainer on this site (Embodied First Exam tasks, privileged multi-turn; Tinker practice, task containers local)
+
+`python3 train.py SPEC` submits one practice call; SPEC is a JSON or YAML file in the workspace.
+Relative adapter names in SPEC resolve against the workspace's adapters.
+
+## What a practice call is
+GRPO on a LoRA adapter (rank 32, alpha 64) of Qwen3.8-27B as hosted on Tinker, sampled and updated there; every episode runs on
+this cluster. Each step: `batch` prompts x `rollouts` episodes, one optimizer update (AdamW). Prompt k of the call is the next task
+of `task` (in the order given) on seed `seed_start + k x rollouts`; all episodes of one prompt run on that same instance. An
+episode is a multi-turn session with the task's container: the policy's first request is the task's evaluation prompt (the
+task's instruction.md with the multi-turn sentence); after each reply its Python / bash code blocks run in one persistent
+interpreter of the container (the policy's variables, such as its `mw_tool.Session`, persist), and the next request carries their
+exit codes and the last 8000 characters of stdout and stderr, the turn index and the seconds left. The episode ends when a
+reply has no code block, at its clock (900 s in practice, 1800 s in evaluation; the policy's own sampling time counts), or when
+the next request exceeds 57344 tokens; then the task's own verifier replays `/app/output/trajectory.npz` and checks the end
+state. There is no turn cap. Every turn of an episode is trained with the episode's advantage. Sampling: temperature 1.0,
+top_p 0.95, top_k 20, thinking off, at most 8192 tokens per reply.
+
+## Rewards
+| `reward` | value of one rollout | tasks |
+|---|---|---|
+| `success` | 1.0 if the verifier's success check passes, else 0.0 | every task |
+| `progress` | the referee's stages reached / stages total (0.0 to 1.0) | Embodied Olympics tasks only |
+| `shaped` | Meta-World's own shaped reward of the state after the last action (the verifier's `final_reward`, 0 to 10) divided by 10 (0.0 to 1.0) | MetaWorld+ tasks only |
+
+An episode that ends without a valid `/app/output/trajectory.npz` gets 0.0. The reward is for practice calls only: `eval.py` and the hidden evaluation count successes, whatever reward a train used.
+
+## Spec fields (any other field is refused)
+| field | type | default | accepted |
+|---|---|---|---|
+| `task` | string or list | required | task names from tasks.json |
+| `steps` | integer | 1 | any positive integer |
+| `batch` | integer | 4 | prompts per step |
+| `rollouts` | integer | 4 | episodes per prompt: 4, 8 or 16 |
+| `seed_start` | integer | 810001 | prompt k runs on seed `seed_start + k x rollouts`; the call's seeds must not reach seeds 1-100 |
+| `lr` | number | 2e-05 | in (0, 1e-3] |
+| `reward` | string | `success` | `success`, `progress` or `shaped` (table above) |
+| `init` | string | omitted: a fresh LoRA | an adapter name produced by an earlier train of this session; the call continues from its weights |
+
+## Failures
+A request this site cannot run as written ends `failed` with this text; nothing is charged:
+- `train: unknown spec field(s) [<fields>]; this site reads [<fields>]`
+- `train: task must be a task name from tasks.json or a list of them`
+- `train: task '<name>' is not an EFE task of this site`
+- `train: <field> must be a positive integer, got <value>`
+- `train: rollouts must be one of [4, 8, 16], got <value>`
+- `train: lr must be in (0, 1e-3], got <value>`
+- `train: reward '<mode>': <task> (<suite>) has no '<mode>' reward; use one of [<modes>]`
+- `train: <task> is a held-out task (protocol efe-dev (not the EFE leaderboard setting)): it is scored only at the final evaluation`
+- `train: seeds 1-100 are reserved for the final score; use dev seeds >= 800001`
+- `train: init '<name>': trainer=tinker continues only adapters it trained (their training.json names a tinker_state); train from the base instead`
+- `refused: Tinker budget exhausted (ledger <x> / cap <y> USD)` (the job is `refused`, as for a GPU-hour refusal)
+A failure inside the trainer or a task container ends the session as an infrastructure fault.
+
+## Evaluation on this site
+One adapter per eval is this site's design for EFE DEV (Tinker samples one trained state).
+`eval.py` scores one adapter at a time (or the base model with none loaded): a stack of two or more adapters ends `failed` with
+`eval: this site evaluates one adapter at a time (Tinker samples one trained state); load one adapter`. An evaluation episode is
+the multi-turn episode above with an 1800 s clock and no turn cap, scored by strict success. Evaluation decoding: temperature
+0.7, top_p 0.8, top_k 20, thinking off, at most 8192 tokens per reply.
+
+## Progress and cancel
+While a train runs, its record shows whether the job is queued or running and, once running, the steps done, the steps declared, the latest step's mean reward and fraction of rollouts with reward > 0, and the GPU-hours of the steps done. `cancel.py ID` stops the job; no adapter is kept.
+
+## Cost
+GPU-hours as charged: the call's CPU job, in wall-clock hours of an 8-CPU job, `1 x (0.1 + 2.5 x N x batch / 8 x rollouts / 8)` for a train of N steps. The rows below are at the defaults.
+
+| call | canonical cost |
+|---|---|
+| train, 1 step (`batch` 4, `rollouts` 4) | 0.72 |
+| train, 10 steps (`batch` 4, `rollouts` 4) | 6.35 |
+| train, 30 steps (`batch` 4, `rollouts` 4) | 18.85 |
+| train, N steps | 1 x (0.1 + 2.5 x N x batch / 8 x rollouts / 8) |
+
+| eval of one task on | 5 seeds | 20 seeds | 100 seeds |
+|---|---|---|---|
+| canonical cost | 0.30 | 1.18 | 5.82 |
+
+
+## Output
+The adapter directory holds `adapter_model.safetensors`, `adapter_config.json`, `rewards.json` (per-step mean reward and fraction
+of rollouts with reward > 0), `call.json` (job, GPU-hours, the Tinker state, timing, the seeds used) and `training.json`.

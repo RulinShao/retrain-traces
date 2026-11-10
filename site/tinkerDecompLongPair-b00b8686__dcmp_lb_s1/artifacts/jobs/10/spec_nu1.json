@@ -1,0 +1,11 @@
+{
+ "name": "nu1",
+ "task": ["nut", "restack"],
+ "init": "rev1",
+ "init_mode": "branch",
+ "steps": 20,
+ "batch": 8,
+ "rollouts": 8,
+ "reward": "reward_dispatch.py",
+ "stop_when": {"plateau_steps": 5, "min_gain": 0.02}
+}

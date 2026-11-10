@@ -1,0 +1,1 @@
+{"name":"cn3","task":["restack","nut"],"init":"cn2","reward":"rewards/c_reach.py","steps":20,"batch":8,"rollouts":16}

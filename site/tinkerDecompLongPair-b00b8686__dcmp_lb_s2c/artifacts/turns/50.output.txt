@@ -1,0 +1,24 @@
+rc=0
+skills/trainer/SKILL.md:48:| `reward` | string | `task_completed` | `task_completed` (1.0 if the task's own success check passes, else 0.0); `shaped` (the simulator's staged reward); Python source containing `def reward(r)`; or the path of a `.py` file (relative paths: the workspace) defining `reward(r)`. `r` is the simulator's reply (keys or attributes): `task_completed`, `reward`, `sandbox_rc`, `seed`, `log_tail` (= `stdout_tail`), `stages` (the simulator's ordered checklist for the task, {name: reached}, on tasks it tracks), `final_state` (object poses, gripper and contacts at the episode's end) and `trace` (the same, every few simulation steps of the episode); return a float |
+skills/trainer/SKILL.md:186:Each finished train (and one kept at a stop) also writes `practice_rows.jsonl`: one line per rollout of the call, `{task, seed, prompt_sha, program, reward, step, start}` plus the episode's `stdout_tail`, `sandbox_rc`, `secs`, `task_completed`, `sim_reward` (the reply's `reward`), `stages`, `final_state` and `trace` (reward = the score GRPO gave it; start = the adapter the call started from), with the prompts in `practice_prompts.json` (`{prompt_sha: [chat messages]}`). A rollout whose program was written for two seeds in one step is left out. These are training data you generated yourself; `skills/trainer/sft_rows.py practice adapters/<name>` turns them into SFT rows (see SFT below).
+skills/tools/SKILL.md:62:ordered checklist for the task, {name: reached}, where it keeps one), `final_state` (object poses, gripper and contacts at
+skills/tools/SKILL.md:63:the end) and `trace` (the same, every few simulation steps of the episode). eval.py rows come from the evaluation runner, which records no `stages` or `final_state`. A reward file (`--reward
+skills/tools/SKILL.md:84:2. Look at the state an episode ended in. Each rollout.py row has it (`stages`, `final_state`), and every train records it for
+skills/tools/SKILL.md:87:   checklist for the task where it keeps one (names like `reach ...`, `grasp ...`, `lift ...`; true once reached); `final_state` holds object poses
+skills/tools/SKILL.md:89:   `python3 -c "import json; r = json.loads(open('adapters/NAME/failures.jsonl').readline()); print(r['stages']); print(json.dumps(r['final_state'])[:800])"`
+skills/tools/SKILL.md:98:   A reward may also read `final_state` (e.g. the cube's height above `init_pos`) or what the program printed (`stdout_tail`;
+skills/tools/SKILL.md:114:     (`final_state["t"] == 0`), else the fraction of the task's stages reached in order, plus a small term in [0, 1) for the
+skills/tools/SKILL.md:118:         if r.get("sandbox_rc") not in (0, None) or not (r.get("final_state") or {}).get("t"):
+skills/tools/SKILL.md:124:         near = 0.0   # e.g. 1 - distance to the next stage's target / its start distance, from final_state; 0 if none
+skills/tools/SKILL.md:136:   verifier you see) `task_completed`, `stages` and `final_state` of the reached state, so you can check the prefix reached what
+skills/tools/SKILL.md:140:   `--reward`) have no `stages` / `final_state`, so a reward that reads them scores nothing there; one that reads what the
+skills/tools/SKILL.md:143:   `final_state`) and in the next train's `practice_rows.jsonl` and its stage histogram.
+skills/tools/SKILL.md:195:A verifier reads `final_state`: use it with rollout.py, unit.py and train specs; eval.py rows carry no `final_state`.
+skills/tools/SKILL.md:206:| `python3 verifier.py design --task T --goal TEXT [--unit U] [--purpose TEXT] [--name N]` | A verifier for your goal (or sub-goal) on T, written and reviewed by fresh-context subagents and executed by a lint on states: T's start state scores 0, crashed and no-op rows score 0, goal states score 1, near misses (states that look like the goal but are not: the task's fixed set and the judge's) score 0, and the mean score never falls along T's stage checklist. Writes `verifiers/N.py` (a reward for rollout.py --reward, unit.py and a train spec; eval.py rows carry no `final_state`, so it scores 0 there) and `verifiers/N.audit.json`, or refuses naming the failing check. Uses only your own recorded rows of T: run rollout.py on T first. The subagents' time is charged to your GPU-hour budget (`gpu_hours` in the result). Example: `python3 verifier.py design --task T --goal "sub-goal 1 reached and released" --purpose "reward of sub-goal 1"` |
+skills/tools/SKILL.md:210:- The default reward is a binary current-sub-goal verifier: 1.0 when the sub-goal's predicates hold on `final_state`, else 0.0,
+=====
+adapters/g3a/practice_prompts.json sha keys: 1
+   090cc14e ['system', 'user']
+REVSTACK exact user head: '\nYou are controlling a Franka Emika robot with the API described below.\nGoal: Pick up the green cube and gently stack it'
+system: 'You are a helpful assistant that generates Python code to directly solve the task.'
+n msgs: 2

@@ -1,0 +1,351 @@
+rc=0
+########## nut (job 1) ##########
+--- seed 800001 rc=0 secs=13.5 sim_reward=0.0003750938090444577 stages={'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+  STDOUT TAIL: target_handle_position = peg_position - vector_handle_to_nut
+  
+  # Solve IK for the insertion position
+  joints_insert = solve_ik(target_handle_position, desired_quat_wxyz)
+  
+  # Move to insertion position
+  move_to_joints(joints_insert)
+  
+  # Open gripper to release the nut
+  open_gripper()
+  
+  
+  Environment response:
+    Sandbox failed: 0
+    Stdout: 
+    Stderr: 
+--- seed 800002 rc=0 secs=12.4 sim_reward=0.002727918015174991 stages={'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+  STDOUT TAIL: rld
+  joints_lower = solve_ik(lower_pos, target_quat_wxyz)
+  move_to_joints(joints_lower)
+  
+  # Open gripper to release
+  open_gripper()
+  
+  # Retract
+  retract_pos = lower_pos + 0.05 * insertion_dir_world
+  joints_retract = solve_ik(retract_pos, target_quat_wxyz)
+  move_to_joints(joints_retract)
+  
+  
+  Environment response:
+    Sandbox failed: 0
+    Stdout: 
+    Stderr: 
+--- seed 800003 rc=1 secs=0.8 sim_reward=0.00038313407495031975 stages={'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+  STDOUT TAIL: ut: 
+    Stderr: Traceback (most recent call last):
+    File "…/tasks/base.py", line 174, in _exec_user_code
+      exec(code, self._exec_globals, self._exec_globals)
+    File "<string>", line 9
+      3. Get 3D points from the handle mask
+             ^
+  SyntaxError: invalid decimal literal
+  
+--- seed 800004 rc=0 secs=15.8 sim_reward=0.0003569760372706287 stages={'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+  STDOUT TAIL: s(joints_lower)
+  time.sleep(0.5)
+  
+  # Step 13: Open gripper to release the nut
+  open_gripper()
+  time.sleep(0.5)
+  
+  # Step 14: Retract
+  retract_position = lowered_position + np.array([0, 0, 0.1])
+  joints_retract = solve_ik(retract_position, quaternion_wxyz)
+  move_to_joints(joints_retract)
+  
+  
+  Environment response:
+    Sandbox failed: 0
+    Stdout: 
+    Stderr: 
+--- seed 800005 rc=1 secs=0.8 sim_reward=0.000408895331182224 stages={'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+  STDOUT TAIL: line 174, in _exec_user_code
+      exec(code, self._exec_globals, self._exec_globals)
+    File "<string>", line 5
+      3. Segment the "white hollow center of the brown square nut" to find the nut's center
+                                                                                  ^
+  SyntaxError: unterminated string literal (detected at line 5)
+  
+--- seed 800006 rc=1 secs=0.9 sim_reward=0.00034817046689836754 stages={'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+  STDOUT TAIL: sks/base.py", line 174, in _exec_user_code
+      exec(code, self._exec_globals, self._exec_globals)
+    File "<string>", line 2, in <module>
+  ImportError: cannot import name 'Quaternion' from 'scipy.spatial.transform' (…/transform/__init__.py)
+  
+--- seed 800007 rc=1 secs=0.8 sim_reward=0.00027385643846080656 stages={'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+  STDOUT TAIL:  last):
+    File "…/tasks/base.py", line 174, in _exec_user_code
+      exec(code, self._exec_globals, self._exec_globals)
+    File "<string>", line 5
+      3. Compute 3D points from the handle mask using depth and camera intrinsics
+                 ^
+  SyntaxError: invalid decimal literal
+  
+--- seed 800008 rc=0 secs=8.6 sim_reward=0.0015131775173758961 stages={'reach the handle': False, 'grasp the nut': False, 'align the nut over the peg': False, 'insert the nut': False}
+  STDOUT TAIL: t = solve_ik(p_h_desired, quat_h_wxyz)
+  move_to_joints(joints_insert)
+  
+  # Step 13: Release the nut
+  open_gripper()
+  
+  # Step 14: Retract
+  retract_position = p_h_desired + 0.15 * block_z_axis_world
+  joints_retract = solve_ik(retract_position, quat_h_wxyz)
+  move_to_joints(joints_retract)
+  
+  
+  Environment response:
+    Sandbox failed: 0
+    Stdout: 
+    Stderr: 
+########## restack (job 2) ##########
+--- seed 800009 rc=0 secs=16.9 sim_reward=0.006050079569455968 stages={'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+  STDOUT TAIL: p same orientation as grasp
+  pre_place_joints = solve_ik(pre_place_position, quat_wxyz)
+  move_to_joints(pre_place_joints)
+  
+  # Step 10: Lower gently to placement position
+  move_to_joints(solve_ik(place_position, quat_wxyz))
+  
+  # Step 11: Open gripper to release red cube
+  open_gripper()
+  
+  
+  Environment response:
+    Sandbox failed: 0
+    Stdout: 
+    Stderr: 
+--- seed 800010 rc=0 secs=17.5 sim_reward=0.06061512471792031 stages={'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+  STDOUT TAIL:                        # Move to placement position (gently - this will be a slow move)
+                              move_to_joints(joints_place)
+                              
+                              # Open gripper to release red cube
+                              open_gripper()
+  
+  
+  Environment response:
+    Sandbox failed: 0
+    Stdout: 
+    Stderr: 
+--- seed 800011 rc=1 secs=0.3 sim_reward=0.0004934117571198937 stages={'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+  STDOUT TAIL:  Stdout: 
+    Stderr: Traceback (most recent call last):
+    File "…/sim/obs_guard.py", line 252, in _run
+      exec(code, g, g)
+    File "<string>", line 5
+      3. Calculate the position of both cubes in 3D space
+                                                 ^
+  SyntaxError: invalid decimal literal
+  
+--- seed 800012 rc=0 secs=17.1 sim_reward=8.723952116262979e-12 stages={'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+  STDOUT TAIL: t = solve_ik(retract_pos, placement_quat_wxyz)
+  move_to_joints(joints_retract)
+  
+  
+  Environment response:
+    Sandbox failed: 0
+    Stdout: Red cube center: [-0.02459434 -0.9862885   0.55036168], extent: [0.06337702 0.05971568 0.03894251]
+  Green cube center: [-0.07038184 -0.96757255  0.56900646], extent: [0.06121892 0.06335906 0.04670233]
+  
+    Stderr: 
+--- seed 800013 rc=1 secs=15.9 sim_reward=0.05640921480897444 stages={'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+  STDOUT TAIL: e
+                              open_gripper()
+  
+  
+  Environment response:
+    Sandbox failed: 1
+    Stdout: 
+    Stderr: Traceback (most recent call last):
+    File "…/sim/obs_guard.py", line 252, in _run
+      exec(code, g, g)
+    File "<string>", line 165, in <module>
+  NameError: name 'red_R' is not defined
+  
+--- seed 800014 rc=0 secs=6.6 sim_reward=2.1471671662887104e-11 stages={'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+  STDOUT TAIL: _target = solve_ik(target_position, target_quaternion_wxyz)
+                  
+                  # Move to target position (gently)
+                  move_to_joints(joints_target)
+                  
+                  # Open gripper to release the red cube
+                  open_gripper()
+  
+  
+  Environment response:
+    Sandbox failed: 0
+    Stdout: 
+    Stderr: 
+--- seed 800015 rc=1 secs=7.5 sim_reward=1.0 stages={'unstack the green off the red': False, 'grasp the red': False, 'lift the red': False, 'align the red over the green': False, 'place the red on the green': False}
+  STDOUT TAIL: : Open gripper
+  open_gripper()
+  
+  
+  Environment response:
+    Sandbox failed: 1
+    Stdout: 
+    Stderr: Traceback (most recent call last):
+    File "…/sim/obs_guard.py", line 252, in _run
+      exec(code, g, g)
+    File "<string>", line 84, in <module>
+  IndexError: arrays used as indices must be of integer (or boolean) type
+  
+--- seed 800016 rc=0 secs=8.7 sim_reward=0.017988068115485256 stages={'unstack the green off the red': True, 'grasp the red': False, 'lift the red': False, 'align the red over the green': True, 'place the red on the green': False}
+  STDOUT TAIL: ter.copy()
+  place_approach_pos[2] += approach_offset
+  joints_place_approach = solve_ik(place_approach_pos, grasp_quat_wxyz)
+  move_to_joints(joints_place_approach)
+  
+  # Move down to placement position
+  move_to_joints(joints_place)
+  
+  # Open gripper to release the red cube
+  open_gripper()
+  
+  
+  Environment response:
+    Sandbox failed: 0
+    Stdout: 
+    Stderr: 
+########## revstack (job 3) ##########
+--- seed 800017 rc=0 secs=10.5 sim_reward=0.7396004738561975 stages={'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': True, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+  STDOUT TAIL: oints_place)
+  
+  # Step 14: Open gripper to release the green cube
+  open_gripper()
+  
+  # Step 15: Retract slightly to ensure the cube is released
+  retract_pos = place_pos.copy()
+  retract_pos[2] += 0.05
+  
+  joints_retract = solve_ik(retract_pos, grasp_quat_wxyz)
+  move_to_joints(joints_retract)
+  
+  
+  Environment response:
+    Sandbox failed: 0
+    Stdout: 
+    Stderr: 
+--- seed 800018 rc=0 secs=10.7 sim_reward=0.010068487550279795 stages={'reach the green_cube': True, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+  STDOUT TAIL: 
+  joints_place = solve_ik(place_pos, place_quat)
+  move_to_joints(joints_place)
+  
+  # Open gripper to release
+  open_gripper()
+  
+  # Retract slightly
+  retract_pos = np.array([place_x, place_y, place_z + 0.1])
+  joints_retract = solve_ik(retract_pos, place_quat)
+  move_to_joints(joints_retract)
+  
+  
+  Environment response:
+    Sandbox failed: 0
+    Stdout: 
+    Stderr: 
+--- seed 800019 rc=1 secs=5.4 sim_reward=0.0005596489524179876 stages={'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+  STDOUT TAIL: s_retract)
+  
+  
+  Environment response:
+    Sandbox failed: 1
+    Stdout: 
+    Stderr: Traceback (most recent call last):
+    File "…/sim/obs_guard.py", line 252, in _run
+      exec(code, g, g)
+    File "<string>", line 88, in <module>
+  IndexError: arrays used as indices must be of integer (or boolean) type
+  
+--- seed 800020 rc=0 secs=10.7 sim_reward=0.0007804983779243074 stages={'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+  STDOUT TAIL: _quat)
+  move_to_joints(joints_place)
+  
+  # Step 12: Release the green cube
+  open_gripper()
+  
+  # Step 13: Retract slightly
+  retract_position = placement_position.copy()
+  retract_position[2] += 0.1
+  joints_retract = solve_ik(retract_position, placement_quat)
+  move_to_joints(joints_retract)
+  
+  
+  Environment response:
+    Sandbox failed: 0
+    Stdout: 
+    Stderr: 
+--- seed 800021 rc=0 secs=6.0 sim_reward=0.002049896982214597 stages={'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+  STDOUT TAIL: olve_ik(place_pos, grasp_quat_wxyz)
+  move_to_joints(joints_place)
+  
+  # Release the green cube
+  open_gripper()
+  
+  # Lift up after release
+  release_pos = place_pos.copy()
+  release_pos[2] += lift_height
+  joints_release = solve_ik(release_pos, grasp_quat_wxyz)
+  move_to_joints(joints_release)
+  
+  
+  Environment response:
+    Sandbox failed: 0
+    Stdout: 
+    Stderr: 
+--- seed 800022 rc=0 secs=5.3 sim_reward=0.002104393499538351 stages={'reach the green_cube': True, 'grasp the green_cube': True, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+  STDOUT TAIL: ct_pos[2] += 0.1
+                  joints_retract = solve_ik(retract_pos, grasp_quat_world)
+                  move_to_joints(joints_retract)
+              else:
+                  print("Could not back-project red cube points.")
+          else:
+              print("Red cube mask is empty.")
+  
+  
+  Environment response:
+    Sandbox failed: 0
+    Stdout: 
+    Stderr: 
+--- seed 800023 rc=0 secs=6.6 sim_reward=0.0008818607104307818 stages={'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+  STDOUT TAIL: identity_quat)
+  move_to_joints(joints_place)
+  
+  # Open gripper to release
+  open_gripper()
+  
+  # Retract slightly after release
+  retract_position = place_position.copy()
+  retract_position[2] += 0.1
+  joints_retract = solve_ik(retract_position, identity_quat)
+  move_to_joints(joints_retract)
+  
+  
+  Environment response:
+    Sandbox failed: 0
+    Stdout: 
+    Stderr: 
+--- seed 800024 rc=0 secs=9.1 sim_reward=8.625201398554383e-05 stages={'reach the green_cube': False, 'grasp the green_cube': False, 'lift the green_cube': False, 'align the green_cube over the red_cube': False, 'place the green_cube on the red_cube': False}
+  STDOUT TAIL: nt position
+  joints = solve_ik(place_pos, identity_quat)
+  move_to_joints(joints)
+  
+  # Open gripper to release the green cube
+  open_gripper()
+  
+  # Retract slightly
+  retract_pos = place_pos.copy()
+  retract_pos[2] += 0.1
+  joints = solve_ik(retract_pos, identity_quat)
+  move_to_joints(joints)
+  
+  
+  Environment response:
+    Sandbox failed: 0
+    Stdout: 
+    Stderr: 

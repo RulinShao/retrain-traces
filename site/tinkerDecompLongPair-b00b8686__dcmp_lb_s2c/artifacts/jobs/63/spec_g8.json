@@ -1,0 +1,1 @@
+{"task": "revstack", "name": "g8", "init": "g3a", "init_mode": "resume", "steps": 40, "reward": "rewards/g8.py", "seed_start": 831001}

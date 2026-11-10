@@ -1,0 +1,76 @@
+rc=0
+total 2070
+drwxr-sr-x 6 root nobody 8192 Nov  7 03:46 .
+drwxr-xr-x 4 root root     80 Nov  7 03:46 ..
+-rw-r--r-- 1 root nobody 2086 Nov  7 03:44 ENVIRONMENT.json
+-rw-r--r-- 1 root nobody 1235 Nov  7 03:44 SCOREBOARD.md
+-rw-r--r-- 1 root nobody  297 Nov  7 03:44 STATUS.json
+-rw-r--r-- 1 root nobody  741 Nov  7 03:44 _submit.py
+lrwxrwxrwx 1 root nobody   19 Nov  7 03:44 adapters -> ../session/adapters
+-rw-r--r-- 1 root nobody  396 Nov  7 03:44 cancel.py
+-rw-r--r-- 1 root nobody  788 Nov  7 03:44 eval.py
+-rw-r--r-- 1 root nobody 1401 Nov  7 03:44 finish.py
+drwxr-sr-x 2 root nobody  512 Nov  7 03:44 jobs
+-rw-r--r-- 1 root nobody  559 Nov  7 03:44 load.py
+drwxr-sr-x 2 root nobody  512 Nov  7 03:44 outputs
+-rw-r--r-- 1 root nobody 3008 Nov  7 03:44 preset.py
+-rw-r--r-- 1 root nobody  759 Nov  7 03:44 reward_check.py
+-rw-r--r-- 1 root nobody 3752 Nov  7 03:44 rollout.py
+drwxr-sr-x 5 root nobody  512 Nov  7 03:44 skills
+-rw-r--r-- 1 root nobody  795 Nov  7 03:44 status.py
+drwxr-sr-x 5 root nobody  512 Nov  7 03:44 tasks
+-r--r--r-- 1 root nobody 2142 Nov  7 03:44 tasks.json
+-rw-r--r-- 1 root nobody  595 Nov  7 03:44 train.py
+-rw-r--r-- 1 root nobody 1581 Nov  7 03:44 unit.py
+-rw-r--r-- 1 root nobody 1617 Nov  7 03:44 verifier.py
+-rw-r--r-- 1 root nobody  568 Nov  7 03:44 wait.py
+====
+tasks/nut:
+eval_prompt.txt
+
+tasks/restack:
+eval_prompt.txt
+
+tasks/revstack:
+eval_prompt.txt
+====
+usage: python3 rollout.py --adapter A[,B...]|base|loaded --task T --seeds N [--reward FILE]  -- run the policy (that adapter stack) on N
+fresh dev seeds of task T and return, per seed, its program, the tail of what the program printed and the run facts (seed,
+sandbox_rc, secs, wall_s, task), plus task_completed and stdout_tail on a task whose verifier you can see, and there, where the
+site runs the programs on the task's practice simulator, sim_reward, stages and final_state. --reward FILE (a .py in
+your workspace defining reward(result) -> float) also scores each seed with your reward over those keys (not the program).
+Charged as an eval of N seeds. The rows are written to rollouts/<job id>.jsonl; the job result and SCOREBOARD.md give the mean of
+your reward.
+--magic "prefix:<stage>=set FILE.json | attach OBJECT" (DEV practice): at each seed's reset the simulator edits the scene so that
+the checklist's stages up to <stage> are done (set: FILE = {"objects": {name: [x,y,z] or [x,y,z,qw,qx,qy,qz]}, "robot": {"joints":
+[...], "gripper": "open"|"closed"|fraction}, "attach": OBJECT (optional: after the poses, OBJECT into the gripper),
+"grasp_point": POINT (optional, with attach: that point of OBJECT at the gripper instead of its centre, e.g. a handle)};
+attach: OBJECT in the closed gripper), checks it (25 settle steps, 5 mm / 10 deg,
+penetration < 2 mm, the stages hold, the task not already done) and runs the program from there; a refused edit is the row's
+`magic.reason` and the program does not run. Rows carry `magic` and `label: "privileged practice (magic)"`, are never success data
+for a train, and eval.py never takes --magic. --magic-presets NAME also saves the states before / after each valid edit as presets
+NAME_pre / NAME_post (a unit from NAME_pre gets as default done the post state's `signature`).
+--magic-prefix stage=<k|name> [--suffix policy|oracle] (the magic ladder, DEV practice): each seed starts at the boundary of the
+task's ladder cut k (the state is the environment's, not a file of yours; the cuts are listed in a refusal), then the suffix
+runs: policy (default) = the stack's programs, rows as with --magic; oracle = the task's human-expert oracle tail on the privileged
+API (doability probe: COUNTS ONLY, n/N, labelled "upper bound / doability", never rows, never training data). All ladder calls of
+a task run on its first ladder call's seeds; the job result and SCOREBOARD.md give the success per cut over them.
+
+options:
+  -h, --help            show this help message and exit
+  --adapter ADAPTER
+  --task TASK
+  --seeds SEEDS
+  --reward REWARD       a .py file in your workspace defining reward(result)
+                        -> float
+  --magic MAGIC         prefix:<stage>=set FILE.json | prefix:<stage>=attach
+                        OBJECT (DEV practice)
+  --magic-presets MAGIC_PRESETS
+                        with --magic or --magic-prefix (policy suffix): save
+                        the states before / after each edit as presets
+                        NAME_pre / NAME_post
+  --magic-prefix MAGIC_PREFIX
+                        stage=<k|name>: start at the boundary of the task's
+                        ladder cut k (DEV practice)
+  --suffix {policy,oracle}
+                        with --magic-prefix: the stack's programs (default) or

@@ -1,0 +1,1 @@
+{"objective":"sft","name":"sft2","data":"sft_gold2.jsonl","epochs":4,"batch":16,"lr":1e-4}

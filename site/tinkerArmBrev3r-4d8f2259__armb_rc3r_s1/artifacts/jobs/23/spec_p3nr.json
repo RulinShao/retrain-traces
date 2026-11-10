@@ -1,0 +1,1 @@
+{"name": "p3_nr", "task": "restack", "reward": "shaped", "steps": 12, "batch": 8, "rollouts": 8, "init": "p1_nr"}

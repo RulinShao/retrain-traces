@@ -1,0 +1,137 @@
+{
+ "status": "DONE",
+ "turns": 5,
+ "gpu_hours": 0.8125,
+ "final_score": {
+  "loaded": "e2e_c1",
+  "per_task": {
+   "wipe": 47
+  },
+  "total": 47,
+  "n_per_task": 100,
+  "submission": "769000",
+  "confirmed": true,
+  "per_split": {
+   "id": 47
+  },
+  "final_splits": [
+   "id"
+  ]
+ },
+ "agent": "scripted:e2e-rl-uniform",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": 262144
+ },
+ "mode": "dev",
+ "policy_model": "Qwen3.8-27B",
+ "trainer": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B",
+ "tinker": {
+  "calls": 1,
+  "usd": 18.2458,
+  "tinker_s": 5598.89,
+  "usd_all_resumes": 18.2458,
+  "jobs_all_resumes": 1
+ },
+ "capx_version": "9117dfe9c8cb",
+ "gpu_hours_actual": 1.5475,
+ "gpu_hours_charging": "canonical",
+ "cost_model": "v2",
+ "gpu_hours_lost": 0.0,
+ "measured_vs_canonical": 1.231,
+ "agent_gpu_h": 0.0,
+ "measured_cost": {
+  "train_gpu_h": 0.0,
+  "reason_gpu_h": 0.0,
+  "sandbox_gpu_h": 0.8125,
+  "usd_tinker": 18.2458,
+  "charged_gpu_h": 0.8125,
+  "tokens": {
+   "prompt": 0,
+   "completion": 0
+  },
+  "unmeasured_calls": 0
+ },
+ "submission": {
+  "token": "769000",
+  "how": "default-loaded-stack",
+  "turn": 3,
+  "confirmed": true,
+  "confirmed_turn": 4,
+  "ended_by": "DONE",
+  "note": "e2e-RL (uniform): adapter e2e_c1 for every task (fixed recipe)",
+  "policy": "base + e2e_c1 (sha e7756ca2f90b)"
+ },
+ "budget_forcing": "budget-forcing v1",
+ "skills_version": null,
+ "initial_skills_digest": "2f2404c16abd976422835e9d1d5d2ba29d31a769191e37aad6a9360ab2a1cf08",
+ "suite": {
+  "name": "A-wipe",
+  "version": 2,
+  "hash": "sha256:29a7d1c73df2ce90",
+  "train": [
+   "wipe"
+  ],
+  "eval": [
+   {
+    "cell": "wipe",
+    "split": "id"
+   },
+   {
+    "cell": "lift",
+    "split": "retain"
+   },
+   {
+    "cell": "stack",
+    "split": "retain"
+   },
+   {
+    "cell": "nut",
+    "split": "retain"
+   },
+   {
+    "cell": "restack",
+    "split": "retain"
+   },
+   {
+    "cell": "twolift",
+    "split": "retain"
+   },
+   {
+    "cell": "handover",
+    "split": "retain"
+   },
+   {
+    "cell": "revstack",
+    "split": "retain"
+   },
+   {
+    "cell": "stackv2",
+    "split": "retain"
+   }
+  ],
+  "splits": {
+   "wipe": "id",
+   "lift": "retain",
+   "stack": "retain",
+   "nut": "retain",
+   "restack": "retain",
+   "twolift": "retain",
+   "handover": "retain",
+   "revstack": "retain",
+   "stackv2": "retain"
+  }
+ },
+ "turns_before_first_action": 0,
+ "tokens_before_first_action": 0,
+ "first_action": "train",
+ "artifacts": {
+  "registry": "…/mtprobe-mt3/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

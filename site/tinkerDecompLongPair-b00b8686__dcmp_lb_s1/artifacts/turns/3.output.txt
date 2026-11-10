@@ -1,0 +1,102 @@
+rc=0
+60:
+61:A continuation (`init` = an earlier adapter) practises on fresh seeds by default: its lineage's next unused block, recorded in `call.json` as `lineage`, `seed_cursor` (the block allocated) and `seeds_consumed` (the seeds the rollouts actually used). Fresh means the next draw from the same seed space, not a chosen difficulty; set `seed_start` or `seeds` to replay.
+62:
+63:Scenes of a call: one train already covers steps×batch×rollouts distinct scenes; set `seeds` to spread scenes or `seed_start` past the parent's range when continuing; sequential continuation remains allowed. `call.json` of a call with `seeds` records them as `seeds` in range form.
+64:
+65:## Training data (`data`)
+66:`data` names a JSONL file in your workspace (a path relative to the workspace, or absolute inside it): one line per training
+67:prompt, `{"task": ..., "seed": ..., "variant": ..., "prompt": ...}` (`variant` and `prompt` optional, no other keys):
+68:- `task`: a trainable task. `variant`: another trainable task of the same simulator task (e.g. `stack` with variant `revstack`; revstack runs under a scene shift and practises alone, so a dataset with revstack rows has no rows of any other task); the row then
+69:  trains on `variant`. Any mixture of tasks and variants is allowed.
+70:- `seed`: an integer >= 810001 (seeds 1-100 are the final score's, 800001-809999 are eval.py's dev seeds); all `rollouts`
+71:  rollouts of the row run on that seed.
+72:- `prompt`: replaces the task's user message for that row only (the system message stays). A row without `prompt` trains on
+73:  the task's eval prompt, checked byte for byte before training; a row with `prompt` is not checked and counts as a prompt
+74:  override, a method choice recorded with the adapter (`data.prompt_overrides` and `data.label` in training.json).
+75:- Rows train in file order, `batch` rows per step: the row count must be a multiple of `batch`, and the call runs
+76:  rows / batch steps (omit `steps`, or give that number). The call's tasks come from the rows (omit `task`); `note` and
+77:  `goal` are not accepted with `data`. At most 4096 rows, 16 MB, 65536 characters per `prompt`.
+78:- The file is copied when the call starts; training.json's `resolved_spec.data` and the train's result (`config.data`) record
+79:  its `sha256`, `rows`, rows per task (`tasks`) and `prompt_overrides`.
+80:
+81:## SFT (`objective: sft`)
+82:A spec `{"objective": "sft", "data": "<file>.jsonl"}` (optional: `name`, `init`, `epochs` (1), `batch` (16 rows per step), `lr`
+83:(1e-4), `min_reward` (1.0), `time`; no other field) trains the policy's LoRA by supervised fine-tuning (cross-entropy on the program's
+84:tokens only; LoRA rank 32 / alpha 64 on the policy's modules, or `init` continued; without `init` it continues the policy's own init,
+85:as a practice call does). It runs on the small policy profiles (SCOREBOARD.md's `policy:` line names one, e.g. Qwen3-8B).
+86:Availability is per policy profile: the session's turn-0 facts state it (`train objectives for this session's policy (...)`).
+87:- Each line of `data` is `{"task": ..., "seed": ..., "prompt": [{"role": "system" | "user", "content": ...}, ...], "program": ..., "reward": ...}`
+88:  (exactly these keys): `task` a trainable task (a hidden task by the name you see), `prompt` the chat the program answers (the user
+89:  message last; `tasks/<task>/eval_prompt.txt` as messages is the eval prompt of record), `program` the response trained on, `reward`
+90:  a number used only as the `min_reward` filter.
+91:- `seed` is the scene the program ran on: seeds 1-100 (the final score's) and 800001-809999 (eval.py's dev seeds) are refused, so
+92:  no reading you or the final score take is on a scene the policy was fitted on.
+93:- A kept row whose prompt is not the task's eval prompt of record is a prompt override (a method choice): counted in
+94:  `data.prompt_overrides` and labelled, as `note`/`goal` are.
+95:- Steps = ceil(kept rows x epochs / batch); rows train in a fixed shuffled order; a row longer than 4096 tokens is dropped (`call.json`
+96:  `sft_facts.dropped_too_long`). At most 20000 rows, 256 MB, 65536 characters per message or program.
+97:- Building the file: `python3 skills/trainer/sft_rows.py practice adapters/<name> [--min-reward 1] [--steps 3-5] > sft.jsonl` takes a
+98:  finished practice call's rollouts (Output below); `python3 skills/trainer/sft_rows.py rollouts rollouts/<id>.jsonl [--min-reward 1] > sft.jsonl`
+99:  takes rollout.py rows (reward = your self_reward). Both print why each dropped row was dropped.
+100:- Output: `adapters/<name>/` with the adapter, `sft_log.json` (per step: `step`, `loss`, `grad_norm`, `tokens`), `call.json` and
+101:  `training.json` (`resolved_spec.data`: `sha256` of your file, `rows`, `kept`, rows per task, `min_reward`, `prompt_overrides`); the
+102:  train's result shows the same under `config.data`. A cancel or a cluster stop keeps nothing (the adapter is saved at the end).
+103:- Cost: 1 GPU x (0.05 + 0.000695 x steps x batch) canonical GPU-hours (the admission estimate counts every row of the file).
+104:
+105:## Early stop (`stop_when`)
+106:Optional. `{"plateau_steps": K, "min_gain": g}` stops the call once K steps in a row pass without the smoothed reward rising more
+107:than g above its best so far; `{"reward_at_least": r}` stops it once the smoothed reward reaches r; with both, the first that
+108:holds stops it. The smoothed reward is the mean `score_mean` of the last 3 steps, so neither can stop a call before step 3
+109:(a call of fewer than 3 steps, or with 3 + K > `steps`, is refused). It is checked after every step. The adapter is the step it
+110:held at (`stop_step`); the call is charged the steps it completed (`steps_run`, which can include a step that finished before the
+111:stop took effect), and `training.json` / `call.json` record `stopped_early: true`, `stop_step`, `stop_reason` (`plateau` or
+112:`target_reward`) and `steps_run`; the call's `state` is `STOPPED` (a finished call, not a failure). Without it, all `steps` run.
+113:
+114:## Defaults (identity-v2)
+115:A spec with no fields (`{}`) continues your lineage on the whole task set with fresh seeds for the rest of your budget. A field you omit takes its default: `task` = this session's tasks (tasks.json) in one call, an equal split per batch; tasks with no practice unit here, and, in a set of several, tasks that practise alone (revstack; hidden tasks), are left out and listed with the reason; `batch` of a task list = the smallest number >= 8 that splits as asked; `steps` = as many steps as your remaining GPU-hour budget affords at this call's cost (budget minus GPU-hours charged minus the estimates of your running calls), at most what the Tinker spend cap affords when trainer=tinker; with no session budget, 1; not one step affordable: the call is refused, naming `steps` and the GPU-hours remaining (`data` and `init_mode: resume` set the steps themselves); `init` = the adapter this session trained last (none yet: a fresh LoRA); seeds = the lineage's next unused block. Every field can be set to override its default. Each `call.json`, `training.json` and job result carries `train_defaults`: `defaults` (`identity-v2`), `defaulted` (the fields that took their default), when `task` did, `task_set` (`source`, `tasks`, `left_out`), and when `steps` did, `steps_default` (`available`, `per_step`, `fixed`, `cap`, `steps`).
+116:- resume: `init_mode: resume` + `init` (same lineage, the parent's full state)
+117:- branch: `init_mode: branch` + `init` (a new lineage from the parent's weights)
+118:- fresh: `init_mode: fresh` (a new LoRA, a new lineage)
+119:
+120:## Continuation
+121:What a train starts from is one rule across sites (`init`, `init_mode`): without either, the adapter this session trained last is
+122:continued (its lineage goes on); nothing trained yet means a fresh LoRA. `init` alone is the site's native continuation (stated in
+123:its row). `init_mode` makes it exact: `resume`, `branch`, `fresh`. Every `call.json` / `training.json` records `continuation`
+124:(`kind`, `parent`, `state_restored`, `parent_checkpoint_id`, `resume_from_step`), `lineage_id` (minted when a lineage starts, kept by
+125:resume / continue, new on branch / fresh) and `checkpoint_id` (the weights' digest); the job result's `receipt.lineage` repeats
+126:them. A `resume` whose parent's full state is gone is refused with that fact (start from its weights with `branch` instead). No
+127:default picks an adapter by score: "last trained" is the one you trained most recently.
+128:
+129:## Failures
+130:A request this site cannot run as written ends `failed` in `jobs/<id>.json` with this text; nothing is charged:
+131:- `train: unsupported spec field(s) ['<field>', ...]; this site reads only: steps, lr, batch, seed_start, reward, init, start_preset, start_mix, note, goal, time, rollouts, seeds, init_mode, weights, task, name, data, objective, epochs, min_reward, stop_when, score_center`
+132:- `train: rollouts must be 8 or 16 (rollouts per prompt, the GRPO group size), got <value>: ...` (an integer; 16.0 or true is refused too)
+133:- `train: seeds: <reason>` when `seeds` is malformed (`'<part>' is not a seed or a range a-b`, a range that runs backwards, a non-integer entry), names a hidden seed (`<s> is a hidden seed; seeds 1-100 are reserved ...`) or is too short (`<n> seeds for a call of <m> rollouts (steps x batch x rollouts); give at least <m>`); `train: seeds cannot be combined with <field>: <why>` with `data`, `start_preset` or `start_mix`
+134:- `train: task must be one of ['lift', 'nut', 'restack', 'revstack', 'stack', 'wipe'], got '<task>'` (twolift, handover, stackv2 have no practice unit here)
+135:- `train: init adapter not found: <path>`
+136:- `train: reward must be 'task_completed', 'shaped' or the path of a .py file defining reward(result) -> float`
+137:- `train: reward file <path> is outside your workspace; a reward file must be a file in your workspace` (a symlink is not followed either)
+138:- `reward check (before any spend): <file> scores its start state / a crashed program at or above the median of programs that ran (start-state <x> (n <k>), crash <y> (n <k>), running median <z> (n <k>)); ...`: a `.py` reward is scored on your own recorded rows of the task (rollouts/*.jsonl and adapters/*/practice_rows.jsonl: rows that never moved, rows that crashed, rows that ran) before the train starts; nothing is charged. `"allow_noop_reward": true` in the spec trains anyway (recorded); otherwise the numbers are in the train's result (`reward_check`).
+139:- `train: name: letters, digits, _ . - (max 48)`
+140:- sft: `train: data line <N>: <rule>` (a row's keys, task, seed reserved, prompt, program or reward), `train: no row has reward >= min_reward <m> ...`, `train: field(s) [...] have no meaning with objective 'sft'; ...`, `train: objective 'sft' needs data: ...`, `train: objective 'sft' trains the small policy profiles on this site ...`, `train: steps <s> != ceil(kept rows x epochs / batch) = <n>; omit steps`, `train: task: an sft spec trains the tasks of its kept rows (...); omit task`
+141:- `train: data line <N>: <rule>` for a row that breaks a rule above (not a JSON object; unsupported key(s); task must be one of ...; seed must be an integer; seed <s> is reserved ...; variant of '<task>' must be one of ...; prompt must be a non-empty string; prompt has <n> characters), or `train: data file has no rows` / `data has more than 4096 rows` / `data file is <n> bytes; at most 16777216`
+142:- `train: data has <rows> rows, not a multiple of batch <batch>: ...` / `train: steps <s> != data rows / batch = ...; omit steps` / `train: task: a spec with data trains the tasks its rows name (...); omit task` / `train: note cannot be set with data; ...`
+143:- `train: data file <path> is outside your workspace; a data file must be a file in your workspace` (a symlink is not followed either)
+144:- `train: batch <b> does not split equally across <n> tasks [...]; use a multiple of <n>` / `train: task: each task at most once, got [...]` / `train: note edit one task's training prompt; a spec naming several tasks cannot set them` (a `task` list)
+145:- `train: task 'revstack' runs its simulator under a scene shift and practises alone; name it in a spec of its own`
+146:- `train: your reward function raised <Error>: <message> (reward.py line N); ...` / `train: your reward function tried to <action> (<detail>), which the reward sandbox refuses; ...` / `train: your reward function ran longer than 120 s on one rollout ...`: a custom `reward(r)` runs in a sandbox, once per rollout: plain Python and the interpreter's libraries (math, json, numpy), files only in its working directory (temporary), no other files, no network, no subprocesses, 60 s CPU and 4 GiB per call. The train stops at the first such failure.
+147:- `train: seeds 1-100 are reserved for the final score; use dev seeds >= 800001`
+148:- `train: stop_when...` for a `stop_when` that breaks a rule of Early stop above (the message names the rule)
+149:- B2: `train: start_preset '<p>' is a registry preset, built with the privileged oracle; on a hidden task build your own start states with preset.py ...` / `train: start_preset '<p>' was built on task another task, not <task>`
+150:A failure inside the trainer or the simulator (crash, missing adapter files, a hidden seed used) ends the session as an infrastructure
+151:fault. An all-zero update is a training outcome, shown on the scoreboard: the adapter's change is zero, so it behaves as its init (base or the init adapter).
+152:
+153:## Progress and cancel
+154:While a train runs, its record shows completed steps, the latest step's mean reward, the fraction of rollouts with reward > 0
+155:and canonical GPU-hours of the steps done so far (read from the trainer's per-step output about once a minute). A checkpoint is saved every
+156:step. A call stopped by the cluster (time limit, preemption, node failure) continues from its last checkpoint in a new Slurm job, at most 3 times; its status then says `continued from step k in job J`, and its result lists every Slurm job (`jobs`) and each continuation (`continued`: `job` stopped, `cause`, `from` step, `of` steps, `continued_in` job), as it lists site retries.
+157:`cancel.py ID` stops the job and keeps the adapter of the last saved step (registered with the steps it ran), or ends the
+158:job `failed` if none was saved; either way the job is charged the canonical cost of the steps it completed (see Cost).
+159:
+160:## Cost (canonical GPU-hours)

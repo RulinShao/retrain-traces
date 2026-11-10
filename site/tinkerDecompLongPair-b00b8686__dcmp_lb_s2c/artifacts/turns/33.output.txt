@@ -1,0 +1,123 @@
+rc=0
+seed: 814878 task_completed: False reward: 0.23636363636363636 stages: {'unstack the green off the red': True, 'grasp the red': False, 'lift the red': True, 'align the red over the green': True, 'place the red on the green': False}
+=== SUCCESS tail (grasp transform & place) ===
+that the fingers are along certain axes.
+# However, the solve_ik function expects the target position and orientation for the panda_hand link. There might be an offset between the gripper center and the panda_hand link.
+# Without explicit TCP offset information, we might need to assume that the grasp pose's origin directly corresponds to the panda_hand position, or that the grasp pose is for the gripper center and we need to add an offset.
+# Let's check typical Franka Panda: the panda_hand link is the tip of the wrist, which is essentially at the gripper center. The gripper's finger closing direction is along the z-axis of the hand frame? Actually, in Franka Panda, the panda_hand link's frame: z is forward along the arm, x is right, y is down? Not sure.
+# Given the complexity, perhaps the intended solution is simpler:
+# - Use plan_grasp to get a grasp pose in camera frame.
+# - Transform it to world frame.
+# - Use that position and orientation directly as the target for solve_ik (assuming the grasp pose is defined at the panda_hand location).
+# Let's do that.
+
+grasp_poses, grasp_scores = plan_grasp(depth, intrinsics, red_mask.astype(np.int32))
+best_idx = np.argmax(grasp_scores)
+T_cam_grasp = grasp_poses[best_idx]  # 4x4
+
+# Transform to world: T_world_grasp = pose_mat @ T_cam_grasp
+T_world_grasp = pose_mat @ T_cam_grasp
+
+# Extract position and orientation from T_world_grasp
+grasp_pos = T_world_grasp[:3, 3]
+R_world_grasp = T_world_grasp[:3, :3]
+quat_xyzw = scipy.spatial.transform.Rotation.from_matrix(R_world_grasp).as_quat()
+quat_wxyz = np.array([quat_xyzw[3], quat_xyzw[0], quat_xyzw[1], quat_xyzw[2]])
+
+# However, the grasp pose's origin might be at the gripper's center, and we want the panda_hand to be at that point.
+# So we can use grasp_pos as the position for solve_ik.
+joints_grasp = solve_ik(grasp_pos, quat_wxyz)
+
+# Step 9: Move the robot to the grasp position and close the gripper.
+move_to_joints(joints_grasp)
+close_gripper()
+
+# Step 10: Move to the placement position.
+# The placement position should be such that the gripper (which is holding the cube) is at a position where the cube is on top of the green cube.
+# The cube's center is at the gripper's origin? In the grasp pose, the origin is likely at the center of the cube.
+# So if we move the gripper to desired_red_center, the cube will be at desired_red_center.
+# But we also need the correct orientation. The orientation of the gripper at the grasp pose might be different from the orientation we want at placement.
+# We want the cube to be axis-aligned? Actually, we just need the cube to be on top of the green cube; any orientation is fine as long as it is stable.
+# The simplest: keep the same orientation as at grasp. Then we just need to move from the grasp position to the placement position where the cube's center is at desired_red_center.
+# The vector from grasp_pos (cube center at grasp) to desired_red_center (cube center at placement) in world frame is:
+delta = desired_red_center - grasp_pos
+
+# We can simply move the gripper to desired_red_center with the same orientation as at grasp.
+joints_place = solve_ik(desired_red_center, quat_wxyz)
+
+# But before that, we should raise the gripper a bit to avoid collision? Actually, we are holding the cube, and we need to move it horizontally and vertically.
+# To ensure nothing is dropped from a height, we should move it gently.
+# We can move directly to the placement position.
+move_to_joints(joints_place)
+
+# Step 11: Open the gripper.
+open_gripper()
+=====
+INDEX.md
+nut
+nut.md
+restack
+restack.md
+revstack
+revstack.md
+12:APIs:
+13-
+14-get_observation() -> dict[str, typing.Any]
+15-  Doc:
+16-    Get the observation of the environment.
+17-    Returns:
+18-        observation:
+19-            A dictionary containing the observation of the environment.
+20-            The dictionary contains the following keys:
+21-            - ["robot0_robotview"]["images"]["rgb"]: Current color camera image as a numpy array of shape (H, W, 3), dtype uint8.
+22-            - ["robot0_robotview"]["images"]["depth"]: Current depth camera image as a numpy array of shape (H, W), dtype float32.
+23-            - ["robot0_robotview"]["intrinsics"]: Camera intrinsic matrix as a numpy array of shape (3, 3), dtype float64.
+24-            - ["robot0_robotview"]["pose_mat"]: Camera extrinsic matrix as a numpy array of shape (4, 4), dtype float64.
+25-
+26-point_prompt_molmo(image: numpy.ndarray, text_prompt: str) -> dict[str, tuple[int | None, int | None]]
+27-  Doc:
+28-    Use Molmo to point to a coordinate in the image based on a text prompt.
+29-    
+30-    Args:
+31-        image: np.ndarray: The RGB image to process. Shape: (H, W, 3), dtype uint8.
+32-        text_prompt: str: The text prompt to point to.
+33-    
+34-    Returns:
+35-        dict[str, tuple[int | None, int | None]]: Pixel coordinates for each
+36-        object query; (None, None) if parsing failed.
+37-
+38-segment_sam3_text_prompt(rgb: numpy.ndarray, text_prompt: str) -> list[dict[str, typing.Any]]
+39-  Doc:
+40-    Run SAM3 segmentation on an RGB image conditioned on a text prompt.
+41-    
+42-    Args:
+43-        rgb:
+44-            RGB image array of shape (H, W, 3), dtype uint8.
+45-        text_prompt:
+46-            Text prompt for SAM3 segmentation.
+47-    
+48-    Returns:
+49-        masks:
+50-            A list of dictionaries. Each dict may contain:
+51-    
+52-              - "mask":  np.ndarray of shape (H, W), dtype bool,
+53-                          where True means the pixel belongs to the instance.
+54-              - "box": list [x1, y1, x2, y2] in pixel coordinates.
+55-              - "score": float confidence score.
+56-
+57-segment_sam3_point_prompt(rgb: numpy.ndarray, point_coords: tuple[float, float]) -> list[dict[str, typing.Any]]
+58-  Doc:
+59-    Run SAM3 segmentation on an RGB image, optionally conditioned on an image coordinate point prompt.
+60-    
+61-    Args:
+62-        rgb:
+63-            RGB image array of shape (H, W, 3), dtype uint8.
+64-        point_coords:
+65-            (x, y) pixel coordinates of the point prompt.
+66-    
+67-    Returns:
+68-        masks:
+69-            A list of dictionaries. Each dict may contain:
+70-    
+71-              - "mask":  np.ndarray of shape (H, W), dtype bool,
+72-                          where True means the pixel belongs to the instance.

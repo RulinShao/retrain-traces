@@ -1,0 +1,11 @@
+{
+  "task": "restack",
+  "name": "rc_full_t1",
+  "init": "rc_a_t3",
+  "reward": "rewards/full_reward.py",
+  "steps": 14,
+  "batch": 8,
+  "rollouts": 8,
+  "lr": 2e-5,
+  "allow_noop_reward": true
+}

@@ -1,0 +1,108 @@
+{
+ "status": "FAILED-INFRA",
+ "error": "eval_failed: JobFailed('eval: sbatch rejected the job twice: sbatch: error: Batch job submission failed: Requested node configuration is not available -- constraints: partition=gpu-h200 account=gpu-h200-zlab qos=normal gres=gpu:h200:1 cpus-per-task=16 mem=180G time=02:00:00 exclude=g3130,g3132,g3097,g3113,g3125,g3131,g3128,g3126,g3109,g3129,g3127; retry without the transient node-health entries: partition=gpu-h200 account=gpu-h200-zlab qos=normal gres=gpu:h200:1 cpus-per-task=16 mem=180G time=02:00:00 exclude=g3130,g3132,g3097,g3113,g3125,g3131,g3128,g3126,g3109,g3129,g3127')",
+ "gpu_hours": 46.9145,
+ "final_score": null,
+ "agent": "local",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": 262144
+ },
+ "mode": "dev",
+ "final_episodes": 50,
+ "policy_model": "Qwen3.8-27B",
+ "eval_backend": "tinker, decode=tinker(no_presence_penalty) (DEV backend only: dev/checkpoint evals of Tinker-trained adapters sample on Tinker; hidden evals and other adapters run locally)",
+ "trainer": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B charge=canonical sim=l40s",
+ "tinker": {
+  "calls": 19,
+  "usd": 511.5887,
+  "tinker_s": 54848.68,
+  "usd_all_resumes": 511.5888,
+  "jobs_all_resumes": 20
+ },
+ "capx_version": "9117dfe9c8cb",
+ "gpu_hours_actual": 22.5972,
+ "gpu_hours_charging": "canonical",
+ "cost_model": "v2",
+ "gpu_hours_lost": 0.0008,
+ "measured_vs_canonical": 0.482,
+ "agent_gpu_h": 1.58,
+ "measured_cost": {
+  "train_gpu_h": 0.0,
+  "reason_gpu_h": 1.58,
+  "sandbox_gpu_h": 19.3781,
+  "usd_tinker": 511.5887,
+  "charged_gpu_h": 46.9145,
+  "tokens": {
+   "prompt": 1946326,
+   "completion": 133124
+  },
+  "unmeasured_calls": 0
+ },
+ "submission": {
+  "token": "363386",
+  "how": "default-loaded-stack",
+  "turn": 39,
+  "confirmed": true,
+  "confirmed_turn": 40,
+  "ended_by": "DONE",
+  "note": null,
+  "policy": "base + cn5 (sha 6d2f1a67f355)"
+ },
+ "budget_forcing": "budget-forcing v1",
+ "skills_version": "nogit-f1700b86",
+ "initial_skills_digest": "c03a125cc309c412bd84f262e2217b672d7caffa2a126cf498ce464a265e0625",
+ "suite": {
+  "name": "hard3",
+  "version": 2,
+  "hash": "sha256:2c998917f89d741e",
+  "train": [
+   "nut",
+   "restack",
+   "revstack"
+  ],
+  "eval": [
+   {
+    "cell": "nut",
+    "split": "id"
+   },
+   {
+    "cell": "restack",
+    "split": "id"
+   },
+   {
+    "cell": "revstack",
+    "split": "id"
+   },
+   {
+    "cell": "t2_ss",
+    "split": "far"
+   },
+   {
+    "cell": "t2_spl",
+    "split": "far"
+   }
+  ],
+  "splits": {
+   "nut": "id",
+   "restack": "id",
+   "revstack": "id",
+   "t2_ss": "far",
+   "t2_spl": "far"
+  }
+ },
+ "env_text": "v2",
+ "env_text_revision": "v2.1",
+ "turns_before_first_action": 19,
+ "tokens_before_first_action": 37051,
+ "first_action": "train",
+ "artifacts": {
+  "registry": "…/tinkerDecompArmE-17197587/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

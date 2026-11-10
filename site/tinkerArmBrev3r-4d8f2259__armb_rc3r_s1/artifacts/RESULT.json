@@ -1,0 +1,125 @@
+{
+ "status": "DONE",
+ "turns": 28,
+ "gpu_hours": 15.1897,
+ "final_score": {
+  "loaded": "p3_rvs+p3_nr",
+  "per_task": {
+   "nut": 0,
+   "restack": 0,
+   "revstack": 1,
+   "t2_ss": 0,
+   "t2_spl": 0
+  },
+  "total": 1,
+  "n_per_task": 50,
+  "submission": "dfa470",
+  "confirmed": true,
+  "per_split": {
+   "id": 1,
+   "far": 0
+  }
+ },
+ "agent": "local",
+ "context": {
+  "context_tokens": 160000,
+  "effective_context_tokens": 160000,
+  "server_context_length": 262144
+ },
+ "mode": "dev",
+ "final_episodes": 50,
+ "policy_model": "Qwen3.8-27B",
+ "eval_backend": "tinker, decode=tinker(no_presence_penalty) (DEV backend only: dev/checkpoint evals of Tinker-trained adapters sample on Tinker; hidden evals and other adapters run locally)",
+ "trainer": "trainer=tinker base=tinker:Qwen/Qwen3.8-27B charge=canonical sim=l40s",
+ "tinker": {
+  "calls": 9,
+  "usd": 112.4862,
+  "tinker_s": 21036.53,
+  "usd_all_resumes": 112.4862,
+  "jobs_all_resumes": 9
+ },
+ "capx_version": "9117dfe9c8cb",
+ "gpu_hours_actual": 13.478,
+ "gpu_hours_charging": "canonical",
+ "cost_model": "v2",
+ "gpu_hours_lost": 0.0,
+ "measured_vs_canonical": 0.81,
+ "agent_gpu_h": 0.6311,
+ "measured_cost": {
+  "train_gpu_h": 0.0,
+  "reason_gpu_h": 0.6311,
+  "sandbox_gpu_h": 9.8253,
+  "usd_tinker": 112.4862,
+  "charged_gpu_h": 15.1897,
+  "tokens": {
+   "prompt": 1090336,
+   "completion": 65289
+  },
+  "unmeasured_calls": 0
+ },
+ "submission": {
+  "token": "dfa470",
+  "how": "explicit",
+  "turn": 26,
+  "confirmed": true,
+  "confirmed_turn": 27,
+  "ended_by": "DONE",
+  "note": "revstack-dominant 2-adapter stack: p3_rvs (revstack GRPO) + p3_nr (restack GRPO); synergy lifts revstack 2->4 dev, p3_nr also advances restack",
+  "policy": "base + p3_rvs (sha 0178f9ccf799) + p3_nr (sha fad992952ae3)"
+ },
+ "budget_forcing": "budget-forcing v1",
+ "skills_version": "3246dddf-df764206",
+ "initial_skills_digest": "ff0b388fe110011ed52bc5135a427979f7ad68c9b13d90092d667ae7e64b9a0b",
+ "suite": {
+  "name": "hard3",
+  "version": 2,
+  "hash": "sha256:2c998917f89d741e",
+  "train": [
+   "nut",
+   "restack",
+   "revstack"
+  ],
+  "eval": [
+   {
+    "cell": "nut",
+    "split": "id"
+   },
+   {
+    "cell": "restack",
+    "split": "id"
+   },
+   {
+    "cell": "revstack",
+    "split": "id"
+   },
+   {
+    "cell": "t2_ss",
+    "split": "far"
+   },
+   {
+    "cell": "t2_spl",
+    "split": "far"
+   }
+  ],
+  "splits": {
+   "nut": "id",
+   "restack": "id",
+   "revstack": "id",
+   "t2_ss": "far",
+   "t2_spl": "far"
+  }
+ },
+ "env_text": "v2",
+ "env_text_revision": "v2.1",
+ "turns_before_first_action": 14,
+ "tokens_before_first_action": 31504,
+ "first_action": "train",
+ "artifacts": {
+  "registry": "…/tinkerArmBrev3r-4d8f2259/artifacts",
+  "eval_cache": "on",
+  "eval_cache_hidden_seeds": false,
+  "cache_hits": 0,
+  "gpu_hours_saved": 0,
+  "hits": []
+ }
+}

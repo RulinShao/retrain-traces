@@ -1,0 +1,1 @@
+{"objective": "sft", "name": "g7s", "init": "g3a", "data": "sft_v2.jsonl", "batch": 12, "epochs": 1}
